@@ -1,0 +1,164 @@
+{
+	"vsBlueprint": {
+		"version": "0.1",
+		"name": "AutomotiveICA",
+		"description": "Automotive Intersection Collision Avoidance",
+		"parameters": [{
+			"parameterId": "users",
+			"parameterName": "users",
+			"parameterType": "number",
+			"parameterDescription": "number of cars",
+			"applicabilityField": "automotive"
+		}]
+	},
+	"nsds": [{
+		"nsdIdentifier": "vEPC_v02",
+		"designer": "Nextworks",
+		"version": "0.2",
+		"nsdName": "vEPC_TIMEO",
+		"nsdInvariantId": "NXW_vEPC_v02",
+		"vnfdId": ["mme"],
+		"sapd": [{
+			"cpdId": "mgtSap",
+			"description": "Management SAP for all the vEPC VNFs",
+			"layerProtocol": "IPV4",
+			"cpRole": "ROOT",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": true,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}],
+			"sapAddressAssignment": false,
+			"nsVirtualLinkDescId": "mgt"
+		}],
+		"virtualLinkDesc": [{
+			"virtualLinkDescId": "mgt",
+			"virtualLinkDescProvider": "NXW",
+			"virtuaLinkDescVersion": "0.1",
+			"connectivityType": {
+				"layerProtocol": "IPV4"
+			},
+			"virtualLinkDf": [{
+				"flavourId": "df_mgt",
+				"qos": {
+					"latency": 0,
+					"packetDelayVariation": 0,
+					"packetLossRatio": 0,
+					"priority": 0
+				},
+				"serviceAvaibilityLevel": "LEVEL_1"
+			}],
+			"description": "Management network"
+		}, {
+			"virtualLinkDescId": "S1c",
+			"virtualLinkDescProvider": "NXW",
+			"virtuaLinkDescVersion": "0.1",
+			"connectivityType": {
+				"layerProtocol": "IPV4"
+			},
+			"virtualLinkDf": [{
+				"flavourId": "df_S1c",
+				"qos": {
+					"latency": 0,
+					"packetDelayVariation": 0,
+					"packetLossRatio": 0,
+					"priority": 0
+				},
+				"serviceAvaibilityLevel": "LEVEL_1"
+			}],
+			"description": "S1C network"
+		}],
+		"nsDf": [{
+			"nsDfId": "df_vEPC",
+			"flavourKey": "df_vEPC",
+			"vnfProfile": [{
+				"vnfProfileId": "mme_profile",
+				"vnfdId": "mme",
+				"flavourId": "df_mme",
+				"instantiationLevel": "il_mme",
+				"minNumberOfInstances": 1,
+				"maxNumberOfInstances": 1,
+				"nsVirtualLinkConnectivity": [{
+					"virtualLinkProfileId": "vl_profile_mgt",
+					"cpdId": ["mmeMgtExt"]
+				}, {
+					"virtualLinkProfileId": "vl_profile_S1c",
+					"cpdId": ["mmeS1cExt"]
+				}]
+			}],
+			"virtualLinkProfile": [{
+				"virtualLinkProfileId": "vl_profile_mgt",
+				"virtualLinkDescId": "mgt",
+				"flavourId": "df_mgt",
+				"maxBitrateRequirements": {
+					"root": "1",
+					"leaf": "1"
+				},
+				"minBitrateRequirements": {
+					"root": "1",
+					"leaf": "1"
+				}
+			}, {
+				"virtualLinkProfileId": "vl_profile_S1c",
+				"virtualLinkDescId": "S1c",
+				"flavourId": "df_S1c",
+				"maxBitrateRequirements": {
+					"root": "1",
+					"leaf": "1"
+				},
+				"minBitrateRequirements": {
+					"root": "1",
+					"leaf": "1"
+				}
+			}],
+			"nsInstantiationLevel": [{
+				"nsLevelId": "il_vEPC_default",
+				"description": "Default instantiation level for the vEPC",
+				"vnfToLevelMapping": [{
+					"vnfProfileId": "mme_profile",
+					"numberOfInstances": 1
+				}],
+				"virtualLinkToLevelMapping": [{
+					"virtualLinkProfileId": "vl_profile_mgt",
+					"bitRateRequirements": {
+						"root": "1",
+						"leaf": "1"
+					}
+				}, {
+					"virtualLinkProfileId": "vl_profile_S1c",
+					"bitRateRequirements": {
+						"root": "1",
+						"leaf": "1"
+					}
+				}]
+			}],
+			"defaultNsInstantiationLevelId": "il_vEPC_default",
+			"nsProfile": [{
+				"nsProfileId": "ns_profile_vEpc",
+				"nsdId": "vEPC_v02",
+				"nsDfId": "df_vEPC",
+				"nsInstantiationLevelId": "il_vEPC_default",
+				"minNumberOfInstances": 1,
+				"maxNumberOfInstances": 1
+			}]
+		}],
+		"security": {
+			"signature": "vEPC_NSD_SIGNATURE",
+			"algorithm": "vEPC_NSD_ALGORITHM",
+			"certificate": "vEPC_NSD_CERTIFICATE"
+		}
+	}],
+	"translationRules": [{
+		"nsdId": "vEPC_v02",
+		"nsdVersion": "0.2",
+		"nsFlavourId": "df_vEPC",
+		"nsInstantiationLevelId": "il_vEPC_default",
+		"input": [{
+			"parameterId": "users",
+			"minValue": 10,
+			"maxValue": 100
+		}]
+	}]
+}
