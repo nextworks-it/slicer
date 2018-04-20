@@ -5,6 +5,7 @@ public enum NfvoDriverType {
 	TIMEO,
 	OSM,
 	CLOUDIFY,
-	DUMMY
+	DUMMY,
+	LOGGING
 	
 }

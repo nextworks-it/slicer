@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import it.nextworks.nfvmano.nfvodriver.logging.LoggingDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,6 +98,9 @@ MecAppPackageManagementProviderInterface, NsdManagementProviderInterface, VnfPac
 		} else if (nfvoType.equals("DUMMY")) {
 			log.debug("The Vertical Slicer is configured to operate over a dummy NFVO.");
 			nfvoDriver = new DummyNfvoDriver(nfvoAddress, nfvoNotificationManager);
+		} else if (nfvoType.equals("LOGGING")) {
+			log.debug("The Vertical Slicer is configured to operate over a logging NFVO.");
+			nfvoDriver = new LoggingDriver();
 		} else {
 			log.error("NFVO not configured!");
 		}
