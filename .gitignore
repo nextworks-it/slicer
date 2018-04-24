@@ -1,5 +1,8 @@
 target/
 
+### komodo ###
+*.komodoproject
+
 ### mvn ###
 mvnw
 mvnw.cmd
