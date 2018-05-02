@@ -48,9 +48,9 @@ function clearForms(parentId, flag) {
 }
 
 function getURLParameter(name) {
-	return decodeURIComponent((new RegExp('[?|&]' + name + '='
-			+ '([^&;]+?)(&|#|;|$)').exec(location.search) || [ , "" ])[1]
-			.replace(/\+/g, '%20'))	|| null;
+	return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)')
+							.exec(location.search) || [ , "" ])[1]
+							.replace(/\+/g, '%20'))	|| null;
 }
 
 function showResultMessage(success, id, msg) {
@@ -58,14 +58,14 @@ function showResultMessage(success, id, msg) {
     var elem = document.getElementById(id);
     var text;
     if (success) {
-        text = '<div class="alert alert-info alert-dismissible fade in" role="alert"> \
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span> \
-                </button> \
+        text = '<div class="alert alert-info alert-dismissible fade in" role="alert">\
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>\
+                </button>\
 				<strong>SUCCESS!</strong> ' + msg + '</div>';
     } else {
-        text =  '<div class="alert alert-danger alert-dismissible fade in" role="alert"> \
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span> \
-                </button> \
+        text =  '<div class="alert alert-danger alert-dismissible fade in" role="alert">\
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>\
+                </button>\
 				<strong>ERROR!</strong> ' + msg + '</div>';
     }
 	text += '<button class="btn btn-info" onclick="refresh(' + flag + ');"><i class="fa fa-refresh"></i> Refresh</button></div>';

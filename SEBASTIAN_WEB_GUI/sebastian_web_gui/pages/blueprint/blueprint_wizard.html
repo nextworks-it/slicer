@@ -53,6 +53,12 @@
                 <ul class="nav side-menu">
                   <li><a href="../../index.html"><i class="fa fa-home"></i> Home </a>
                   </li>
+                  <li><a><i class="fa fa-file-text"></i> VS Blueprint <span class="fa fa-chevron-down"></a>
+                    <ul class="nav child_menu">
+                      <li><a href="blueprint_wizard.html">VS Blueprint onboarding</a></li>
+                      <li><a href="blueprint.html">VS Blueprint</a></li>
+                    </ul>
+                  </li>
                   <li><a><i class="fa fa-gears"></i> ADMIN <span class="fa fa-chevron-down"></a>
                     <ul class="nav child_menu">
                       <li><a href="../group.html">Group</a></li>
@@ -114,7 +120,7 @@
               <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                   <div class="x_title">
-                    <h2>Blueprint creation</h2>
+                    <h2>VS Blueprint onboarding</h2>
                     <ul class="nav navbar-right panel_toolbox">
                       <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                       </li>
@@ -172,14 +178,15 @@
                             </li>
                         </ul>
                       
-                        <div class="stepContainer" style="height: 281px;">
+                        <div class="stepContainer" style="min-height: 500px;">
                             <div id="step-1" class="content" style="display: block;">
                                 <form class="form-horizontal form-label-left">
                                     <div class="form-group">
                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="blueprintFile">Blueprint File</span>
                                         </label>
+                                        <div id="blueprintArchive" style="display: none;"></div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <input type="file" autocomplete=off accept="application/json" id="blueprintFile" required="required" class="col-md-7 col-xs-12">
+                                            <input type="file" autocomplete=off accept="application/json" id="blueprintFile" required="required" class="col-md-7 col-xs-12" onchange=loadBlueprintFromFileIntoForm(event,"blueprintArchive","response");>
                                         </div>
                                     </div>
                                 </form>
@@ -189,14 +196,15 @@
                                     <div class="form-group">
                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="nsdFiles">NSD Files</span>
                                         </label>
+                                        <div id="nsdsArchive" style="display: none;"></div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <input type="file" autocomplete=off accept="application/json" id="nsdFiles" required="required" class="col-md-7 col-xs-12" multiple="multiple">
+                                            <input id="nsdsInput" type="file" autocomplete=off accept="application/json" required="required" class="col-md-7 col-xs-12" multiple="multiple" onchange=loadNSDsFromFileIntoArray(event,"nsdsInput","nsdsArchive","response");>
                                         </div>
                                     </div>
                                 </form>
                             </div>
                             <div id="step-3" class="content" style="display: none;">
-                                <form class="form-horizontal form-label-left">
+                                <form class="form-horizontal form-label-left" id="vnfdForm">
                                     <div class="form-group">
                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Name <!-- span class="required">*</span -->
                                         </label>
@@ -231,12 +239,12 @@
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                           <input type="text" id="createVNFD-pkgpath" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
                                         </div>
-                                        <button type="button" class="btn btn-info" onclick=uploadVNFDFromForm(["createVNFD-name","createVNFD-version","createVNFD-provider","createVNFD-checksum","createVNFD-pkgpath"],"response")>Submit</button>
+                                        <button type="button" class="btn btn-info" onclick=uploadVNFDFromForm("step-3",["createVNFD-name","createVNFD-version","createVNFD-provider","createVNFD-checksum","createVNFD-pkgpath"],"response")>Submit</button>
                                     </div>
                                 </form>
                             </div>
                             <div id="step-4" class="content" style="display: none;">
-                                <form class="form-horizontal form-label-left">
+                                <form class="form-horizontal form-label-left" id="appForm">
                                     <div class="form-group">
                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Name <!-- span class="required">*</span -->
                                         </label>
@@ -271,11 +279,70 @@
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                           <input type="text" id="createApp-pkgpath" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
                                         </div>
-                                        <button type="button" class="btn btn-info" onclick=uploadAppFromForm(["createApp-name","createApp-version","createApp-provider","createApp-checksum","createApp-pkgpath"],"response")>Submit</button>
+                                        <button type="button" class="btn btn-info" onclick=uploadAppFromForm("step-4",["createApp-name","createApp-version","createApp-provider","createApp-checksum","createApp-pkgpath"],"response")>Submit</button>
                                     </div>
                                 </form>
                             </div>
                             <div id="step-5" class="content" style="display: none;">
+                              <form class="form-horizontal form-label-left" id="transRuleForm">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">NSD Id <!-- span class="required">*</span -->
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                          <input type="text" id="createTR-nsdId" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">NSD Version <!-- span class="required">*</span -->
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                          <input type="text" id="createTR-nsdVersion" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">NS Flavour Id <!-- span class="required">*</span -->
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                          <input type="text" id="createTR-nsFlav" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">NS Instantiation Level Id <!-- span class="required">*</span -->
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                          <input type="text" id="createTR-nsInstLev" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
+                                        </div>
+                                    </div>
+                                    </br>
+                                    <div id="parameterAdditionals">
+                                      <div class="form-group">
+                                          <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Parameter Id <!-- span class="required">*</span -->
+                                          </label>
+                                          <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="text" id="createTR-parId0" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
+                                          </div>
+                                      </div>
+                                      <div class="form-group">
+                                          <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Min Value <!-- span class="required">*</span -->
+                                          </label>
+                                          <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="text" id="createTR-minVal0" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
+                                          </div>
+                                      </div>
+                                      <div class="form-group">
+                                          <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Max Value <!-- span class="required">*</span -->
+                                          </label>
+                                          <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="text" id="createTR-maxVal0" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
+                                          </div>
+                                          <button id="parameterPlus0" type="button" class="btn btn-info" style="width:24px; margin-left: 0; margin-top: 0; z-index: 3; position: relative; opacity: 0.9;" onclick=addParameterForm("parameterCounter","parameterAdditionals");>
+                                            <i class="fa fa-plus" alt="Add parameters" title="Add parameters" style="margin-left: -5px"></i>
+                                          </button>
+                                          <button id="paramSubmit0" type="button" class="btn btn-info" onclick=uploadTRFromForm("step-5",["createTR-nsdId","createTR-nsdVersion","createTR-nsFlav","createTR-nsInstLev","createTR-parId","createTR-minVal","createTR-maxVal"],"parameterCounter","response")>Submit</button>
+                                      </div>
+                                      <div id="parameterCounter" style="display:none">1</div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                         <div class="actionBar">
@@ -284,7 +351,7 @@
                                 <a href="#" class="close">X</a>
                             </div>
                             <div class="loader">Loading</div>
-                            <a href="#" class="buttonFinish buttonDisabled btn btn-default" id="finishBtn">Finish</a>
+                            <a href="#" class="buttonFinish buttonDisabled btn btn-default" id="finishBtn" onclick=submitBlueprintCreationRequest("blueprintArchive","response");>Finish</a>
                             <a href="#" class="buttonNext btn btn-success" onclick=progressBlueprintWizard(); id="progressBtn">Next</a>
                             <a href="#" class="buttonPrevious buttonDisabled btn btn-primary" onclick=undoBlueprintWizard(); id="undoBtn">Previous</a>
                         </div>

@@ -128,8 +128,8 @@ body {
 }
 
 .btn-success {
-	background:#509a9a;
-	border:1px solid #407b7b
+	background:rgba(30,113,69,1);
+	border:1px solid #0f501e
 }
 
 .btn-opt {
@@ -138,7 +138,7 @@ body {
 }
 
 .btn-success.active,.btn-success:active,.btn-success:focus,.btn-success:hover,.open .dropdown-toggle.btn-success {
-	background:#61a4a4
+	background:rgba(30,113,69,.88)
 }
 
 .alert-info {
@@ -147,80 +147,14 @@ body {
 	border-color:rgba(30,113,69,.88)
 }
 
-.chartWrapper {
-	position: relative;
-	
+.wizard_horizontal ul.wizard_steps li a.done:before,
+.wizard_horizontal ul.wizard_steps li a.done .step_no {
+    background: rgba(30,113,69,1);
+    color: #fff
 }
 
-.chartWrapper > canvas {
-	position: absolute;
-	left: 0;
-	top: 0;
-	pointer-events:none;
-}
-
-.chartAreaWrapper {
-	overflow-x: scroll;
-	position: relative;
-	width: 100%;
-}
-
-.pfbChartAreaWrapper {
-	overflow-x: scroll;
-	position: relative;
-	width: 100%;
-}
-
-.loChartAreaWrapper {
-	overflow-x: scroll;
-	position: relative;
-	width: 100%;
-}
-
-.sbChartAreaWrapper {
-	overflow-x: scroll;
-	position: relative;
-	width: 100%;
-}
-
-.snrChartAreaWrapper {
-	overflow-x: scroll;
-	position: relative;
-	width: 100%;
-}
-
-.osnrChartAreaWrapper {
-	overflow-x: scroll;
-	position: relative;
-	width: 100%;
-}
-
-.chartAreaWrapper2 {
-	position: relative;
-	height: 400px;
-}
-
-.pfbChartAreaWrapper2 {
-	position: relative;
-	height: 400px;
-}
-
-.loChartAreaWrapper2 {
-	position: relative;
-	height: 400px;
-}
-
-.sbChartAreaWrapper2 {
-	position: relative;
-	height: 400px;	
-}
-
-.snrChartAreaWrapper2 {
-	position: relative;
-	height: 400px;	
-}
-
-.osnrChartAreaWrapper2 {
-	position: relative;
-	height: 400px;	
+.wizard_horizontal ul.wizard_steps li a.selected:before,
+.step_no {
+    background: #233F67;
+    color: #fff
 }
