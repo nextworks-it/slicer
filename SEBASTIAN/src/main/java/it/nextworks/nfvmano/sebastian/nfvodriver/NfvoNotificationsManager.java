@@ -2,9 +2,6 @@ package it.nextworks.nfvmano.sebastian.nfvodriver;
 
 import org.springframework.stereotype.Service;
 
-import it.nextworks.nfvmano.libs.catalogues.interfaces.MecAppPackageManagementConsumerInterface;
-import it.nextworks.nfvmano.libs.catalogues.interfaces.NsdManagementConsumerInterface;
-import it.nextworks.nfvmano.libs.catalogues.interfaces.VnfPackageManagementConsumerInterface;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.AppPackageOnBoardingNotification;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.AppPackageStateChangeNotification;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.NsdChangeNotification;
@@ -12,7 +9,6 @@ import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.NsdOnBoardingNot
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.VnfPackageChangeNotification;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.VnfPackageOnboardingNotification;
 import it.nextworks.nfvmano.libs.common.exceptions.MethodNotImplementedException;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.NsLcmConsumerInterface;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.NsIdentifierCreationNotification;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.NsIdentifierDeletionNotification;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.NsLifecycleChangeNotification;

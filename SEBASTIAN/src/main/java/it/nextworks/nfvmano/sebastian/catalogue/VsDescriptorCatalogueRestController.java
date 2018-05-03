@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -14,34 +15,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.nextworks.nfvmano.libs.common.elements.Filter;
 import it.nextworks.nfvmano.libs.common.exceptions.AlreadyExistingEntityException;
 import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
-import it.nextworks.nfvmano.sebastian.catalogue.elements.VsBlueprintInfo;
-import it.nextworks.nfvmano.sebastian.catalogue.messages.OnBoardVsBlueprintRequest;
-import it.nextworks.nfvmano.sebastian.catalogue.messages.QueryVsBlueprintResponse;
+import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
+import it.nextworks.nfvmano.sebastian.catalogue.messages.OnboardVsDescriptorRequest;
+import it.nextworks.nfvmano.sebastian.catalogue.messages.QueryVsDescriptorResponse;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/vs/catalogue")
-public class VsBlueprintCatalogueRestController {
-	
-	private static final Logger log = LoggerFactory.getLogger(VsBlueprintCatalogueRestController.class);
+public class VsDescriptorCatalogueRestController {
+
+	private static final Logger log = LoggerFactory.getLogger(VsDescriptorCatalogueRestController.class);
 	
 	@Autowired
-	private VsBlueprintCatalogueService vsBlueprintCatalogueService;
-
-	public VsBlueprintCatalogueRestController() { }
+	private VsDescriptorCatalogueService vsDescriptorCatalogueService;
 	
-	@RequestMapping(value = "/vsblueprint", method = RequestMethod.POST)
-	public ResponseEntity<?> createVsBlueprint(@RequestBody OnBoardVsBlueprintRequest request) {
-		log.debug("Received request to create a VS blueprint.");
+	@Value("${sebastian.admin}")
+	private String adminTenant;
+	
+	public VsDescriptorCatalogueRestController() { } 
+	
+	@RequestMapping(value = "/vsdescriptor", method = RequestMethod.POST)
+	public ResponseEntity<?> createVsDescriptor(@RequestBody OnboardVsDescriptorRequest request) {
+		log.debug("Received request to create a VS descriptor.");
 		try {
-			String vsBlueprintId = vsBlueprintCatalogueService.onBoardVsBlueprint(request);
-			return new ResponseEntity<String>(vsBlueprintId, HttpStatus.CREATED);
+			String vsDescriptorId = vsDescriptorCatalogueService.onBoardVsDescriptor(request);
+			return new ResponseEntity<String>(vsDescriptorId, HttpStatus.CREATED);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -54,12 +57,13 @@ public class VsBlueprintCatalogueRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/vsblueprint", method = RequestMethod.GET)
-	public ResponseEntity<?> getAllVsBlueprints() {
-		log.debug("Received request to retrieve all the VS blueprints.");
+	@RequestMapping(value = "/vsdescriptor", method = RequestMethod.GET)
+	public ResponseEntity<?> getAllVsDescriptors() {
+		log.debug("Received request to retrieve all the VS descriptors.");
 		try {
-			QueryVsBlueprintResponse response = vsBlueprintCatalogueService.queryVsBlueprint(new GeneralizedQueryRequest(new Filter(), null)); 
-			return new ResponseEntity<List<VsBlueprintInfo>>(response.getVsBlueprintInfo(), HttpStatus.OK);
+			//TODO: this is to be fixed when we will support the authentication. At the moment it returns all the VSDs, independently on the tenant.
+			QueryVsDescriptorResponse response = vsDescriptorCatalogueService.queryVsDescriptor(new GeneralizedQueryRequest(Utilities.buildVsDescriptorFilter(adminTenant), null)); 
+			return new ResponseEntity<List<VsDescriptor>>(response.getVsDescriptors(), HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -72,12 +76,13 @@ public class VsBlueprintCatalogueRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/vsblueprint/{vsbId}", method = RequestMethod.GET)
-	public ResponseEntity<?> getVsBlueprint(@PathVariable String vsbId) {
-		log.debug("Received request to retrieve VS blueprint with ID " + vsbId);
+	@RequestMapping(value = "/vsdescriptor/{vsdId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getVsDescriptor(@PathVariable String vsdId) {
+		log.debug("Received request to retrieve VS descriptor with ID " + vsdId);
 		try {
-			QueryVsBlueprintResponse response = vsBlueprintCatalogueService.queryVsBlueprint(new GeneralizedQueryRequest(Utilities.buildVsBlueprintFilter(vsbId), null)); 
-			return new ResponseEntity<VsBlueprintInfo>(response.getVsBlueprintInfo().get(0), HttpStatus.OK);
+			//TODO: this is to be fixed when we will support the authentication. At the moment it returns all the VSDs, independently on the tenant.
+			QueryVsDescriptorResponse response = vsDescriptorCatalogueService.queryVsDescriptor(new GeneralizedQueryRequest(Utilities.buildVsDescriptorFilter(vsdId, adminTenant), null)); 
+			return new ResponseEntity<VsDescriptor>(response.getVsDescriptors().get(0), HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -90,11 +95,12 @@ public class VsBlueprintCatalogueRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/vsblueprint/{vsbId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deleteVsBlueprint(@PathVariable String vsbId) {
-		log.debug("Received request to delete VS blueprint with ID " + vsbId);
+	@RequestMapping(value = "/vsdescriptor/{vsdId}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteVsDescriptor(@PathVariable String vsdId) {
+		log.debug("Received request to delete VS descriptor with ID " + vsdId);
 		try {
-			vsBlueprintCatalogueService.deleteVsBlueprint(vsbId); 
+			//TODO: this is to be fixed when we will support the authentication. At the moment it returns all the VSDs, independently on the tenant.
+			vsDescriptorCatalogueService.deleteVsDescriptor(vsdId, adminTenant);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
@@ -108,4 +114,5 @@ public class VsBlueprintCatalogueRestController {
 		}
 	}
 
+	
 }

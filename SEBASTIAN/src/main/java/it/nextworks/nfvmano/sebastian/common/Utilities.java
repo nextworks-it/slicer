@@ -27,6 +27,21 @@ public class Utilities {
 		return new Filter(filterParams);
 	}
 	
+	public static Filter buildVsDescriptorFilter(String vsdId, String tenantId) {
+		//VSD_ID & TENANT_ID
+		Map<String, String> filterParams = new HashMap<>();
+		filterParams.put("VSD_ID", vsdId);
+		filterParams.put("TENANT_ID", tenantId);
+		return new Filter(filterParams);
+	}
+	
+	public static Filter buildVsDescriptorFilter(String tenantId) {
+		//TENANT_ID
+		Map<String, String> filterParams = new HashMap<>();
+		filterParams.put("TENANT_ID", tenantId);
+		return new Filter(filterParams);
+	}
+	
 	public static Filter buildVnfPackageInfoFilter(String vnfProductName, String swVersion, String provider) {
 		//VNF_PACKAGE_PRODUCT_NAME
 		//VNF_PACKAGE_SW_VERSION

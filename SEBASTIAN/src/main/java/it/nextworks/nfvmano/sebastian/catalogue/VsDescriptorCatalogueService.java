@@ -44,7 +44,7 @@ public class VsDescriptorCatalogueService implements VsDescriptorCatalogueInterf
 			throws MethodNotImplementedException, MalformattedElementException, AlreadyExistingEntityException, FailedOperationException {
 		log.debug("Processing request to on-board a new VS descriptor");
 		request.isValid();
-		VsDescriptor vsd = new VsDescriptor(request.getVsd().getTenantId(), request.getVsd().getVersion(), request.getVsd().getVsBlueprintId(), 
+		VsDescriptor vsd = new VsDescriptor(request.getVsd().getName(), request.getVsd().getVersion(), request.getVsd().getVsBlueprintId(), 
 				request.getVsd().getSst(), request.getVsd().getManagementType(), request.getVsd().getQosParameters(), request.isPublic(), request.getTenantId());
 		String vsdId = storeVsd(vsd);
 		try {
@@ -93,7 +93,12 @@ public class VsDescriptorCatalogueService implements VsDescriptorCatalogueInterf
             } else if (fp.size() == 2 && fp.containsKey("VSD_ID") && fp.containsKey("TENANT_ID")) {
             	String vsdId = fp.get("VSD_ID");
             	String tenantId = fp.get("TENANT_ID");
-            	Optional<VsDescriptor> vsd = vsDescriptorRepository.findByVsDescriptorIdAndTenantId(vsdId, tenantId);
+            	Optional<VsDescriptor> vsd = null;
+            	if (tenantId.equals(adminTenant)) {
+            		vsd = vsDescriptorRepository.findByVsDescriptorId(vsdId);
+            	} else {
+            		vsd = vsDescriptorRepository.findByVsDescriptorIdAndTenantId(vsdId, tenantId);
+            	}
             	if (vsd.isPresent()) {
             		vsDescriptors.add(vsd.get());
             		log.debug("Added VSD with VSD ID " + vsdId + " for tenant " + tenantId);

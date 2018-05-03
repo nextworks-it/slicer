@@ -214,6 +214,7 @@ public class VsBlueprintCatalogueService implements VsBlueprintCatalogueInterfac
 		log.debug("Adding VSD " + vsdId + " to blueprint " + vsBlueprintId);
 		VsBlueprintInfo vsbi = getVsBlueprintInfo(vsBlueprintId);
 		vsbi.addVsd(vsdId);
+		vsBlueprintInfoRepository.saveAndFlush(vsbi);
 		log.debug("Added VSD " + vsdId + " to blueprint " + vsBlueprintId);
 	}
 	
@@ -222,6 +223,7 @@ public class VsBlueprintCatalogueService implements VsBlueprintCatalogueInterfac
 		log.debug("Removing VSD " + vsdId + " from blueprint " + vsBlueprintId);
 		VsBlueprintInfo vsbi = getVsBlueprintInfo(vsBlueprintId);
 		vsbi.removeVsd(vsdId);
+		vsBlueprintInfoRepository.saveAndFlush(vsbi);
 		log.debug("Removed VSD " + vsdId + " from blueprint " + vsBlueprintId);
 	}
 	
