@@ -25,6 +25,57 @@ function submitBlueprintCreationRequest(blueprintId, resId) {
     postJsonToURL('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint', json, resId, 'VS Blueprint successfully onboarded', 'Error while onboarding VS Blueprint', showResultMessage);   
 }
 
+function createVSDFromForm(formIds, qosNum, resId) {
+    var jsonObj = JSON.parse('{}');
+    
+    var vsdObj = JSON.parse('{}');
+    
+    jsonObj.vsd = vsdObj;
+    
+    var vsbId = document.getElementById(formIds[0]).value;
+    jsonObj.vsd.vsBlueprintId = vsbId;
+    
+    var tenantId = document.getElementById(formIds[1]).value;
+    jsonObj.tenantId = tenantId;
+    
+    var name = document.getElementById(formIds[2]).value;
+    jsonObj.vsd.name = name;
+    
+    var version = document.getElementById(formIds[3]).value;
+    jsonObj.vsd.version = version;
+    
+    var sst = document.getElementById(formIds[5]).value;
+    jsonObj.vsd.sst = sst;
+    
+    var mt = document.getElementById(formIds[6]).value;
+    jsonObj.vsd.managementType = mt;
+    
+    var qos = JSON.parse('{}');
+    
+    console.log(qosNum);
+    
+    for (var i = 0; i < qosNum; i++) {
+        var param = document.getElementById(formIds[4] + i).value;
+        var paramName = document.getElementById(vsbId + '_qos' + i).innerHTML;
+        qos[paramName] = param;
+        
+        console.log(param);
+        console.log(paramName);
+    }
+    
+    jsonObj.vsd.qosParameters = qos;
+    
+    var ispublic = document.getElementById(formIds[7]).checked;
+    
+    jsonObj.isPublic = ispublic;
+    
+    var json = JSON.stringify(jsonObj, null, 4);
+    
+    console.log(json);
+    
+    postJsonToURL('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsdescriptor', json, resId, 'VS descriptor successfully created', 'Error while creating VS descriptor', showResultMessage);
+}
+
 function readVSBlueprints(tableId, resId) {
     getVSBlueprints(tableId, resId, createVSBlueprintsTable);    
 }
@@ -249,7 +300,7 @@ function removeParameterForm(paramCounter, paramDiv) {
 }
 
 function createVSBlueprintsTable(tableId, data, resId) {
-    console.log(JSON.stringify(data, null, 4));
+    //console.log(JSON.stringify(data, null, 4));
     
     var table = document.getElementById(tableId);
 	if (!table) {
@@ -260,39 +311,30 @@ function createVSBlueprintsTable(tableId, data, resId) {
 		table.innerHTML = '<tr>No VS Blueprints stored in database</tr>';
 		return;
 	}
-    //console.log(JSON.stringify(data, null, 4));
 	var btnFlag = true;
-	var header = createTableHeaderByValues(['Id', 'Version', 'Name', 'Description', 'Configurable parameters', 'Vsd Ids'], btnFlag, false);
-	var cbacks = [/*'blueprint_details.html?Id=', */'deleteVSBlueprint'];
-	var names = [/*'View Blueprint', */'Delete'];
+	var header = createTableHeaderByValues(['Id', 'Version', 'Name', 'Description', 'Configurable parameters', 'Vsd'], btnFlag, false);
+	var cbacks = [/*'blueprint_details.html?Id=', */'createVSDForm', 'deleteVSBlueprint'];
+	var names = [/*'View Blueprint', */'Create VS Descriptor', 'Delete'];
     var columns = [['vsBlueprintId'], ['vsBlueprintVersion'], ['name'], ['vsBlueprint', 'description'], ['vsBlueprint', 'parameters'], ['activeVsdId']];
-	var conts = createVSBlueprintsTableContents(data, btnFlag, resId, names, cbacks, columns);
-	table.innerHTML = header + conts;
+    var params = [data, btnFlag, resId, names, cbacks, columns];
+	//var conts = createVSBlueprintsTableContents(data, btnFlag, resId, names, cbacks, columns);
+	table.innerHTML = header; // + conts;
+    
+    getAllVSDescriptors(tableId, params, createVSBlueprintsTableContents);
 }
 
-function createVSBlueprintDetailsTable(tableId, data, resId) {
-    //console.log(JSON.stringify(data, null, 4));
+function createVSBlueprintsTableContents(tableId, vsDescriptors,  params) {
+    //console.log(JSON.stringify(vsDescriptors, null, 4));
     
     var table = document.getElementById(tableId);
-	if (!table) {
-		return;
-	}
-	if (!data || data.length < 1) {
-		console.log('No VS Blueprint');
-		table.innerHTML = '<tr>No VS Blueprint stored in database</tr>';
-		return;
-	}
-    console.log(JSON.stringify(data, null, 4));
-	var btnFlag = false;
-	var header = createTableHeaderByValues(['Id', 'Parameters'], btnFlag, false);
-	var cbacks = [];
-	var names = [];
-    var columns = [['vsBlueprintId'], ['vsBlueprint', 'parameters']];
-	var conts = createVSBlueprintTableContents(data, btnFlag, resId, names, cbacks, columns);
-	table.innerHTML = header + conts;
-}
-
-function createVSBlueprintsTableContents(data, btnFlag, resId, names, cbacks, columns) {	
+    
+    var data = params[0];
+    var btnFlag = params[1];
+    var resId = params[2];
+    var names = params[3];
+    var cbacks = params[4];
+    var columns = params[5];
+    
 	var text = '<tbody>';
 	
 	for (var j in data) {
@@ -300,6 +342,8 @@ function createVSBlueprintsTableContents(data, btnFlag, resId, names, cbacks, co
 		var btnText = '';
 		if (btnFlag) {
 			btnText += createActionButton(data[j]['vsBlueprintId'], resId, names, cbacks);
+            
+            getAllTenants('vsdModals', ['response', data[j]['vsBlueprintId'], data[j]['vsBlueprint']['parameters']], createVSDescriptorModals);
 		}
 		
 		text += '<tr>' + btnText;
@@ -315,11 +359,19 @@ function createVSBlueprintsTableContents(data, btnFlag, resId, names, cbacks, co
 				if(values[0] instanceof Array) {
 					for (var v in values[0]) {
                         if (values[0][v] instanceof Object){
-                            console.log(JSON.stringify(values[0], null, 4));
+                            //console.log(JSON.stringify(values[0], null, 4));
                             var value = values[0][v];
                             subTable += '<tr><td>' + value.parameterId + '</td><tr>';
                         } else {
-                            subTable += '<tr><td>' + values[0][v] + '</td><tr>';
+                            if (columns[i][0] == 'activeVsdId') {
+                                for (var j in vsDescriptors) {
+                                    if (values[0][v] == vsDescriptors[j].vsDescriptorId) {
+                                        subTable += '<tr><td>' + vsDescriptors[j].name + '</td><tr>';
+                                    }
+                                }
+                            } else {
+                                subTable += '<tr><td>' + values[0][v] + '</td><tr>';
+                            }
                         }
 					}
                     subText += subTable + '</table>';
@@ -343,7 +395,29 @@ function createVSBlueprintsTableContents(data, btnFlag, resId, names, cbacks, co
 	}
 	
 	text += '</tbody>';
-	return text;
+	table.innerHTML += text;
+}
+
+function createVSBlueprintDetailsTable(tableId, data, resId) {
+    //console.log(JSON.stringify(data, null, 4));
+    
+    var table = document.getElementById(tableId);
+	if (!table) {
+		return;
+	}
+	if (!data || data.length < 1) {
+		console.log('No VS Blueprint');
+		table.innerHTML = '<tr>No VS Blueprint stored in database</tr>';
+		return;
+	}
+    console.log(JSON.stringify(data, null, 4));
+	var btnFlag = false;
+	var header = createTableHeaderByValues(['Id', 'Parameters'], btnFlag, false);
+	var cbacks = [];
+	var names = [];
+    var columns = [['vsBlueprintId'], ['vsBlueprint', 'parameters']];
+	var conts = createVSBlueprintTableContents(data, btnFlag, resId, names, cbacks, columns);
+	table.innerHTML = header + conts;
 }
 
 function createVSBlueprintTableContents(data, btnFlag, resId, names, cbacks, columns) {	
@@ -398,3 +472,112 @@ function createVSBlueprintTableContents(data, btnFlag, resId, names, cbacks, col
 	text += '</tbody>';
 	return text;
 }
+
+function createVSDescriptorModals(elemId, data, params) {
+    
+    var resId = params[0];
+    var vsbId = params[1];
+    var qos = params[2];
+    
+    var div = document.getElementById(elemId);
+    
+    var text = '<div id="createVSDForm_' + vsbId + '" class="modal fade bs-example-modal-md in" tabindex="-1" role="dialog" aria-hidden="true">\
+        <div class="modal-dialog modal-md">\
+            <div class="modal-content">\
+                <div class="modal-header">\
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Cancel"><span aria-hidden="true">×</span>\
+                  </button>\
+                  <h4 class="modal-title" id="myModalLabel">Create VS Descriptor for Blueprint ' + vsbId + '</h4>\
+                </div>\
+                <div class="modal-body">\
+                  <div class="form-group">\
+                    <form id="VSDForm_' + vsbId + '" data-parsley-validate="" class="form-horizontal form-label-left" novalidate="">\
+                        <div class="form-group">\
+                          <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">VSB Id <!-- span class="required">*</span -->\
+                          </label>\
+                          <div class="col-md-6 col-sm-6 col-xs-12">\
+                            <input id="createVSD_' + vsbId +'_vsbId" value="' + vsbId + '" required="required" class="date-picker form-control col-md-7 col-xs-12" type="text" disabled>\
+                          </div>\
+                        </div>\
+                        <div class="form-group">\
+                          <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Tenant Id <!-- span class="required">*</span -->\
+                          </label>\
+                          <div class="col-md-6 col-sm-6 col-xs-12">\
+                            <select id="createVSD_' + vsbId +'_tenantId" autocomplete="off" name="input-flavour" class="form-control col-md-7 col-xs-12">';
+    for (var i in data) {
+        var tenant = data[i].username;
+        text += '<option value="' + tenant + '">' + tenant + '</option>';
+    }
+    text += '</select>\
+            </div></div>\
+            <div class="form-group">\
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Name <!-- span class="required">*</span -->\
+                </label>\
+                <div class="col-md-6 col-sm-6 col-xs-12">\
+                    <input id="createVSD_' + vsbId +'_name" required="required" class="date-picker form-control col-md-7 col-xs-12" type="text">\
+                </div>\
+            </div>\
+            <div class="form-group">\
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Version <!-- span class="required">*</span -->\
+                </label>\
+                <div class="col-md-6 col-sm-6 col-xs-12">\
+                    <input id="createVSD_' + vsbId +'_version" required="required" class="date-picker form-control col-md-7 col-xs-12" type="text">\
+                </div>\
+          </div></br><h4 class="modal-title" id="myModalLabel">QoS Parameters</h4>';
+    var paramNum = 0;
+    for (var j in qos) {
+        $.each(qos[j], function(key, val){
+            if (key == 'parameterName') {
+                text += '<div class="form-group">\
+                       <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">' + val + ' <!-- span class="required">*</span -->\
+                       </label>\
+                       <div id="' + vsbId +'_qos' + j + '" style="display:none;">' + val + '</div>\
+                       <div class="col-md-6 col-sm-6 col-xs-12">\
+                         <input id="createVSD_' + vsbId +'_qos' + j + '" required="required" class="date-picker form-control col-md-7 col-xs-12" type="text">\
+                       </div>\
+                     </div>';
+            }
+        });
+        paramNum += 1;
+    }
+    		
+    text += '</br><div class="form-group">\
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Slice Service Type <!-- span class="required">*</span -->\
+                </label>\
+                <div class="col-md-6 col-sm-6 col-xs-12">\
+                    <select id="createVSD_' + vsbId +'_sst" autocomplete="off" name="input-flavour" class="form-control col-md-7 col-xs-12">\
+                        <option value="NONE">NONE</option>\
+                        <option value="EMBB">EMBB</option>\
+                        <option value="URLLC">URLLC</option>\
+                        <option value="M_IOT">M_IOT</option>\
+                        <option value="ENTERPRISE">ENTERPRISE</option>\
+                        <option value="NFV_IAAS">NFV_IAAS</option>\
+                    </select>\
+                </div>\
+            </div>\
+            <div class="form-group">\
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Management Type <!-- span class="required">*</span -->\
+                </label>\
+                <div class="col-md-6 col-sm-6 col-xs-12">\
+                    <select id="createVSD_' + vsbId +'_mt" autocomplete="off" name="input-flavour" class="form-control col-md-7 col-xs-12">\
+                        <option value="PROVIDER_MANAGED">PROVIDER_MANAGED</option>\
+                        <option value="TENANT_MANAGED">TENANT_MANAGED</option></select></div></div>';
+   
+    text += '<div class="form-group">\
+            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Public <!-- span class="required">*</span -->\
+            </label>\
+            <div class="col-md-6 col-sm-6 col-xs-12">\
+                <input id="createVSD_' + vsbId +'_public" type="checkbox" name="public" value="true">\
+            </div></form>\
+        </div>\
+    </div>\
+    <div class="modal-footer">\
+        <button type="button" class="btn btn-default pull-left" data-dismiss="modal" onclick=clearForms("VSDForm_' + vsbId + '")>Cancel</button>\
+        <button type="submit" class="btn btn-info" data-dismiss="modal" \
+        onclick=createVSDFromForm(["createVSD_' + vsbId +'_vsbId","createVSD_' + vsbId +'_tenantId","createVSD_' + vsbId +'_name","createVSD_' + vsbId +'_version","createVSD_' + vsbId +'_qos","createVSD_' + vsbId +'_sst","createVSD_' + vsbId +'_mt","createVSD_' + vsbId +'_public"],' + paramNum + ',"response")>Submit</button>\
+    </div></div></div></div>';
+    
+    div.innerHTML += text;
+}
+
+

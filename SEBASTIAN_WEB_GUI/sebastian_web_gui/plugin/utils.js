@@ -372,8 +372,9 @@ function createButton(id, resId, btnName, btnCallback) {
 		if (btnCallback.toLowerCase().indexOf("instantiate") >= 0) {
 			var infoId = id.split('|')[2];
 			text += ' buttonModal_'+ btnCallback + '" data-toggle="modal" data-target="#' + btnCallback + '_' + infoId + '" data-id="' + id + '">';
-		} else if (btnCallback.toLowerCase().indexOf("createtenantsla") >= 0) {
-			console.log(id);
+		} else if (btnCallback.toLowerCase().indexOf("createtenantsla") >= 0 ||
+				   btnCallback.toLowerCase().indexOf("createvsdform") >= 0) {
+			//console.log(id);
 			text += ' buttonModal_'+ btnCallback + '" data-toggle="modal" data-target="#' + btnCallback + '_' + id + '" data-id="' + id + '">';
 		} else {
 			text += ' buttonModal_'+ btnCallback + '" data-toggle="modal" data-target="#' + btnCallback + '" data-id="' + id + '">';

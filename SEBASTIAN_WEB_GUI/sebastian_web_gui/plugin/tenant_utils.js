@@ -2,7 +2,7 @@
 function fillTenantCounter(elemId, data, resId) {
 	var countDiv = document.getElementById(elemId);
 	
-	console.log(JSON.stringify(data, null, 4));
+	//console.log(JSON.stringify(data, null, 4));
 	countDiv.innerHTML = data.length;
 }
 
@@ -30,8 +30,8 @@ function getTenants(groupId, elemId, resId, callback) {
 	getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant', elemId, callback, resId, null, null);
 }
 
-function getAllTenants(elemId, resId, callback) {
-	getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/groups/tenants', elemId, callback, resId, null, null);
+function getAllTenants(elemId, params, callback) {
+	getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/groups/tenants', elemId, callback, params, null, null);
 }
 
 function deleteTenant(tenantId, resId) {
