@@ -1,6 +1,6 @@
 
-//var vsAddr = '10.0.7.10';
-var vsAddr = 'localhost';
+var vsAddr = window.location.hostname;;
+//var vsAddr = 'localhost';
 var vsPort = '8082';
 
 var stopRefreshing = false;
