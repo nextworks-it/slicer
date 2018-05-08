@@ -21,6 +21,7 @@ import it.nextworks.nfvmano.sebastian.admin.repo.GroupRepository;
 import it.nextworks.nfvmano.sebastian.admin.repo.SlaConstraintRepository;
 import it.nextworks.nfvmano.sebastian.admin.repo.SlaRepository;
 import it.nextworks.nfvmano.sebastian.admin.repo.TenantRepository;
+import it.nextworks.nfvmano.sebastian.catalogue.elements.VsBlueprintInfo;
 
 /**
  * The Admin service handles the management requests for creation of tenants, groups and SLAs.
@@ -172,5 +173,43 @@ public class AdminService {
 		log.debug("Processing request to retrieve all the SLAs");
 		List<Sla> slas = slaRepository.findAll();
 		return slas;
+	}
+	
+	
+	
+	public synchronized void addVsdInTenant(String vsdId, String tenantId) 
+			throws NotExistingEntityException {
+		log.debug("Adding VSD " + vsdId + " to tenant " + tenantId);
+		Tenant tenant = getTenant(tenantId);
+		tenant.addVsd(vsdId);
+		tenantRepository.saveAndFlush(tenant);
+		log.debug("Added VSD " + vsdId + " to tenant " + tenantId);
+	}
+	
+	public synchronized void removeVsdFromTenant(String vsdId, String tenantId) 
+			throws NotExistingEntityException {
+		log.debug("Removing VSD " + vsdId + " from tenant " + tenantId);
+		Tenant tenant = getTenant(tenantId);
+		tenant.removeVsd(vsdId);
+		tenantRepository.saveAndFlush(tenant);
+		log.debug("Removed VSD " + vsdId + " from tenant " + tenantId);
+	}
+	
+	public synchronized void addVsiInTenant(String vsiId, String tenantId) 
+			throws NotExistingEntityException {
+		log.debug("Adding VSI " + vsiId + " to tenant " + tenantId);
+		Tenant tenant = getTenant(tenantId);
+		tenant.addVsi(vsiId);
+		tenantRepository.saveAndFlush(tenant);
+		log.debug("Added VSI " + vsiId + " to tenant " + tenantId);
+	}
+	
+	public synchronized void removeVsiFromTenant(String vsiId, String tenantId) 
+			throws NotExistingEntityException {
+		log.debug("Removing VSI " + vsiId + " from tenant " + tenantId);
+		Tenant tenant = getTenant(tenantId);
+		tenant.removeVsi(vsiId);
+		tenantRepository.saveAndFlush(tenant);
+		log.debug("Removed VSI " + vsiId + " from tenant " + tenantId);
 	}
 }

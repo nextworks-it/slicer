@@ -46,6 +46,19 @@ public class VsdParameterValueRange implements InterfaceInformationElement {
 		return maxValue;
 	}
 	
+	/**
+	 * This method verifies if a given parameter is compliant with the given range.
+	 * 
+	 * @param parameterValue parameter to be validated
+	 * @return true if the given parameter is compliant with the given range
+	 * @throws NumberFormatException if the given parameter is not in int format
+	 */
+	public boolean matchesVsdParameter (String parameterValue) throws NumberFormatException {
+		int value = Integer.parseInt(parameterValue);
+		if ( (value >= minValue) && (value <= maxValue) ) return true;
+		else return false;
+	}
+	
 	@Override
 	public void isValid() throws MalformattedElementException {
 		if (parameterId == null) throw new MalformattedElementException("VSD parameter value range without ID.");

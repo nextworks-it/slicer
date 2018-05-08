@@ -138,6 +138,13 @@ public class VsDescriptorCatalogueService implements VsDescriptorCatalogueInterf
 		}
 	}
 	
+	public VsDescriptor getVsd(String vsdId) throws NotExistingEntityException {
+		log.debug("Internal request to retrieve VSD with ID " + vsdId);
+		Optional<VsDescriptor> vsdOpt = vsDescriptorRepository.findByVsDescriptorId(vsdId);
+		if (vsdOpt.isPresent()) return vsdOpt.get();
+		else throw new NotExistingEntityException("VSD with ID " + vsdId + " not found");
+	}
+	
 	private String storeVsd(VsDescriptor vsd) throws AlreadyExistingEntityException, FailedOperationException {
 		log.debug("On boarding VSD with name " + vsd.getName() + " and version " + vsd.getVersion() + " for tenant " + vsd.getTenantId());
 		if (vsDescriptorRepository.findByNameAndVersionAndTenantId(vsd.getName(), vsd.getVersion(), vsd.getTenantId()).isPresent()) {

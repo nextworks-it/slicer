@@ -77,5 +77,12 @@ public class Utilities {
 		filterParams.put("APPD_VERSION", version);
 		return new Filter(filterParams);
 	}
+	
+	public static Filter buildNfvNsiFilter(String nfvNsiId) {
+		//NS_ID
+		Map<String, String> filterParams = new HashMap<>();
+		filterParams.put("NS_ID", nfvNsiId);
+		return new Filter(filterParams);
+	}
 
 }

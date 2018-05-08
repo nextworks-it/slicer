@@ -133,6 +133,26 @@ public class Tenant {
 		return vsiId;
 	}
 	
+	public void addVsd(String vsdId) {
+		if (!(this.vsdId.contains(vsdId)))
+			this.vsdId.add(vsdId);
+	}
+	
+	public void removeVsd(String vsdId) {
+		if (this.vsdId.contains(vsdId))
+			this.vsdId.remove(vsdId);
+	}
+	
+	public void addVsi(String vsiId) {
+		if (!(this.vsiId.contains(vsiId)))
+			this.vsiId.add(vsiId);
+	}
+	
+	public void removeVsi(String vsiId) {
+		if (this.vsiId.contains(vsiId))
+			this.vsiId.remove(vsiId);
+	}
+	
 	/**
 	 * @return the allocatedResources
 	 */

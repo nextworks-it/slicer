@@ -2,6 +2,7 @@ package it.nextworks.nfvmano.sebastian.catalogue.elements;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import it.nextworks.nfvmano.libs.common.InterfaceInformationElement;
 import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
+import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 
 @Entity
 public class VsdNsdTranslationRule implements InterfaceInformationElement {
@@ -138,6 +140,36 @@ public class VsdNsdTranslationRule implements InterfaceInformationElement {
 	public boolean matchesNsdIdAndNsdVersion(String id, String v) {
 		if (nsdId.equals(id) && nsdVersion.equals(v)) return true;
 		else return false;
+	}
+	
+	/**
+	 * This method verifies if a given set of vsd parameters match the rule.
+	 * At the moment only integer parameters are supported.
+	 * 
+	 * @param vsdParameters VSD parameters to be verified
+	 * @return true if all the given VSD parameters match the rule 
+	 */
+	@JsonIgnore
+	public boolean matchesVsdParameters(Map<String, String> vsdParameters) {
+		for (Map.Entry<String, String> entry : vsdParameters.entrySet()) {
+			String parameterId = entry.getKey();
+			try {
+				VsdParameterValueRange vr = getVsdParameterValueRange(parameterId);
+				String parameterValue = entry.getValue();
+				if (!(vr.matchesVsdParameter(parameterValue))) return false;
+			} catch (NotExistingEntityException e) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	@JsonIgnore
+	private VsdParameterValueRange getVsdParameterValueRange (String parameterId) throws NotExistingEntityException {
+		for (VsdParameterValueRange p : input) {
+			if (p.getParameterId().equals(parameterId)) return p;
+		}
+		throw new NotExistingEntityException("VSD parameter not found in the rule");
 	}
 
 	@Override
