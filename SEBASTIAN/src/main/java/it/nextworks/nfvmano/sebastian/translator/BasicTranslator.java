@@ -1,6 +1,5 @@
 package it.nextworks.nfvmano.sebastian.translator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,18 +27,18 @@ public class BasicTranslator extends AbstractTranslator {
 	}
 	
 	@Override
-	public List<NfvNsInstantiationInfo> translateVsd(List<String> vsdIds)
+	public Map<String, NfvNsInstantiationInfo> translateVsd(List<String> vsdIds)
 			throws FailedOperationException, NotExistingEntityException {
 		log.debug("VSD->NSD translation at basic translator.");
 		if (vsdIds.size() > 1) throw new FailedOperationException("Processing of multiple VSDs not supported by the basic translator");
-		List<NfvNsInstantiationInfo> nfvNsInfo = new ArrayList<>();
+		Map<String, NfvNsInstantiationInfo> nfvNsInfo = new HashMap<>();
 		Map<String, VsDescriptor> vsds = retrieveVsDescriptors(vsdIds);
 		for (Map.Entry<String, VsDescriptor> entry : vsds.entrySet()) {
 			String vsdId = entry.getKey();
 			VsDescriptor vsd = entry.getValue();
 			VsdNsdTranslationRule rule = findMatchingTranslationRule(vsd);
 			NfvNsInstantiationInfo info = new NfvNsInstantiationInfo(rule.getNsdId(), rule.getNsdVersion(), rule.getNsFlavourId(), rule.getNsInstantiationLevelId());
-			nfvNsInfo.add(info);
+			nfvNsInfo.put(vsdId, info);
 			log.debug("Added NS instantiation info for VSD " + vsdId + " - NSD ID: " + rule.getNsdId() + " - NSD version: " + rule.getNsdVersion() + " - DF ID: " 
 					+ rule.getNsFlavourId() + " - IL ID: " + rule.getNsInstantiationLevelId());
 		}

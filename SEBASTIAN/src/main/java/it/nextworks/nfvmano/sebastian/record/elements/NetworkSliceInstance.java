@@ -24,9 +24,15 @@ public class NetworkSliceInstance {
     @JsonIgnore
     private Long id;
 	
+	private String name;
+	
+	private String description;
+	
 	private String nsiId;	//ID of the network slice
 	
 	private String nsdId;	//ID of the descriptor of the NFV network service that implements the network slice
+	
+	private String nsdVersion;	//version of the descriptor of the NFV network service that implements the network slice
 	
 	private String dfId; 	//ID of the deployment flavour in the NFV network service
 	
@@ -42,29 +48,52 @@ public class NetworkSliceInstance {
 	
 	private String tenantId;	//owner of the slice
 	
+	private NetworkSliceStatus status;
+	
+	private String errorMessage; //this field gets a value only in case of failure
+	
 	public NetworkSliceInstance() {	}
 
 	/**
 	 * @param nsiId ID of the network slice
 	 * @param nsdId ID of the descriptor of the NFV network service that implements the network slice
+	 * @param nsdVersion Version of the descriptor of the NFV network service that implements the network slice
 	 * @param dfId ID of the deployment flavour in the NFV network service
 	 * @param instantiationLevelId ID of the instantiation level in the NFV network service
 	 * @param nfvNsId ID of the NFV network service that implements the network slice
 	 * @param networkSliceSubnetInstances in case of composite network slice, the ID of its network slice subnets
 	 * @param tenantID owner of the slice
 	 */
-	public NetworkSliceInstance(String nsiId, String nsdId, String dfId, String instantiationLevelId, String nfvNsId,
-			List<String> networkSliceSubnetInstances, String tenantId) {
+	public NetworkSliceInstance(String nsiId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String nfvNsId,
+			List<String> networkSliceSubnetInstances, String tenantId, String name, String description) {
 		this.nsiId = nsiId;
 		this.nsdId = nsdId;
+		this.nsdVersion = nsdVersion;
 		this.dfId = dfId;
 		this.instantiationLevelId = instantiationLevelId;
 		this.nfvNsId = nfvNsId;
 		if (networkSliceSubnetInstances != null) this.networkSliceSubnetInstances = networkSliceSubnetInstances;
 		this.tenantId = tenantId;
+		this.status = NetworkSliceStatus.INSTANTIATING;
+		this.name = name;
+		this.description = description;
 	}
 	
 	
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
 
 	/**
 	 * @return the nsiId
@@ -128,7 +157,52 @@ public class NetworkSliceInstance {
 	public String getTenantId() {
 		return tenantId;
 	}
+
+	/**
+	 * @return the nsdVersion
+	 */
+	public String getNsdVersion() {
+		return nsdVersion;
+	}
+
+	/**
+	 * @return the status
+	 */
+	public NetworkSliceStatus getStatus() {
+		return status;
+	}
+
+	/**
+	 * @param status the status to set
+	 */
+	public void setStatus(NetworkSliceStatus status) {
+		this.status = status;
+	}
+
+	/**
+	 * @param nfvNsId the nfvNsId to set
+	 */
+	public void setNfvNsId(String nfvNsId) {
+		this.nfvNsId = nfvNsId;
+	}
 	
 	
+	
+	/**
+	 * @return the errorMessage
+	 */
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	/**
+	 * This method fills the failure related fields
+	 * 
+	 * @param errorMessage
+	 */
+	public void setFailureState(String errorMessage) {
+		this.status = NetworkSliceStatus.FAILED;
+		this.errorMessage = errorMessage;
+	}
 	
 }

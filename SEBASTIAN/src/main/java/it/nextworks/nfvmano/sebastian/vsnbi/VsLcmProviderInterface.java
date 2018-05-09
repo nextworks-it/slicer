@@ -47,7 +47,7 @@ public interface VsLcmProviderInterface {
 	 * @throws MalformattedElementException if the request is malformatted.
 	 * @throws NotPermittedOperationException if the operation is not permitted for the given tenant.
 	 */
-	public String instantiateNs(InstantiateVsRequest request) 
+	public String instantiateVs(InstantiateVsRequest request) 
 			throws MethodNotImplementedException, NotExistingEntityException, FailedOperationException, MalformattedElementException, NotPermittedOperationException;
 	
 	/**
@@ -105,6 +105,6 @@ public interface VsLcmProviderInterface {
 	 * @throws MalformattedElementException if the request is malformatted
 	 * @throws NotPermittedOperationException if the operation is not permitted for the given tenant.
 	 */
-	public void modify(ModifyVsRequest request)
+	public void modifyVs(ModifyVsRequest request)
 			throws MethodNotImplementedException, NotExistingEntityException, FailedOperationException, MalformattedElementException, NotPermittedOperationException;
 }

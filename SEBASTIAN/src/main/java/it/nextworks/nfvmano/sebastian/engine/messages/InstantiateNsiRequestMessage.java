@@ -8,8 +8,11 @@ public class InstantiateNsiRequestMessage extends EngineMessage {
 	@JsonProperty("nsiId")
 	private String nsiId;
 	
-	@JsonProperty("nfvNsId")
-	private String nfvNsId;
+	@JsonProperty("nfvNsdId")
+	private String nfvNsdId;
+	
+	@JsonProperty("nfvNsdVersion")
+	private String nfvNsdVersion;
 	
 	@JsonProperty("dfId")
 	private String dfId;
@@ -22,17 +25,20 @@ public class InstantiateNsiRequestMessage extends EngineMessage {
 	/**
 	 * @param nsiId
 	 * @param nfvNsId
+	 * @param nfvNsdVersion
 	 * @param dfId
 	 * @param ilId
 	 */
 	@JsonCreator
 	public InstantiateNsiRequestMessage(@JsonProperty("nsiId") String nsiId, 
-			@JsonProperty("nfvNsId") String nfvNsId, 
+			@JsonProperty("nfvNsdId") String nfvNsdId,
+			@JsonProperty("nfvNsdVersion") String nfvNsdVersion,
 			@JsonProperty("dfId") String dfId, 
 			@JsonProperty("ilId") String ilId) {
 		this.type = EngineMessageType.INSTANTIATE_NSI_REQUEST;
 		this.nsiId = nsiId;
-		this.nfvNsId = nfvNsId;
+		this.nfvNsdId = nfvNsdId;
+		this.nfvNsdVersion = nfvNsdVersion;
 		this.dfId = dfId;
 		this.ilId = ilId;
 	}
@@ -45,10 +51,10 @@ public class InstantiateNsiRequestMessage extends EngineMessage {
 	}
 
 	/**
-	 * @return the nfvNsId
+	 * @return the nfvNsdId
 	 */
-	public String getNfvNsId() {
-		return nfvNsId;
+	public String getNfvNsdId() {
+		return nfvNsdId;
 	}
 
 	/**
@@ -63,6 +69,13 @@ public class InstantiateNsiRequestMessage extends EngineMessage {
 	 */
 	public String getIlId() {
 		return ilId;
+	}
+
+	/**
+	 * @return the nfvNsdVersion
+	 */
+	public String getNfvNsdVersion() {
+		return nfvNsdVersion;
 	}
 	
 	

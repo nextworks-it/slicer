@@ -1,6 +1,7 @@
 package it.nextworks.nfvmano.sebastian.translator;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -14,6 +15,13 @@ import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.sebastian.catalogue.repo.VsDescriptorRepository;
 
+/**
+ * This is the service that implements the Vertical Slicer VSD/NSD translation functions.
+ * It loads the specific translator algorithm specified in the configuration.
+ * 
+ * @author nextworks
+ *
+ */
 @Service
 public class TranslatorService implements TranslatorInterface {
 
@@ -44,7 +52,7 @@ public class TranslatorService implements TranslatorInterface {
 	}
 	
 	@Override
-	public List<NfvNsInstantiationInfo> translateVsd(List<String> vsdIds)
+	public Map<String, NfvNsInstantiationInfo> translateVsd(List<String> vsdIds)
 			throws FailedOperationException, NotExistingEntityException {
 		return translator.translateVsd(vsdIds);
 	}

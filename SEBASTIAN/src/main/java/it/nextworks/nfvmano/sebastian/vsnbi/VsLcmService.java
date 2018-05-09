@@ -70,7 +70,7 @@ public class VsLcmService implements VsLcmProviderInterface {
 	private String adminTenant;
 	
 	@Override
-	public String instantiateNs(InstantiateVsRequest request) throws MethodNotImplementedException,
+	public String instantiateVs(InstantiateVsRequest request) throws MethodNotImplementedException,
 			NotExistingEntityException, FailedOperationException, MalformattedElementException, NotPermittedOperationException {
 		log.debug("Received request to instantiate a new Vertical Service instance.");
 		request.isValid();
@@ -206,7 +206,7 @@ public class VsLcmService implements VsLcmProviderInterface {
 	}
 
 	@Override
-	public void modify(ModifyVsRequest request) throws MethodNotImplementedException, NotExistingEntityException,
+	public void modifyVs(ModifyVsRequest request) throws MethodNotImplementedException, NotExistingEntityException,
 			FailedOperationException, MalformattedElementException, NotPermittedOperationException {
 		log.debug("Received request to modify a Vertical Service instance.");
 		throw new MethodNotImplementedException("VS modification not yet supported.");

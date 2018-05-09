@@ -20,6 +20,15 @@ public class Utilities {
 		return mapper;
 	}
 	
+	public static Filter buildNsdFilter(String nsdId, String nsdVersion) {
+		//NSD_ID
+		//NSD_VERSION
+		Map<String, String> filterParams = new HashMap<>();
+		filterParams.put("NSD_ID", nsdId);
+		filterParams.put("NSD_VERSION", nsdVersion);
+		return new Filter(filterParams);
+	}
+	
 	public static Filter buildVsBlueprintFilter(String vsbId) {
 		//VSB_ID
 		Map<String, String> filterParams = new HashMap<>();

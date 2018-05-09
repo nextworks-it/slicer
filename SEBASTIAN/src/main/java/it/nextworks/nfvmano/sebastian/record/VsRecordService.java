@@ -74,6 +74,21 @@ public class VsRecordService {
 	}
 	
 	/**
+	 * This method update the VSI in DB, setting the associated network slice instance
+	 * 
+	 * @param vsiId ID of the VSI to be updated
+	 * @param nsiId ID of the NSI to be associated to the VSI
+	 * @throws NotExistingEntityException if the VSI does not exist
+	 */
+	public synchronized void setNsiInVsi(String vsiId, String nsiId) throws NotExistingEntityException {
+		log.debug("Adding Network Slice instance " + nsiId + " to Vertical Service instance " + vsiId + " in VSI DB record.");
+		VerticalServiceInstance vsi = getVsInstance(vsiId);
+		vsi.setNetworkSliceId(nsiId);
+		vsInstanceRepository.saveAndFlush(vsi);
+		log.debug("VSI with ID " + vsiId + " updated with NSI " + nsiId);
+	}
+	
+	/**
 	 * This method returns the VSI stored in DB.
 	 * 
 	 * @param vsiId ID of the VSI to be returned
@@ -113,6 +128,7 @@ public class VsRecordService {
 	 * 
 	 * @param vsiId ID of the vertical service instance to which the network slice is associated
 	 * @param nsdId NSD of the NFV NS that will implement the network slice
+	 * @param nsdVersion version of the NSD of the NFV NS that will implement the network slice
 	 * @param dfId ID of NFV NS deployment flavour that is used to implement the network slice
 	 * @param ilId ID of NFV NS instantiation level that is used to implement the network slice
 	 * @param tenantId ID of the tenant owning the network slice
@@ -120,14 +136,15 @@ public class VsRecordService {
 	 * @throws NotExistingEntityException if the Vertical Service instance associated to the network slice does not exist
 	 * @throws FailedOperationException if the operation fails, e.g. because the VSI is already associated to a network slice instance
 	 */
-	public synchronized String createNetworkSliceForVsi(String vsiId, String nsdId, String dfId, String ilId, String tenantId) throws NotExistingEntityException, FailedOperationException {
+	public synchronized String createNetworkSliceForVsi(String vsiId, String nsdId, String nsdVersion, String dfId, String ilId, String tenantId, String name, String description) 
+			throws NotExistingEntityException, FailedOperationException {
 		log.debug("Creating a new Network Slice instance associated to a vertical service in DB.");
 		VerticalServiceInstance vsi = getVsInstance(vsiId);
 		if (vsi.getNetworkSliceId() != null) {
 			log.error("The VSI " + vsiId + " is already associated to a network slice instance. Impossible to create a new one");
 			throw new FailedOperationException("The VSI " + vsiId + " is already associated to a network slice instance. Impossible to create a new one");
 		}
-		NetworkSliceInstance nsi = new NetworkSliceInstance(null, nsdId, dfId, ilId, null, null, tenantId);
+		NetworkSliceInstance nsi = new NetworkSliceInstance(null, nsdId, nsdVersion, dfId, ilId, null, null, tenantId, name, description);
 		nsInstanceRepository.saveAndFlush(nsi);
 		String nsiId = nsi.getId().toString();
 		log.debug("Created Network Slice instance with ID " + nsiId);
@@ -137,6 +154,46 @@ public class VsRecordService {
 		vsInstanceRepository.saveAndFlush(vsi);
 		log.debug("Info about network slice instance updated in DB.");
 		return nsiId;
+	}
+	
+	/**
+	 * This method update the Network Slice Instance in DB, setting the associated NFV Network Service instance
+	 * 
+	 * @param nsiId Network Slice instance to be updated
+	 * @param nfvNsiId NFV Network Service instance ID to be associated to the network slice instance
+	 * @throws NotExistingEntityException if the network slice instance is not present in DB.
+	 */
+	public synchronized void setNfvNsiInNsi(String nsiId, String nfvNsiId) throws NotExistingEntityException {
+		log.debug("Adding NFV Network Service instance " + nfvNsiId + " to Network Slice instance " + nsiId + " in NSI DB record.");
+		NetworkSliceInstance nsi = getNsInstance(nsiId);
+		nsi.setNfvNsId(nfvNsiId);
+		nsInstanceRepository.saveAndFlush(nsi);
+		log.debug("NSI with ID " + nsiId + " updated with NFV NSI " + nfvNsiId);
+	}
+	
+	/**
+	 * This method updates the NSI in DB, setting it in failure state and filling its error message.
+	 * If the NSI is associated to the a VSI, the same is done for the VSI.
+	 * 
+	 * @param nsiId ID of the NSI to be modified in the DB
+	 * @param errorMessage error message to be set for the NSI
+	 */
+	public synchronized void setNsFailureInfo(String nsiId, String errorMessage) {
+		log.debug("Adding failure info to NS instance " + nsiId + " in DB.");
+		try {
+			NetworkSliceInstance nsi = getNsInstance(nsiId);
+			nsi.setFailureState(errorMessage);
+			nsInstanceRepository.saveAndFlush(nsi);
+			log.debug("Set failure info in DB for NSI " + nsiId);
+			List<VerticalServiceInstance> vsis = vsInstanceRepository.findByNetworkSliceId(nsiId);
+			for (VerticalServiceInstance vsi : vsis) {
+				vsi.setFailureState(errorMessage);
+				vsInstanceRepository.saveAndFlush(vsi);
+				log.debug("Set failure info in DB for VSI " + vsi.getVsiId());
+			}
+		} catch (NotExistingEntityException e) {
+			log.error("NSI or VSI not present in DB. Impossible to complete the failure info setting." );
+		}
 	}
 	
 	/**
