@@ -24,7 +24,9 @@ import org.hibernate.annotations.OnDeleteAction;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import it.nextworks.nfvmano.libs.common.enums.OperationalState;
 import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
+import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 
 @Entity
 public class Tenant {
@@ -59,6 +61,7 @@ public class Tenant {
 	@Cascade(org.hibernate.annotations.CascadeType.ALL)
 	private List<String> vsiId = new ArrayList<>();
 	
+	//This is to be changed to better manage MEC vs Cloud resources
 	@Embedded
 	private VirtualResourceUsage allocatedResources;
 	
@@ -166,6 +169,14 @@ public class Tenant {
 	
 	public void removeUsedResources(int storage, int vCPU, int ram) {
 		allocatedResources.removeResources(storage, vCPU, ram);
+	}
+	
+	@JsonIgnore
+	public Sla getActiveSla() throws NotExistingEntityException {
+		for (Sla s : sla) {
+			if (s.getSlaStatus() == OperationalState.ENABLED) return s;
+		}
+		throw new NotExistingEntityException("Not found enabled SLA for tenant " + username);
 	}
 
 	public void isValid() throws MalformattedElementException {

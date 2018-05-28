@@ -1,6 +1,7 @@
 package it.nextworks.nfvmano.sebastian.arbitrator;
 
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
+import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.translator.TranslatorService;
 
@@ -19,6 +20,8 @@ public abstract class AbstractArbitrator implements ArbitratorInterface {
 	
 	TranslatorService translatorService;
 	
+	NfvoService nfvoService;
+	
 	ArbitratorType type;
 	
 	
@@ -27,13 +30,15 @@ public abstract class AbstractArbitrator implements ArbitratorInterface {
 	 * @param adminService
 	 * @param vsRecordService
 	 * @param translatorService
+	 * @param nfvoService
 	 * @param type
 	 */
 	public AbstractArbitrator(AdminService adminService, VsRecordService vsRecordService,
-			TranslatorService translatorService, ArbitratorType type) {
+			TranslatorService translatorService, NfvoService nfvoService, ArbitratorType type) {
 		this.adminService = adminService;
 		this.vsRecordService = vsRecordService;
 		this.translatorService = translatorService;
+		this.nfvoService = nfvoService;
 		this.type = type;
 	}
 

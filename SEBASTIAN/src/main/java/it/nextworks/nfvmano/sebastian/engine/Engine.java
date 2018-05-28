@@ -1,6 +1,7 @@
 package it.nextworks.nfvmano.sebastian.engine;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
 import it.nextworks.nfvmano.sebastian.catalogue.repo.VsDescriptorRepository;
 import it.nextworks.nfvmano.sebastian.common.ConfigurationParameters;
@@ -29,12 +31,17 @@ import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.engine.messages.EngineMessage;
 import it.nextworks.nfvmano.sebastian.engine.messages.InstantiateNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.engine.messages.InstantiateVsiRequestMessage;
+import it.nextworks.nfvmano.sebastian.engine.messages.NotifyNfvNsiStatusChange;
+import it.nextworks.nfvmano.sebastian.engine.messages.NotifyNsiStatusChange;
+import it.nextworks.nfvmano.sebastian.engine.messages.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.engine.messages.TerminateNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.engine.messages.TerminateVsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.engine.nsmf.NsLcmManager;
 import it.nextworks.nfvmano.sebastian.engine.vsmanagement.VsLcmManager;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
+import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
+import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import it.nextworks.nfvmano.sebastian.translator.TranslatorService;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.InstantiateVsRequest;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.TerminateVsRequest;
@@ -56,6 +63,9 @@ public class Engine {
 	
 	@Autowired
 	private VsDescriptorRepository vsDescriptorRepository;
+	
+	@Autowired
+	private AdminService adminService;
 	
 	@Value("${spring.rabbitmq.host}")
 	private String rabbitHost;
@@ -94,7 +104,7 @@ public class Engine {
 	 */
 	public void initNewVsLcmManager(String vsiId) {
 		log.debug("Initializing new VS LCM manager for VSI ID " + vsiId);
-		VsLcmManager vsLcmManager = new VsLcmManager(vsiId, vsRecordService, vsDescriptorRepository, translatorService, arbitratorService, this);
+		VsLcmManager vsLcmManager = new VsLcmManager(vsiId, vsRecordService, vsDescriptorRepository, translatorService, arbitratorService, adminService, nfvoService, this);
 		createQueue(vsiId, vsLcmManager);
 		vsLcmManagers.put(vsiId, vsLcmManager);
 		log.debug("VS LCM manager for VSI ID " + vsiId + " initialized and added to the engine.");
@@ -108,7 +118,7 @@ public class Engine {
 	 */
 	public void initNewNsLcmManager(String nsiId, String tenantId, String sliceName, String sliceDescription) {
 		log.debug("Initializing new NSMF for NSI ID " + nsiId);
-		NsLcmManager nsLcmManager = new NsLcmManager(nsiId, sliceName, sliceDescription, tenantId, nfvoService, vsRecordService);
+		NsLcmManager nsLcmManager = new NsLcmManager(nsiId, sliceName, sliceDescription, tenantId, nfvoService, vsRecordService, this);
 		createQueue(nsiId, nsLcmManager);
 		nsLcmManagers.put(nsiId, nsLcmManager);
 		log.debug("NS LCM manager for Network Slice Instance ID " + nsiId + " initialized and added to the engine.");
@@ -210,6 +220,59 @@ public class Engine {
 		} else {
 			log.error("Unable to find Network Slice LCM Manager for NSI ID " + nsiId + ". Unable to terminate the NSI.");
 			throw new NotExistingEntityException("Unable to find NS LCM Manager for NSI ID " + nsiId + ". Unable to terminate the NSI.");
+		}
+	}
+	
+	/**
+	 * This method processes a notification about a change in the status 
+	 * of an NFV NS handled by the NFVO.
+	 * The engine dispatches the notification to the associated NS LCM Manager 
+	 * 
+	 * @param nfvNsId ID of the NFV NS instance affected by the change of status
+	 * @param changeType type of change in the NFV NS status
+	 * @param successful indicates if the change has been successful or not
+	 */
+	public void notifyNfvNsStatusChange(String nfvNsId, NsStatusChange changeType, boolean successful) {
+		log.debug("Processing notification about status change for NFV NS " + nfvNsId);
+		try {
+			NetworkSliceInstance nsi = vsRecordService.getNsInstanceFromNfvNsi(nfvNsId);
+			String nsiId = nsi.getNsiId();
+			log.debug("NFV NS " + nfvNsId + " is associated to network slice " + nsiId);
+			String topic = "nslifecycle.notifynfvns." + nsiId;
+			NotifyNfvNsiStatusChange internalMessage = new NotifyNfvNsiStatusChange(nfvNsId, changeType, successful);
+			sendMessageToQueue(internalMessage, topic);
+		} catch (NotExistingEntityException e) {
+			log.error("Unable to process the notification: " + e.getMessage() + ". Skipping message.");
+		} catch (Exception e) {
+			log.error("General exception while processing notification: " + e.getMessage());
+		}
+	}
+	
+	/** 
+	 * This method processes a notification about a change in the status of a network slice.
+	 * The engine dispatches the notification to the associated VS LCM Manager
+	 * 
+	 * @param networkSliceId ID of the network slice affected by the change of status
+	 * @param changeType type of change in the network slice
+	 * @param successful indicates if the change has been successful or not
+	 */
+	public void notifyNetworkSliceStatusChange(String networkSliceId, NsStatusChange changeType, boolean successful) {
+		log.debug("Processing notification about status change for network slice " + networkSliceId);
+		List<VerticalServiceInstance> vsis = vsRecordService.getVsInstancesFromNetworkSlice(networkSliceId);
+		for (VerticalServiceInstance vsi : vsis) {
+			String vsiId = vsi.getVsiId();
+			log.debug("Network Slice " + networkSliceId + " is associated to vertical service " + vsiId);
+			if (vsLcmManagers.containsKey(vsiId)) {
+				String topic = "lifecycle.notifyns." + vsiId;
+				NotifyNsiStatusChange internalMessage = new NotifyNsiStatusChange(networkSliceId, changeType);
+				try {
+					sendMessageToQueue(internalMessage, topic);
+				} catch (Exception e) {
+					log.error("General exception while sending message to queue.");
+				}
+			} else {
+				log.error("Unable to find Vertical Service LCM Manager for VSI ID " + vsiId + ". Unable to notify associated NS status change.");
+			}
 		}
 	}
 	

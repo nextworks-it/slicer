@@ -17,10 +17,14 @@ import it.nextworks.nfvmano.libs.descriptors.nsd.Sapd;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.SapData;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.CreateNsIdentifierRequest;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.InstantiateNsRequest;
+import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.TerminateNsRequest;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
+import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.engine.messages.EngineMessage;
 import it.nextworks.nfvmano.sebastian.engine.messages.EngineMessageType;
 import it.nextworks.nfvmano.sebastian.engine.messages.InstantiateNsiRequestMessage;
+import it.nextworks.nfvmano.sebastian.engine.messages.NotifyNfvNsiStatusChange;
+import it.nextworks.nfvmano.sebastian.engine.messages.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.engine.messages.TerminateNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
@@ -44,6 +48,7 @@ public class NsLcmManager {
 	private VsRecordService vsRecordService;
 	private String nfvNsiInstanceId;
 	private Nsd nsd;
+	private Engine engine;
 	
 	private NetworkSliceStatus internalStatus;
 	
@@ -52,7 +57,8 @@ public class NsLcmManager {
 			String description,
 			String tenantId,
 			NfvoService nfvoService,
-			VsRecordService vsRecordService) {
+			VsRecordService vsRecordService,
+			Engine engine) {
 		this.networkSliceInstanceId = networkSliceInstanceId;
 		this.name = name;
 		this.description = description;
@@ -60,6 +66,7 @@ public class NsLcmManager {
 		this.nfvoService = nfvoService;
 		this.vsRecordService = vsRecordService;
 		this.internalStatus = NetworkSliceStatus.INSTANTIATING;
+		this.engine = engine;
 	}
 	
 	/**
@@ -83,10 +90,17 @@ public class NsLcmManager {
 				break;
 			}
 			
-			case TERMINATE_VSI_REQUEST: {
+			case TERMINATE_NSI_REQUEST: {
 				log.debug("Processing NSI termination request.");
 				TerminateNsiRequestMessage terminateVsRequestMsg = (TerminateNsiRequestMessage)em;
 				processTerminateRequest(terminateVsRequestMsg);
+				break;
+			}
+			
+			case NOTIFY_NFV_NSI_STATUS_CHANGE: {
+				log.debug("Processing NFV NSI status change notification.");
+				NotifyNfvNsiStatusChange nfvNotificationMsg = (NotifyNfvNsiStatusChange)em;
+				processNfvNsChangeNotification(nfvNotificationMsg);
 				break;
 			}
 			
@@ -156,11 +170,62 @@ public class NsLcmManager {
 		} catch (Exception e) {
 			manageNsError(e.getMessage());
 		}
-		
+	}
+	
+	private void processNfvNsChangeNotification(NotifyNfvNsiStatusChange msg) {
+		if (! ((internalStatus == NetworkSliceStatus.INSTANTIATING) || (internalStatus == NetworkSliceStatus.TERMINATING))) {
+			manageNsError("Received notification about NFV NS status change in wrong status.");
+			return;
+		}
+		if (!(msg.getNfvNsiId().equals(nfvNsiInstanceId))) {
+			manageNsError("Received notification about NFV NS not associated to network slice.");
+			return;
+		}
+		if (msg.isSuccessful()) {
+			switch (internalStatus) {
+			case INSTANTIATING: {
+				log.debug("Successful instantiation of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
+				this.internalStatus=NetworkSliceStatus.INSTANTIATED;
+				vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
+				log.debug("Sending notification to engine.");
+				engine.notifyNetworkSliceStatusChange(networkSliceInstanceId, NsStatusChange.NS_CREATED, true);
+				return;
+			}
+			
+			case TERMINATING: {
+				log.debug("Successful termination of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
+				this.internalStatus=NetworkSliceStatus.TERMINATED;
+				vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.TERMINATED);
+				log.debug("Sending notification to engine.");
+				engine.notifyNetworkSliceStatusChange(networkSliceInstanceId, NsStatusChange.NS_TERMINATED, true);
+				return;
+			}
+
+			default:
+				break;
+			}
+		} else {
+			log.error("The operation associated to NFV network service " + msg.getNfvNsiId() + " has failed.");
+			manageNsError("The operation associated to NFV network service " + msg.getNfvNsiId() + " has failed.");
+		}
 	}
 	
 	private void processTerminateRequest(TerminateNsiRequestMessage msg) {
-		//TODO:
+		if (internalStatus != NetworkSliceStatus.INSTANTIATED) {
+			manageNsError("Received termination request in wrong status. Skipping message.");
+			return;
+		}
+		log.debug("Terminating network slice " + networkSliceInstanceId);
+		this.internalStatus = NetworkSliceStatus.TERMINATING;
+		vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.TERMINATING);
+		log.debug("Sending request to terminate NFV network service " + nfvNsiInstanceId);
+		try {
+			String operationId = nfvoService.terminateNs(new TerminateNsRequest(nfvNsiInstanceId, null));
+			log.debug("Sent request to NFVO service for terminating NFV NS " + nfvNsiInstanceId + ": operation ID " + operationId);
+		} catch (Exception e) {
+			manageNsError(e.getMessage());
+		}
+		
 	}
 	
 	private void manageNsError(String error) {

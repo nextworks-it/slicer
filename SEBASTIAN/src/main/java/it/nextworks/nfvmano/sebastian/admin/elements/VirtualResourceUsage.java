@@ -2,6 +2,8 @@ package it.nextworks.nfvmano.sebastian.admin.elements;
 
 import javax.persistence.Embeddable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Embeddable
 public class VirtualResourceUsage {
 
@@ -50,6 +52,12 @@ public class VirtualResourceUsage {
 		this.diskStorage -= storage;
 		this.vCPU -= cpu;
 		this.memoryRAM -= ram;
+	}
+	
+	@JsonIgnore
+	public String toString() {
+		String s = "Disk: " + diskStorage + "; vCPU: " + vCPU + "; RAM: " + memoryRAM;
+		return s;
 	}
 
 }

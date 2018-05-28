@@ -21,7 +21,7 @@ import it.nextworks.nfvmano.sebastian.admin.repo.GroupRepository;
 import it.nextworks.nfvmano.sebastian.admin.repo.SlaConstraintRepository;
 import it.nextworks.nfvmano.sebastian.admin.repo.SlaRepository;
 import it.nextworks.nfvmano.sebastian.admin.repo.TenantRepository;
-import it.nextworks.nfvmano.sebastian.catalogue.elements.VsBlueprintInfo;
+
 
 /**
  * The Admin service handles the management requests for creation of tenants, groups and SLAs.
@@ -211,5 +211,23 @@ public class AdminService {
 		tenant.removeVsi(vsiId);
 		tenantRepository.saveAndFlush(tenant);
 		log.debug("Removed VSI " + vsiId + " from tenant " + tenantId);
+	}
+	
+	public synchronized void addUsedResourcesInTenant(String tenantId, int storage, int vCPU, int ram)
+			throws NotExistingEntityException {
+		log.debug("Adding consumed resources to tenant " + tenantId);
+		Tenant tenant = getTenant(tenantId);
+		tenant.addUsedResources(storage, vCPU, ram);
+		tenantRepository.saveAndFlush(tenant);
+		log.debug("Added consumed resources to tenant " + tenantId);
+	}
+	
+	public synchronized void removeUsedResourcesInTenant(String tenantId, int storage, int vCPU, int ram)
+			throws NotExistingEntityException {
+		log.debug("Removing consumed resources to tenant " + tenantId);
+		Tenant tenant = getTenant(tenantId);
+		tenant.removeUsedResources(storage, vCPU, ram);
+		tenantRepository.saveAndFlush(tenant);
+		log.debug("Removed consumed resources to tenant " + tenantId);
 	}
 }

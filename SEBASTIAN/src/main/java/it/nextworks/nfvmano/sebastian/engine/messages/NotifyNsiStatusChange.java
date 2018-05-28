@@ -20,7 +20,7 @@ public class NotifyNsiStatusChange extends EngineMessage {
 	@JsonCreator
 	public NotifyNsiStatusChange(@JsonProperty("nsiId") String nsiId, 
 			@JsonProperty("statusChange") NsStatusChange statusChange) {
-		super();
+		this.type = EngineMessageType.NOTIFY_NSI_STATUS_CHANGE;
 		this.nsiId = nsiId;
 		this.statusChange = statusChange;
 	}

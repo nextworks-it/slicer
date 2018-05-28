@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
+import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.translator.TranslatorService;
 
@@ -40,6 +41,9 @@ public class ArbitratorService implements ArbitratorInterface {
 	@Autowired
 	private VsRecordService vsRecordService;
 	
+	@Autowired
+	private NfvoService nfvoService;
+	
 	private AbstractArbitrator arbitrator;
 	
 	public ArbitratorService() { }
@@ -49,7 +53,7 @@ public class ArbitratorService implements ArbitratorInterface {
 		log.debug("Initializing arbitrator");
 		if (arbitratorType.equals("BASIC")) {
 			log.debug("The Vertical Slicer is configured to operate with a basic arbitrator.");
-			arbitrator = new BasicArbitrator(adminService, vsRecordService, translatorService);
+			arbitrator = new BasicArbitrator(adminService, vsRecordService, translatorService, nfvoService);
 		} else {
 			log.error("Arbitrator not configured!");
 		}

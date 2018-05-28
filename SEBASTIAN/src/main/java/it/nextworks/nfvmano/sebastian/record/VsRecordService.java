@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
+import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
+import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
 import it.nextworks.nfvmano.sebastian.record.repo.NetworkSliceInstanceRepository;
 import it.nextworks.nfvmano.sebastian.record.repo.VerticalServiceInstanceRepository;
 
@@ -74,6 +76,21 @@ public class VsRecordService {
 	}
 	
 	/**
+	 * This method updates the VSI in DB, setting its status
+	 * 
+	 * @param vsiId ID of the VSI to be modified in the DB
+	 * @param status new status of the VSI
+	 * @throws NotExistingEntityException if the VSI does not exist in DB.
+	 */
+	public synchronized void setVsStatus(String vsiId, VerticalServiceStatus status) throws NotExistingEntityException {
+		log.debug("Setting status in VS instance " + vsiId + " in DB.");
+		VerticalServiceInstance vsi = getVsInstance(vsiId);
+		vsi.setStatus(status);
+		vsInstanceRepository.saveAndFlush(vsi);
+		log.debug("Set VS status in DB.");
+	}
+	
+	/**
 	 * This method update the VSI in DB, setting the associated network slice instance
 	 * 
 	 * @param vsiId ID of the VSI to be updated
@@ -118,6 +135,16 @@ public class VsRecordService {
 	 */
 	public List<VerticalServiceInstance> getAllVsInstances(String tenantId) {
 		return vsInstanceRepository.findByTenantId(tenantId);
+	}
+	
+	/**
+	 * This method returns all the VS instances associated to a slice with a given ID.
+	 * 
+	 * @param sliceId ID of the slice where the vertical services are mapped
+	 * @return the vertical services associated to the slice
+	 */
+	public List<VerticalServiceInstance> getVsInstancesFromNetworkSlice(String sliceId) {
+		return vsInstanceRepository.findByNetworkSliceId(sliceId);
 	}
 	
 	//Methods about network slices
@@ -197,6 +224,24 @@ public class VsRecordService {
 	}
 	
 	/**
+	 * This method updates the NSI in DB, setting its status.
+	 * 
+	 * @param nsiId ID of the NSI to be modified in the DB
+	 * @param status new status to be set
+	 */
+	public synchronized void setNsStatus(String nsiId, NetworkSliceStatus status) {
+		log.debug("Setting status " + status + " for network slice " + nsiId + " in DB.");
+		try {
+			NetworkSliceInstance nsi = getNsInstance(nsiId);
+			nsi.setStatus(status);
+			nsInstanceRepository.saveAndFlush(nsi);
+			log.debug("Status set for network slice " + nsiId);
+		} catch (NotExistingEntityException e) {
+			log.error("NSI not present in DB. Impossible to complete the state setting.");
+		}
+	}
+	
+	/**
 	 * This method returns the NSI stored in DB that matches a given ID.
 	 * 
 	 * @param nsiId ID of the Network Slice instance to be returned
@@ -208,6 +253,21 @@ public class VsRecordService {
 		Optional<NetworkSliceInstance> nsi = nsInstanceRepository.findByNsiId(nsiId);
 		if (nsi.isPresent()) return nsi.get();
 		else throw new NotExistingEntityException("NSI with ID " + nsiId + " not present in DB.");
+	}
+	
+	/**
+	 * This method returns the NSI stored in DB that is associated to an
+	 * NFV network service with a given ID.
+	 * 
+	 * @param nfvNsiId ID of the NFV network service implementing the network slice
+	 * @return the Network Slice instance
+	 * @throws NotExistingEntityException if the network slice instance is not present in DB.
+	 */
+	public NetworkSliceInstance getNsInstanceFromNfvNsi(String nfvNsiId) throws NotExistingEntityException {
+		log.debug("Retrieving NSI associated to NFV Network Service with ID " + nfvNsiId + " from DB.");
+		Optional<NetworkSliceInstance> nsi = nsInstanceRepository.findByNfvNsId(nfvNsiId);
+		if (nsi.isPresent()) return nsi.get();
+		else throw new NotExistingEntityException("NSI associated to NFV network service with ID " + nfvNsiId + " not present in DB.");
 	}
 	
 	/**

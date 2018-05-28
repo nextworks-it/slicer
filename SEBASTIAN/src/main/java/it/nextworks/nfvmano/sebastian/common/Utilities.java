@@ -69,6 +69,13 @@ public class Utilities {
 		return new Filter(filterParams);
 	}
 	
+	public static Filter buildVnfPackageInfoFilterFromVnfdId(String vnfdId) {
+		//VNFD_ID
+		Map<String, String> filterParams = new HashMap<>();
+		filterParams.put("VNFD_ID", vnfdId);
+		return new Filter(filterParams);
+	}
+	
 	public static Filter buildNsdInfoFilter(String nsdId, String nsdVersion) {
 		//NSD_ID
 		//NSD_VERSION

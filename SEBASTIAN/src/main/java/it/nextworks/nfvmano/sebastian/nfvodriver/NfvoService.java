@@ -2,11 +2,15 @@ package it.nextworks.nfvmano.sebastian.nfvodriver;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import it.nextworks.nfvmano.nfvodriver.logging.LoggingDriver;
+import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
+import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.nfvodriver.timeo.TimeoDriver;
+import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +54,14 @@ import it.nextworks.nfvmano.libs.common.exceptions.MethodNotImplementedException
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.common.messages.SubscribeRequest;
+import it.nextworks.nfvmano.libs.descriptors.common.elements.VirtualComputeDesc;
+import it.nextworks.nfvmano.libs.descriptors.common.elements.VirtualStorageDesc;
+import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
+import it.nextworks.nfvmano.libs.descriptors.vnfd.InstantiationLevel;
+import it.nextworks.nfvmano.libs.descriptors.vnfd.Vdu;
+import it.nextworks.nfvmano.libs.descriptors.vnfd.VduLevel;
+import it.nextworks.nfvmano.libs.descriptors.vnfd.VnfDf;
+import it.nextworks.nfvmano.libs.descriptors.vnfd.Vnfd;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.NsLcmConsumerInterface;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.NsLcmProviderInterface;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.CreateNsIdentifierRequest;
@@ -106,6 +118,94 @@ MecAppPackageManagementProviderInterface, NsdManagementProviderInterface, VnfPac
 		} else {
 			log.error("NFVO not configured!");
 		}
+	}
+
+	/**
+	 * This method computes the amount of resources (disk, vCPU, RAM) needed to instantiate an NSD with the given ID and the given deployment flavours and instantiation levels.
+	 * The amount of virtual resources is derived from the NSD and the VNFD.
+	 * 
+	 * @param nsInstantiationInfo characteristics of the NS to be instantiated, in terms of NSD, deployment flavour and instantiation level
+	 * @return the amount of virtual resources needed to instantiate the VNFs of the NSD
+	 * @throws Exception if something goes wrong in the interaction with the NFVO
+	 */
+	public VirtualResourceUsage computeVirtualResourceUsage(NfvNsInstantiationInfo nsInstantiationInfo) throws NotExistingEntityException, Exception {
+		log.debug("Computing the amount of resources associated to a NS instantiation.");
+		
+		//TODO: parse the MEC app data when available
+		
+		String nsdId = nsInstantiationInfo.getNfvNsdId();
+		String nsdVersion = nsInstantiationInfo.getNsdVersion();
+		String deploymentFlavourId = nsInstantiationInfo.getDeploymentFlavourId();
+		String instantiationLevelId = nsInstantiationInfo.getInstantiationLevelId();
+		
+		int ram = 0;
+		int vCPU = 0;
+		int disk = 0;
+		
+		QueryNsdResponse nsdRep = queryNsd(new GeneralizedQueryRequest(Utilities.buildNsdFilter(nsdId, nsdVersion), null));
+		Nsd nsd = nsdRep.getQueryResult().get(0).getNsd();
+		
+		//return a map with key = VNFD_ID and value a map with keys = [VNFD_ID, VNF_DF_ID, VNF_INSTANCES, VNF_INSTANTIATION_LEVEL]
+		Map<String,Map<String, String>> vnfData = nsd.getVnfdDataFromFlavour(deploymentFlavourId, instantiationLevelId);
+		
+		for (Map.Entry<String, Map<String, String>> e : vnfData.entrySet()) {
+			String vnfdId = e.getKey();
+			Map<String, String> vnfCharacteristics = e.getValue();
+			String vnfDfId = vnfCharacteristics.get("VNF_DF_ID");
+			int vnfInstancesNumber= Integer.parseInt(vnfCharacteristics.get("VNF_INSTANCES"));
+			String vnfInstantiationLevel = vnfCharacteristics.get("VNF_INSTANTIATION_LEVEL");
+			
+			int vnfRam = 0;
+			int vnfVCpu = 0;
+			int vnfDisk = 0;
+			
+			QueryOnBoardedVnfPkgInfoResponse vnfPkg = queryVnfPackageInfo(new GeneralizedQueryRequest(Utilities.buildVnfPackageInfoFilterFromVnfdId(vnfdId), null));
+			Vnfd vnfd = vnfPkg.getQueryResult().get(0).getVnfd();
+			
+			VnfDf df = vnfd.getVnfDf(vnfDfId);
+			InstantiationLevel il = df.getInstantiationLevel(vnfInstantiationLevel);
+			List<VduLevel> vduLevel = il.getVduLevel();
+			for (VduLevel vdul : vduLevel) {
+				int vduInstancesNumber = vdul.getNumberOfInstances();
+				String vduId = vdul.getVduId();
+				Vdu vdu = vnfd.getVduFromId(vduId);
+				String computeDescriptorId = vdu.getVirtualComputeDesc();
+				VirtualComputeDesc vcd = vnfd.getVirtualComputeDescriptorFromId(computeDescriptorId);
+				int localRam = (vcd.getVirtualMemory().getVirtualMemSize()) * vduInstancesNumber;
+				int localVCpu = (vcd.getVirtualCpu().getNumVirtualCpu()) * vduInstancesNumber;
+				int localDisk = 0;
+				List<String> virtualStorageDescId = vdu.getVirtualStorageDesc();
+				for (String vsdId : virtualStorageDescId) {
+					VirtualStorageDesc vsd = vnfd.getVirtualStorageDescriptorFromId(vsdId);
+					localDisk += vsd.getSizeOfStorage();
+				}
+				localDisk = localDisk * vduInstancesNumber;
+				
+				//update data for all the VDUs with a given ID in the single VNF
+				vnfRam += localRam;
+				vnfVCpu += localVCpu;
+				vnfDisk += localDisk;
+				
+				log.debug("Values for all the VDUs with ID " + vduId + " - vCPU: " + localVCpu + "; RAM: " + localRam + "; Disk: " + localDisk);
+			}
+			
+			//compute data for all the VNFs with a given Id
+			vnfRam = vnfRam * vnfInstancesNumber;
+			vnfVCpu = vnfVCpu * vnfInstancesNumber;
+			vnfDisk = vnfDisk * vnfInstancesNumber;
+			
+			log.debug("Values for all the VNFs with ID " + vnfdId + " - vCPU: " + vnfVCpu + "; RAM: " + vnfRam + "; Disk: " + vnfDisk);
+			
+			//update data for the entire NSD
+			ram += vnfRam;
+			vCPU += vnfVCpu;
+			disk += vnfDisk; 
+		}
+		
+		log.debug("Values for the whole NSD with ID " + nsdId + ", DF " + deploymentFlavourId + ", IL " + instantiationLevelId + "- vCPU: " + vCPU + "; RAM: " + ram + "; Disk: " + disk);
+		
+		VirtualResourceUsage vru = new VirtualResourceUsage(disk, vCPU, ram);
+		return vru;
 	}
 	
 	@Override

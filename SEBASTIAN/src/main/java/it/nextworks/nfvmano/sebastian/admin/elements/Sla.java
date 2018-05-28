@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import it.nextworks.nfvmano.libs.common.InterfaceInformationElement;
 import it.nextworks.nfvmano.libs.common.enums.OperationalState;
 import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
+import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 
 @Entity
 public class Sla implements InterfaceInformationElement {
@@ -76,6 +77,14 @@ public class Sla implements InterfaceInformationElement {
 	 */
 	public OperationalState getSlaStatus() {
 		return slaStatus;
+	}
+	
+	@JsonIgnore
+	public SlaVirtualResourceConstraint getGlobalConstraint() throws NotExistingEntityException {
+		for (SlaVirtualResourceConstraint sc : slaConstraints) {
+			if (sc.getScope() == SlaScope.GLOBAL_VIRTUAL_RESOURCE) return sc;
+		}
+		throw new NotExistingEntityException("Virtual resource constraint with global scope not found.");
 	}
 	
 	@Override
