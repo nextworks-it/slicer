@@ -6,7 +6,6 @@ import java.util.List;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.MecAppPackageManagementConsumerInterface;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.NsdManagementConsumerInterface;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.VnfPackageManagementConsumerInterface;
-import it.nextworks.nfvmano.libs.catalogues.interfaces.elements.AppPackageInfo;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.DeleteNsdRequest;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.DeleteNsdResponse;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.DeletePnfdRequest;
@@ -24,6 +23,7 @@ import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.OnboardAppPackag
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.OnboardNsdRequest;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.OnboardPnfdRequest;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryNsdResponse;
+import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryOnBoadedAppPkgInfoResponse;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryOnBoardedVnfPkgInfoResponse;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryPnfdResponse;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.UpdateNsdRequest;
@@ -148,7 +148,7 @@ public class OsmDriver extends NfvoAbstractDriver {
 	}
 
 	@Override
-	public List<AppPackageInfo> queryApplicationPackage(GeneralizedQueryRequest request)
+	public QueryOnBoadedAppPkgInfoResponse queryApplicationPackage(GeneralizedQueryRequest request)
 			throws MethodNotImplementedException, NotExistingEntityException, MalformattedElementException {
 		// TODO Auto-generated method stub
 		return null;

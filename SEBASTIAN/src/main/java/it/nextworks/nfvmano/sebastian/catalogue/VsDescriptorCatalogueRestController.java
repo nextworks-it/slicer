@@ -62,7 +62,7 @@ public class VsDescriptorCatalogueRestController {
 		log.debug("Received request to retrieve all the VS descriptors.");
 		try {
 			//TODO: this is to be fixed when we will support the authentication. At the moment it returns all the VSDs, independently on the tenant.
-			QueryVsDescriptorResponse response = vsDescriptorCatalogueService.queryVsDescriptor(new GeneralizedQueryRequest(Utilities.buildVsDescriptorFilter(adminTenant), null)); 
+			QueryVsDescriptorResponse response = vsDescriptorCatalogueService.queryVsDescriptor(new GeneralizedQueryRequest(Utilities.buildTenantFilter(adminTenant), null)); 
 			return new ResponseEntity<List<VsDescriptor>>(response.getVsDescriptors(), HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");

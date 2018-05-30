@@ -92,7 +92,7 @@ public class OnBoardVsBlueprintRequest implements InterfaceMessage {
 	public void isValid() throws MalformattedElementException {
 		if (vsBlueprint == null) throw new MalformattedElementException("Onboard VS blueprint request without VS blueprint");
 		else vsBlueprint.isValid();
-		if (nsds.isEmpty()) throw new MalformattedElementException("Onboard VS blueprint request without NSD");
+		//if (nsds.isEmpty()) throw new MalformattedElementException("Onboard VS blueprint request without NSD");
 		if (translationRules.isEmpty()) throw new MalformattedElementException("Onboard VS blueprint request without translation rules");
 		for (Nsd nsd : nsds) nsd.isValid();
 		for (OnBoardVnfPackageRequest vnf : vnfPackages) vnf.isValid();

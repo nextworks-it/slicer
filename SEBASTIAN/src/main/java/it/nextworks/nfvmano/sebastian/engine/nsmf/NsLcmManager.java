@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import it.nextworks.nfvmano.libs.catalogues.interfaces.elements.NsdInfo;
 import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Sapd;
@@ -48,6 +49,7 @@ public class NsLcmManager {
 	private VsRecordService vsRecordService;
 	private String nfvNsiInstanceId;
 	private Nsd nsd;
+	private String nsdInfoId;
 	private Engine engine;
 	
 	private NetworkSliceStatus internalStatus;
@@ -131,15 +133,18 @@ public class NsLcmManager {
 		log.debug("Creating NSI ID for NFV NS with NSD ID " + nsdId);
 		
 		try {
-			String nfvNsId = nfvoService.createNsIdentifier(new CreateNsIdentifierRequest(nsdId, "NFV-NS-"+ name, description, tenantId));
+			log.debug("Retrieving NSD");
+			NsdInfo nsdInfo = nfvoService.queryNsd(new GeneralizedQueryRequest(Utilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0);
+			this.nsdInfoId = nsdInfo.getNsdInfoId();
+			
+			this.nsd = nsdInfo.getNsd();
+			
+			String nfvNsId = nfvoService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-"+ name, description, tenantId));
 			log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
 			this.nfvNsiInstanceId = nfvNsId;
 			vsRecordService.setNfvNsiInNsi(networkSliceInstanceId, nfvNsId);
 			
 			log.debug("Building NFV NS instantiation request");
-			
-			log.debug("Retrieving NSD");
-			this.nsd = nfvoService.queryNsd(new GeneralizedQueryRequest(Utilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0).getNsd();
 			
 			List<Sapd> saps = nsd.getSapd();
 			List<SapData> sapData = new ArrayList<>();
@@ -194,6 +199,7 @@ public class NsLcmManager {
 			
 			case TERMINATING: {
 				log.debug("Successful termination of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
+				//TODO: should we also remove the NS instance ID from the NFVO?
 				this.internalStatus=NetworkSliceStatus.TERMINATED;
 				vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.TERMINATED);
 				log.debug("Sending notification to engine.");

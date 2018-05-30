@@ -274,6 +274,22 @@ public class Engine {
 				log.error("Unable to find Vertical Service LCM Manager for VSI ID " + vsiId + ". Unable to notify associated NS status change.");
 			}
 		}
+		if (changeType == NsStatusChange.NS_TERMINATED) {
+			log.debug("Network slice " + networkSliceId + " has been terminated. Removing NS LCM from engine");
+			this.nsLcmManagers.remove(networkSliceId);
+			log.debug("NS LCM removed from engine.");
+		}
+	}
+	
+	/**
+	 * This method removes a VS LC manager from the engine map
+	 * 
+	 * @param vsiId ID of the VS whose VS LCM must be removed
+	 */
+	public void removeVerticalServiceLcmManager(String vsiId) {
+		log.debug("Vertical service " + vsiId + " has been terminated. Removing VS LCM from engine");
+		this.vsLcmManagers.remove(vsiId);
+		log.debug("VS LCM manager removed from engine.");
 	}
 	
 	/**

@@ -10,6 +10,7 @@ import it.nextworks.nfvmano.nfvodriver.logging.LoggingDriver;
 import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.nfvodriver.timeo.TimeoDriver;
+import it.nextworks.nfvmano.sebastian.nfvodriver.timeo.TimeoNfvoOperationPollingManager;
 import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
 
 import org.slf4j.Logger;
@@ -24,7 +25,6 @@ import it.nextworks.nfvmano.libs.catalogues.interfaces.NsdManagementConsumerInte
 import it.nextworks.nfvmano.libs.catalogues.interfaces.NsdManagementProviderInterface;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.VnfPackageManagementConsumerInterface;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.VnfPackageManagementProviderInterface;
-import it.nextworks.nfvmano.libs.catalogues.interfaces.elements.AppPackageInfo;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.DeleteNsdRequest;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.DeleteNsdResponse;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.DeletePnfdRequest;
@@ -42,6 +42,7 @@ import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.OnboardAppPackag
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.OnboardNsdRequest;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.OnboardPnfdRequest;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryNsdResponse;
+import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryOnBoadedAppPkgInfoResponse;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryOnBoardedVnfPkgInfoResponse;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryPnfdResponse;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.UpdateNsdRequest;
@@ -97,6 +98,9 @@ MecAppPackageManagementProviderInterface, NsdManagementProviderInterface, VnfPac
 	
 	@Autowired
 	NfvoNotificationsManager nfvoNotificationManager;
+	
+	@Autowired
+	TimeoNfvoOperationPollingManager timeoNfvoOperationPollingManager;
 
 	public NfvoService() {	}
 
@@ -105,7 +109,7 @@ MecAppPackageManagementProviderInterface, NsdManagementProviderInterface, VnfPac
 		log.debug("Initializing NFVO driver");
 		if (nfvoType.equals("TIMEO")) {
 			log.debug("The Vertical Slicer is configured to operate over the TIMEO orchestrator.");
-			nfvoDriver = new TimeoDriver(nfvoAddress, nfvoNotificationManager);
+			nfvoDriver = new TimeoDriver(nfvoAddress, nfvoNotificationManager, timeoNfvoOperationPollingManager);
 		} else if (nfvoType.equals("OSM")) {
 			log.debug("The Vertical Slicer is configured to operate over the OSM orchestrator.");
 			nfvoDriver = new OsmDriver(nfvoAddress, nfvoNotificationManager);
@@ -287,7 +291,7 @@ MecAppPackageManagementProviderInterface, NsdManagementProviderInterface, VnfPac
 	}
 
 	@Override
-	public List<AppPackageInfo> queryApplicationPackage(GeneralizedQueryRequest request)
+	public QueryOnBoadedAppPkgInfoResponse queryApplicationPackage(GeneralizedQueryRequest request)
 			throws MethodNotImplementedException, NotExistingEntityException, MalformattedElementException {
 		return nfvoDriver.queryApplicationPackage(request);
 	}

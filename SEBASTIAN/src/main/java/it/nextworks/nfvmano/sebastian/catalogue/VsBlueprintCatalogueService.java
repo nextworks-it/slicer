@@ -105,7 +105,7 @@ public class VsBlueprintCatalogueService implements VsBlueprintCatalogueInterfac
 				} catch (AlreadyExistingEntityException e) {
 					log.debug("The MEC app package is already present in the NFVO catalogue. Retrieving its ID.");
 					List<AppPackageInfo> apps = 
-							nfvoService.queryApplicationPackage(new GeneralizedQueryRequest(Utilities.buildMecAppPackageInfoFilter(appR.getName(), appR.getVersion()), null));
+							nfvoService.queryApplicationPackage(new GeneralizedQueryRequest(Utilities.buildMecAppPackageInfoFilter(appR.getName(), appR.getVersion()), null)).getQueryResult();
 					String oldAppPackageId = apps.get(0).getAppPackageInfoId();
 					log.debug("Retrieved MEC app package ID: " + oldAppPackageId);
 					vsBlueprintInfo.addMecAppInfoId(oldAppPackageId);
