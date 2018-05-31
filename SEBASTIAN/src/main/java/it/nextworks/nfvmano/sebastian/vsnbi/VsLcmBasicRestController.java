@@ -61,28 +61,6 @@ public class VsLcmBasicRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/vs", method = RequestMethod.GET)
-	public ResponseEntity<?> getAllVsInstances() {
-		log.debug("Received request to retrieve all the VS instances.");
-		try {
-			//TODO: this is to be fixed when we will support the authentication. At the moment it returns all the VSIs, independently on the tenant.
-			QueryVsResponse response = vsLcmService.queryVs(new GeneralizedQueryRequest(Utilities.buildTenantFilter(adminTenant), null)); 
-			return new ResponseEntity<QueryVsResponse>(response, HttpStatus.OK);
-		} catch (MalformattedElementException e) {
-			log.error("Malformatted request");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
-		} catch (NotExistingEntityException e) {
-			log.error("VS instance not found");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
-		} catch (NotPermittedOperationException e) {
-			log.error("VS instance not visible for the given tenant.");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
-		} catch (Exception e) {
-			log.error("Internal exception");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-	
 	@RequestMapping(value = "/vs/{vsiId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getVsInstance(@PathVariable String vsiId) {
 		log.debug("Received request to retrieve VS instance with ID " + vsiId);
