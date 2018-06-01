@@ -6,6 +6,13 @@ function fillVSDCounter(elemId, data, resId) {
 	countDiv.innerHTML = data.length;
 }
 
+function fillVSICounter(elemId, data, resId) {
+    var countDiv = document.getElementById(elemId);
+	
+	//console.log(JSON.stringify(data, null, 4));
+	countDiv.innerHTML = data.length;
+}
+
 function readVSDescriptors(tableId, resId) {
     getAllVSDescriptors(tableId, resId, createVSDescriptorsTable);
 }
