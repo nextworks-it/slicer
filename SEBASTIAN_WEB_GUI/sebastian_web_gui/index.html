@@ -29,7 +29,9 @@
     <script src="./plugin/rest_api.js"></script>
     <script src="./plugin/utils.js"></script>
     <script src="./plugin/tenant_utils.js"></script>
-
+    <script src="./plugin/blueprint_utils.js"></script>
+    <script src="./plugin/vsdescriptor_utils.js"></script>
+    
   </head>
 
   <body class="nav-md">
@@ -52,11 +54,12 @@
                 <ul class="nav side-menu">
                   <li><a href="index.html"><i class="fa fa-home"></i> Home </a>
                   </li>
-                  <li><a><i class="fa fa-file-text"></i> VS Blueprint <span class="fa fa-chevron-down"></a>
+                  <li><a><i class="fa fa-file-text"></i> VS Catalogue <span class="fa fa-chevron-down"></a>
                     <ul class="nav child_menu">
                       <li><a href="./pages/blueprint/blueprint_wizard.html">VS Blueprint onboarding</a></li>
                       <li><a href="./pages/blueprint/blueprint.html">VS Blueprint</a></li>
                       <li><a href="./pages/blueprint/vs_descriptor.html">VS Descriptor</a></li>
+                      <li><a href="./pages/blueprint/vs_instance.html">VS Instance</a></li>
                     </ul>
                   </li>
                   <li><a><i class="fa fa-gears"></i> ADMIN <span class="fa fa-chevron-down"></a>
@@ -116,23 +119,40 @@
         <!-- page content -->
         <div class="right_col" role="main">
           <div class="">
-            <div class="row tile_count">
-              <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
-                <a href="./pages/tenant.html"><span class="count_top"><i class="fa fa-user"></i> Total Users</span></a>
-                <div class="count" id="count-Tenant">0</div>
-              </div>
-            </div>
-                      
-            <!-- div class="row top_tiles">
+            <div class="row top_tiles">
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
                 <div class="tile-stats">
-                  <div class="icon"><i class="fa fa-user"></i></div>
+                  <div class="icon"><i class="fa fa-users"></i></div>
                   <div class="count" id="count-Tenant">0</div>
                   <h3><a href="./pages/tenant.html">Tenants</a></h3>
                   <p></p>
                 </div>
               </div>
-            </div --> 
+              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <div class="tile-stats">
+                  <div class="icon"><i class="fa fa-file-text"></i></div>
+                  <div class="count" id="count-Blueprint">0</div>
+                  <h3><a href="./pages/ns/ns_instances.html">Blueprints</a></h3>
+                  <p></p>
+                </div>
+              </div>
+              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <div class="tile-stats">
+                  <div class="icon"><i class="fa fa-file-text"></i></div>
+                  <div class="count" id="count-VSD">0</div>
+                  <h3><a href="./pages/blueprint/vs_descriptor.html">VS descriptors</a></h3>
+                  <p></p>
+                </div>
+              </div>
+              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <div class="tile-stats">
+                  <div class="icon"><i class="fa fa-file-text"></i></div>
+                  <div class="count" id="count-VSI">0</div>
+                  <h3><a href="./pages/blueprint/vs_instance.html">VS instances</a></h3>
+                  <p></p>
+                </div>
+              </div>
+            </div>
 
             <div class="row">
               <div class="col-md-12">
@@ -178,7 +198,10 @@
     
     <!-- SEBASTIAN COUNTER -->
     <script>getAllTenants("count-Tenant","response",fillTenantCounter);</script>
-
+    <script>getVSBlueprints("count-Blueprint","response",fillBlueprintCounter);</script>
+    <script>getAllVSDescriptors("count-VSD","response",fillVSDCounter);</script>
+    <!--script>getAllVSInstances("count-VSI","response",fillVSICounter);</script-->
+    
     <!-- jQuery -->
     <script src="../gentelella/vendors/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap -->

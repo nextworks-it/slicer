@@ -52,11 +52,12 @@
                 <ul class="nav side-menu">
                   <li><a href="../index.html"><i class="fa fa-home"></i> Home </a>
                   </li>
-                  <li><a><i class="fa fa-file-text"></i> VS Blueprint <span class="fa fa-chevron-down"></a>
+                  <li><a><i class="fa fa-file-text"></i> VS Catalogue <span class="fa fa-chevron-down"></a>
                     <ul class="nav child_menu">
                       <li><a href="./blueprint/blueprint_wizard.html">VS Blueprint onboarding</a></li>
                       <li><a href="./blueprint/blueprint.html">VS Blueprint</a></li>
                       <li><a href="./blueprint/vs_descriptor.html">VS Descriptor</a></li>
+                      <li><a href="./blueprint/vs_instance.html">VS Instance</a></li>
                     </ul>
                   </li>
                   <li><a><i class="fa fa-gears"></i> ADMIN <span class="fa fa-chevron-down"></a>
@@ -117,10 +118,10 @@
         <div class="right_col" role="main">
           <div class="">
             <div class="row">
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Selected Group</label>
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                  <select id="selectedGroup" autocomplete="off" name="input-flavour" class="col-md-7 col-xs-12" onchange=readTenants("tenantTable","response");>
+                <div class="col-md-6">
+                  <select id="selectedGroup" autocomplete="off" name="input-flavour" class="col-md-6 col-sm-6 col-xs-24" onchange=readTenants("tenantTable","response");>
                   </select>
                 </div>
               </div>

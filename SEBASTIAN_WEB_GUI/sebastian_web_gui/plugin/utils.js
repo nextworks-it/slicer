@@ -1,6 +1,6 @@
 
-var vsAddr = window.location.hostname;;
-//var vsAddr = 'localhost';
+var vsAddr = window.location.hostname;
+//var vsAddr = '10.5.1.60';
 var vsPort = '8082';
 
 var stopRefreshing = false;
@@ -370,8 +370,8 @@ function createButton(id, resId, btnName, btnCallback) {
         text += '" onclick="location.href=\'' + btnCallback + id + '\'">';
     } else {
 		if (btnCallback.toLowerCase().indexOf("instantiate") >= 0) {
-			var infoId = id.split('|')[2];
-			text += ' buttonModal_'+ btnCallback + '" data-toggle="modal" data-target="#' + btnCallback + '_' + infoId + '" data-id="' + id + '">';
+			//var infoId = id.split('|')[2];
+			text += ' buttonModal_'+ btnCallback + '" data-toggle="modal" data-target="#' + btnCallback + '_' + id + '" data-id="' + id + '">';
 		} else if (btnCallback.toLowerCase().indexOf("createtenantsla") >= 0 ||
 				   btnCallback.toLowerCase().indexOf("createvsdform") >= 0) {
 			//console.log(id);

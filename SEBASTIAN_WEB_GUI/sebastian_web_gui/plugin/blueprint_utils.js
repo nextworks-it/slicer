@@ -4,6 +4,13 @@ var translationRules = [];
 var vnfds = [];
 var apps = [];
 
+function fillBlueprintCounter(elemId, data, resId) {
+    var countDiv = document.getElementById(elemId);
+	
+	//console.log(JSON.stringify(data, null, 4));
+	countDiv.innerHTML = data.length;
+}
+
 function submitBlueprintCreationRequest(blueprintId, resId) {
     var jsonObj  = JSON.parse('{}');
     
@@ -313,8 +320,8 @@ function createVSBlueprintsTable(tableId, data, resId) {
 	}
 	var btnFlag = true;
 	var header = createTableHeaderByValues(['Id', 'Version', 'Name', 'Description', 'Configurable parameters', 'Vsd'], btnFlag, false);
-	var cbacks = [/*'blueprint_details.html?Id=', */'createVSDForm', 'deleteVSBlueprint'];
-	var names = [/*'View Blueprint', */'Create VS Descriptor', 'Delete'];
+	var cbacks = ['blueprint_details.html?Id=', 'createVSDForm', 'deleteVSBlueprint'];
+	var names = ['View Blueprint', 'Create VS Descriptor', 'Delete'];
     var columns = [['vsBlueprintId'], ['vsBlueprintVersion'], ['name'], ['vsBlueprint', 'description'], ['vsBlueprint', 'parameters'], ['activeVsdId']];
     var params = [data, btnFlag, resId, names, cbacks, columns];
 	//var conts = createVSBlueprintsTableContents(data, btnFlag, resId, names, cbacks, columns);
@@ -412,10 +419,10 @@ function createVSBlueprintDetailsTable(tableId, data, resId) {
 	}
     console.log(JSON.stringify(data, null, 4));
 	var btnFlag = false;
-	var header = createTableHeaderByValues(['Id', 'Parameters'], btnFlag, false);
+	var header = createTableHeaderByValues(['Id', 'Version', 'Name', 'Description', 'Configurable Parameters', 'VSD Id'], btnFlag, false);
 	var cbacks = [];
 	var names = [];
-    var columns = [['vsBlueprintId'], ['vsBlueprint', 'parameters']];
+    var columns = [['vsBlueprintId'], ['vsBlueprintVersion'], ['name'], ['vsBlueprint', 'description'], ['vsBlueprint', 'parameters'], ['activeVsdId']];
 	var conts = createVSBlueprintTableContents(data, btnFlag, resId, names, cbacks, columns);
 	table.innerHTML = header + conts;
 }
@@ -441,11 +448,9 @@ function createVSBlueprintTableContents(data, btnFlag, resId, names, cbacks, col
             if(values[0] instanceof Array) {
                 for (var v in values[0]) {
                     if (values[0][v] instanceof Object){
-                        console.log(JSON.stringify(values[0], null, 4));
+                        //console.log(JSON.stringify(values[0], null, 4));
                         var value = values[0][v];
-                        $.each(value, function(key, val){
-                            subTable += '<tr><td><b>' + key + '</b></td><td>' + val + '</td><tr>';
-                        });
+                        subTable += '<tr><td>' + value.parameterId + '</td><tr>';
                     } else {
                         subTable += '<tr><td>' + values[0][v] + '</td><tr>';
                     }
@@ -453,7 +458,7 @@ function createVSBlueprintTableContents(data, btnFlag, resId, names, cbacks, col
                 subText += subTable + '</table>';
             } else {
                 if (values[0] instanceof Object){
-                    console.log(JSON.stringify(values[0], null, 4));
+                    //console.log(JSON.stringify(values[0], null, 4));
                     var value = values[0];
                     $.each(value, function(key, val){
                         subTable += '<tr><td><b>' + key + '</b></td><td>' + val + '</td><tr>';
