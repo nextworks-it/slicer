@@ -22,6 +22,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import it.nextworks.nfvmano.libs.common.exceptions.AlreadyExistingEntityException;
@@ -61,6 +63,10 @@ public class AdminService {
 	
 	@Autowired
 	private SlaConstraintRepository slaConstraintRepository;
+
+	@Autowired
+	@Qualifier("sPasswordEncoder")
+	private PasswordEncoder passwordEncoder;
 	
 	public AdminService() {	}
 
@@ -97,7 +103,11 @@ public class AdminService {
 		TenantGroup tg = getGroup(groupName);
 		Optional<Tenant> tenantOpt = tenantRepository.findByUsername(tenant.getUsername());
 		if (tenantOpt.isPresent()) throw new AlreadyExistingEntityException("Tenant " + tenant.getUsername() + " already present in DB.");
-		Tenant target = new Tenant(tg, tenant.getUsername(), tenant.getPassword());
+		Tenant target = new Tenant(
+				tg,
+				tenant.getUsername(),
+				passwordEncoder.encode(tenant.getPassword())
+		);
 		tenantRepository.saveAndFlush(target);
 		log.debug("Tenant " + tenant.getUsername() + " added in internal DB.");
 	}

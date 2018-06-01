@@ -88,7 +88,7 @@ public class TimeoRestClient {
 	}
 	
 	
-	//********************** NS LCM methods ********************************//
+	//******************************** NS LCM methods ********************************//
 	
 	public String createNsIdentifier(CreateNsIdentifierRequest request) throws NotExistingEntityException, FailedOperationException, MalformattedElementException {
 
@@ -307,7 +307,7 @@ public class TimeoRestClient {
 
 	}
 	
-	//********************** NSD methods ********************************//
+	//******************************** NSD methods ********************************//
 	
 	
 	public String onboardNsd(OnboardNsdRequest request) throws MalformattedElementException, AlreadyExistingEntityException, FailedOperationException {
@@ -449,7 +449,7 @@ public class TimeoRestClient {
 		}
 	}
 	
-	//********************** VNF package methods ********************************//
+	//******************************** VNF package methods ********************************//
 	
 	public OnBoardVnfPackageResponse onBoardVnfPackage(OnBoardVnfPackageRequest request)
 			throws AlreadyExistingEntityException, FailedOperationException, MalformattedElementException {
@@ -522,7 +522,7 @@ public class TimeoRestClient {
 		}
 	}
 	
-	//********************** MEC App package methods ********************************//
+	//******************************** MEC App package methods ********************************//
 	
 	public QueryOnBoadedAppPkgInfoResponse queryApplicationPackage(GeneralizedQueryRequest request)
 			throws NotExistingEntityException, MalformattedElementException {
