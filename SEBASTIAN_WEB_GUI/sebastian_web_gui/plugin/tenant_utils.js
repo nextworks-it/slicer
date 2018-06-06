@@ -325,7 +325,7 @@ function createTenantSLAModals(tenantId, type, enabled) {
                   <div class="modal-header">\
                     <button type="button" class="close" data-dismiss="modal" aria-label="Cancel"><span aria-hidden="true">×</span>\
                     </button>\
-                    <h4 class="modal-title" id="myModalLabel">Add MEC SLA for tenant ' + tenantId + '</h4>\
+                    <h4 class="modal-title" id="myModalLabel">Add ' + type + 'SLA for tenant ' + tenantId + '</h4>\
                   </div>\
                   <div class="modal-body">\
                     <div class="form-group">\
@@ -367,7 +367,7 @@ function createTenantSLAModals(tenantId, type, enabled) {
                             </div>\
                           </div>\
 													<div class="form-group">\
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">vCUP <!-- span class="required">*</span -->\
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">vCPU <!-- span class="required">*</span -->\
                             </label>\
                             <div class="col-md-6 col-sm-6 col-xs-12">\
                               <input id="' + type + 'createSLA_' + tenantId +'_cpu0" required="required" class="date-picker form-control col-md-7 col-xs-12" type="text">\
