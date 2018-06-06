@@ -1,0 +1,175 @@
+/*
+* Copyright 2018 Nextworks s.r.l.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+.left_col {
+	background:#233F67 
+}
+
+.nav_title {
+	background:#233F67
+}
+
+/*.top_nav .nav .open>a,.top_nav .nav .open>a:focus,.top_nav .nav .open>a:hover,.top_nav .nav>li>a:focus,.top_nav .nav>li>a:hover {
+	background:#233F67
+}*/
+
+body {
+	background:#233F67
+}
+
+.sidebar-footer {
+	background:#233F67
+
+}
+
+.nav.side-menu>li.active>a {
+	text-shadow:rgba(0,0,0,.25) 0 -1px 0;
+	background:linear-gradient(#2B5797,#1A2431),#233F67;
+	box-shadow:rgba(0,0,0,.25) 0 1px 0,inset rgba(255,255,255,.16) 0 1px 0
+}
+
+.nav.side-menu>li.active,.nav.side-menu>li.current-page {
+	border-right:5px solid #ff6a5c
+}
+
+.nav-md ul.nav.child_menu li:before {
+    background: #ccdfcb
+}
+
+.nav-md ul.nav.child_menu li:after {
+    border-left: 1px solid #ccdfcb
+}
+
+.btn-info{
+	color:#fff;
+	background-color:#233F67;
+	border-color:#1B2737
+}
+
+.btn-info.focus,.btn-info:focus{
+	color:#fff;
+	background-color:#264879;
+	border-color:#1B2737
+}
+
+.btn-info:hover{
+	color:#fff;
+	background-color:#264879;
+	border-color:#1B2737
+}
+
+.btn-info.active,.btn-info:active,.open>.dropdown-toggle.btn-info{
+	color:#fff;
+	background-color:#2B5797;
+	border-color:#1B2737
+}
+
+.btn-info.active.focus,.btn-info.active:focus,.btn-info.active:hover,.btn-info:active.focus,.btn-info:active:focus,.btn-info:active:hover,.open>.dropdown-toggle.btn-info.focus,.open>.dropdown-toggle.btn-info:focus,.open>.dropdown-toggle.btn-info:hover{
+	color:#fff;
+	background-color:#2B5797;
+	border-color:#1B2737
+}
+
+.btn-info.active,.btn-info:active,.open>.dropdown-toggle.btn-info{
+	background-image:none
+}
+
+.btn-info.disabled.focus,.btn-info.disabled:focus,.btn-info.disabled:hover,.btn-info[disabled].focus,.btn-info[disabled]:focus,.btn-info[disabled]:hover,fieldset[disabled] .btn-info.focus,fieldset[disabled] .btn-info:focus,fieldset[disabled] .btn-info:hover{
+	background-color:#264879;
+	border-color:#1B2737
+
+}
+
+.btn-info .badge{
+	color:#264879;
+	background-color:#fff
+}
+
+.btn-primary {
+	color:#fff;
+	background-color:#233F67;
+	border-color:#1B2737
+}
+
+.btn-primary.focus,.btn-primary:focus{
+	color:#fff;
+	background-color:#264879;
+	border-color:#1B2737
+}
+
+.btn-primary:hover{
+	color:#fff;
+	background-color:#264879;
+	border-color:#1B2737
+}
+
+.btn-primary.active,.btn-primary:active,.open>.dropdown-toggle.btn-primary{
+	color:#fff;
+	background-color:#2B5797;
+	border-color:#1B2737
+}
+
+.btn-primary.active.focus,.btn-primary.active:focus,.btn-primary.active:hover,.btn-primary:active.focus,.btn-primary:active:focus,.btn-primary:active:hover,.open>.dropdown-toggle.btn-primary.focus,.open>.dropdown-toggle.btn-primary:focus,.open>.dropdown-toggle.btn-primary:hover{
+	color:#fff;
+	background-color:#2B5797;
+	border-color:#1B2737
+}
+
+.btn-primary.active,.btn-primary:active,.open>.dropdown-toggle.btn-primary{
+	background-image:none
+}
+
+.btn-primary.disabled.focus,.btn-primary.disabled:focus,.btn-primary.disabled:hover,.btn-primary[disabled].focus,.btn-primary[disabled]:focus,.btn-primary[disabled]:hover,fieldset[disabled] .btn-primary.focus,fieldset[disabled] .btn-primary:focus,fieldset[disabled] .btn-primary:hover{
+	background-color:#264879;
+	border-color:#1B2737
+
+}
+
+.btn-primary .badge{
+	color:#264879;
+	background-color:#fff
+}
+
+.btn-success {
+	background:rgba(30,113,69,1);
+	border:1px solid #0f501e
+}
+
+.btn-opt {
+	background:#034242;
+	border:1px solid #407b7b
+}
+
+.btn-success.active,.btn-success:active,.btn-success:focus,.btn-success:hover,.open .dropdown-toggle.btn-success {
+	background:rgba(30,113,69,.88)
+}
+
+.alert-info {
+	color:#E9EDEF;
+	background-color:rgba(30,113,69,.88);
+	border-color:rgba(30,113,69,.88)
+}
+
+.wizard_horizontal ul.wizard_steps li a.done:before,
+.wizard_horizontal ul.wizard_steps li a.done .step_no {
+    background: rgba(30,113,69,1);
+    color: #fff
+}
+
+.wizard_horizontal ul.wizard_steps li a.selected:before,
+.step_no {
+    background: #233F67;
+    color: #fff
+}

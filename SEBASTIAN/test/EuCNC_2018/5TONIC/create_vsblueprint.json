@@ -1,0 +1,35 @@
+{
+	"vsBlueprint": {
+		"version": "0.1",
+		"name": "CDN",
+		"description": "Content Delivery Network",
+		"parameters": [{
+			"parameterId": "users",
+			"parameterName": "users",
+			"parameterType": "number",
+			"parameterDescription": "number of CDN users",
+			"applicabilityField": "media"
+		}]
+	},
+	"translationRules": [{
+		"nsdId": "vCDN_v02",
+		"nsdVersion": "0.2",
+		"nsFlavourId": "df_vCDN",
+		"nsInstantiationLevelId": "il_vCDN_big",
+		"input": [{
+			"parameterId": "users",
+			"minValue": 1001,
+			"maxValue": 2500
+		}]
+	}, {
+		"nsdId": "vCDN_v02",
+		"nsdVersion": "0.2",
+		"nsFlavourId": "df_vCDN",
+		"nsInstantiationLevelId": "il_vCDN_small",
+		"input": [{
+			"parameterId": "users",
+			"minValue": 1,
+			"maxValue": 1000
+		}]
+	}]
+}

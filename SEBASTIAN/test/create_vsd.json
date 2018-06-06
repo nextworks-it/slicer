@@ -1,0 +1,14 @@
+{
+	"vsd":{
+		"name":"VSD_TEST",
+		"version":"0.1",
+		"vsBlueprintId":"1",
+		"sst":"EMBB",
+		"managementType":"PROVIDER_MANAGED",
+		"qosParameters":{
+			"users":"50"
+		}
+	},
+	"tenantId":"CRF",
+	"isPublic":true
+}

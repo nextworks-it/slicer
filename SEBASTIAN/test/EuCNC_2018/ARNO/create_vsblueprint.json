@@ -1,0 +1,25 @@
+{
+	"vsBlueprint": {
+		"version": "0.1",
+		"name": "vEPC",
+		"description": "virtual Evolved Packet Core",
+		"parameters": [{
+			"parameterId": "users",
+			"parameterName": "users",
+			"parameterType": "number",
+			"parameterDescription": "number of vEPC users",
+			"applicabilityField": "media"
+		}]
+	},
+	"translationRules": [{
+		"nsdId": "vEPC_v01",
+		"nsdVersion": "0.1",
+		"nsFlavourId": "df_vEPC",
+		"nsInstantiationLevelId": "il_vEPC",
+		"input": [{
+			"parameterId": "users",
+			"minValue": 1,
+			"maxValue": 10000
+		}]
+	}]
+}
