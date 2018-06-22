@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -66,6 +67,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Qualifier("sPasswordEncoder")
     private PasswordEncoder passwordEncoder;
 
+    @Value("${sebastian.admin}")
+    private String adminTenant;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth)
             throws Exception {
@@ -78,19 +82,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         // Add bootstrap user & group
 
-        tenantService.createGroup("admin");
+        tenantService.createGroup(adminTenant);
         tenantService.createGroup("user");
         Tenant admin = new Tenant(
                 null,
-                "admin",
-                "admin"
+                adminTenant,
+                adminTenant
         );
         Tenant user = new Tenant(
                 null,
                 "user",
                 "user"
         );
-        tenantService.createTenant(admin, "admin");
+        tenantService.createTenant(admin, adminTenant);
         tenantService.createTenant(user, "user");
         log.info("Security configuration complete.");
     }
@@ -103,7 +107,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(restAuthenticationEntryPoint)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/vs/admin/**").hasAuthority("admin")
+                .antMatchers("/vs/admin/**").hasAuthority(adminTenant)
                 // TODO add permission for /vs/admin/group/<g_name> ???
                 .antMatchers("/vs/**").authenticated()
                 .and()

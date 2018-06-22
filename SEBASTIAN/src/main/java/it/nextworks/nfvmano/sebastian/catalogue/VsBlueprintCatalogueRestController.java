@@ -17,11 +17,15 @@ package it.nextworks.nfvmano.sebastian.catalogue;
 
 import java.util.List;
 
+import it.nextworks.nfvmano.libs.common.exceptions.NotPermittedOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,11 +53,27 @@ public class VsBlueprintCatalogueRestController {
 	@Autowired
 	private VsBlueprintCatalogueService vsBlueprintCatalogueService;
 
+	@Value("${sebastian.admin}")
+	private String adminTenant;
+
+	private static String getUserFromAuth(Authentication auth) {
+		Object principal = auth.getPrincipal();
+		if (!UserDetails.class.isAssignableFrom(principal.getClass())) {
+			throw new IllegalArgumentException("Auth.getPrincipal() does not implement UserDetails");
+		}
+		return ((UserDetails) principal).getUsername();
+	}
+
 	public VsBlueprintCatalogueRestController() { }
 	
 	@RequestMapping(value = "/vsblueprint", method = RequestMethod.POST)
-	public ResponseEntity<?> createVsBlueprint(@RequestBody OnBoardVsBlueprintRequest request) {
+	public ResponseEntity<?> createVsBlueprint(@RequestBody OnBoardVsBlueprintRequest request, Authentication auth) {
 		log.debug("Received request to create a VS blueprint.");
+		String user = getUserFromAuth(auth);
+		if (!user.equals(adminTenant)) {
+			log.warn("Request refused as tenant {} is not admin.", user);
+			return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		}
 		try {
 			String vsBlueprintId = vsBlueprintCatalogueService.onBoardVsBlueprint(request);
 			return new ResponseEntity<String>(vsBlueprintId, HttpStatus.CREATED);
@@ -106,8 +126,13 @@ public class VsBlueprintCatalogueRestController {
 	}
 	
 	@RequestMapping(value = "/vsblueprint/{vsbId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deleteVsBlueprint(@PathVariable String vsbId) {
+	public ResponseEntity<?> deleteVsBlueprint(@PathVariable String vsbId, Authentication auth) {
 		log.debug("Received request to delete VS blueprint with ID " + vsbId);
+		String user = getUserFromAuth(auth);
+		if (!user.equals(adminTenant)) {
+			log.warn("Request refused as tenant {} is not admin.", user);
+			return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		}
 		try {
 			vsBlueprintCatalogueService.deleteVsBlueprint(vsbId); 
 			return new ResponseEntity<>(HttpStatus.OK);

@@ -92,6 +92,7 @@ public class InstantiateVsRequest implements InterfaceMessage {
 	}
 
 
+
 	/**
 	 * @return the notificationUrl
 	 */
@@ -113,7 +114,7 @@ public class InstantiateVsRequest implements InterfaceMessage {
 		if (name == null) throw new MalformattedElementException("Instantiate VS request without VS instance name");
 		if (description == null) throw new MalformattedElementException("Instantiate VS request without VS instance description");
 		if (vsdId == null) throw new MalformattedElementException("Instantiate VS request without VSD ID");
-		if (tenantId == null) throw new MalformattedElementException("Instantiate VS request without tenant ID");
+		//if (tenantId == null) throw new MalformattedElementException("Instantiate VS request without tenant ID");
 	}
 
 }

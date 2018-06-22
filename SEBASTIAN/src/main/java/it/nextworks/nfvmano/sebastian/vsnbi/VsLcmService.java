@@ -149,9 +149,8 @@ public class VsLcmService implements VsLcmProviderInterface {
 							//TODO: in order to get VNF info we should interact with the VNFM... Still thinking about how to do that.
 						} else log.debug("The Network Slice is not associated to any NFV Network Service. No interconnection info available.");
 					} else log.debug("The VS is not associated to any Network Slice. No interconnection info available.");
-					QueryVsResponse vsResponse = new QueryVsResponse(vsiId, vsi.getName(), vsi.getDescription(), vsi.getVsdId(), vsi.getStatus(), 
+					return new QueryVsResponse(vsiId, vsi.getName(), vsi.getDescription(), vsi.getVsdId(), vsi.getStatus(),
 							externalInterconnections, internalInterconnections, vsi.getErrorMessage());
-					return vsResponse;
 				} else {
 					log.error("The tenant has not access to the given VSI");
 					throw new NotPermittedOperationException("Tenant " + tenantId + " has not access to VSI with ID " + vsiId);

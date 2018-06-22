@@ -23,6 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,11 +57,23 @@ public class VsLcmBasicRestController {
 	private String adminTenant;
 	
 	public VsLcmBasicRestController() {	}
+
+	private static String getUserFromAuth(Authentication auth) {
+		Object principal = auth.getPrincipal();
+		if (!UserDetails.class.isAssignableFrom(principal.getClass())) {
+			throw new IllegalArgumentException("Auth.getPrincipal() does not implement UserDetails");
+		}
+		return ((UserDetails) principal).getUsername();
+	}
 	
 	@RequestMapping(value = "/vs", method = RequestMethod.POST)
-	public ResponseEntity<?> instantiateVs(@RequestBody InstantiateVsRequest request) {
+	public ResponseEntity<?> instantiateVs(@RequestBody InstantiateVsRequest request, Authentication auth) {
 		log.debug("Received request to instantiate a new Vertical Service.");
 		try {
+			String username = ((UserDetails) auth.getDetails()).getUsername();
+			if (!request.getTenantId().equals(username)) {
+				return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+			}
 			String vsId = vsLcmService.instantiateVs(request);
 			return new ResponseEntity<String>(vsId, HttpStatus.CREATED);
 		} catch (NotExistingEntityException e) {
@@ -77,11 +92,11 @@ public class VsLcmBasicRestController {
 	}
 	
 	@RequestMapping(value = "/vs/{vsiId}", method = RequestMethod.GET)
-	public ResponseEntity<?> getVsInstance(@PathVariable String vsiId) {
+	public ResponseEntity<?> getVsInstance(@PathVariable String vsiId, Authentication auth) {
 		log.debug("Received request to retrieve VS instance with ID " + vsiId);
 		try {
-			//TODO: this is to be fixed when we will support the authentication. At the moment it returns all the VSIs, independently on the tenant.
-			QueryVsResponse response = vsLcmService.queryVs(new GeneralizedQueryRequest(Utilities.buildVsInstanceFilter(vsiId, adminTenant), null)); 
+			String user = getUserFromAuth(auth);
+			QueryVsResponse response = vsLcmService.queryVs(new GeneralizedQueryRequest(Utilities.buildVsInstanceFilter(vsiId, user), null));
 			return new ResponseEntity<QueryVsResponse>(response, HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
@@ -99,11 +114,11 @@ public class VsLcmBasicRestController {
 	}
 	
 	@RequestMapping(value = "/vsId", method = RequestMethod.GET)
-	public ResponseEntity<?> getAllVsInstancesId() {
+	public ResponseEntity<?> getAllVsInstancesId(Authentication auth) {
 		log.debug("Received request to retrieve all the VS instances ID.");
 		try {
-			//TODO: this is to be fixed when we will support the authentication. At the moment it returns all the VSIs, independently on the tenant.
-			List<String> response = vsLcmService.queryAllVsIds(new GeneralizedQueryRequest(Utilities.buildTenantFilter(adminTenant), null)); 
+			String user = getUserFromAuth(auth);
+			List<String> response = vsLcmService.queryAllVsIds(new GeneralizedQueryRequest(Utilities.buildTenantFilter(user), null));
 			return new ResponseEntity<List<String>>(response, HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
@@ -119,11 +134,11 @@ public class VsLcmBasicRestController {
 	
 	
 	@RequestMapping(value = "/vs/{vsiId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> terminateVsInstance(@PathVariable String vsiId) {
+	public ResponseEntity<?> terminateVsInstance(@PathVariable String vsiId, Authentication auth) {
 		log.debug("Received request to terminate VS instance with ID " + vsiId);
 		try {
-			//TODO: this is to be fixed when we will support the authentication. At the moment it returns all the VSIs, independently on the tenant.
-			vsLcmService.terminateVs(new TerminateVsRequest(vsiId, adminTenant)); 
+			String user = getUserFromAuth(auth);
+			vsLcmService.terminateVs(new TerminateVsRequest(vsiId, user));
 			return new ResponseEntity<QueryVsResponse>(HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
@@ -141,9 +156,13 @@ public class VsLcmBasicRestController {
 	}
 	
 	@RequestMapping(value = "/vs/{vsiId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> modifyVsInstance(@PathVariable String vsiId, @RequestBody ModifyVsRequest request) {
+	public ResponseEntity<?> modifyVsInstance(@PathVariable String vsiId, @RequestBody ModifyVsRequest request, Authentication auth) {
 		log.debug("Received request to modify VS instance with ID " + vsiId);
 		try {
+			String user = getUserFromAuth(auth);
+			if (!request.getTenantId().equals(user)) {
+				return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+			}
 			vsLcmService.modifyVs(request); 
 			return new ResponseEntity<QueryVsResponse>(HttpStatus.OK);
 		} catch (MalformattedElementException e) {

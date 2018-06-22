@@ -37,7 +37,7 @@ public class PasswordEncoderConfig {
     public PasswordEncoder sPasswordEncoder(){
         switch (encoderType) {
             case BCRYPT:
-                return new BCryptPasswordEncoder(16);
+                return new BCryptPasswordEncoder(10);
             case NOOP:
                 return NoOpPasswordEncoder.getInstance();
             default:

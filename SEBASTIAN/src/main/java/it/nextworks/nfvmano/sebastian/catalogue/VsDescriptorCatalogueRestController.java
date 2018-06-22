@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,12 +53,24 @@ public class VsDescriptorCatalogueRestController {
 	
 	@Value("${sebastian.admin}")
 	private String adminTenant;
+
+	private static String getUserFromAuth(Authentication auth) {
+		Object principal = auth.getPrincipal();
+		if (!UserDetails.class.isAssignableFrom(principal.getClass())) {
+			throw new IllegalArgumentException("Auth.getPrincipal() does not implement UserDetails");
+		}
+		return ((UserDetails) principal).getUsername();
+	}
 	
 	public VsDescriptorCatalogueRestController() { } 
 	
 	@RequestMapping(value = "/vsdescriptor", method = RequestMethod.POST)
-	public ResponseEntity<?> createVsDescriptor(@RequestBody OnboardVsDescriptorRequest request) {
+	public ResponseEntity<?> createVsDescriptor(@RequestBody OnboardVsDescriptorRequest request, Authentication auth) {
 		log.debug("Received request to create a VS descriptor.");
+		String user = getUserFromAuth(auth);
+		if (!request.getTenantId().equals(user)) {
+			return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		}
 		try {
 			String vsDescriptorId = vsDescriptorCatalogueService.onBoardVsDescriptor(request);
 			return new ResponseEntity<String>(vsDescriptorId, HttpStatus.CREATED);
@@ -73,11 +87,13 @@ public class VsDescriptorCatalogueRestController {
 	}
 	
 	@RequestMapping(value = "/vsdescriptor", method = RequestMethod.GET)
-	public ResponseEntity<?> getAllVsDescriptors() {
+	public ResponseEntity<?> getAllVsDescriptors(Authentication auth) {
 		log.debug("Received request to retrieve all the VS descriptors.");
 		try {
-			//TODO: this is to be fixed when we will support the authentication. At the moment it returns all the VSDs, independently on the tenant.
-			QueryVsDescriptorResponse response = vsDescriptorCatalogueService.queryVsDescriptor(new GeneralizedQueryRequest(Utilities.buildTenantFilter(adminTenant), null)); 
+			String user = getUserFromAuth(auth);
+			QueryVsDescriptorResponse response = vsDescriptorCatalogueService.queryVsDescriptor(
+					new GeneralizedQueryRequest(Utilities.buildTenantFilter(user), null)
+			);
 			return new ResponseEntity<List<VsDescriptor>>(response.getVsDescriptors(), HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
@@ -92,11 +108,16 @@ public class VsDescriptorCatalogueRestController {
 	}
 	
 	@RequestMapping(value = "/vsdescriptor/{vsdId}", method = RequestMethod.GET)
-	public ResponseEntity<?> getVsDescriptor(@PathVariable String vsdId) {
+	public ResponseEntity<?> getVsDescriptor(@PathVariable String vsdId, Authentication auth) {
 		log.debug("Received request to retrieve VS descriptor with ID " + vsdId);
 		try {
-			//TODO: this is to be fixed when we will support the authentication. At the moment it returns all the VSDs, independently on the tenant.
-			QueryVsDescriptorResponse response = vsDescriptorCatalogueService.queryVsDescriptor(new GeneralizedQueryRequest(Utilities.buildVsDescriptorFilter(vsdId, adminTenant), null)); 
+			String user = getUserFromAuth(auth);
+			QueryVsDescriptorResponse response = vsDescriptorCatalogueService.queryVsDescriptor(
+					new GeneralizedQueryRequest(
+							Utilities.buildVsDescriptorFilter(vsdId, user),
+							null
+					)
+			);
 			return new ResponseEntity<VsDescriptor>(response.getVsDescriptors().get(0), HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
@@ -111,11 +132,11 @@ public class VsDescriptorCatalogueRestController {
 	}
 	
 	@RequestMapping(value = "/vsdescriptor/{vsdId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deleteVsDescriptor(@PathVariable String vsdId) {
+	public ResponseEntity<?> deleteVsDescriptor(@PathVariable String vsdId, Authentication auth) {
 		log.debug("Received request to delete VS descriptor with ID " + vsdId);
 		try {
-			//TODO: this is to be fixed when we will support the authentication. At the moment it returns all the VSDs, independently on the tenant.
-			vsDescriptorCatalogueService.deleteVsDescriptor(vsdId, adminTenant);
+			String user = getUserFromAuth(auth);
+			vsDescriptorCatalogueService.deleteVsDescriptor(vsdId, user);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");

@@ -59,7 +59,6 @@ public class OnboardVsDescriptorRequest implements InterfaceMessage {
 	}
 
 
-
 	/**
 	 * @return the isPublic
 	 */
