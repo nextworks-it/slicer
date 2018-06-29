@@ -28,6 +28,7 @@ import it.nextworks.nfvmano.sebastian.admin.elements.TenantGroup;
 import it.nextworks.nfvmano.sebastian.admin.repo.TenantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -48,6 +49,9 @@ public class SlicerUserDetailsService implements UserDetailsService {
     //get user from the database, via Hibernate
     @Autowired
     private TenantRepository userRepo;
+
+    @Value("${sebastian.admin}")
+    private String adminTenant;
 
     @Override
     public UserDetails loadUserByUsername(final String username)
@@ -82,7 +86,11 @@ public class SlicerUserDetailsService implements UserDetailsService {
     private List<GrantedAuthority> buildUserAuthority(TenantGroup group) {
 
         Set<GrantedAuthority> setAuths = new HashSet<>();
-        setAuths.add(new SimpleGrantedAuthority(group.getName()));
+        if (group.getName().equals(adminTenant)) {
+            setAuths.add(new SimpleGrantedAuthority("ADMIN"));
+        } else {
+            setAuths.add(new SimpleGrantedAuthority("TENANT"));
+        }
 
         return new ArrayList<>(setAuths);
     }

@@ -108,7 +108,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/vs/admin/**").hasAuthority(adminTenant)
-                // TODO add permission for /vs/admin/group/<g_name> ???
                 .antMatchers("/vs/**").authenticated()
                 .and()
                 .formLogin()

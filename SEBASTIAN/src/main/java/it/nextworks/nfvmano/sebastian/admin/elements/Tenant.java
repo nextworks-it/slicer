@@ -127,9 +127,7 @@ public class Tenant {
 	public String getPassword() {
 		return password;
 	}
-	
-	
-	
+
 	/**
 	 * @return the sla
 	 */
