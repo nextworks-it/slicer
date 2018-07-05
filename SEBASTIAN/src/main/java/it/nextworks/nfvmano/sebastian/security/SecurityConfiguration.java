@@ -17,7 +17,6 @@ package it.nextworks.nfvmano.sebastian.security;
 
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
-import it.nextworks.nfvmano.sebastian.admin.elements.TenantGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,26 +24,25 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Created by Marco Capitani on 29/05/18.
  *
  * @author Marco Capitani <m.capitani AT nextworks.it>
  */
-@Configuration
 @EnableWebSecurity
 @ComponentScan("it.nextworks.test")
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -69,6 +67,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Value("${sebastian.admin}")
     private String adminTenant;
+
+    @Autowired
+    private SebCorsFilter sebCorsFilter;
+
+    @Bean
+    CorsFilter cFilter() {
+        return new CorsFilter(corsConfigurationSource());
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth)
@@ -102,6 +108,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .addFilterBefore(sebCorsFilter, CorsFilter.class)
+                .cors()
+                .and()
                 .csrf().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint(restAuthenticationEntryPoint)
@@ -115,6 +124,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .failureHandler(new SimpleUrlAuthenticationFailureHandler())
                 .and()
                 .logout();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        final CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Collections.singletonList("*"));
+        configuration.setAllowedMethods(Arrays.asList("HEAD",
+                "GET", "POST", "PUT", "DELETE", "PATCH"));
+        // setAllowCredentials(true) is important, otherwise:
+        // The value of the 'Access-Control-Allow-Origin' header in the response must not be the wildcard '*' when the request's credentials mode is 'include'.
+        configuration.setAllowCredentials(true);
+        // setAllowedHeaders is important! Without it, OPTIONS preflight request
+        // will fail with 403 Invalid CORS request
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean

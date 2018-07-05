@@ -28,5 +28,4 @@ public class SebastianApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SebastianApplication.class, args);
 	}
-
 }
