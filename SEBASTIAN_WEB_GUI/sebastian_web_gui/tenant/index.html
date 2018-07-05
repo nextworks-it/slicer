@@ -22,7 +22,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>SEBASTIAN | Tenant SLA</title>
+    <title>SEBASTIAN</title>
 
     <!-- Bootstrap -->
     <link href="../../gentelella/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -35,16 +35,18 @@
 
     <!-- Custom Theme Style -->
     <link href="../../gentelella/build/css/custom.min.css" rel="stylesheet">
-    <link href="../css/sebastian.min.css" rel="stylesheet">
+    <link href="./css/sebastian.min.css" rel="stylesheet">
     
-     <!-- jQuery-3.2.1 -->
-    <script src="../plugin/jquery-3.2.1.min.js"></script>
+    <!-- jQuery-3.2.1 -->
+    <script src="./plugin/jquery-3.2.1.min.js"></script>
     
     <!-- SEBASTIAN Scripts -->
     <script src="../plugin/rest_api.js"></script>
     <script src="../plugin/utils.js"></script>
     <script src="../plugin/tenant_utils.js"></script>
-    <script src="../plugin/group_utils.js"></script>    
+    <script src="../plugin/blueprint_utils.js"></script>
+    <script src="../plugin/vsdescriptor_utils.js"></script>
+    
   </head>
 
   <body class="nav-md">
@@ -53,7 +55,7 @@
         <div class="col-md-3 left_col">
           <div class="left_col scroll-view">
             <div class="navbar nav_title" style="border: 0;">
-              <a href="../index.html" class="site_title"><i class="glyphicon glyphicon-edit"></i><!-- img src="../images/logo_timeo_400.png" style="width: 90%; margin-left: 5%; margin-right: 5%" --> <span>SEBASTIAN</span></a>
+              <a href="index.html" class="site_title"><i class="glyphicon glyphicon-edit"></i><!--img src="./images/logo_timeo_400.png" style="width: 90%; margin-left: 5%; margin-right: 5%" --> <span>SEBASTIAN</span></a>
             </div>
 
             <div class="clearfix"></div>
@@ -65,21 +67,17 @@
               <div class="menu_section">
                 <!-- h3>General</h3 -->
                 <ul class="nav side-menu">
-                  <li><a href="../index.html"><i class="fa fa-home"></i> Home </a>
+                  <li><a href="index.html"><i class="fa fa-home"></i> Home </a>
                   </li>
                   <li><a><i class="fa fa-file-text"></i> VS Catalogue <span class="fa fa-chevron-down"></a>
                     <ul class="nav child_menu">
-                      <li><a href="./blueprint/blueprint_wizard.html">VS Blueprint onboarding</a></li>
-                      <li><a href="./blueprint/blueprint.html">VS Blueprint</a></li>
-                      <li><a href="./blueprint/vs_descriptor.html">VS Descriptor</a></li>
-                      <li><a href="./blueprint/vs_instance.html">VS Instance</a></li>
+                      <li><a href="./pages/blueprint/blueprint.html">VS Blueprint</a></li>
+                      <li><a href="./pages/blueprint/vs_descriptor.html">VS Descriptor</a></li>
                     </ul>
                   </li>
-                  <li><a><i class="fa fa-gears"></i> ADMIN <span class="fa fa-chevron-down"></a>
-                    <ul class="nav child_menu">
-                      <li><a href="group.html">Group</a></li>
-                      <li><a href="tenant.html">Tenant</a></li>
-                    </ul>
+                  <li><a href="./pages/blueprint/vs_descriptor.html"><i class="fa fa-file-text-o"></i> VS  Descriptors </a>
+                  </li>
+                  <li><a href="./pages/blueprint/vs_instance.html"><i class="fa fa-file-o"></i> VS Instance </a>
                   </li>
                 </ul>
               </div>
@@ -115,7 +113,7 @@
               <ul class="nav navbar-nav navbar-right">
                 <li class="">
                   <a href="http://www.nextworks.it">
-                    <img src="../images/logo_nextworks_150.png" alt="">
+                    <img src="./images/logo_nextworks_150.png" alt="">
                   </a>
                 </li>
               </ul>
@@ -127,95 +125,64 @@
         <!-- page content -->
         <div class="right_col" role="main">
           <div class="">
+            <div class="row top_tiles">
+              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <div class="tile-stats">
+                  <div class="icon"><i class="fa fa-users"></i></div>
+                  <div class="count" id="count-Tenant">0</div>
+                  <h3><a href="./pages/tenant.html">Tenants</a></h3>
+                  <p></p>
+                </div>
+              </div>
+              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <div class="tile-stats">
+                  <div class="icon"><i class="fa fa-file-text"></i></div>
+                  <div class="count" id="count-Blueprint">0</div>
+                  <h3><a href="./pages/blueprint/blueprint.html">Blueprints</a></h3>
+                  <p></p>
+                </div>
+              </div>
+              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <div class="tile-stats">
+                  <div class="icon"><i class="fa fa-file-text"></i></div>
+                  <div class="count" id="count-VSD">0</div>
+                  <h3><a href="./pages/blueprint/vs_descriptor.html">VS descriptors</a></h3>
+                  <p></p>
+                </div>
+              </div>
+              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <div class="tile-stats">
+                  <div class="icon"><i class="fa fa-file-text"></i></div>
+                  <div class="count" id="count-VSI">0</div>
+                  <h3><a href="./pages/blueprint/vs_instance.html">VS instances</a></h3>
+                  <p></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+              </div>
+            </div>
+
+
+
             <div class="row">
               <div class="col-md-4">
               </div>
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <br/>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="x_panel">
-                   <div class="x_title">
-                    <h2>Tenant MEC SLAs <small></small></h2>
-                    <ul class="nav navbar-right panel_toolbox">
-                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                      </li>
-                    </ul>
-                    <div class="clearfix"></div>
-                    </div>
-                    <div class="x_content">
-                      <table class="table table-hover" id="tableMEC">
-                        <script>readTenantSLAs(["tableMEC","tableCloud","tableGlobal"], "response");</script>                        
-                      </table>
-                    </div>
-                  </div>
-                </div>
-                <div class="clearfix">
-                </div>
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="x_panel">
-                   <div class="x_title">
-                    <h2>Tenant Cloud SLA<small></small></h2>
-                    <ul class="nav navbar-right panel_toolbox">
-                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                      </li>
-                    </ul>
-                    <div class="clearfix"></div>
-                    </div>
-                    <div class="x_content">
-                      <table class="table table-hover" id="tableCloud">                       
-                      </table>
-                    </div>
-                  </div>
-                </div>
-                <div class="clearfix">
-                </div>
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="x_panel">
-                   <div class="x_title">
-                    <h2>Tenant Global SLA<small></small></h2>
-                    <ul class="nav navbar-right panel_toolbox">
-                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                      </li>
-                    </ul>
-                    <div class="clearfix"></div>
-                    </div>
-                    <div class="x_content">
-                      <table class="table table-hover" id="tableGlobal">     
-                      </table>
-                    </div>
-                  </div>
-                </div>
-                <div class="clearfix">
-                </div>
-            </div>
-		  
-            <div class="row">
-              <div class="col-md-12">
-              </div>
-            </div>
-	
-            <div class="row">
-              <div class="col-md-4">
-                <button type="button" class="btn btn-info btn-md" onclick=window.history.back();><i class="fa fa-caret-square-o-left"></i> Back</button>
-              </div>
-      
+
               <div class="col-md-4">
               </div>
-      
+
               <div class="col-md-4">
               </div>
             </div>
-        
-        
+            
             <div class="row">
               <div class="col-md-6" id="response">
               </div>
@@ -234,7 +201,13 @@
         <!-- /footer content -->
       </div>
     </div>
-
+    
+    <!-- SEBASTIAN COUNTER -->
+    <script>getAllTenants("count-Tenant","response",fillTenantCounter);</script>
+    <script>getVSBlueprints("count-Blueprint","response",fillBlueprintCounter);</script>
+    <script>getAllVSDescriptors("count-VSD","response",fillVSDCounter);</script>
+    <script>getVSInstanceIds("count-VSI","response",fillVSICounter);</script>
+    
     <!-- jQuery -->
     <script src="../../gentelella/vendors/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap -->

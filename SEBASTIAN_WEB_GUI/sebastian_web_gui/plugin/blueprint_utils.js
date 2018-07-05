@@ -19,14 +19,14 @@ var translationRules = [];
 var vnfds = [];
 var apps = [];
 
-function fillBlueprintCounter(elemId, data, resId) {
+function fillBlueprintCounter(data, elemId) {
     var countDiv = document.getElementById(elemId);
 	
 	//console.log(JSON.stringify(data, null, 4));
 	countDiv.innerHTML = data.length;
 }
 
-function submitBlueprintCreationRequest(blueprintId, resId) {
+function submitBlueprintCreationRequest(blueprintId) {
     var jsonObj  = JSON.parse('{}');
     
     var blueprint = document.getElementById(blueprintId).innerHTML;
@@ -44,10 +44,10 @@ function submitBlueprintCreationRequest(blueprintId, resId) {
     
     console.log(json);
     
-    postJsonToURL('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint', json, resId, 'VS Blueprint successfully onboarded', 'Error while onboarding VS Blueprint', showResultMessage);   
+    postJsonToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint', json, showResultMessage, ['VS Blueprint successfully onboarded', 'Error while onboarding VS Blueprint']);   
 }
 
-function createVSDFromForm(formIds, qosNum, resId) {
+function createVSDFromForm(formIds, qosNum) {
     var jsonObj = JSON.parse('{}');
     
     var vsdObj = JSON.parse('{}');
@@ -95,28 +95,28 @@ function createVSDFromForm(formIds, qosNum, resId) {
     
     console.log(json);
     
-    postJsonToURL('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsdescriptor', json, resId, 'VS descriptor successfully created', 'Error while creating VS descriptor', showResultMessage);
+    postJsonToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsdescriptor', json, showResultMessage, ['VS descriptor successfully created', 'Error while creating VS descriptor']);
 }
 
-function readVSBlueprints(tableId, resId) {
-    getVSBlueprints(tableId, resId, createVSBlueprintsTable);    
+function readVSBlueprints(tableId) {
+    getVSBlueprints(tableId, createVSBlueprintsTable);    
 }
 
-function getVSBlueprints(elemId, resId, callback) {
-    getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint', elemId, callback, resId, null, null);
+function getVSBlueprints(elemId, callback) {
+    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint', callback, elemId);
 }
 
-function readVSBlueprint(tableId, resId) {
+function readVSBlueprint(tableId) {
     var id = getURLParameter('Id');
-    getVSBlueprint(id, tableId, resId, createVSBlueprintDetailsTable);
+    getVSBlueprint(id, tableId, createVSBlueprintDetailsTable);
 }
 
-function getVSBlueprint(id, elemId, resId, callback) {
-    getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint/' + id, elemId, callback, resId, null, null);
+function getVSBlueprint(id, elemId, callback) {
+    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint/' + id, callback, elemId);
 }
 
-function deleteVSBlueprint(blueprintId, resId) {
-    deleteRequestToURL('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint/' + blueprintId, resId, "VS Blueprint successfully deleted", "Unable to delete VS Blueprint", showResultMessage);
+function deleteVSBlueprint(blueprintId) {
+    deleteRequestToURL('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint/' + blueprintId, showResultMessage, ['VS Blueprint successfully deleted', 'Unable to delete VS Blueprint']);
 }
 
 function progressBlueprintWizard() {
@@ -153,12 +153,12 @@ function undoBlueprintWizard() {
     }
 }
 
-function loadBlueprintFromFileIntoForm(evt, elemId, resId) {
+function loadBlueprintFromFileIntoForm(evt, elemId) {
 	var type = 'JSON';
-	loadFromFile(type, evt, elemId, resId);
+	loadFromFile(type, evt, elemId);
 }
 
-function loadNSDsFromFileIntoArray(evt, inputId, elemId, resId) {
+function loadNSDsFromFileIntoArray(evt, inputId) {
     var input = document.getElementById(inputId);
     
     nsds = [];
@@ -175,7 +175,7 @@ function loadNSDsFromFileIntoArray(evt, inputId, elemId, resId) {
     console.log(nsds);
 }
 
-function uploadVNFDFromForm(formId, formIds, resId) {
+function uploadVNFDFromForm(formId, formIds) {
 	var jsonObj = JSON.parse('{}');
 	jsonObj.name = document.getElementById(formIds[0]).value;
 	jsonObj.version = document.getElementById(formIds[1]).value;
@@ -196,7 +196,7 @@ function uploadVNFDFromForm(formId, formIds, resId) {
     return json;
 }
 
-function uploadAppFromForm(formId, formIds, resId) {
+function uploadAppFromForm(formId, formIds) {
 	var jsonObj = JSON.parse('{}');
 	jsonObj.name = document.getElementById(formIds[0]).value;
 	jsonObj.version = document.getElementById(formIds[1]).value;
@@ -213,7 +213,7 @@ function uploadAppFromForm(formId, formIds, resId) {
     return json;
 }
 
-function uploadTRFromForm(formId, formIds, paramNum, resId) {
+function uploadTRFromForm(formId, formIds, paramNum) {
     var jsonObj = JSON.parse('{}');
 	
 	jsonObj.nsdId = document.getElementById(formIds[0]).value;
@@ -299,7 +299,7 @@ function addParameterForm(paramCounter, paramDiv) {
     document.getElementById(paramCounter).innerHTML = pnum + 1;
 }
 
-function removeParameterForm(paramCounter, paramDiv) {
+function removeParameterForm(paramCounter) {
     var pnum = parseInt(document.getElementById(paramCounter).innerHTML);
     
 	var plusBtnNum = pnum - 2;
@@ -321,7 +321,7 @@ function removeParameterForm(paramCounter, paramDiv) {
 	$('#' + divId).remove();
 }
 
-function createVSBlueprintsTable(tableId, data, resId) {
+function createVSBlueprintsTable(data, tableId) {
     //console.log(JSON.stringify(data, null, 4));
     
     var table = document.getElementById(tableId);
@@ -338,38 +338,38 @@ function createVSBlueprintsTable(tableId, data, resId) {
 	var cbacks = ['blueprint_details.html?Id=', 'createVSDForm', 'deleteVSBlueprint'];
 	var names = ['View Blueprint', 'Create VS Descriptor', 'Delete'];
     var columns = [['vsBlueprintId'], ['vsBlueprintVersion'], ['name'], ['vsBlueprint', 'description'], ['vsBlueprint', 'parameters'], ['activeVsdId']];
-    var params = [data, btnFlag, resId, names, cbacks, columns];
+    var params = [data, tableId, btnFlag, names, cbacks, columns];
 	//var conts = createVSBlueprintsTableContents(data, btnFlag, resId, names, cbacks, columns);
 	table.innerHTML = header; // + conts;
     
-    getAllVSDescriptors(tableId, params, createVSBlueprintsTableContents);
+    getAllVSDescriptors(params, createVSBlueprintsTableContents);
 }
 
-function createVSBlueprintsTableContents(tableId, vsDescriptors,  params) {
+function createVSBlueprintsTableContents(vsDescriptors,  params) {
     //console.log(JSON.stringify(vsDescriptors, null, 4));
     
     var table = document.getElementById(tableId);
     
     var data = params[0];
-    var btnFlag = params[1];
-    var resId = params[2];
+    var tableId = params[1];
+    var btnFlag = params[2];
     var names = params[3];
     var cbacks = params[4];
     var columns = params[5];
     
 	var text = '<tbody>';
 	
-	for (var j in data) {
+	for (var j = 0; j < data.length; j++) {
 		
 		var btnText = '';
 		if (btnFlag) {
-			btnText += createActionButton(data[j]['vsBlueprintId'], resId, names, cbacks);
+			btnText += createActionButton(data[j].vsBlueprintId, names, cbacks);
             
-            getAllTenants('vsdModals', ['response', data[j]['vsBlueprintId'], data[j]['vsBlueprint']['parameters']], createVSDescriptorModals);
+            getAllTenants(['vsdModals', data[j].vsBlueprintId, data[j].vsBlueprint.parameters], createVSDescriptorModals);
 		}
 		
 		text += '<tr>' + btnText;
-		for (var i in columns) {
+		for (var i = 0; i < columns.length; i ++) {
 			var values = [];
 			getValuesFromKeyPath(data[j], columns[i], values);
 			//console.log(values);
@@ -386,9 +386,9 @@ function createVSBlueprintsTableContents(tableId, vsDescriptors,  params) {
                             subTable += '<tr><td>' + value.parameterId + '</td><tr>';
                         } else {
                             if (columns[i][0] == 'activeVsdId') {
-                                for (var j in vsDescriptors) {
-                                    if (values[0][v] == vsDescriptors[j].vsDescriptorId) {
-                                        subTable += '<tr><td>' + vsDescriptors[j].name + '</td><tr>';
+                                for (var h = 0; h < vsDescriptors.length; h++) {
+                                    if (values[0][v] == vsDescriptors[h].vsDescriptorId) {
+                                        subTable += '<tr><td>' + vsDescriptors[h].name + '</td><tr>';
                                     }
                                 }
                             } else {
@@ -420,7 +420,7 @@ function createVSBlueprintsTableContents(tableId, vsDescriptors,  params) {
 	table.innerHTML += text;
 }
 
-function createVSBlueprintDetailsTable(tableId, data, resId) {
+function createVSBlueprintDetailsTable(data, tableId) {
     //console.log(JSON.stringify(data, null, 4));
     
     var table = document.getElementById(tableId);
@@ -438,20 +438,20 @@ function createVSBlueprintDetailsTable(tableId, data, resId) {
 	var cbacks = [];
 	var names = [];
     var columns = [['vsBlueprintId'], ['vsBlueprintVersion'], ['name'], ['vsBlueprint', 'description'], ['vsBlueprint', 'parameters'], ['activeVsdId']];
-	var conts = createVSBlueprintTableContents(data, btnFlag, resId, names, cbacks, columns);
+	var conts = createVSBlueprintTableContents(data, btnFlag, names, cbacks, columns);
 	table.innerHTML = header + conts;
 }
 
-function createVSBlueprintTableContents(data, btnFlag, resId, names, cbacks, columns) {	
+function createVSBlueprintTableContents(data, btnFlag, names, cbacks, columns) {	
 	var text = '<tbody>';
 	
     var btnText = '';
     if (btnFlag) {
-        btnText += createActionButton(data[j]['vsBlueprintId'], resId, names, cbacks);
+        btnText += createActionButton(data[j].vsBlueprintId, names, cbacks);
     }
     
     text += '<tr>' + btnText;
-    for (var i in columns) {
+    for (var i = 0; i < columns.length; i++) {
         var values = [];
         getValuesFromKeyPath(data, columns[i], values);
         //console.log(values);
@@ -493,9 +493,9 @@ function createVSBlueprintTableContents(data, btnFlag, resId, names, cbacks, col
 	return text;
 }
 
-function createVSDescriptorModals(elemId, data, params) {
+function createVSDescriptorModals(data, params) {
     
-    var resId = params[0];
+    var elemId = params[0];
     var vsbId = params[1];
     var qos = params[2];
     

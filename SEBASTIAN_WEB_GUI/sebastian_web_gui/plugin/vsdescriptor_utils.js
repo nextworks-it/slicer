@@ -14,62 +14,63 @@
 * limitations under the License.
 */
 
-function fillVSDCounter(elemId, data, resId) {
+function fillVSDCounter(data, elemId) {
     var countDiv = document.getElementById(elemId);
 	
 	//console.log(JSON.stringify(data, null, 4));
 	countDiv.innerHTML = data.length;
 }
 
-function fillVSICounter(elemId, data, resId) {
+function fillVSICounter(data, elemId) {
     var countDiv = document.getElementById(elemId);
 	
 	//console.log(JSON.stringify(data, null, 4));
 	countDiv.innerHTML = data.length;
 }
 
-function readVSDescriptors(tableId, resId) {
+function readVSDescriptors(tableId) {
     getAllVSDescriptors(tableId, resId, createVSDescriptorsTable);
 }
 
-function getAllVSDescriptors(elemId, params, callback) {
-    getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsdescriptor', elemId, callback, params, null, null);
+function getAllVSDescriptors(params, callback) {
+    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsdescriptor', callback, params);
 }
 
-function readVSDescriptor(tableId, resId) {
-    getVSDescriptor(tableId, resId, createVSDescriptorDetailsTable);    
+function readVSDescriptor(tableId) {
+    getVSDescriptor(tableId, createVSDescriptorDetailsTable);    
 }
 
-function getVSDescriptor(elemId, resId, callback) {
+function getVSDescriptor(elemId, callback) {
     var id = getURLParameter('Id');
-    getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsdescriptor/' + id, elemId, callback, resId, null, null);
+    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsdescriptor/' + id, callback, elemId);
 }
 
-function deleteVSDescriptor(vsDescriptorId, resId) {
-    deleteRequestToURL('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsdescriptor/' + vsDescriptorId, resId, "VS descriptor successfully deleted", "Unable to delete VS descriptor", showResultMessage);
+function deleteVSDescriptor(vsDescriptorId) {
+    deleteRequestToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsdescriptor/' + vsDescriptorId, showResultMessage, ["VS descriptor successfully deleted", "Unable to delete VS descriptor"]);
 }
 
-function readVSInstances(tableId, resId) {
-    getVSInstanceIds(tableId, resId, createVSInstancesTable);
+function readVSInstances(tableId) {
+    getVSInstanceIds(tableId, createVSInstancesTable);
 }
 
-function getVSInstanceIds(elemId, resId, callback) {
-    getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/basic/vslcm/vsId', elemId, callback, resId, null, null);
+function getVSInstanceIds(elemId, callback) {
+    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/basic/vslcm/vsId', callback, elemId);
 }
 
 function readVSInstance(divId, vsiId, params) {
-    getVSInstance(divId, vsiId, params, createVSInstancesTableContent);
+    params.push(divId);
+    getVSInstance(vsiId, params, createVSInstancesTableContent);
 }
 
-function getVSInstance(elemId, vsiId, params, callback) {
-    getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/basic/vslcm/vs/' + vsiId, elemId, callback, params, null, null);
+function getVSInstance(vsiId, params, callback) {
+    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/basic/vslcm/vs/' + vsiId, callback, params);
 }
 
-function terminateVSInstance(vsiId, resId) {
-    deleteRequestToURL('http://' + vsAddr + ':' + vsPort + '/vs/basic/vslcm/vs/' + vsiId, resId, "VS instances with id " + vsiId + " successfully deleted", "Unable to delete VS instance with id " + vsiId, showResultMessage);
+function terminateVSInstance(vsiId) {
+    deleteRequestToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/basic/vslcm/vs/' + vsiId, showResultMessage, ["VS instances with id " + vsiId + " successfully deleted", "Unable to delete VS instance with id " + vsiId]);
 }
 
-function instantiateVSDFromForm(params, resId) {
+function instantiateVSDFromForm(params) {
     var vsdId = document.getElementById(params[0]).value;
     var name = document.getElementById(params[1]).value;
     var tenant = document.getElementById(params[2]).value;
@@ -85,10 +86,10 @@ function instantiateVSDFromForm(params, resId) {
     var json = JSON.stringify(jsonObj, null, 4);
     console.log(json);
     
-    postJsonToURL('http://' + vsAddr + ':' + vsPort + '/vs/basic/vslcm/vs', json, resId, "Instatiation request for VS Descriptor " + vsdId + " successfully submitted", "Unable to instantiate VS descriptor with id " + vsdId, showResultMessage);
+    postJsonToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/basic/vslcm/vs', json, showResultMessage, ["Instatiation request for VS Descriptor " + vsdId + " successfully submitted", "Unable to instantiate VS descriptor with id " + vsdId]);
 }
 
-function createVSDescriptorsTable(tableId, data, resId) {
+function createVSDescriptorsTable(data, tableId) {
     //console.log(JSON.stringify(data, null, 4));
     
     var table = document.getElementById(tableId);
@@ -108,12 +109,12 @@ function createVSDescriptorsTable(tableId, data, resId) {
     
     var conts = '<tbody>';
     for (var i = 0; i < data.length; i++) {
-        conts += createVSDescriptorsTableContents(data[i], btnFlag, resId, names, cbacks, columns);
+        conts += createVSDescriptorsTableContents(data[i], btnFlag, names, cbacks, columns);
     }
 	table.innerHTML = header + conts + '</tbody>';
 }
 
-function createVSDescriptorDetailsTable(tableId, data, resId) {
+function createVSDescriptorDetailsTable(data, tableId) {
     //console.log(JSON.stringify(data, null, 4));
     
     var table = document.getElementById(tableId);
@@ -130,23 +131,23 @@ function createVSDescriptorDetailsTable(tableId, data, resId) {
 	var cbacks = [];
 	var names = [];
     var columns = [['vsDescriptorId'], ['name'], ['version'], ['vsBlueprintId'], ['sst'], ['managementType'], ['qosParameters']];
-    var conts = '<tbody>' + createVSDescriptorsTableContents(data, btnFlag, resId, names, cbacks, columns);
+    var conts = '<tbody>' + createVSDescriptorsTableContents(data, btnFlag, names, cbacks, columns);
 	table.innerHTML = header + conts + '</tbody>';
 }
 
-function createVSDescriptorsTableContents(data, btnFlag, resId, names, cbacks, columns) {
+function createVSDescriptorsTableContents(data, btnFlag, names, cbacks, columns) {
     console.log(JSON.stringify(data, null, 4));
     
 	var text = '';
 		
     var btnText = '';
     if (btnFlag) {
-        btnText += createActionButton(data['vsDescriptorId'], resId, names, cbacks);
-        createInstantiateVSDModalDialog(data['vsDescriptorId']);
+        btnText += createActionButton(data.vsDescriptorId, names, cbacks);
+        createInstantiateVSDModalDialog(data.vsDescriptorId);
     }
     
     text += '<tr>' + btnText;
-    for (var i in columns) {
+    for (var i = 0; i <  columns.length; i++) {
         var values = [];
         getValuesFromKeyPath(data, columns[i], values);
         //console.log(values);
@@ -247,7 +248,7 @@ function createInstantiateVSDModalDialog(vsdId) {
 	instantiateModalDiv.innerHTML += text;
 }
 
-function createVSInstancesTable(tableId, data, resId) {
+function createVSInstancesTable(data, tableId) {
     //console.log(JSON.stringify(data, null, 4));
     //data = ["11", "13"];
     
@@ -270,14 +271,12 @@ function createVSInstancesTable(tableId, data, resId) {
     table.innerHTML = header + '<tbody>';
     
     for (var i = 0; i < l; i++) {
-        readVSInstance(tableId, data[i], [resId, l, i, cbacks, names, columns, btnFlag]);
+        readVSInstance(tableId, data[i], [l, i, cbacks, names, columns, btnFlag]);
     }
 }
 
-function createVSInstancesTableContent(tableId, data, params) {
-    
-    var table = document.getElementById(tableId);
-    
+function createVSInstancesTableContent(data, params) {
+        
     /*data = JSON.parse('{\
         "vsiId": "13",\
         "name": "CDN_small",\
@@ -301,19 +300,21 @@ function createVSInstancesTableContent(tableId, data, params) {
         "internalInterconnections": {}\
     }');*/
     
-    var resId = params[0];
-    var l = params[1];
-    var i = params[2];
-    var cbacks = params[3];
-    var names = params[4]
-    var columns = params[5];
-    var btnFlag = params[6];
+    var l = params[0];
+    var i = params[1];
+    var cbacks = params[2];
+    var names = params[3]
+    var columns = params[4];
+    var btnFlag = params[5];
+    var tableId = params[6];
+    
+    var table = document.getElementById(tableId);
     
     var text = '';
 		
     var btnText = '';
     if (btnFlag) {
-        btnText += createActionButton(data['vsiId'], resId, names, cbacks);
+        btnText += createActionButton(data.vsiId, names, cbacks);
     }
     
     text += '<tr>' + btnText;

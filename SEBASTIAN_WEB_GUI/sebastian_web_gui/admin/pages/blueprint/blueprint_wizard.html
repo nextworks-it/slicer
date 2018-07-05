@@ -25,27 +25,28 @@
     <title>SEBASTIAN | Blueprint wizard</title>
 
     <!-- Bootstrap -->
-    <link href="../../../gentelella/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../../gentelella/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="../../../gentelella/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="../../../../gentelella/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <!-- NProgress -->
-    <link href="../../../gentelella/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <link href="../../../../gentelella/vendors/nprogress/nprogress.css" rel="stylesheet">
     <!-- bootstrap-daterangepicker -->
-    <link href="../../../gentelella/vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
+    <link href="../../../../gentelella/vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
 
     <!-- Custom Theme Style -->
-    <link href="../../../gentelella/build/css/custom.min.css" rel="stylesheet">
+    <link href="../../../../gentelella/build/css/custom.min.css" rel="stylesheet">
     <link href="../../css/sebastian.min.css" rel="stylesheet">
     
      <!-- jQuery-3.2.1 -->
     <script src="../../plugin/jquery-3.2.1.min.js"></script>
     
     <!-- SEBASTIAN Scripts -->
-    <script src="../../plugin/rest_api.js"></script>
-    <script src="../../plugin/utils.js"></script>
-    <script src="../../plugin/tenant_utils.js"></script>
-    <script src="../../plugin/group_utils.js"></script>
-    <script src="../../plugin/blueprint_utils.js"></script>
+    <script src="../../../plugin/rest_api.js"></script>
+    <script src="../../../plugin/utils.js"></script>
+    <script src="../../../plugin/tenant_utils.js"></script>
+    <script src="../../../plugin/group_utils.js"></script>
+    <script src="../../../plugin/blueprint_utils.js"></script>
+    <script src="../../../plugin/login_utils.js"></script>
   </head>
 
   <body class="nav-md">
@@ -58,6 +59,20 @@
             </div>
 
             <div class="clearfix"></div>
+            
+            <br />
+            
+            <div class="profile clearfix">
+              <div class="profile_pic">
+                <img src="../../images/user_icon.png" alt="..." class="img-circle profile_img">
+              </div>
+              <div class="profile_info">
+                <span>Welcome,</span>
+                <h2 id="displayedUser"></h2>
+              </div>
+            </div>
+            
+            <script>displayUserInfo("displayedUser");</script>
 
             <br />
 
@@ -68,19 +83,22 @@
                 <ul class="nav side-menu">
                   <li><a href="../../index.html"><i class="fa fa-home"></i> Home </a>
                   </li>
+                  <li><a href="../group.html"><i class="fa fa-group"></i> Group </a>
+                  </li>
+                  <li><a href="../tenant.html"><i class="fa fa-user"></i> Tenant </a>
+                  </li>
                   <li><a><i class="fa fa-file-text"></i> VS Catalogue <span class="fa fa-chevron-down"></a>
                     <ul class="nav child_menu">
                       <li><a href="blueprint_wizard.html">VS Blueprint onboarding</a></li>
                       <li><a href="blueprint.html">VS Blueprint</a></li>
                       <li><a href="vs_descriptor.html">VS Descriptor</a></li>
-                      <li><a href="vs_instance.html">VS Instance</a></li>
                     </ul>
                   </li>
-                  <li><a><i class="fa fa-gears"></i> ADMIN <span class="fa fa-chevron-down"></a>
-                    <ul class="nav child_menu">
-                      <li><a href="../group.html">Group</a></li>
-                      <li><a href="../tenant.html">Tenant</a></li>
-                    </ul>
+                  <li><a href="vs_descriptor.html"><i class="fa fa-file-text-o"></i> VS  Descriptors </a>
+                  </li>
+                  <li><a href="../../index.html"><i class="fa fa-file"></i> Network Slices </a>
+                  </li>
+                  <li><a href="vs_instance.html"><i class="fa fa-file-o"></i> VS Instance </a>
                   </li>
                 </ul>
               </div>
@@ -198,7 +216,7 @@
                                         </label>
                                         <div id="blueprintArchive" style="display: none;"></div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <input type="file" autocomplete=off accept="application/json" id="blueprintFile" required="required" class="col-md-7 col-xs-12" onchange=loadBlueprintFromFileIntoForm(event,"blueprintArchive","response");>
+                                            <input type="file" autocomplete=off accept="application/json" id="blueprintFile" required="required" class="col-md-7 col-xs-12" onchange=loadBlueprintFromFileIntoForm(event,"blueprintArchive");>
                                         </div>
                                     </div>
                                 </form>
@@ -210,7 +228,7 @@
                                         </label>
                                         <div id="nsdsArchive" style="display: none;"></div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <input id="nsdsInput" type="file" autocomplete=off accept="application/json" required="required" class="col-md-7 col-xs-12" multiple="multiple" onchange=loadNSDsFromFileIntoArray(event,"nsdsInput","nsdsArchive","response");>
+                                            <input id="nsdsInput" type="file" autocomplete=off accept="application/json" required="required" class="col-md-7 col-xs-12" multiple="multiple" onchange=loadNSDsFromFileIntoArray(event,"nsdsInput","nsdsArchive");>
                                         </div>
                                     </div>
                                 </form>
@@ -251,7 +269,7 @@
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                           <input type="text" id="createVNFD-pkgpath" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
                                         </div>
-                                        <button type="button" class="btn btn-info" onclick=uploadVNFDFromForm("step-3",["createVNFD-name","createVNFD-version","createVNFD-provider","createVNFD-checksum","createVNFD-pkgpath"],"response")>Submit</button>
+                                        <button type="button" class="btn btn-info" onclick=uploadVNFDFromForm("step-3",["createVNFD-name","createVNFD-version","createVNFD-provider","createVNFD-checksum","createVNFD-pkgpath"])>Submit</button>
                                     </div>
                                 </form>
                             </div>
@@ -291,7 +309,7 @@
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                           <input type="text" id="createApp-pkgpath" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
                                         </div>
-                                        <button type="button" class="btn btn-info" onclick=uploadAppFromForm("step-4",["createApp-name","createApp-version","createApp-provider","createApp-checksum","createApp-pkgpath"],"response")>Submit</button>
+                                        <button type="button" class="btn btn-info" onclick=uploadAppFromForm("step-4",["createApp-name","createApp-version","createApp-provider","createApp-checksum","createApp-pkgpath"])>Submit</button>
                                     </div>
                                 </form>
                             </div>
@@ -350,7 +368,7 @@
                                           <button id="parameterPlus0" type="button" class="btn btn-info" style="width:24px; margin-left: 0; margin-top: 0; z-index: 3; position: relative; opacity: 0.9;" onclick=addParameterForm("parameterCounter","parameterAdditionals");>
                                             <i class="fa fa-plus" alt="Add parameters" title="Add parameters" style="margin-left: -5px"></i>
                                           </button>
-                                          <button id="paramSubmit0" type="button" class="btn btn-info" onclick=uploadTRFromForm("step-5",["createTR-nsdId","createTR-nsdVersion","createTR-nsFlav","createTR-nsInstLev","createTR-parId","createTR-minVal","createTR-maxVal"],"parameterCounter","response")>Submit</button>
+                                          <button id="paramSubmit0" type="button" class="btn btn-info" onclick=uploadTRFromForm("step-5",["createTR-nsdId","createTR-nsdVersion","createTR-nsFlav","createTR-nsInstLev","createTR-parId","createTR-minVal","createTR-maxVal"],"parameterCounter")>Submit</button>
                                       </div>
                                       <div id="parameterCounter" style="display:none">1</div>
                                     </div>
@@ -363,7 +381,7 @@
                                 <a href="#" class="close">X</a>
                             </div>
                             <div class="loader">Loading</div>
-                            <a href="#" class="buttonFinish buttonDisabled btn btn-default" id="finishBtn" onclick=submitBlueprintCreationRequest("blueprintArchive","response");>Finish</a>
+                            <a href="#" class="buttonFinish buttonDisabled btn btn-default" id="finishBtn" onclick=submitBlueprintCreationRequest("blueprintArchive");>Finish</a>
                             <a href="#" class="buttonNext btn btn-success" onclick=progressBlueprintWizard(); id="progressBtn">Next</a>
                             <a href="#" class="buttonPrevious buttonDisabled btn btn-primary" onclick=undoBlueprintWizard(); id="undoBtn">Previous</a>
                         </div>
@@ -411,34 +429,34 @@
     </div>
 
     <!-- jQuery -->
-    <script src="../../../gentelella/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="../../../../gentelella/vendors/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap -->
-    <script src="../../../gentelella/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="../../../../gentelella/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
     <!-- FastClick -->
-    <script src="../../../gentelella/vendors/fastclick/lib/fastclick.js"></script>
+    <script src="../../../../gentelella/vendors/fastclick/lib/fastclick.js"></script>
     <!-- NProgress -->
-    <script src="../../../gentelella/vendors/nprogress/nprogress.js"></script>
+    <script src="../../../../gentelella/vendors/nprogress/nprogress.js"></script>
     <!-- Chart.js -->
-    <script src="../../../gentelella/vendors/Chart.js/dist/Chart.min.js"></script>
+    <script src="../../../../gentelella/vendors/Chart.js/dist/Chart.min.js"></script>
     <!-- jQuery Sparklines -->
-    <script src="../../../gentelella/vendors/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
+    <script src="../../../../gentelella/vendors/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
     <!-- Flot -->
-    <script src="../../../gentelella/vendors/Flot/jquery.flot.js"></script>
-    <script src="../../../gentelella/vendors/Flot/jquery.flot.pie.js"></script>
-    <script src="../../../gentelella/vendors/Flot/jquery.flot.time.js"></script>
-    <script src="../../../gentelella/vendors/Flot/jquery.flot.stack.js"></script>
-    <script src="../../../gentelella/vendors/Flot/jquery.flot.resize.js"></script>
+    <script src="../../../../gentelella/vendors/Flot/jquery.flot.js"></script>
+    <script src="../../../../gentelella/vendors/Flot/jquery.flot.pie.js"></script>
+    <script src="../../../../gentelella/vendors/Flot/jquery.flot.time.js"></script>
+    <script src="../../../../gentelella/vendors/Flot/jquery.flot.stack.js"></script>
+    <script src="../../../../gentelella/vendors/Flot/jquery.flot.resize.js"></script>
     <!-- Flot plugins -->
-    <script src="../../../gentelella/vendors/flot.orderbars/js/jquery.flot.orderBars.js"></script>
-    <script src="../../../gentelella/vendors/flot-spline/js/jquery.flot.spline.min.js"></script>
-    <script src="../../../gentelella/vendors/flot.curvedlines/curvedLines.js"></script>
+    <script src="../../../../gentelella/vendors/flot.orderbars/js/jquery.flot.orderBars.js"></script>
+    <script src="../../../../gentelella/vendors/flot-spline/js/jquery.flot.spline.min.js"></script>
+    <script src="../../../../gentelella/vendors/flot.curvedlines/curvedLines.js"></script>
     <!-- DateJS -->
-    <script src="../../../gentelella/vendors/DateJS/build/date.js"></script>
+    <script src="../../../../gentelella/vendors/DateJS/build/date.js"></script>
     <!-- bootstrap-daterangepicker -->
-    <script src="../../../gentelella/vendors/moment/min/moment.min.js"></script>
-    <script src="../../../gentelella/vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="../../../../gentelella/vendors/moment/min/moment.min.js"></script>
+    <script src="../../../../gentelella/vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
     
     <!-- Custom Theme Scripts -->
-    <script src="../../../gentelella/build/js/custom.min.js"></script>
+    <script src="../../../../gentelella/build/js/custom.min.js"></script>
   </body>
 </html>

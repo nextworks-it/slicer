@@ -68,9 +68,9 @@ function getURLParameter(name) {
 							.replace(/\+/g, '%20'))	|| null;
 }
 
-function showResultMessage(success, id, msg) {
+function showResultMessage(success, msg) {
     var flag = "true";
-    var elem = document.getElementById(id);
+    var elem = document.getElementById("response");
     var text;
     if (success) {
         text = '<div class="alert alert-info alert-dismissible fade in" role="alert">\
@@ -88,14 +88,14 @@ function showResultMessage(success, id, msg) {
 	scrollPageTo(elem.offsetTop);
 }
 
-function loadFromFile(type, evt, elementId, resId) {
+function loadFromFile(type, evt, elementId) {
     //Retrieve the first (and only!) File from the FileList object
     var file = evt.target.files;
 	console.log(file[0]);
     if (file.length < 1)
 		return;
 	if (type == 'ZIP') {
-		readZipFile(file[0], elementId, resId);
+		readZipFile(file[0], elementId);
 	} else {
 		console.log("Json File in div: " + elementId);
 		var elem = document.getElementById(elementId);
@@ -106,7 +106,7 @@ function loadFromFile(type, evt, elementId, resId) {
 	}	
 }
 
-function readZipFile(file, containerId, resId) {
+function readZipFile(file, containerId) {
 	console.log(file);
 	zip.workerScripts = {
 		deflater: ['../../plugins/zip_js/z-worker.js', '../../plugins/zip_js/deflate.js'],
@@ -165,7 +165,7 @@ function readZipFile(file, containerId, resId) {
 		if(!message || message == undefined)
 			message = 'Error';
 		console.log(message);
-		showResultMessage(false, resId, message);
+		showResultMessage(false, message);
 	}
 }
 
@@ -354,20 +354,20 @@ function getValuesFromKeyPath(data, keys, result) {
     }
 }
 
-function createActionButton(id, resId, btnNames, btnCallbacks) {
+function createActionButton(id, btnNames, btnCallbacks) {
 	var text = '<td>';
 	if(btnNames instanceof Array) {
 		if(btnNames.length == btnCallbacks.length) {
-			text += createDropdownButton(id, resId, btnNames, btnCallbacks);
+			text += createDropdownButton(id, btnNames, btnCallbacks);
 		}		
 	} else {
-		text +=  createButton(id, resId, btnNames, btnCallbacks);
+		text +=  createButton(id, btnNames, btnCallbacks);
 	}
 	text += '</td>';	
 	return text;
 }
 
-function createButton(id, resId, btnName, btnCallback) {
+function createButton(id, btnName, btnCallback) {
 	
 	var text = 	'<button type="button" class="btn btn-info btn-sm btn-block';
 	if (btnCallback.toLowerCase().indexOf("delete") >= 0 ||
@@ -377,7 +377,7 @@ function createButton(id, resId, btnName, btnCallback) {
 		btnCallback.toLowerCase().indexOf("subscribe") >= 0 ||
 		btnCallback.toLowerCase().indexOf("unsubscribe") >= 0 ||
 		btnCallback.toLowerCase().indexOf("terminate") >= 0) {
-        text += '" onclick=' + btnCallback + '("' + id + '","' + resId + '")>';
+        text += '" onclick=' + btnCallback + '("' + id + '")>';
     } else if (btnName.toLowerCase().indexOf("view") >= 0) {
 		if (btnName.toLowerCase().indexOf("view sla") >= 0) {
 			id += '|' + document.getElementById('selectedGroup').value;
@@ -401,13 +401,13 @@ function createButton(id, resId, btnName, btnCallback) {
 	return text;
 }
 
-function createDropdownButton(id, resId, btnNames, btnCallbacks) {
+function createDropdownButton(id, btnNames, btnCallbacks) {
 	var text = '<div class="btn-group">\
 				<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Action\
 				<span class="fa fa-caret-down"></span>\
 				</button><ul class="dropdown-menu" role="menu">'; //style="position: static;"
 	for(var i=0; i<btnNames.length; i++) {
-		text += '<li>' + createButton(id, resId, btnNames[i], btnCallbacks[i]) + '</li>';
+		text += '<li>' + createButton(id, btnNames[i], btnCallbacks[i]) + '</li>';
 	}
 	text += '</ul></div>';		//<input type="text" class="form-control">
 	

@@ -14,54 +14,53 @@
 * limitations under the License.
 */
 
-function fillGroupCounter(elemId, data, resId) {
+function fillGroupCounter(data, elemId) {
 	var countDiv = document.getElementById(elemId);
 			
 	countDiv.innerHTML = data.length;
 }
 
-function uploadGroupFromForm(formIds, resId) {
+function uploadGroupFromForm(formIds) {
 	var groupId = document.getElementById(formIds[0]).value;
-	postGroup(groupId, resId, 'Group have been successfully created','Error while creating Group', showResultMessage);
+	postGroup(groupId, 'Group have been successfully created','Error while creating Group', showResultMessage);
 }
 
-function postGroup(groupId, resId, okMsg, errMsg, callback) {
-    postToURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId, resId, okMsg, errMsg, callback);
+function postGroup(groupId, okMsg, errMsg, callback) {
+    postToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId, callback, [okMsg, errMsg]);
 }
 
-function readGroups(tableId, resId) {
-	getGroups(tableId, resId , createGroupTable);
+function readGroups(tableId) {
+	getGroups(tableId, createGroupTable);
 }
 
-function readGroupsForTenants(formIds, resId) {
-    getGroups(formIds, resId, fillTenantsGroupSelects);   
+function readGroupsForTenants(formIds) {
+    getGroups(formIds, fillTenantsGroupSelects);   
 }
 
-function fillTenantsGroupSelects(formIds, data, resId) {
+function getGroups(elemId, callback) {
+	getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/admin/group', callback, elemId);
+}
+
+function deleteGroup(groupId) {
+	deleteRequestToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId, showResultMessage, ["Group successfully deleted", "Unable to delete Group"]);
+}
+
+function fillTenantsGroupSelects(data, formIds) {
     var selectedGroups = document.getElementById(formIds[0]);
     var groupsForForm = document.getElementById(formIds[1]);
     
     if(data.length > 0) {
-        for (var i in data) {
-            selectedGroups.innerHTML += '<option value="' + data[i]['name'] + '">' + data[i]['name'] + '</option>';
-            groupsForForm.innerHTML += '<option value="' + data[i]['name'] + '">' + data[i]['name'] + '</option>';
+        for (var i = 0; i < data.length; i++) {
+            selectedGroups.innerHTML += '<option value="' + data[i].name + '">' + data[i].name + '</option>';
+            groupsForForm.innerHTML += '<option value="' + data[i].name + '">' + data[i].name + '</option>';
         }
-        readTenants("tenantTable", "response");
+        readTenants("tenantTable");
     } else {
         document.getElementById("tenantTable").innerHTML += '<tr>No Tenant stored in database</tr>';
     }
 }
 
-function getGroups(elemId, resId, callback) {
-	getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/group', elemId, callback, resId, null, null);
-}
-
-function deleteGroup(groupId, resId) {
-	var id = groupId.split('|')[0];
-	deleteRequestToURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId, resId, "Group successfully deleted", "Unable to delete Group", showResultMessage);
-}
-
-function createGroupTable(tableId, data, resId) {
+function createGroupTable(data, tableId) {
     var table = document.getElementById(tableId);
 	if (!table) {
 		return;
@@ -77,22 +76,22 @@ function createGroupTable(tableId, data, resId) {
 	var cbacks = ['deleteGroup'];
 	var names = ['Delete'];
     var columns = [['name'], ['tenants']];
-	var conts = createGroupTableContents(data, btnFlag, resId, names, cbacks, columns);
+	var conts = createGroupTableContents(data, btnFlag, names, cbacks, columns);
 	table.innerHTML = header + conts;
 }
 
-function createGroupTableContents(data, btnFlag, resId, names, cbacks, columns) {
+function createGroupTableContents(data, btnFlag, names, cbacks, columns) {
     var text = '<tbody>';
 	
-	for (var j in data) {
+	for (var j = 0; j < data.length; j++) {
 		
 		var btnText = '';
 		if (btnFlag) {
-			btnText += createActionButton(data[j]['name'], resId, names, cbacks);
+			btnText += createActionButton(data[j].name, names, cbacks);
 		}
 		
 		text += '<tr>' + btnText;
-		for (var i in columns) {
+		for (var i = 0; i < columns.length; i++) {
 			var values = [];
 			getValuesFromKeyPath(data[j], columns[i], values);
 			//console.log(values);
@@ -103,8 +102,8 @@ function createGroupTableContents(data, btnFlag, resId, names, cbacks, columns) 
 			if (data[j].hasOwnProperty(columns[i][0])) {
 				if(values[0] instanceof Array) {
                     //console.log(JSON.stringify(values[0], null, 4));
-					for (var v in values[0]) {
-						subTable += '<tr><td>' + values[0][v]['username'] + '</td><tr>';
+					for (var v = 0; v < values[0].length; v++) {
+						subTable += '<tr><td>' + values[0][v].username + '</td><tr>';
 					}
 				subText += subTable + '</table>';
 				} else {

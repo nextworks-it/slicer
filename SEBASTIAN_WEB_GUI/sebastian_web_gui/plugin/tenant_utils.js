@@ -14,54 +14,54 @@
 * limitations under the License.
 */
 
-function fillTenantCounter(elemId, data, resId) {
+function fillTenantCounter(data, elemId) {
 	var countDiv = document.getElementById(elemId);
 	
 	//console.log(JSON.stringify(data, null, 4));
 	countDiv.innerHTML = data.length;
 }
 
-function uploadTenantFromForm(formIds, resId) {
+function uploadTenantFromForm(formIds) {
 	var jsonObj = JSON.parse('{}');
 	var groupId = document.getElementById(formIds[0]).value;
 	//console.log(groupId);
-	jsonObj['username'] = document.getElementById(formIds[1]).value;
-	jsonObj['password'] = document.getElementById(formIds[2]).value;
+	jsonObj.username = document.getElementById(formIds[1]).value;
+	jsonObj.password = document.getElementById(formIds[2]).value;
 	var json = JSON.stringify(jsonObj, null, 4);
-	postTenant(json, groupId, resId, 'Tenant have been successfully created','Error while creating Tenant', showResultMessage);
+	postTenant(json, groupId, 'Tenant have been successfully created','Error while creating Tenant', showResultMessage);
 		
 }
 
-function postTenant(data, groupId, resId, okMsg, errMsg, callback) {
-    postJsonToURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant', data, resId, okMsg, errMsg, callback);
+function postTenant(data, groupId, okMsg, errMsg, callback) {
+    postJsonToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant', data, callback, [okMsg, errMsg]);
 }
 
-function readTenants(tableId, resId) {
+function readTenants(tableId) {
 	var groupId = document.getElementById('selectedGroup').value;
-	getTenants(groupId, tableId, resId , createTenantTable);
+	getTenants(groupId, tableId, createTenantTable);
 }
 
-function getTenants(groupId, elemId, resId, callback) {
-	getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant', elemId, callback, resId, null, null);
+function getTenants(groupId, elemId, callback) {
+	getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant', callback, elemId);
 }
 
-function getAllTenants(elemId, params, callback) {
-	getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/groups/tenants', elemId, callback, params, null, null);
+function getAllTenants(params, callback) {
+	getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/admin/groups/tenants', callback, params);
 }
 
-function deleteTenant(tenantId, resId) {
+function deleteTenant(tenantId) {
 	var groupId = document.getElementById('selectedGroup').value;
 	var id = tenantId.split('|')[0];
-	deleteRequestToURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant/' + id, resId, "Tenant successfully deleted", "Unable to delete Tenant", showResultMessage);
+	deleteRequestToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant/' + id, showResultMessage, ["Tenant successfully deleted", "Unable to delete Tenant"]);
 }
 
-function createTenantSLAFromForm(formIds, resId, constrNum, tenantId, type) {
+function createTenantSLAFromForm(formIds, constrNum, tenantId, type) {
 	var jsonObj = JSON.parse('{}');
 	
-	jsonObj['tenant'] = tenantId;
+	jsonObj.tenant = tenantId;
 	
 	var status = document.getElementById(formIds[0]).value;
-	jsonObj['slaStatus'] = status;
+	jsonObj.slaStatus = status;
 	
 	var constrs = [];
 	var scope = document.getElementById(formIds[1]).value;
@@ -74,56 +74,56 @@ function createTenantSLAFromForm(formIds, resId, constrNum, tenantId, type) {
 			location = document.getElementById(formIds[2] + i).value;
 		
 		var tempConstr = JSON.parse('{}');
-		tempConstr['scope'] = scope;
-		tempConstr['location'] = location;
+		tempConstr.scope = scope;
+		tempConstr.location = location;
 		
 		var tempRes = JSON.parse('{}');
 		var tempRam = document.getElementById(formIds[3] + i).value;
 		var tempCpu = document.getElementById(formIds[4] + i).value;
 		var tempStorage = document.getElementById(formIds[5] + i).value;
-		tempRes['memoryRAM'] = tempRam;
-		tempRes['vCPU'] = tempCpu;
-		tempRes['diskStorage'] = tempStorage;
-		tempConstr['maxResourceLimit'] = tempRes
+		tempRes.memoryRAM = tempRam;
+		tempRes.vCPU = tempCpu;
+		tempRes.diskStorage = tempStorage;
+		tempConstr.maxResourceLimit = tempRes;
 		
 		constrs.push(tempConstr);
 	}
 	
-	jsonObj['slaConstraints'] = constrs;
+	jsonObj.slaConstraints = constrs;
 	
 	var json = JSON.stringify(jsonObj, null, 4);
 	
 	console.log(json);
-	createTenantSLA(json, 'selectedGroup', tenantId, resId);
+	createTenantSLA(json, 'selectedGroup', tenantId);
 }
 
-function createTenantSLA(data, groupId, tenantId, resId) {
-	postJsonToURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant/' + tenantId + '/sla', data, resId, 'SLA for tenant ' + tenantId + ' successfully created.', 'Unable to create SLA for tenant ' + tenantId, showResultMessage);
+function createTenantSLA(data, groupId, tenantId) {
+	postJsonToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant/' + tenantId + '/sla', data, showResultMessage, ['SLA for tenant ' + tenantId + ' successfully created.', 'Unable to create SLA for tenant ' + tenantId]);
 }
 
-function readTenantSLAs(tableIds, resId) {
+function readTenantSLAs(tableIds) {
 	var ids = getURLParameter('Ids').split('|');
 	
 	var tenantId = ids[0];
 	var groupId = ids[1];
 	
-	getTenantSLAs(tableIds, tenantId, groupId, resId, createTenantSLAsTable);	
+	getTenantSLAs(tableIds, tenantId, groupId, createTenantSLAsTable);	
 }
 
-function getTenantSLAs(elemIds, tenantId, groupId, resId, callback) {
-	getJsonFromURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant/' + tenantId + '/sla', elemIds, callback, resId, null, null);
+function getTenantSLAs(elemIds, tenantId, groupId, callback) {
+	getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant/' + tenantId + '/sla', callback, elemIds);
 }
 
-function deleteTenantSLA(slaId, resId) {
+function deleteTenantSLA(slaId) {
 	var ids = getURLParameter('Ids').split('|');
 	
 	var tenantId = ids[0];
 	var groupId = ids[1];
 	
-	deleteRequestToURL('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant/' + tenantId + '/sla/' + slaId, resId, "Tenant SLA successfully deleted", "Unable to delete Tenant SLA", showResultMessage);
+	deleteRequestToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/admin/group/' + groupId + '/tenant/' + tenantId + '/sla/' + slaId, showResultMessage, ["Tenant SLA successfully deleted", "Unable to delete Tenant SLA"]);
 }
 
-function createTenantTable(tableId, data, resId) {
+function createTenantTable(data, tableId) {
   var table = document.getElementById(tableId);
 	if (!table) {
 		return;
@@ -139,42 +139,42 @@ function createTenantTable(tableId, data, resId) {
 	var cbacks = ['sla.html?Ids=', 'createTenantSLAMECForm', 'createTenantSLACloudForm','createTenantSLAGlobalForm', 'deleteTenant'];
 	var names = ['View SLA', 'Create SLA for MEC Resources', 'Create SLA for Cloud Resources', 'Create SLA for Global Resources','Delete'];
   var columns = [['username'], ['allocatedResources']];
-	var conts = createTenantTableContents(data, btnFlag, resId, names, cbacks, columns);
+	var conts = createTenantTableContents(data, btnFlag, names, cbacks, columns);
 	table.innerHTML = header + conts;
 }
 
-function createTenantTableContents(data, btnFlag, resId, names, cbacks, columns) {	
+function createTenantTableContents(data, btnFlag, names, cbacks, columns) {	
 	var text = '<tbody>';
 	
-	for (var j in data) {
+	for (var j = 0; j < data.length; j++) {
 		
 		var btnText = '';
 		if (btnFlag) {
-			btnText += createActionButton(data[j]['username'], resId, names, cbacks);
+			btnText += createActionButton(data[j].username, names, cbacks);
 			
 			var cenabled = true;
 			var genabled = true;
-			createTenantSLAModals(data[j]['username'], 'MEC', true);
+			createTenantSLAModals(data[j].username, 'MEC', true);
 			
-			var slas = data[j]['sla'];
+			var slas = data[j].sla;
 			
-			for (var s in slas) {
-				var constrs = slas[s]['slaConstraints'];
-				for (var c in constrs) {
-					if (constrs[c]['scope'] == 'CLOUD_RESOURCE') {
+			for (var s = 0; s < slas.length; s++) {
+				var constrs = slas[s].slaConstraints;
+				for (var c = 0; c < constrs.length; c++) {
+					if (constrs[c].scope == 'CLOUD_RESOURCE') {
 						cenabled = false;
 					}
-					if (constrs[c]['scope'] == 'GLOBAL_VIRTUAL_RESOURCE') {
+					if (constrs[c].scope == 'GLOBAL_VIRTUAL_RESOURCE') {
 						genabled = false;
 					}
 				}
 			}
-			createTenantSLAModals(data[j]['username'], 'Cloud', cenabled);
-			createTenantSLAModals(data[j]['username'], 'Global', genabled);
+			createTenantSLAModals(data[j].username, 'Cloud', cenabled);
+			createTenantSLAModals(data[j].username, 'Global', genabled);
 		}
 		
 		text += '<tr>' + btnText;
-		for (var i in columns) {
+		for (var i = 0; i < columns.length; i++) {
 			var values = [];
 			getValuesFromKeyPath(data[j], columns[i], values);
 			//console.log(values);
@@ -184,7 +184,7 @@ function createTenantTableContents(data, btnFlag, resId, names, cbacks, columns)
 			
 			if (data[j].hasOwnProperty(columns[i][0])) {
 				if(values[0] instanceof Array) {
-					for (var v in values[0]) {
+					for (var v = 0; v < values[0].length; v++) {
 						subTable += '<tr><td>' + values[0][v] + '</td><tr>';
 					}
 				subText += subTable + '</table>';
@@ -211,7 +211,7 @@ function createTenantTableContents(data, btnFlag, resId, names, cbacks, columns)
 	return text;
 }
 
-function createTenantSLAsTable(tableIds, data, resId) {
+function createTenantSLAsTable(data, tableIds) {
 	var tableMEC = document.getElementById(tableIds[0]);
 	var tableCloud = document.getElementById(tableIds[1]);
 	var tableGlobal = document.getElementById(tableIds[2]);
@@ -243,15 +243,15 @@ function createTenantSLAsTable(tableIds, data, resId) {
 	
 	var text = '';
 	var type = 0;
-	for (var j in data) {
+	for (var j = 0; j < data.length; j++) {
 		
 		var btnText = '';
 		if (btnFlag) {
-			btnText += createActionButton(data[j]['id'], resId, names, cbacks);
+			btnText += createActionButton(data[j].id, names, cbacks);
 		}
 		
 		text += '<tr>' + btnText;
-		for (var i in columns) {
+		for (var i = 0; i < columns.length; i++) {
 			var values = [];
 			getValuesFromKeyPath(data[j], columns[i], values);
 			//console.log(values);
@@ -262,11 +262,11 @@ function createTenantSLAsTable(tableIds, data, resId) {
 			if (data[j].hasOwnProperty(columns[i][0])) {
 				if(values[0] instanceof Array) {
 					var subHeader = '';
-					if (values[0][0]['scope'] == 'MEC_RESOURCE') {
+					if (values[0][0].scope == 'MEC_RESOURCE') {
 						subHeader = createTableHeaderByValues(['Max Ram', 'Max vCPUs', 'Max vStorage', 'Location'], false, false);
 					} else {
 						subHeader = createTableHeaderByValues(['Max Ram', 'Max vCPUs', 'Max vStorage'], false, false);
-						if (values[0][0]['scope'] == 'CLOUD_RESOURCE') {
+						if (values[0][0].scope == 'CLOUD_RESOURCE') {
 							type = 1;
 						} else {
 							type = 2;
@@ -274,11 +274,11 @@ function createTenantSLAsTable(tableIds, data, resId) {
 					}
 					
 					subTable += subHeader + '<tbody>';
-					for (var v in values[0]) {
+					for (var v = 0; v < values[0].length; v++) {
 						var value = values[0][v];
-						subTable += '<tr><td>' + value['maxResourceLimit']['memoryRAM'] + '</td><td>' + value['maxResourceLimit']['vCPU'] + '</td><td>' + value['maxResourceLimit']['diskStorage'] + '</td>';
+						subTable += '<tr><td>' + value.maxResourceLimit.memoryRAM + '</td><td>' + value.maxResourceLimit.vCPU + '</td><td>' + value.maxResourceLimit.diskStorage + '</td>';
 						if (type == 0)
-							subTable += '<td>' + value['location'] + '</td>';
+							subTable += '<td>' + value.location + '</td>';
 						subTable += '</tr>';
 					}
 					subText += subTable + '</tbody></table>';
