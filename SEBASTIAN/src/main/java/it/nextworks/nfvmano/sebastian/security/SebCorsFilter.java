@@ -41,8 +41,9 @@ public class SebCorsFilter implements Filter {
             response.setHeader("Access-Control-Allow-Credentials", "true");
             response.setHeader("Access-Control-Max-Age", "180");
             filterChain.doFilter(servletRequest, response);
+        } else {
+            filterChain.doFilter(servletRequest, response);
         }
-        filterChain.doFilter(servletRequest, response);
     }
 
     @Override
