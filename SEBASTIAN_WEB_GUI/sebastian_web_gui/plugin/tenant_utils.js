@@ -143,7 +143,9 @@ function createTenantTable(data, tableId) {
 	table.innerHTML = header + conts;
 }
 
-function createTenantTableContents(data, btnFlag, names, cbacks, columns) {	
+function createTenantTableContents(data, btnFlag, names, cbacks, columns) {
+	console.log(JSON.stringify(data, null, 4));
+	
 	var text = '<tbody>';
 	
 	for (var j = 0; j < data.length; j++) {

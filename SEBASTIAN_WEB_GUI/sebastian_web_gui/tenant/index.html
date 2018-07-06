@@ -46,6 +46,7 @@
     <script src="../plugin/tenant_utils.js"></script>
     <script src="../plugin/blueprint_utils.js"></script>
     <script src="../plugin/vsdescriptor_utils.js"></script>
+    <script src="../plugin/login_utils.js"></script>
     
   </head>
 
@@ -59,6 +60,20 @@
             </div>
 
             <div class="clearfix"></div>
+            
+            <br />
+            
+            <div class="profile clearfix">
+              <div class="profile_pic">
+                <img src="images/user_icon.png" alt="..." class="img-circle profile_img">
+              </div>
+              <div class="profile_info">
+                <span>Welcome,</span>
+                <h2 id="displayedUser"></h2>
+              </div>
+            </div>
+            
+            <script>displayUserInfo("displayedUser");</script>
 
             <br />
 
@@ -69,11 +84,7 @@
                 <ul class="nav side-menu">
                   <li><a href="index.html"><i class="fa fa-home"></i> Home </a>
                   </li>
-                  <li><a><i class="fa fa-file-text"></i> VS Catalogue <span class="fa fa-chevron-down"></a>
-                    <ul class="nav child_menu">
-                      <li><a href="./pages/blueprint/blueprint.html">VS Blueprints</a></li>
-                      <li><a href="./pages/blueprint/vs_descriptor.html">VS Descriptors</a></li>
-                    </ul>
+                  <li><a href="./pages/blueprint/blueprint.html"><i class="fa fa-file-text"></i> VS Blueprints </a>
                   </li>
                   <li><a href="./pages/blueprint/vs_descriptor.html"><i class="fa fa-file-text-o"></i> VS  Descriptors </a>
                   </li>
@@ -128,17 +139,9 @@
             <div class="row top_tiles">
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
                 <div class="tile-stats">
-                  <div class="icon"><i class="fa fa-users"></i></div>
-                  <div class="count" id="count-Tenant">0</div>
-                  <h3><a href="./pages/tenant.html">Tenants</a></h3>
-                  <p></p>
-                </div>
-              </div>
-              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
-                <div class="tile-stats">
                   <div class="icon"><i class="fa fa-file-text"></i></div>
                   <div class="count" id="count-Blueprint">0</div>
-                  <h3><a href="./pages/blueprint/blueprint.html">Blueprints</a></h3>
+                  <h3><a href="./pages/blueprint/blueprint.html">VS Blueprints</a></h3>
                   <p></p>
                 </div>
               </div>
@@ -203,7 +206,6 @@
     </div>
     
     <!-- SEBASTIAN COUNTER -->
-    <script>getAllTenants("count-Tenant",fillTenantCounter);</script>
     <script>getVSBlueprints("count-Blueprint",fillBlueprintCounter);</script>
     <script>getAllVSDescriptors("count-VSD",fillVSDCounter);</script>
     <script>getVSInstanceIds("count-VSI",fillVSICounter);</script>
