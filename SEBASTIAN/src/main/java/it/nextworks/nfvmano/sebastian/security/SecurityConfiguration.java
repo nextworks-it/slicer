@@ -118,7 +118,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/vs/admin/**").hasAuthority("ADMIN")
                 .antMatchers("/vs/whoami").authenticated()
-                .antMatchers("/vs/**").hasAuthority("TENANT")
+                .antMatchers("/vs/**").hasAnyAuthority("TENANT", "ADMIN")
                 .and()
                 .formLogin()
                 .successHandler(authenticationSuccessHandler)
