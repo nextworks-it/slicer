@@ -159,7 +159,7 @@ function putToURLWithAuth(resourceUrl, callback, params) {
     });
 }
 
-function deleteRequestToURL(resourceUrl, callback, params) {
+function deleteRequestToURLWithAuth(resourceUrl, callback, params) {
     
     var settings = {
         "async": true,

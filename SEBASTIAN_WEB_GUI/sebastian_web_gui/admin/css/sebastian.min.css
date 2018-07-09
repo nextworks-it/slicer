@@ -14,34 +14,34 @@
 * limitations under the License.
 */
 .left_col {
-	background:#233F67 
+	background:#800000 
 }
 
 .nav_title {
-	background:#233F67
+	background:#800000
 }
 
 /*.top_nav .nav .open>a,.top_nav .nav .open>a:focus,.top_nav .nav .open>a:hover,.top_nav .nav>li>a:focus,.top_nav .nav>li>a:hover {
-	background:#233F67
+	background:#800000
 }*/
 
 body {
-	background:#233F67
+	background:#800000
 }
 
 .sidebar-footer {
-	background:#233F67
+	background:#800000
 
 }
 
 .nav.side-menu>li.active>a {
 	text-shadow:rgba(0,0,0,.25) 0 -1px 0;
-	background:linear-gradient(#2B5797,#1A2431),#233F67;
+	background:linear-gradient(#cc0000,#1a0000),#800000;
 	box-shadow:rgba(0,0,0,.25) 0 1px 0,inset rgba(255,255,255,.16) 0 1px 0
 }
 
 .nav.side-menu>li.active,.nav.side-menu>li.current-page {
-	border-right:5px solid #ff6a5c
+	border-right:5px solid #73a871
 }
 
 .nav-md ul.nav.child_menu li:before {
@@ -54,32 +54,32 @@ body {
 
 .btn-info{
 	color:#fff;
-	background-color:#233F67;
-	border-color:#1B2737
+	background-color:#800000;
+	border-color:#4d0000
 }
 
 .btn-info.focus,.btn-info:focus{
 	color:#fff;
-	background-color:#264879;
-	border-color:#1B2737
+	background-color:#990000;
+	border-color:#4d0000
 }
 
 .btn-info:hover{
 	color:#fff;
-	background-color:#264879;
-	border-color:#1B2737
+	background-color:#990000;
+	border-color:#4d0000
 }
 
 .btn-info.active,.btn-info:active,.open>.dropdown-toggle.btn-info{
 	color:#fff;
-	background-color:#2B5797;
-	border-color:#1B2737
+	background-color:#cc0000;
+	border-color:#4d0000
 }
 
 .btn-info.active.focus,.btn-info.active:focus,.btn-info.active:hover,.btn-info:active.focus,.btn-info:active:focus,.btn-info:active:hover,.open>.dropdown-toggle.btn-info.focus,.open>.dropdown-toggle.btn-info:focus,.open>.dropdown-toggle.btn-info:hover{
 	color:#fff;
-	background-color:#2B5797;
-	border-color:#1B2737
+	background-color:#cc0000;
+	border-color:#4d0000
 }
 
 .btn-info.active,.btn-info:active,.open>.dropdown-toggle.btn-info{
@@ -87,44 +87,44 @@ body {
 }
 
 .btn-info.disabled.focus,.btn-info.disabled:focus,.btn-info.disabled:hover,.btn-info[disabled].focus,.btn-info[disabled]:focus,.btn-info[disabled]:hover,fieldset[disabled] .btn-info.focus,fieldset[disabled] .btn-info:focus,fieldset[disabled] .btn-info:hover{
-	background-color:#264879;
-	border-color:#1B2737
+	background-color:#990000;
+	border-color:#4d0000
 
 }
 
 .btn-info .badge{
-	color:#264879;
+	color:#990000;
 	background-color:#fff
 }
 
 .btn-primary {
 	color:#fff;
-	background-color:#233F67;
-	border-color:#1B2737
+	background-color:#800000;
+	border-color:#4d0000
 }
 
 .btn-primary.focus,.btn-primary:focus{
 	color:#fff;
-	background-color:#264879;
-	border-color:#1B2737
+	background-color:#990000;
+	border-color:#4d0000
 }
 
 .btn-primary:hover{
 	color:#fff;
-	background-color:#264879;
-	border-color:#1B2737
+	background-color:#990000;
+	border-color:#4d0000
 }
 
 .btn-primary.active,.btn-primary:active,.open>.dropdown-toggle.btn-primary{
 	color:#fff;
-	background-color:#2B5797;
-	border-color:#1B2737
+	background-color:#cc0000;
+	border-color:#4d0000
 }
 
 .btn-primary.active.focus,.btn-primary.active:focus,.btn-primary.active:hover,.btn-primary:active.focus,.btn-primary:active:focus,.btn-primary:active:hover,.open>.dropdown-toggle.btn-primary.focus,.open>.dropdown-toggle.btn-primary:focus,.open>.dropdown-toggle.btn-primary:hover{
 	color:#fff;
-	background-color:#2B5797;
-	border-color:#1B2737
+	background-color:#cc0000;
+	border-color:#4d0000
 }
 
 .btn-primary.active,.btn-primary:active,.open>.dropdown-toggle.btn-primary{
@@ -132,13 +132,13 @@ body {
 }
 
 .btn-primary.disabled.focus,.btn-primary.disabled:focus,.btn-primary.disabled:hover,.btn-primary[disabled].focus,.btn-primary[disabled]:focus,.btn-primary[disabled]:hover,fieldset[disabled] .btn-primary.focus,fieldset[disabled] .btn-primary:focus,fieldset[disabled] .btn-primary:hover{
-	background-color:#264879;
-	border-color:#1B2737
+	background-color:#990000;
+	border-color:#4d0000
 
 }
 
 .btn-primary .badge{
-	color:#264879;
+	color:#990000;
 	background-color:#fff
 }
 
@@ -170,6 +170,6 @@ body {
 
 .wizard_horizontal ul.wizard_steps li a.selected:before,
 .step_no {
-    background: #233F67;
+    background: #800000;
     color: #fff
 }

@@ -15,7 +15,6 @@
 */
 
 var vsAddr = window.location.hostname;
-//var vsAddr = '10.5.1.60';
 var vsPort = '8082';
 
 var stopRefreshing = false;

@@ -29,7 +29,7 @@ function fillVSICounter(data, elemId) {
 }
 
 function readVSDescriptors(tableId) {
-    getAllVSDescriptors(tableId, resId, createVSDescriptorsTable);
+    getAllVSDescriptors(tableId, createVSDescriptorsTable);
 }
 
 function getAllVSDescriptors(params, callback) {

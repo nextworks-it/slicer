@@ -44,6 +44,7 @@
     <script src="../plugin/rest_api.js"></script>
     <script src="../plugin/utils.js"></script>
     <script src="../plugin/tenant_utils.js"></script>
+    <script src="../plugin/group_utils.js"></script>
     <script src="../plugin/blueprint_utils.js"></script>
     <script src="../plugin/vsdescriptor_utils.js"></script>
     <script src="../plugin/login_utils.js"></script>
@@ -150,7 +151,7 @@
             <div class="row top_tiles">
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
                 <div class="tile-stats">
-                  <div class="icon"><i class="fa fa-users"></i></div>
+                  <div class="icon"><i class="fa fa-user"></i></div>
                   <div class="count" id="count-Tenant">0</div>
                   <h3><a href="./pages/tenant.html">Tenants</a></h3>
                   <p></p>
@@ -158,9 +159,17 @@
               </div>
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
                 <div class="tile-stats">
+                  <div class="icon"><i class="fa fa-group"></i></div>
+                  <div class="count" id="count-Group">0</div>
+                  <h3><a href="./pages/group.html">Groups</a></h3>
+                  <p></p>
+                </div>
+              </div>
+              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <div class="tile-stats">
                   <div class="icon"><i class="fa fa-file-text"></i></div>
                   <div class="count" id="count-Blueprint">0</div>
-                  <h3><a href="./pages/blueprint/blueprint.html">Blueprints</a></h3>
+                  <h3><a href="./pages/blueprint/blueprint.html">VS Blueprints</a></h3>
                   <p></p>
                 </div>
               </div>
@@ -226,6 +235,7 @@
     
     <!-- SEBASTIAN COUNTER -->
     <script>getAllTenants("count-Tenant",fillTenantCounter);</script>
+    <script>getGroups("count-Group",fillGroupCounter);</script>
     <script>getVSBlueprints("count-Blueprint",fillBlueprintCounter);</script>
     <script>getAllVSDescriptors("count-VSD",fillVSDCounter);</script>
     <script>getVSInstanceIds("count-VSI",fillVSICounter);</script>

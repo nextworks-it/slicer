@@ -8,7 +8,7 @@ function login(userNameId, passwordId){
 
 function getUserInfo() {
     
-    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/whoami/', storeUserInfo);
+    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/whoami', storeUserInfo);
 }
 
 function storeUserInfo(data) {
