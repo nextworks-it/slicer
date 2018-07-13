@@ -278,7 +278,15 @@
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                           <input type="text" id="createVNFD-pkgpath" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
                                         </div>
-                                        <button type="button" class="btn btn-info" onclick=uploadVNFDFromForm("step-3",["createVNFD-name","createVNFD-version","createVNFD-provider","createVNFD-checksum","createVNFD-pkgpath"])>Submit</button>
+                                        <button type="button" class="btn btn-info" onclick=uploadVNFDFromForm("step-3",["createVNFD-name","createVNFD-version","createVNFD-provider","createVNFD-checksum","createVNFD-pkgpath","createVNFD-submitted"])>Submit</button>
+                                    </div>
+                                    </br>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Submitted VNFs <!-- span class="required">*</span -->
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                          <table id="createVNFD-submitted"></table>          
+                                        </div>
                                     </div>
                                 </form>
                             </div>
@@ -318,7 +326,15 @@
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                           <input type="text" id="createApp-pkgpath" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
                                         </div>
-                                        <button type="button" class="btn btn-info" onclick=uploadAppFromForm("step-4",["createApp-name","createApp-version","createApp-provider","createApp-checksum","createApp-pkgpath"])>Submit</button>
+                                        <button type="button" class="btn btn-info" onclick=uploadAppFromForm("step-4",["createApp-name","createApp-version","createApp-provider","createApp-checksum","createApp-pkgpath","createApp-submitted"])>Submit</button>
+                                    </div>
+                                    </br>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Submitted Apps <!-- span class="required">*</span -->
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                          <table id="createApp-submitted"></table>          
+                                        </div>
                                     </div>
                                 </form>
                             </div>

@@ -16,6 +16,7 @@
 
 var vsAddr = window.location.hostname;
 var vsPort = '8082';
+var stepToRoot = 4;
 
 var stopRefreshing = false;
 var isShowingProgress = false;
@@ -54,7 +55,7 @@ function redirectToError(errorType) {
 	
 	var new_path = '';
 	
-	for (var i = 0; i < steps_back.length - 2; i++) {
+	for (var i = 0; i < steps_back.length - stepToRoot; i++) {
 		new_path += '../';
 	}
 	

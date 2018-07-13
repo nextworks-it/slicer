@@ -151,33 +151,36 @@ function createTenantTableContents(data, btnFlag, names, cbacks, columns) {
 	for (var j = 0; j < data.length; j++) {
 		
 		var btnText = '';
-		if (!(data[j].username == 'admin' || data[j].username == 'user')) {
+		if (data[j].username == 'admin' || data[j].username == 'user') {
+			btnText = '<td></td>';
+		} else {
 			if (btnFlag) {
 				btnText += createActionButton(data[j].username, names, cbacks);
 				
 				var cenabled = true;
 				var genabled = true;
 				createTenantSLAModals(data[j].username, 'MEC', true);
-				
+								
 				var slas = data[j].sla;
 				
-				for (var s = 0; s < slas.length; s++) {
-					var constrs = slas[s].slaConstraints;
-					for (var c = 0; c < constrs.length; c++) {
-						if (constrs[c].scope == 'CLOUD_RESOURCE') {
-							cenabled = false;
-						}
-						if (constrs[c].scope == 'GLOBAL_VIRTUAL_RESOURCE') {
-							genabled = false;
+				if (slas) {
+					for (var s = 0; s < slas.length; s++) {
+						var constrs = slas[s].slaConstraints;
+						for (var c = 0; c < constrs.length; c++) {
+							if (constrs[c].scope == 'CLOUD_RESOURCE') {
+								cenabled = false;
+							}
+							if (constrs[c].scope == 'GLOBAL_VIRTUAL_RESOURCE') {
+								genabled = false;
+							}
 						}
 					}
 				}
 				createTenantSLAModals(data[j].username, 'Cloud', cenabled);
 				createTenantSLAModals(data[j].username, 'Global', genabled);
 			}
-		} else {
-			btnText = '<td></td>';
 		}
+
 		
 		text += '<tr>' + btnText;
 		for (var i = 0; i < columns.length; i++) {
@@ -401,7 +404,7 @@ function createTenantSLAModals(tenantId, type, enabled) {
                   <div class="modal-footer">\
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal" onclick=clearForms("AddTenantForm")>Cancel</button>\
                     <button id="' + type + 'createSLA_' + tenantId +'_submit" type="submit" class="btn btn-info" data-dismiss="modal"\
-                            onclick=createTenantSLAFromForm(["' + type + 'createSLA_' + tenantId +'_status","' + type + 'createSLA_' + tenantId +'_scope","' + type + 'createSLA_' + tenantId +'_location","' + type + 'createSLA_' + tenantId +'_ram","' + type + 'createSLA_' + tenantId +'_cpu","' + type + 'createSLA_' + tenantId +'_storage"],"response","' + type + 'constraintsNum_' + tenantId + '","' + tenantId + '","' + type + '")>Submit</button>\
+                            onclick=createTenantSLAFromForm(["' + type + 'createSLA_' + tenantId +'_status","' + type + 'createSLA_' + tenantId +'_scope","' + type + 'createSLA_' + tenantId +'_location","' + type + 'createSLA_' + tenantId +'_ram","' + type + 'createSLA_' + tenantId +'_cpu","' + type + 'createSLA_' + tenantId +'_storage"],"' + type + 'constraintsNum_' + tenantId + '","' + tenantId + '","' + type + '")>Submit</button>\
                   </div>\
                 </div>\
               </div>\

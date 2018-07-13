@@ -193,6 +193,8 @@ function uploadVNFDFromForm(formId, formIds) {
     console.log(json);
     console.log(vnfds);
     
+    document.getElementById(formIds[5]).innerHTML += '<tr><td>' + jsonObj.name + '</td></tr>';
+    
     return json;
 }
 
@@ -210,6 +212,9 @@ function uploadAppFromForm(formId, formIds) {
     window.alert("App Package successfully submitted.");
     
     clearForms(formId, false);
+    
+    document.getElementById(formIds[5]).innerHTML += '<tr><td>' + jsonObj.name + '</td></tr>';
+    
     return json;
 }
 
