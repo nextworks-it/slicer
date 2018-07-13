@@ -108,7 +108,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .addFilterBefore(sebCorsFilter, CorsFilter.class)
+                //.addFilterBefore(sebCorsFilter, CorsFilter.class)
                 .cors()
                 .and()
                 .csrf().disable()
