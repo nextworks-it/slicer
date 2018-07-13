@@ -54,7 +54,7 @@ function redirectToError(errorType) {
 	
 	var new_path = '';
 	
-	for (var i = 0; i < steps_back.length -4; i++) {
+	for (var i = 0; i < steps_back.length - 2; i++) {
 		new_path += '../';
 	}
 	
