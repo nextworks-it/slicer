@@ -151,28 +151,32 @@ function createTenantTableContents(data, btnFlag, names, cbacks, columns) {
 	for (var j = 0; j < data.length; j++) {
 		
 		var btnText = '';
-		if (btnFlag) {
-			btnText += createActionButton(data[j].username, names, cbacks);
-			
-			var cenabled = true;
-			var genabled = true;
-			createTenantSLAModals(data[j].username, 'MEC', true);
-			
-			var slas = data[j].sla;
-			
-			for (var s = 0; s < slas.length; s++) {
-				var constrs = slas[s].slaConstraints;
-				for (var c = 0; c < constrs.length; c++) {
-					if (constrs[c].scope == 'CLOUD_RESOURCE') {
-						cenabled = false;
-					}
-					if (constrs[c].scope == 'GLOBAL_VIRTUAL_RESOURCE') {
-						genabled = false;
+		if (!(data[j].username == 'admin' || data[j].username == 'user')) {
+			if (btnFlag) {
+				btnText += createActionButton(data[j].username, names, cbacks);
+				
+				var cenabled = true;
+				var genabled = true;
+				createTenantSLAModals(data[j].username, 'MEC', true);
+				
+				var slas = data[j].sla;
+				
+				for (var s = 0; s < slas.length; s++) {
+					var constrs = slas[s].slaConstraints;
+					for (var c = 0; c < constrs.length; c++) {
+						if (constrs[c].scope == 'CLOUD_RESOURCE') {
+							cenabled = false;
+						}
+						if (constrs[c].scope == 'GLOBAL_VIRTUAL_RESOURCE') {
+							genabled = false;
+						}
 					}
 				}
+				createTenantSLAModals(data[j].username, 'Cloud', cenabled);
+				createTenantSLAModals(data[j].username, 'Global', genabled);
 			}
-			createTenantSLAModals(data[j].username, 'Cloud', cenabled);
-			createTenantSLAModals(data[j].username, 'Global', genabled);
+		} else {
+			btnText = '<td></td>';
 		}
 		
 		text += '<tr>' + btnText;

@@ -55,6 +55,13 @@ function getJsonFromURLWithAuth(resourceUrl, callback, params) {
     $.ajax(settings).done(function (response) {
         console.log(response);
         callback(response, params);
+    }).fail(function (response) {
+        console.log(response);
+        if (response.status == 401) {
+            redirectToError('401');
+        } else if (response.status == 403) {
+            redirectToError('403');
+        }
     });
 }
 
@@ -72,6 +79,13 @@ function getFromURLWithAuth(resourceUrl, callback, params) {
 
     $.ajax(settings).done(function () {
         callback(params);
+    }).fail(function (response) {
+        console.log(response);
+        if (response.status == 401) {
+            location.href = '../401.html';
+        } else if (response.status == 403) {
+            location.href = '../403.html';
+        }
     });
 }
 
@@ -94,8 +108,14 @@ function postJsonToURLWithAuth(resourceUrl, jsonData, callback, params) {
     $.ajax(settings).done(function (response) {
         console.log(response);
         callback(true, params[0]);
-    }).fail(function () {
-        callback(false, params[1]);
+    }).fail(function (response) {
+        console.log(response);
+        if (response.status == 401) {
+            location.href = '../401.html';
+        } else if (response.status == 403) {
+            location.href = '../403.html';
+        } else 
+            callback(false, params[1]);
     });
 }
 
@@ -114,8 +134,14 @@ function postToURLWithAuth(resourceUrl, callback, params) {
     $.ajax(settings).done(function (response) {
         console.log(response);
         callback(true, params[0]);
-    }).fail(function () {
-        callback(false, params[1]);
+    }).fail(function (response) {
+        console.log(response);
+        if (response.status == 401) {
+            location.href = '../401.html';
+        } else if (response.status == 403) {
+            location.href = '../403.html';
+        } else
+            callback(false, params[1]);
     });
 }
 
@@ -138,6 +164,13 @@ function putJsonToURLWithAuth(resourceUrl, jsonData, callback, params) {
     $.ajax(settings).done(function (response) {
         console.log(response);
         callback(response, params);
+    }).fail(function (response) {
+        console.log(response);
+        if (response.status == 401) {
+            location.href = '../401.html';
+        } else if (response.status == 403) {
+            location.href = '../403.html';
+        }
     });
 }
 
@@ -156,6 +189,13 @@ function putToURLWithAuth(resourceUrl, callback, params) {
     $.ajax(settings).done(function (response) {
         console.log(response);
         callback(response);
+    }).fail(function (response) {
+        console.log(response);
+        if (response.status == 401) {
+            location.href = '../401.html';
+        } else if (response.status == 403) {
+            location.href = '../403.html';
+        }
     });
 }
 
@@ -174,7 +214,13 @@ function deleteRequestToURLWithAuth(resourceUrl, callback, params) {
     $.ajax(settings).done(function (response) {
         console.log(response);
         callback(true, params[0]);
-    }).fail(function () {
-        callback(false, params[1]);
+    }).fail(function (response) {
+        console.log(response);
+        if (response.status == 401) {
+            location.href = '../401.html';
+        } else if (response.status == 403) {
+            location.href = '../403.html';
+        } else 
+            callback(false, params[1]);
     });
 }

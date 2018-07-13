@@ -6,6 +6,13 @@ function login(userNameId, passwordId){
     loginToURL('http://' + vsAddr + ':' + vsPort + '/login', username, password, getUserInfo);   
 }
 
+function logout() {
+    deleteCookie('username');
+    deleteCookie('JSESSION');
+    
+    redirectToError('index');
+}
+
 function getUserInfo() {
     
     getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/whoami', storeUserInfo);
@@ -64,4 +71,12 @@ function getCookie(cname) {
         }
     }
     return "";
+}
+
+function deleteCookie(cname) {
+    var cvalue = getCookie(cname);
+    var d = new Date();
+    d.setTime(d.getTime() - (3*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }

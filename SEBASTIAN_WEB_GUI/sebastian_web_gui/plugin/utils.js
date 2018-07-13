@@ -46,6 +46,22 @@ function scrollPageTo(offset) {
         html.scrollTop = offset;
 }
 
+function redirectToError(errorType) {
+	var path = location.pathname;
+	
+	var steps_back = path.split('/');
+	console.log(steps_back.length);
+	
+	var new_path = '';
+	
+	for (var i = 0; i < steps_back.length -4; i++) {
+		new_path += '../';
+	}
+	
+	new_path += errorType + '.html';
+	location.href = new_path;
+}
+
 function clearForms(parentId, flag) {
 	//console.log(parentId);
 	var elems = $('#' + parentId).find('form');
