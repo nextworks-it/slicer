@@ -23,6 +23,7 @@ function login(userNameId, passwordId){
 
 function logout() {
     deleteCookie('username');
+    deleteCookie('role');
     deleteCookie('JSESSIONID');
     
     redirectToError('index');
@@ -30,7 +31,7 @@ function logout() {
 
 function getUserInfo() {
     
-    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/whoami', storeUserInfo);
+    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/whoami', storeUserInfo, null, true);
 }
 
 function storeUserInfo(data) {

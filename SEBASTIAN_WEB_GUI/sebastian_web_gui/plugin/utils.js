@@ -16,7 +16,7 @@
 
 var vsAddr = window.location.hostname;
 var vsPort = '8082';
-var stepToRoot = 2;
+var stepsToRoot = 4;
 
 var stopRefreshing = false;
 var isShowingProgress = false;
@@ -48,18 +48,20 @@ function scrollPageTo(offset) {
 }
 
 function redirectToError(errorType) {
-	var path = location.pathname;
-	
-	var steps_back = path.split('/');
-	console.log(steps_back.length);
-	
+	//var path = location.pathname;
+	var hostname = '/sebastian_web_gui/';
 	var new_path = '';
 	
-	for (var i = 0; i < steps_back.length - stepToRoot; i++) {
+	/*var steps_back = path.split('/');
+	console.log(steps_back.length);
+		
+	for (var i = 0; i < steps_back.length - stepsToRoot; i++) {
 		new_path += '../';
-	}
+	}*/
 	
-	new_path += errorType + '.html';
+	//new_path += errorType + '.html';
+	new_path += hostname + errorType + '.html';
+	console.log(new_path);
 	location.href = new_path;
 }
 
