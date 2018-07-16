@@ -48,6 +48,7 @@ function storeUserInfo(data) {
     };*/
     
     setCookie("username", data.username, 1);
+    setCookie("role", data.role, 1);
     
     if (data.role == 'ADMIN') {
         location.href = './admin/index.html';

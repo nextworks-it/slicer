@@ -352,15 +352,15 @@ function createVSBlueprintsTable(data, tableId) {
 
 function createVSBlueprintsTableContents(vsDescriptors,  params) {
     //console.log(JSON.stringify(vsDescriptors, null, 4));
-    
-    var table = document.getElementById(tableId);
-    
+   
     var data = params[0];
     var tableId = params[1];
     var btnFlag = params[2];
     var names = params[3];
     var cbacks = params[4];
     var columns = params[5];
+       
+    var table = document.getElementById(tableId);
     
 	var text = '<tbody>';
 	
@@ -370,7 +370,14 @@ function createVSBlueprintsTableContents(vsDescriptors,  params) {
 		if (btnFlag) {
 			btnText += createActionButton(data[j].vsBlueprintId, names, cbacks);
             
-            getAllTenants(['vsdModals', data[j].vsBlueprintId, data[j].vsBlueprint.parameters], createVSDescriptorModals);
+            var role = getCookie('role');
+            
+            if(role == 'ADMIN') {
+                getAllTenants(['vsdModals', data[j].vsBlueprintId, data[j].vsBlueprint.parameters], createVSDescriptorModals);
+            } else {
+                var tenant = getCookie('username');
+                createVSDescriptorModals(tenant, ['vsdModals', data[j].vsBlueprintId, data[j].vsBlueprint.parameters]);
+            }
 		}
 		
 		text += '<tr>' + btnText;
@@ -393,7 +400,7 @@ function createVSBlueprintsTableContents(vsDescriptors,  params) {
                             if (columns[i][0] == 'activeVsdId') {
                                 for (var h = 0; h < vsDescriptors.length; h++) {
                                     if (values[0][v] == vsDescriptors[h].vsDescriptorId) {
-                                        subTable += '<tr><td>' + vsDescriptors[h].name + '</td><tr>';
+                                        subTable += '<tr><td><button type="button" class="btn btn-info btn-xs btn-block" onclick="location.href=\'vsd_details.html?Id=' + vsDescriptors[h].vsDescriptorId + '\'">' + vsDescriptors[h].name + '</button></td><tr>';
                                     }
                                 }
                             } else {
@@ -529,9 +536,13 @@ function createVSDescriptorModals(data, params) {
                           </label>\
                           <div class="col-md-6 col-sm-6 col-xs-12">\
                             <select id="createVSD_' + vsbId +'_tenantId" autocomplete="off" name="input-flavour" class="form-control col-md-7 col-xs-12">';
-    for (var i in data) {
-        var tenant = data[i].username;
-        text += '<option value="' + tenant + '">' + tenant + '</option>';
+    if (data instanceof Array) {
+        for (var i in data) {
+            var tenant = data[i].username;
+            text += '<option value="' + tenant + '">' + tenant + '</option>';
+        }
+    } else {
+        text += '<option value="' + data + '">' + data + '</option>';
     }
     text += '</select>\
             </div></div>\
