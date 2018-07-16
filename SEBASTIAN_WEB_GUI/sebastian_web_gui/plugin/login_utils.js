@@ -23,7 +23,7 @@ function login(userNameId, passwordId){
 
 function logout() {
     deleteCookie('username');
-    deleteCookie('JSESSION');
+    deleteCookie('JSESSIONID');
     
     redirectToError('index');
 }

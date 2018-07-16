@@ -16,7 +16,7 @@
 
 var vsAddr = window.location.hostname;
 var vsPort = '8082';
-var stepToRoot = 4;
+var stepToRoot = 2;
 
 var stopRefreshing = false;
 var isShowingProgress = false;
