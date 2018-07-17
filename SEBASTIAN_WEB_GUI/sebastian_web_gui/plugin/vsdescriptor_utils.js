@@ -101,10 +101,21 @@ function createVSDescriptorsTable(data, tableId) {
 		table.innerHTML = '<tr>No VS Descriptors stored in database</tr>';
 		return;
 	}
+    
+    var role = getCookie('role');
+    var cbacks = [];
+    var names = [];
+    
+    if (role == 'ADMIN') {
+        cbacks = ['vsd_details.html?Id='];
+        names = ['View'];
+    } else {
+        cbacks = ['vsd_details.html?Id=', 'instantiateVSDescriptor', 'deleteVSDescriptor'];
+        names = ['View', 'Instantiate', 'Delete'];
+    }
+    
 	var btnFlag = true;
 	var header = createTableHeaderByValues(['Id', 'Name', 'Version', 'Vsb Id', 'Slice Service Type', 'Management Type', 'QoS Parameters'], btnFlag, false);
-	var cbacks = ['vsd_details.html?Id=', 'instantiateVSDescriptor', 'deleteVSDescriptor'];
-	var names = ['View', 'Instantiate', 'Delete'];
     var columns = [['vsDescriptorId'], ['name'], ['version'], ['vsBlueprintId'], ['sst'], ['managementType'], ['qosParameters']];
     
     var conts = '<tbody>';
@@ -263,10 +274,22 @@ function createVSInstancesTable(data, tableId) {
 		table.innerHTML = '<tr>No VS Instances stored in database</tr>';
 		return;
 	}
-	var btnFlag = true;
+    
+    var role = getCookie('role');
+    var cbacks = [];
+    var names = [];
+    var btnFlag = true;
+    
+    if (role == 'ADMIN') {
+        cbacks = [];
+        names = [];
+        btnFlag = false;
+    } else {
+        cbacks = ['terminateVSInstance'];
+        names = ['Terminate'];
+    }
+    	
 	var header = createTableHeaderByValues(['Id', 'Name', 'Description', 'Vsd Id', 'Sap', 'Status'], btnFlag, false);
-	var cbacks = ['terminateVSInstance'];
-	var names = ['Terminate'];
     var columns = [['vsiId'], ['name'], ['description'], ['vsdId'], ['externalInterconnections', 'sapName'], ['status']];
     table.innerHTML = header + '<tbody>';
     

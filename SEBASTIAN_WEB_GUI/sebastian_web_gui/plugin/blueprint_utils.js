@@ -338,10 +338,22 @@ function createVSBlueprintsTable(data, tableId) {
 		table.innerHTML = '<tr>No VS Blueprints stored in database</tr>';
 		return;
 	}
+    
+    var role = getCookie('role');
+    var cbacks = [];
+    var names = [];
+    
+    if (role == 'ADMIN') {
+        cbacks = ['blueprint_details.html?Id=', 'deleteVSBlueprint'];
+        names = ['View Blueprint', 'Delete'];
+    } else {
+        cbacks = ['blueprint_details.html?Id=', 'createVSDForm', 'deleteVSBlueprint'];
+        names = ['View Blueprint', 'Create VS Descriptor', 'Delete'];
+    }
+    
 	var btnFlag = true;
 	var header = createTableHeaderByValues(['Id', 'Version', 'Name', 'Description', 'Configurable parameters', 'Vsd'], btnFlag, false);
-	var cbacks = ['blueprint_details.html?Id=', 'createVSDForm', 'deleteVSBlueprint'];
-	var names = ['View Blueprint', 'Create VS Descriptor', 'Delete'];
+	
     var columns = [['vsBlueprintId'], ['vsBlueprintVersion'], ['name'], ['vsBlueprint', 'description'], ['vsBlueprint', 'parameters'], ['activeVsdId']];
     var params = [data, tableId, btnFlag, names, cbacks, columns];
 	//var conts = createVSBlueprintsTableContents(data, btnFlag, resId, names, cbacks, columns);
