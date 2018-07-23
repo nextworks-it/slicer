@@ -48,6 +48,7 @@ import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.InstantiateVsRequest;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.ModifyVsRequest;
+import it.nextworks.nfvmano.sebastian.vsnbi.messages.PurgeVsRequest;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.QueryVsResponse;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.TerminateVsRequest;
 
@@ -216,6 +217,25 @@ public class VsLcmService implements VsLcmProviderInterface {
 		} else {
 			log.debug("Tenant " + tenantId + " is not allowed to terminate VS instance " + vsiId);
 			throw new NotPermittedOperationException("Tenant " + tenantId + " is not allowed to terminate VS instance " + vsiId);
+		}
+	}
+	
+	@Override
+	public void purgeVs(PurgeVsRequest request)
+			throws MethodNotImplementedException, NotExistingEntityException, FailedOperationException, MalformattedElementException, NotPermittedOperationException {
+		log.debug("Received request to purge a terminated Vertical Service instance.");
+		request.isValid();
+		
+		String tenantId = request.getTenantId();
+		String vsiId = request.getVsiId();
+		
+		VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiId);
+		if (tenantId.equals(adminTenant) || vsi.getTenantId().equals(tenantId)) {
+			vsRecordService.removeVsInstance(vsiId);
+			log.debug("VSI purge action completed for VSI ID " + vsiId);
+		} else {
+			log.debug("Tenant " + tenantId + " is not allowed to purge VS instance " + vsiId);
+			throw new NotPermittedOperationException("Tenant " + tenantId + " is not allowed to purge VS instance " + vsiId);
 		}
 	}
 

@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.libs.common.exceptions.NotPermittedOperationException;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
@@ -70,6 +71,21 @@ public class VsRecordService {
 		vsi.setVsiId(vsiId);
 		vsInstanceRepository.saveAndFlush(vsi);
 		return vsiId;
+	}
+	
+	/**
+	 * This method removes a terminated VS instance from the DB.
+	 * 
+	 * @param vsiId ID of the VS instance to be removed
+	 * @throws NotExistingEntityException if the VS instance is not present in the DB
+	 * @throws NotPermittedOperationException if the VS instance is not in terminated status
+	 */
+	public synchronized void removeVsInstance(String vsiId) throws NotExistingEntityException, NotPermittedOperationException {
+		log.debug("Removing VS instance " + vsiId + " from DB.");
+		VerticalServiceInstance vsi = getVsInstance(vsiId);
+		if (vsi.getStatus() != VerticalServiceStatus.TERMINATED) throw new NotPermittedOperationException("VS instance " + vsiId + " not in terminated status. Impossible to remove it from DB.");
+		vsInstanceRepository.delete(vsi);
+		log.debug("VS instance " + vsiId + " removed from DB.");
 	}
 	
 	/**

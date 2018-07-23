@@ -25,6 +25,7 @@ import it.nextworks.nfvmano.libs.common.exceptions.NotPermittedOperationExceptio
 import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.InstantiateVsRequest;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.ModifyVsRequest;
+import it.nextworks.nfvmano.sebastian.vsnbi.messages.PurgeVsRequest;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.QueryVsResponse;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.TerminateVsRequest;
 
@@ -122,4 +123,19 @@ public interface VsLcmProviderInterface {
 	 */
 	public void modifyVs(ModifyVsRequest request)
 			throws MethodNotImplementedException, NotExistingEntityException, FailedOperationException, MalformattedElementException, NotPermittedOperationException;
+	
+	/**
+	 * This method removes a terminated Vertical Service instance from the system.
+	 * This method operates in synchronous manner.
+	 * 
+	 * @param request request to purge a terminated VS instance
+	 * @throws MethodNotImplementedException if the method is not implemented
+	 * @throws NotExistingEntityException if the VS instance does not exist
+	 * @throws FailedOperationException if the operation fails
+	 * @throws MalformattedElementException if the request is malformatted
+	 * @throws NotPermittedOperationException if the operation is not permitted for the given tenant or the VS instance is not terminated
+	 */
+	public void purgeVs(PurgeVsRequest request)
+			throws MethodNotImplementedException, NotExistingEntityException, FailedOperationException, MalformattedElementException, NotPermittedOperationException;
+	
 }

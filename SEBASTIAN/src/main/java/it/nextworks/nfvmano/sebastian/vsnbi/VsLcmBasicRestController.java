@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,6 +39,7 @@ import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.InstantiateVsRequest;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.ModifyVsRequest;
+import it.nextworks.nfvmano.sebastian.vsnbi.messages.PurgeVsRequest;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.QueryVsResponse;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.TerminateVsRequest;
 
@@ -133,7 +133,7 @@ public class VsLcmBasicRestController {
 	}
 	
 	
-	@RequestMapping(value = "/vs/{vsiId}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/vs/{vsiId}/terminate", method = RequestMethod.POST)
 	public ResponseEntity<?> terminateVsInstance(@PathVariable String vsiId, Authentication auth) {
 		log.debug("Received request to terminate VS instance with ID " + vsiId);
 		try {
@@ -148,6 +148,28 @@ public class VsLcmBasicRestController {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (NotPermittedOperationException e) {
 			log.error("VS instance not visible for the given tenant.");
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+		} catch (Exception e) {
+			log.error("Internal exception");
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@RequestMapping(value = "/vs/{vsiId}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> purgeVsInstance(@PathVariable String vsiId, Authentication auth) {
+		log.debug("Received request to purge VS instance with ID " + vsiId);
+		try {
+			String user = getUserFromAuth(auth);
+			vsLcmService.purgeVs(new PurgeVsRequest(vsiId, user));
+			return new ResponseEntity<QueryVsResponse>(HttpStatus.OK);
+		} catch (MalformattedElementException e) {
+			log.error("Malformatted request");
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		} catch (NotExistingEntityException e) {
+			log.error("VS instance not found");
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (NotPermittedOperationException e) {
+			log.error("Operation not permitted: " + e.getMessage());
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
 		} catch (Exception e) {
 			log.error("Internal exception");
