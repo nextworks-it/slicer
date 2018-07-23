@@ -15,6 +15,7 @@
 */
 package it.nextworks.nfvmano.sebastian.admin;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -38,6 +39,8 @@ import it.nextworks.nfvmano.sebastian.admin.repo.GroupRepository;
 import it.nextworks.nfvmano.sebastian.admin.repo.SlaConstraintRepository;
 import it.nextworks.nfvmano.sebastian.admin.repo.SlaRepository;
 import it.nextworks.nfvmano.sebastian.admin.repo.TenantRepository;
+import it.nextworks.nfvmano.sebastian.record.VsRecordService;
+import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 
 
 /**
@@ -63,6 +66,9 @@ public class AdminService {
 	
 	@Autowired
 	private SlaConstraintRepository slaConstraintRepository;
+	
+	@Autowired
+	private VsRecordService vsRecordService;
 
 	@Autowired
 	@Qualifier("sPasswordEncoder")
@@ -200,7 +206,25 @@ public class AdminService {
 		return slas;
 	}
 	
+	public List<String> getAllNetworkSliceInstancesId() {
+		log.debug("Retrieving the IDs of all the network slice instances.");
+		List<String> nsIds = new ArrayList<>();
+		List<NetworkSliceInstance> nss = vsRecordService.getAllNetworkSliceInstance();
+		for (NetworkSliceInstance ns : nss) {
+			nsIds.add(ns.getNsiId());
+		}
+		return nsIds;
+	}
 	
+	public List<NetworkSliceInstance> getAllNetworkSliceInstances() {
+		log.debug("Retrieving all the network slice instances.");
+		return vsRecordService.getAllNetworkSliceInstance();
+	}
+	
+	public NetworkSliceInstance getNetworkSliceInstance(String nsiId) throws NotExistingEntityException {
+		log.debug("Retrieving network slice instance with ID " + nsiId);
+		return vsRecordService.getNsInstance(nsiId);
+	}
 	
 	public synchronized void addVsdInTenant(String vsdId, String tenantId) 
 			throws NotExistingEntityException {

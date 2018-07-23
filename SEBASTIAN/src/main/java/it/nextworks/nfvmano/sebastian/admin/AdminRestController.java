@@ -37,6 +37,7 @@ import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.sebastian.admin.elements.Sla;
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
 import it.nextworks.nfvmano.sebastian.admin.elements.TenantGroup;
+import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 
 @RestController
 @CrossOrigin
@@ -210,6 +211,32 @@ public class AdminRestController {
 		} catch (MalformattedElementException e) {
 			log.debug("Malformatted request");
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@RequestMapping(value = "/nsmf/networkslices", method = RequestMethod.GET)
+	public ResponseEntity<?> getNetworkSlices() {
+		log.debug("Received request to get info about all the network slices");
+		List<NetworkSliceInstance> nsis = adminService.getAllNetworkSliceInstances();
+		return new ResponseEntity<List<NetworkSliceInstance>>(nsis, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/nsmf/networksliceids", method = RequestMethod.GET)
+	public ResponseEntity<?> getNetworkSliceIds() {
+		log.debug("Received request to get IDs for all the network slices");
+		List<String> nsis = adminService.getAllNetworkSliceInstancesId();
+		return new ResponseEntity<List<String>>(nsis, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/nsmf/networkslice/{nsiId}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> getNetworkSlice(@PathVariable String nsiId) {
+		log.debug("Received request to retrieve network slice with ID " + nsiId);
+		try {
+			NetworkSliceInstance nsi = adminService.getNetworkSliceInstance(nsiId);
+			return new ResponseEntity<NetworkSliceInstance>(nsi, HttpStatus.OK);
+		} catch (NotExistingEntityException e) {
+			log.debug("Network slice not found");
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
 		}
 	}
 }
