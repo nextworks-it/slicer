@@ -67,7 +67,23 @@ function getVSInstance(vsiId, params, callback) {
 }
 
 function terminateVSInstance(vsiId) {
-    deleteRequestToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/basic/vslcm/vs/' + vsiId, showResultMessage, ["VS instances with id " + vsiId + " successfully deleted", "Unable to delete VS instance with id " + vsiId]);
+    postToURLWithAuth(
+        'http://' + vsAddr + ':' + vsPort + '/vs/basic/vslcm/vs/' + vsiId + '/terminate',
+        showResultMessage, 
+        [
+            "VS instances with id " + vsiId + " successfully teminated",
+            "Unable to terminate VS instance with id " + vsiId
+        ]);
+}
+
+function purgeVSInstance(vsiId) {
+    deleteRequestToURLWithAuth(
+        'http://' + vsAddr + ':' + vsPort + '/vs/basic/vslcm/vs/' + vsiId,
+        showResultMessage, 
+        [
+            "VS instances with id " + vsiId + " successfully purged",
+            "Unable to purge VS instance with id " + vsiId
+        ]);
 }
 
 function instantiateVSDFromForm(params) {

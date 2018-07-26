@@ -19,6 +19,8 @@ var translationRules = [];
 var vnfds = [];
 var apps = [];
 
+var defaultImage = 'https://i.ytimg.com/vi/TSXXi2kvl_0/maxresdefault.jpg'
+
 function fillBlueprintCounter(data, elemId) {
     var countDiv = document.getElementById(elemId);
 	
@@ -102,17 +104,17 @@ function readVSBlueprints(tableId) {
     getVSBlueprints(tableId, createVSBlueprintsTable);    
 }
 
-function getVSBlueprints(elemId, callback) {
-    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint', callback, elemId);
+function getVSBlueprints(params, callback) {
+    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint', callback, params);
 }
 
-function readVSBlueprint(tableId) {
+function readVSBlueprint(params) {
     var id = getURLParameter('Id');
-    getVSBlueprint(id, tableId, createVSBlueprintDetailsTable);
+    getVSBlueprint(id, params, createVSBlueprintDetailsTable);
 }
 
-function getVSBlueprint(id, elemId, callback) {
-    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint/' + id, callback, elemId);
+function getVSBlueprint(id, params, callback) {
+    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint/' + id, callback, params);
 }
 
 function deleteVSBlueprint(blueprintId) {
@@ -444,10 +446,10 @@ function createVSBlueprintsTableContents(vsDescriptors,  params) {
 	table.innerHTML += text;
 }
 
-function createVSBlueprintDetailsTable(data, tableId) {
+function createVSBlueprintDetailsTable(data, params) {
     //console.log(JSON.stringify(data, null, 4));
     
-    var table = document.getElementById(tableId);
+    var table = document.getElementById(params[0]);
 	if (!table) {
 		return;
 	}
@@ -463,7 +465,9 @@ function createVSBlueprintDetailsTable(data, tableId) {
 	var names = [];
     var columns = [['vsBlueprintId'], ['vsBlueprintVersion'], ['name'], ['vsBlueprint', 'description'], ['vsBlueprint', 'parameters'], ['activeVsdId']];
 	var conts = createVSBlueprintTableContents(data, btnFlag, names, cbacks, columns);
-	table.innerHTML = header + conts;
+    table.innerHTML = header + conts;
+    var image = document.getElementById(params[1]);
+    image.src = data.imgUrl || defaultImage;
 }
 
 function createVSBlueprintTableContents(data, btnFlag, names, cbacks, columns) {	
