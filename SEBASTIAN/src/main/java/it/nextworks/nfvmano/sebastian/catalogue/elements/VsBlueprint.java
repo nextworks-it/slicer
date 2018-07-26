@@ -46,6 +46,9 @@ public class VsBlueprint implements DescriptorInformationElement {
 	private String version;
 	private String name;
 	private String description;
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String imgUrl;
 	
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	@ElementCollection(fetch=FetchType.EAGER)
@@ -61,11 +64,13 @@ public class VsBlueprint implements DescriptorInformationElement {
 			String version,
 			String name,
 			String description,
+			String imgUrl,
 			List<VsBlueprintParameter> parameters) {
 		this.vsBlueprintId = vsBlueprinId;
 		this.version = version;
 		this.name = name;
 		this.description = description;
+		this.imgUrl = imgUrl;
 		if (parameters != null) this.parameters = parameters;
 	}
 
@@ -119,6 +124,14 @@ public class VsBlueprint implements DescriptorInformationElement {
 	 */
 	public List<VsBlueprintParameter> getParameters() {
 		return parameters;
+	}
+
+	/**
+	 *
+	 * @return the URL of the image describing the VSB
+	 */
+	public String getImgUrl() {
+		return imgUrl;
 	}
 
 	@Override

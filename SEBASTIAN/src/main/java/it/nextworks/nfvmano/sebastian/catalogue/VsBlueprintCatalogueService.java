@@ -250,7 +250,7 @@ public class VsBlueprintCatalogueService implements VsBlueprintCatalogueInterfac
 			throw new AlreadyExistingEntityException("VS Blueprint with name " + vsBlueprint.getName() + " and version " + vsBlueprint.getVersion() + " already present in DB.");
 		}
 		
-		VsBlueprint target = new VsBlueprint(null, vsBlueprint.getVersion(), vsBlueprint.getName(), vsBlueprint.getDescription(), vsBlueprint.getParameters());
+		VsBlueprint target = new VsBlueprint(null, vsBlueprint.getVersion(), vsBlueprint.getName(), vsBlueprint.getDescription(), vsBlueprint.getImgUrl(), vsBlueprint.getParameters());
 		vsBlueprintRepository.saveAndFlush(target);
 		
 		Long vsbId = target.getId();

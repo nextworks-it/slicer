@@ -33,6 +33,8 @@ function submitBlueprintCreationRequest(blueprintId) {
     
     var blueprint = document.getElementById(blueprintId).innerHTML;
     jsonObj.vsBlueprint = JSON.parse(blueprint);
+    // TODO make it dynamic
+    jsonObj.vsBlueprint.imgUrl = window.location.protocol + window.location.host + '/vCDN.jpg'
     
     jsonObj.nsds = nsds;
     
@@ -467,7 +469,7 @@ function createVSBlueprintDetailsTable(data, params) {
 	var conts = createVSBlueprintTableContents(data, btnFlag, names, cbacks, columns);
     table.innerHTML = header + conts;
     var image = document.getElementById(params[1]);
-    image.src = data.imgUrl || defaultImage;
+    image.src = data.vsBlueprint.imgUrl || defaultImage;
 }
 
 function createVSBlueprintTableContents(data, btnFlag, names, cbacks, columns) {	
