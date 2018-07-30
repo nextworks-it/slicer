@@ -220,6 +220,7 @@ function createVSDescriptorsTableContents(data, btnFlag, names, cbacks, columns)
 }
 
 function createInstantiateVSDModalDialog(vsdId) {
+    /*jshint multistr: true */
 	var text = ' <div id="instantiateVSDescriptor_' + vsdId + '" class="modal fade bs-example-modal-md in" tabindex="-1" role="dialog" aria-hidden="true">\
               <div class="modal-dialog modal-md">\
                 <div class="modal-content">\
@@ -306,12 +307,38 @@ function createVSInstancesTable(data, tableId) {
     }
     	
 	var header = createTableHeaderByValues(['Id', 'Name', 'Description', 'Vsd Id', 'Sap', 'Status'], btnFlag, false);
-    var columns = [['vsiId'], ['name'], ['description'], ['vsdId'], ['externalInterconnections', 'sapName'], ['status']];
+    var columns = [['vsiId'], ['name'], ['description'], ['vsdId'], ['externalInterconnections'], ['status']];
     table.innerHTML = header + '<tbody>';
     
     for (var i = 0; i < l; i++) {
         readVSInstance(tableId, data[i], [l, i, cbacks, names, columns, btnFlag]);
     }
+}
+
+function parseSap(data) {
+    var tableHead = '<table class="table table-borderless">';
+    if (!(data instanceof Array)) {
+        console.log('Error: ' + json.stringify(data) + ' is not an array.');
+        return 'ERROR: Could not parse SAP info';
+    }
+    // External table
+    var tableHtml = tableHead.repeat(1); // clone string
+    for (var i in data) {
+        var sap = data[i];
+        tableHtml += '<tr><td>'
+        // Internal table (sap table)
+        tableHtml += tableHead.repeat(1); // clone string
+        tableHtml += '<tr><th>' + sap.sapName + '</th></tr>';
+        for (var j in sap.userAccessInfo) {
+            var uai = sap.userAccessInfo[j];
+            tableHtml += '<tr><td>' + uai.vnfdId + '</td><td>' + uai.address + '</td></tr>';
+        }
+        tableHtml += '</table></td></tr>';
+        // close sap table and new row in external table
+    }
+    tableHtml += '</table>';
+    // close external table
+    return tableHtml;
 }
 
 function createVSInstancesTableContent(data, params) {
@@ -342,7 +369,7 @@ function createVSInstancesTableContent(data, params) {
     var l = params[0];
     var i = params[1];
     var cbacks = params[2];
-    var names = params[3]
+    var names = params[3];
     var columns = params[4];
     var btnFlag = params[5];
     var tableId = params[6];
@@ -363,10 +390,11 @@ function createVSInstancesTableContent(data, params) {
         //console.log(values);
         
         var subText = '<td>';
-        var subTable = '<table class="table table-borderless">';
+        var subTableHead = '<table class="table table-borderless">';
         
         if (data.hasOwnProperty(columns[i][0])) {
-            if(values instanceof Array && values.length > 1) {
+            if (values instanceof Array && values.length > 1) {
+                var subTable = subTableHead.repeat(1); // clone
                 for (var v in values) {
                     subTable += '<tr><td>' + values[v] + '</td><tr>';
                 }
@@ -374,6 +402,9 @@ function createVSInstancesTableContent(data, params) {
             } else {
                 if (columns[i][0] == 'vsdId') {
                     subText += '<button type="button" class="btn btn-info btn-xs btn-block" onclick="location.href=\'vsd_details.html?Id=' + values + '\'">' + values + '</button>';
+                } else if (columns[i][0] == 'externalInterconnections') {
+                    var saps = values[0];
+                    subText += parseSap(saps);
                 } else {
                     if(columns[i][0] == 'status' && values == 'FAILED') {
                         subText += values + '<\br>' + data.errorMessage;

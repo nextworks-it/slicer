@@ -77,7 +77,7 @@ public class NetworkSliceInstance {
 	 * @param instantiationLevelId ID of the instantiation level in the NFV network service
 	 * @param nfvNsId ID of the NFV network service that implements the network slice
 	 * @param networkSliceSubnetInstances in case of composite network slice, the ID of its network slice subnets
-	 * @param tenantID owner of the slice
+	 * @param tenantId owner of the slice
 	 */
 	public NetworkSliceInstance(String nsiId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String nfvNsId,
 			List<String> networkSliceSubnetInstances, String tenantId, String name, String description) {
@@ -213,7 +213,7 @@ public class NetworkSliceInstance {
 	/**
 	 * This method fills the failure related fields
 	 * 
-	 * @param errorMessage
+	 * @param errorMessage the cause of the slice failure
 	 */
 	public void setFailureState(String errorMessage) {
 		this.status = NetworkSliceStatus.FAILED;
