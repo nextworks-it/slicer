@@ -70,7 +70,7 @@ public class VsLcmBasicRestController {
 	public ResponseEntity<?> instantiateVs(@RequestBody InstantiateVsRequest request, Authentication auth) {
 		log.debug("Received request to instantiate a new Vertical Service.");
 		try {
-			String username = ((UserDetails) auth.getDetails()).getUsername();
+			String username = getUserFromAuth(auth);
 			if (!request.getTenantId().equals(username)) {
 				return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
 			}
