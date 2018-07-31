@@ -1,0 +1,7 @@
+{
+	"name": "CDN cache 2",
+	"version": "0.1",
+	"provider": "ATOS",
+	"checksum": "VNFD_TEST_001_checksum",
+	"vnfPackagePath": "http://localhost/CDN_SPR22.tar"
+}
