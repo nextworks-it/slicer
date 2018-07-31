@@ -18,8 +18,16 @@ var nsds = [];
 var translationRules = [];
 var vnfds = [];
 var apps = [];
+var image_url = null;
 
 var defaultImage = 'https://i.ytimg.com/vi/TSXXi2kvl_0/maxresdefault.jpg'
+
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
 
 function fillBlueprintCounter(data, elemId) {
     var countDiv = document.getElementById(elemId);
@@ -33,8 +41,8 @@ function submitBlueprintCreationRequest(blueprintId) {
     
     var blueprint = document.getElementById(blueprintId).innerHTML;
     jsonObj.vsBlueprint = JSON.parse(blueprint);
-    // TODO make it dynamic
-    jsonObj.vsBlueprint.imgUrl = window.location.protocol + window.location.host + '/vCDN.jpg'
+    
+    jsonObj.vsBlueprint.imgUrl = image_url;
     
     jsonObj.nsds = nsds;
     
@@ -132,7 +140,7 @@ function progressBlueprintWizard() {
     document.getElementById('step-' + wizardCurrentStep + '_ball').setAttribute('isdone', "1");
     document.getElementById('step-' + wizardCurrentStep + '_ball').classList.remove('disabled');
     document.getElementById('step-' + wizardCurrentStep + '_ball').classList.add('selected');
-    if (wizardCurrentStep == 5) {
+    if (wizardCurrentStep == 6) {
         document.getElementById('progressBtn').classList.add('buttonDisabled');
         document.getElementById('finishBtn').classList.remove('buttonDisabled');
     } else if (wizardCurrentStep > 1) {
@@ -151,7 +159,7 @@ function undoBlueprintWizard() {
     document.getElementById('step-' + wizardCurrentStep + '_ball').classList.add('selected');
     if (wizardCurrentStep == 1) {
         document.getElementById('undoBtn').classList.add('buttonDisabled');
-    } else if (wizardCurrentStep < 5) {
+    } else if (wizardCurrentStep < 6) {
         document.getElementById('finishBtn').classList.add('buttonDisabled');
         document.getElementById('progressBtn').classList.remove('buttonDisabled');
     }
@@ -160,6 +168,44 @@ function undoBlueprintWizard() {
 function loadBlueprintFromFileIntoForm(evt, elemId) {
 	var type = 'JSON';
 	loadFromFile(type, evt, elemId);
+}
+
+function loadImageFromFileIntoForm(evt, elemId) {
+    file = evt.target.files[0];
+
+    // Now upload it on the file storage
+    var storageUrl = 'http://10.0.8.46:8080';
+
+    var image_name = uuidv4() + '.jpg';
+
+    var actualUrl = storageUrl + '/' + image_name;
+    image_url = actualUrl;
+    var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": actualUrl,
+        "method": "PUT",
+        "headers": {
+            "Content-Type": "image/jpeg"
+        },
+        /*xhrFields: {
+            withCredentials: true
+        },*/
+        "data": file,
+        "processData": false
+    };
+      
+    $.ajax(settings).done(function (response) {
+        console.log(response);
+    }).fail(function (response) {
+        console.log(response);
+        if (response.status == 401) {
+            location.href = '../401.html';
+        } else if (response.status == 403) {
+            location.href = '../403.html';
+        } else 
+            callback(false, params[1]);
+    });
 }
 
 function loadNSDsFromFileIntoArray(evt, inputId) {
