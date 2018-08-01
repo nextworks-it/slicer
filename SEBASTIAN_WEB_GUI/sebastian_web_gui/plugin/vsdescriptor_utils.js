@@ -407,7 +407,7 @@ function createVSInstancesTableContent(data, params) {
                     subText += parseSap(saps);
                 } else {
                     if(columns[i][0] == 'status' && values == 'FAILED') {
-                        subText += values + '<\br>' + data.errorMessage;
+                        subText += values + '<br>' + data.errorMessage;
                     } else {
                         subText += values;
                     }
