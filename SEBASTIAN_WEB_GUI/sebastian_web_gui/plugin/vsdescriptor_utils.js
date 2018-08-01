@@ -379,12 +379,12 @@ function createVSInstancesTableContent(data, params) {
     var table = document.getElementById(tableId);
     
     var text = '';
-	createVSInstancesTableContent
-    createVSInstancesTableContent
-    createVSInstancesTableContent
-    createVSInstancesTableContent
-    createVSInstancesTableContent
-    createVSInstancesTableContent
+                   
+    var btnText = '';
+    if (btnFlag) {
+        btnText += createActionButton(data.vsiId, names, cbacks);
+    }
+    
     text += '<tr>' + btnText;
     for (var i in columns) {
         var values = [];
