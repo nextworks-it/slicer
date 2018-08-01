@@ -328,7 +328,7 @@ function parseSap(data, status) {
         tableHtml += '<tr><td>'
         // Internal table (sap table)
         tableHtml += tableHead.repeat(1); // clone string
-        tableHtml += '<tr><th>' + sap.sapName + '</th></tr>';
+        tableHtml += '<tr><th>' + sap.sapdId + '</th></tr>';
         if (status == 'INSTANTIATED') {
             for (var j in sap.userAccessInfo) {
                 var uai = sap.userAccessInfo[j];
