@@ -315,7 +315,7 @@ function createVSInstancesTable(data, tableId) {
     }
 }
 
-function parseSap(data) {
+function parseSap(data, status) {
     var tableHead = '<table class="table table-borderless">';
     if (!(data instanceof Array)) {
         console.log('Error: ' + json.stringify(data) + ' is not an array.');
@@ -329,9 +329,11 @@ function parseSap(data) {
         // Internal table (sap table)
         tableHtml += tableHead.repeat(1); // clone string
         tableHtml += '<tr><th>' + sap.sapName + '</th></tr>';
-        for (var j in sap.userAccessInfo) {
-            var uai = sap.userAccessInfo[j];
-            tableHtml += '<tr><td>' + uai.vnfdId + '</td><td>' + uai.address + '</td></tr>';
+        if (status == 'INSTANTIATED') {
+            for (var j in sap.userAccessInfo) {
+                var uai = sap.userAccessInfo[j];
+                tableHtml += '<tr><td>' + uai.vnfdId + '</td><td>' + uai.address + '</td></tr>';
+            }
         }
         tableHtml += '</table></td></tr>';
         // close sap table and new row in external table
@@ -377,12 +379,12 @@ function createVSInstancesTableContent(data, params) {
     var table = document.getElementById(tableId);
     
     var text = '';
-		
-    var btnText = '';
-    if (btnFlag) {
-        btnText += createActionButton(data.vsiId, names, cbacks);
-    }
-    
+	createVSInstancesTableContent
+    createVSInstancesTableContent
+    createVSInstancesTableContent
+    createVSInstancesTableContent
+    createVSInstancesTableContent
+    createVSInstancesTableContent
     text += '<tr>' + btnText;
     for (var i in columns) {
         var values = [];
@@ -404,7 +406,7 @@ function createVSInstancesTableContent(data, params) {
                     subText += '<button type="button" class="btn btn-info btn-xs btn-block" onclick="location.href=\'vsd_details.html?Id=' + values + '\'">' + values + '</button>';
                 } else if (columns[i][0] == 'externalInterconnections') {
                     var saps = values[0];
-                    subText += parseSap(saps);
+                    subText += parseSap(saps, data.status);
                 } else {
                     if(columns[i][0] == 'status' && values == 'FAILED') {
                         subText += values + '<br>' + data.errorMessage;
