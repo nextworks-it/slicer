@@ -102,3 +102,10 @@ function createNSInstancesTableContent(data, params) {
         table.innerHTML += '</tbody>';
     }
 }
+
+function fillVSICounter(data, elemId) {
+    var countDiv = document.getElementById(elemId);
+	
+	//console.log(JSON.stringify(data, null, 4));
+	countDiv.innerHTML = data.length;
+}
