@@ -228,7 +228,7 @@ public class AdminRestController {
 		return new ResponseEntity<List<String>>(nsis, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/nsmf/networkslice/{nsiId}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/nsmf/networkslice/{nsiId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getNetworkSlice(@PathVariable String nsiId) {
 		log.debug("Received request to retrieve network slice with ID " + nsiId);
 		try {
