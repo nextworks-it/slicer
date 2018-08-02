@@ -20,7 +20,8 @@ var vnfds = [];
 var apps = [];
 var image_url = null;
 
-var defaultImage = 'https://i.ytimg.com/vi/TSXXi2kvl_0/maxresdefault.jpg'
+var defaultImage = 'https://i.ytimg.com/vi/TSXXi2kvl_0/maxresdefault.jpg';
+var fileserverPort = '8080';
 
 function uuidv4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -174,7 +175,7 @@ function loadImageFromFileIntoForm(evt, elemId) {
     file = evt.target.files[0];
 
     // Now upload it on the file storage
-    var storageUrl = 'http://10.0.8.46:8080';
+    var storageUrl = 'http://' + window.location.hostname + ':' + fileserverPort;
 
     var image_name = uuidv4() + '.jpg';
 
