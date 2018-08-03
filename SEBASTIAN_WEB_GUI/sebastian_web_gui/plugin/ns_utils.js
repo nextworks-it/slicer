@@ -18,6 +18,12 @@ function readNSInstances(tableId) {
     getNSInstanceIds(tableId, createNSInstancesTable);
 }
 
+function fillNSICounter(data, elemId) {
+    var countDiv = document.getElementById(elemId);
+	
+	countDiv.innerHTML = data.length;
+}
+
 function readNSInstance(divId, nsiId, params) {
     params.push(divId);
     getNSInstance(nsiId, params, createNSInstancesTableContent);
