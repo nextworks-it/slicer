@@ -388,13 +388,16 @@ function createActionButton(id, btnNames, btnCallbacks) {
 function createButton(id, btnName, btnCallback) {
 	
 	var text = 	'<button type="button" class="btn btn-info btn-sm btn-block';
-	if (btnCallback.toLowerCase().indexOf("delete") >= 0 ||
-		btnCallback.toLowerCase().indexOf("purge") >= 0 ||
-		btnCallback.toLowerCase().indexOf("enable") >= 0 ||
-		btnCallback.toLowerCase().indexOf("disable") >= 0 ||
-		btnCallback.toLowerCase().indexOf("subscribe") >= 0 ||
-		btnCallback.toLowerCase().indexOf("unsubscribe") >= 0 ||
-		btnCallback.toLowerCase().indexOf("terminate") >= 0) {
+	if (
+			btnCallback.toLowerCase().indexOf("delete") >= 0
+				|| btnCallback.toLowerCase().indexOf("purge") >= 0
+				|| btnCallback.toLowerCase().indexOf("enable") >= 0
+				|| btnCallback.toLowerCase().indexOf("disable") >= 0
+				|| btnCallback.toLowerCase().indexOf("subscribe") >= 0
+				|| btnCallback.toLowerCase().indexOf("unsubscribe") >= 0
+				|| btnCallback.toLowerCase().indexOf("terminate") >= 0
+				|| btnCallback.toLowerCase().indexOf("purge") >= 0
+		) {
         text += '" onclick=' + btnCallback + '("' + id + '")>';
     } else if (btnName.toLowerCase().indexOf("view") >= 0) {
 		if (btnName.toLowerCase().indexOf("view sla") >= 0) {

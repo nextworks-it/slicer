@@ -302,8 +302,8 @@ function createVSInstancesTable(data, tableId) {
         names = [];
         btnFlag = false;
     } else {
-        cbacks = ['terminateVSInstance'];
-        names = ['Terminate'];
+        cbacks = ['terminateVSInstance', 'purgeVSInstance'];
+        names = ['Terminate', 'Remove Entry'];
     }
     	
 	var header = createTableHeaderByValues(['Id', 'Name', 'Description', 'Vsd Id', 'Sap', 'Status'], btnFlag, false);

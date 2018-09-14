@@ -232,7 +232,7 @@ function createTenantSLAsTable(data, tableIds) {
 	if (!tableMEC || !tableCloud || !tableGlobal) {
 		return;
 	}
-	if (!data || data.length < 1) {
+	if (!data) {
 		console.log('No Tenant SLA');
 		tableMEC.innerHTML = '<tr>No Tenant MEC SLA stored in database</tr>';
 		tableCloud.innerHTML = '<tr>No Tenant Cloud SLA stored in database</tr>';
@@ -246,12 +246,51 @@ function createTenantSLAsTable(data, tableIds) {
 	var names = ['Delete'];
   var columns = [['id'], ['slaConstraints'], ['slaStatus']];
 	
-	tableMEC.innerHTML += header + '<tbody>';
-	tableCloud.innerHTML += header + '<tbody>';
-	tableGlobal.innerHTML += header + '<tbody>';
+	var haveMec = false;
+	var haveCloud = false;
+	var haveGlobal = false;
+
+	function setUpTable(tp) { // tp: 0 -> MEC, 1 -> Cloud, 2 -> Global
+		if (tp === 0) {
+			if (!haveMec) {
+			tableMEC.innerHTML += header + '<tbody>';
+			haveMec = true;
+			}
+		} else if (tp === 1) {
+			if (!haveCloud) {
+				tableCloud.innerHTML += header + '<tbody>';
+				haveCloud = true;
+				}
+		} else if (tp === 2) {
+			if (!haveGlobal) {
+				tableGlobal.innerHTML += header + '<tbody>';
+				haveGlobal = true;
+				}
+		} else {
+			console.error("tp is none of the accepted values (0, 1, 2).")
+		}
+	}
+
+	function finalizeTables() {
+		if (haveMec) {
+			tableMEC.innerHTML += '</tbody>';
+		} else {
+		  tableMEC.innerHTML = '<tr>No Tenant MEC SLA stored in database</tr>';
+		}
+		if (haveCloud) {
+			tableCloud.innerHTML += '</tbody>';
+		} else {
+			tableCloud.innerHTML = '<tr>No Tenant Cloud SLA stored in database</tr>';
+		}
+		if (haveGobal) {
+			tableGlobal.innerHTML +='</tbody>';
+		} else {
+			tableGlobal.innerHTML = '<tr>No Tenant Global SLA stored in database</tr>';
+		}
+	}
 	
 	var text = '';
-	var type = 0;
+	var type = -1;
 	for (var j = 0; j < data.length; j++) {
 		
 		var btnText = '';
@@ -272,6 +311,7 @@ function createTenantSLAsTable(data, tableIds) {
 				if(values[0] instanceof Array) {
 					var subHeader = '';
 					if (values[0][0].scope == 'MEC_RESOURCE') {
+						type = 0;
 						subHeader = createTableHeaderByValues(['Max Ram', 'Max vCPUs', 'Max vStorage', 'Location'], false, false);
 					} else {
 						subHeader = createTableHeaderByValues(['Max Ram', 'Max vCPUs', 'Max vStorage'], false, false);
@@ -281,11 +321,12 @@ function createTenantSLAsTable(data, tableIds) {
 							type = 2;
 						}
 					}
+					setUpTable(type);
 					
 					subTable += subHeader + '<tbody>';
 					for (var v = 0; v < values[0].length; v++) {
 						var value = values[0][v];
-						subTable += '<tr><td>' + value.maxResourceLimit.memoryRAM + '</td><td>' + value.maxResourceLimit.vCPU + '</td><td>' + value.maxResourceLimit.diskStorage + '</td>';
+						subTable += '<tr><td>' + value.maxResourceLimit.memoryRAM + ' MB</td><td>' + value.maxResourceLimit.vCPU + ' CPUs</td><td>' + value.maxResourceLimit.diskStorage + ' GB</td>';
 						if (type == 0)
 							subTable += '<td>' + value.location + '</td>';
 						subTable += '</tr>';
@@ -310,10 +351,7 @@ function createTenantSLAsTable(data, tableIds) {
 		text = '';
 		type = 0;
 	}
-	
-	tableMEC.innerHTML += '</tbody>';
-	tableCloud.innerHTML += '</tbody>';
-	tableGlobal.innerHTML +='</tbody>';
+	finalizeTables()
 }
 
 function createTenantSLAModals(tenantId, type, enabled) {
