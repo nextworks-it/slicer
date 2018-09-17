@@ -312,9 +312,9 @@ function createTenantSLAsTable(data, tableIds) {
 					var subHeader = '';
 					if (values[0][0].scope == 'MEC_RESOURCE') {
 						type = 0;
-						subHeader = createTableHeaderByValues(['Max Ram', 'Max vCPUs', 'Max vStorage', 'Location'], false, false);
+						subHeader = createTableHeaderByValues(['Max RAM', 'Max vCPUs', 'Max vStorage', 'Location'], false, false);
 					} else {
-						subHeader = createTableHeaderByValues(['Max Ram', 'Max vCPUs', 'Max vStorage'], false, false);
+						subHeader = createTableHeaderByValues(['Max RAM', 'Max vCPUs', 'Max vStorage'], false, false);
 						if (values[0][0].scope == 'CLOUD_RESOURCE') {
 							type = 1;
 						} else {

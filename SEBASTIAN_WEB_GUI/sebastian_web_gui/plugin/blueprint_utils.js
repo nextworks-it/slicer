@@ -129,7 +129,7 @@ function getVSBlueprint(id, params, callback) {
 }
 
 function deleteVSBlueprint(blueprintId) {
-    deleteRequestToURL('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint/' + blueprintId, showResultMessage, ['VS Blueprint successfully deleted', 'Unable to delete VS Blueprint']);
+    deleteRequestToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint/' + blueprintId, showResultMessage, ['VS Blueprint successfully deleted', 'Unable to delete VS Blueprint']);
 }
 
 function progressBlueprintWizard() {
@@ -398,8 +398,8 @@ function createVSBlueprintsTable(data, tableId) {
         cbacks = ['blueprint_details.html?Id=', 'deleteVSBlueprint'];
         names = ['View Blueprint', 'Delete'];
     } else {
-        cbacks = ['blueprint_details.html?Id=', 'createVSDForm', 'deleteVSBlueprint'];
-        names = ['View Blueprint', 'Create VS Descriptor', 'Delete'];
+        cbacks = ['blueprint_details.html?Id=', 'createVSDForm'];
+        names = ['View Blueprint', 'Create VS Descriptor'];
     }
     
 	var btnFlag = true;
