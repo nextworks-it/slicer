@@ -100,9 +100,9 @@ function getFromURLWithAuth(resourceUrl, callback, params) {
         }).fail(function (response) {
             console.log(response);
             if (response.status == 401) {
-                location.href = '../401.html';
+                location.href = '/sebastian_web_gui/401.html';
             } else if (response.status == 403) {
-                location.href = '../403.html';
+                location.href = '/sebastian_web_gui/403.html';
             }
         });
     
@@ -135,9 +135,9 @@ function postJsonToURLWithAuth(resourceUrl, jsonData, callback, params) {
         }).fail(function (response) {
             console.log(response);
             if (response.status == 401) {
-                location.href = '../401.html';
+                location.href = '/sebastian_web_gui/401.html';
             } else if (response.status == 403) {
-                location.href = '../403.html';
+                location.href = '/sebastian_web_gui/403.html';
             } else 
                 callback(false, params[1]);
         });
@@ -167,9 +167,9 @@ function postToURLWithAuth(resourceUrl, callback, params) {
         }).fail(function (response) {
             console.log(response);
             if (response.status == 401) {
-                location.href = '../401.html';
+                location.href = '/sebastian_web_gui/401.html';
             } else if (response.status == 403) {
-                location.href = '../403.html';
+                location.href = '/sebastian_web_gui/403.html';
             } else
                 callback(false, params[1]);
         });
@@ -203,9 +203,9 @@ function putJsonToURLWithAuth(resourceUrl, jsonData, callback, params) {
         }).fail(function (response) {
             console.log(response);
             if (response.status == 401) {
-                location.href = '../401.html';
+                location.href = '/sebastian_web_gui/401.html';
             } else if (response.status == 403) {
-                location.href = '../403.html';
+                location.href = '/sebastian_web_gui/403.html';
             }
         });
         
@@ -234,9 +234,9 @@ function putToURLWithAuth(resourceUrl, callback, params) {
         }).fail(function (response) {
             console.log(response);
             if (response.status == 401) {
-                location.href = '../401.html';
+                location.href = '/sebastian_web_gui/401.html';
             } else if (response.status == 403) {
-                location.href = '../403.html';
+                location.href = '/sebastian_web_gui/403.html';
             }
         });
         
@@ -265,9 +265,9 @@ function deleteRequestToURLWithAuth(resourceUrl, callback, params) {
         }).fail(function (response) {
             console.log(response);
             if (response.status == 401) {
-                location.href = '../401.html';
+                location.href = '/sebastian_web_gui/401.html';
             } else if (response.status == 403) {
-                location.href = '../403.html';
+                location.href = '/sebastian_web_gui/403.html';
             } else 
                 callback(false, params[1]);
         });

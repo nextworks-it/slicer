@@ -201,9 +201,9 @@ function loadImageFromFileIntoForm(evt, elemId) {
     }).fail(function (response) {
         console.log(response);
         if (response.status == 401) {
-            location.href = '../401.html';
+            location.href = '/sebastian_web_gui/401.html';
         } else if (response.status == 403) {
-            location.href = '../403.html';
+            location.href = '/sebastian_web_gui/403.html';
         } else 
             callback(false, params[1]);
     });

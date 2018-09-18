@@ -1,0 +1,71 @@
+<div class="col-md-3 left_col">
+    <div class="left_col scroll-view">
+        <div class="navbar nav_title" style="border: 0;">
+        <a href="/sebastian_web_gui/tenant/index.html" class="site_title"><i class="glyphicon glyphicon-edit"></i><span>SEBASTIAN</span></a>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <br />
+
+        <div class="profile clearfix">
+        <div class="profile_pic">
+            <img src="/sebastian_web_gui/images/user_icon.png" alt="..." class="img-circle profile_img">
+        </div>
+        <div class="profile_info">
+            <span>Welcome,</span>
+            <h2 id="displayedUser"></h2>
+        </div>
+        </div>
+
+        <script>displayUserInfo("displayedUser");</script>
+
+        <br />
+
+        <!-- sidebar menu -->
+        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+        <div class="menu_section">
+            <!-- h3>General</h3 -->
+            <ul class="nav side-menu">
+            <li><a href="/sebastian_web_gui/tenant/index.html"><i class="fa fa-home"></i> Home </a>
+            </li>
+            <li><a href="/sebastian_web_gui/tenant/pages/group.html"><i class="fa fa-group"></i> Groups </a>
+            </li>
+            <li><a href="/sebastian_web_gui/tenant/pages/tenant.html"><i class="fa fa-user"></i> Tenants </a>
+            </li>
+            <li><a><i class="fa fa-file-text"></i> VS Catalogue <span class="fa fa-chevron-down"></a>
+                <ul class="nav child_menu">
+                <li><a href="/sebastian_web_gui/tenant/pages/blueprint/blueprint_wizard.html">VS Blueprint onboarding</a></li>
+                <li><a href="/sebastian_web_gui/tenant/pages/blueprint/blueprint.html">VS Blueprints</a></li>
+                <!--li><a href="/sebastian_web_gui/tenant/pages/blueprint/vs_descriptor.html">VS Descriptors</a></li-->
+                </ul>
+            </li>
+            <li><a href="/sebastian_web_gui/tenant/pages/blueprint/vs_descriptor.html"><i class="fa fa-file-text-o"></i> VS  Descriptors </a>
+            </li>
+            <li><a href="/sebastian_web_gui/tenant/pages/blueprint/n_slices.html"><i class="fa fa-file"></i> Network Slices </a>
+            </li>
+            <li><a href="/sebastian_web_gui/tenant/pages/blueprint/vs_instance.html"><i class="fa fa-file-o"></i> VS Instances </a>
+            </li>
+            </ul>
+        </div>
+        </div>
+        <!-- /sidebar menu -->
+
+        <!-- /menu footer buttons -->
+        <!-- div class="sidebar-footer hidden-small">
+        <a data-toggle="tooltip" data-placement="top" title="Settings">
+            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+        </a>
+        <a data-toggle="tooltip" data-placement="top" title="FullScreen">
+            <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+        </a>
+        <a data-toggle="tooltip" data-placement="top" title="Lock">
+            <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+        </a>
+        <a data-toggle="tooltip" data-placement="top" title="Logout" href="login.html">
+            <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+        </a>
+        </div -->
+        <!-- /menu footer buttons -->
+    </div>
+</div>
