@@ -24,7 +24,7 @@ function checkUser(cname) {
     return true;
 }
 
-function loginToURL(resourceUrl, username, password, callback) {
+function loginToURL(resourceUrl, username, password, callback, failedCallback) {
     
     var settings = {
         "async": true,
@@ -46,7 +46,7 @@ function loginToURL(resourceUrl, username, password, callback) {
     $.ajax(settings).done(function (response) {
         console.log(response);
         callback();
-    });
+    }).fail(failedCallback ? failedCallback : function() {});
     
 }
 

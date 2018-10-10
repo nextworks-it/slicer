@@ -18,7 +18,21 @@ function login(userNameId, passwordId){
     var username = document.getElementById(userNameId).value;
     var password = document.getElementById(passwordId).value;
     
-    loginToURL('http://' + vsAddr + ':' + vsPort + '/login', username, password, getUserInfo);   
+    loginToURL('http://' + vsAddr + ':' + vsPort + '/login', username, password, getUserInfo, failedLogin);   
+}
+
+function failedLogin(response) {
+    var respContainer = document.getElementById("response");
+    var errorMessage = '';
+    if (response.status == 401) {
+        errorMessage += 'Wrong username and/or password.';
+    } else {
+        errorMessage += String(response.status);
+        if (response != "") {
+            errorMessage += ' - ' + response;
+        }
+    }
+    respContainer.innerHTML = '<div class="alert alert-danger alert-dismissible fade in" role="alert">Error: ' + errorMessage + '</div>';
 }
 
 function logout() {
