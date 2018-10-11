@@ -1,0 +1,14 @@
+{
+	"vsd":{
+		"name":"VSD_vEPC",
+		"version":"0.1",
+		"vsBlueprintId":"9",
+		"sst":"EMBB",
+		"managementType":"PROVIDER_MANAGED",
+		"qosParameters":{
+			"users":"700"
+		}
+	},
+	"tenantId":"SSSA",
+	"isPublic":true
+}
