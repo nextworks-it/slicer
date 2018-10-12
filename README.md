@@ -1,4 +1,3 @@
-
 # Installation guide
 
 ### Setup dependencies
@@ -13,3 +12,7 @@ Enter the `<repo-root>/SEBASTIAN` folder and run
 ```mvn clean package```
 
 A jar file (`Sebastian-<version>-<release-type>.jar`) will be generated in the `<repo-root>/SEBASTIAN/target` folder.
+
+### Start the application
+
+$ java -jar Sebastian-<version>-<release-type>.jar

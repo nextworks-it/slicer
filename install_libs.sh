@@ -1,7 +1,7 @@
 function usage {
     echo "USAGE: $0 FOLDER"
     echo "Arguments:"
-    echo "FOLDER: the fodler in which folder the libs repo should be cloned"
+    echo "FOLDER: the folder in which the libs repo should be cloned"
 }
 
 if [[ -z "$1" ]]; then
