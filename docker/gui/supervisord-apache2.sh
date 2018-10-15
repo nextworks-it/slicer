@@ -1,15 +1,8 @@
 #!/bin/bash
 
 # Configuring Apache AllowOverride
-ALLOW_OVERRIDE=${OVERRIDE:-false}
-if [ "$ALLOW_OVERRIDE" = true ] ; then
-	a2enmod rewrite
-    sed -i -r 's/AllowOverride None$/AllowOverride All/' /etc/apache2/apache2.conf
-fi
-if [ "$ALLOW_OVERRIDE" = false ] ; then
-	a2dismod rewrite
-    sed -i -r 's/AllowOverride All$/AllowOverride None/' /etc/apache2/apache2.conf
-fi
+a2enmod rewrite
+sed -i -r 's/AllowOverride None$/AllowOverride All/' /etc/apache2/apache2.conf
 
 # Configuring PHP open_short_tag
 OPEN_SHORT_TAG=${SHORT_TAG:-false}

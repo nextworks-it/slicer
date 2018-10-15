@@ -1,11 +1,21 @@
-# Configuring Apache web server daemon for the Sebastian web GUI
+# How to expose the Sebastian web GUI
 
-## 0. NOTE:
+This readme contains the instruction for exposing the Sebastian web GUI interacting with the Sebastian core.
+There are two ways to do that:
+1. Manual apache2 daemon configuration
+2. Use a pre-configured docker image.
+
+Sections 1. and 2. will deal with the respective methods. The recommended method for the general case is
+method 2.
+
+## 1.Configuring Apache web server daemon for the Sebastian web GUI
+
+### 1.0. NOTE:
 in the following, we will give all paths relative to the apache2 configuration root folder,
 e.g. in ubuntu it's /etc/apache2. It will also assume all other apache2 configurations are the default
 ones.
 
-## 1. Main configuration file
+### 1.1. Main configuration file
 
 In the file `apache2.conf`, locate the list of <Directory/> directives and add
 there the stanza
@@ -21,7 +31,7 @@ there the stanza
 where `/path/to/folder/` is the path to the parent folder of the sebastian_web_gui and gentelella folder
 (e.g. the SEBASTIAN_WEB_GUI folder itself).
 
-## 2. Enable apache INCLUDE directive
+### 1.2. Enable apache INCLUDE directive
 
 run the command
 ```
@@ -29,7 +39,7 @@ $ ln -s mods-available/include.load mods-enabled/include.load
 ```
 soft-linking the file include.load in conf-available into the folder conf-enabled
 
-## 3. Enable INCLUDE directive in html files
+### 1.3. Enable INCLUDE directive in html files
 
 In the folder `conf-available` create a file `html-include.conf` (the name is not actually relevant)
 containing the following:
@@ -45,7 +55,7 @@ $ ln -s conf-available/html-include.conf conf-enabled/html-include.conf
 ```
 linking it into the conf-enabled folder.
 
-## 4. Configure site
+### 1.4. Configure site
 
 Change the file `sites-available/000-default.conf` to look like this
 
@@ -63,3 +73,32 @@ Change the file `sites-available/000-default.conf` to look like this
 
 taking care to replace the placeholders with the actual values, and `/path/to/parent/folder`
 with the path to the folder used in section 1.
+
+## 2. How to build the pre-made docker image
+
+### 2.1 Basic procedure 
+
+In the root folder of the repo (default: sebastian) run
+
+```
+./make-docker-container.sh
+```
+
+That's all!
+
+## 2.2 Testing container
+
+If you'd rather have a bigger container including Sebastian core too, run
+
+```
+./make-docker-container.sh TEST
+```
+
+Please notice that this does not lead to a functioning installation, as Sebastian is run with the "LOGGING" NFVO.
+If you have an NFVO running, you can deploy Sebastian in the container by editing the `application.properties` file
+in the `docker/test` folder and rebuilding the container:
+
+```
+docker image rm -f nextworks/sebastian-tests # if necessary
+./make-docker-container.sh TEST 
+```
