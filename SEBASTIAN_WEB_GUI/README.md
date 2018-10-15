@@ -8,6 +8,8 @@ There are two ways to do that:
 Sections 1. and 2. will deal with the respective methods. The recommended method for the general case is
 method 2.
 
+Note: in all cases, for the GUI to be working, it will have to run on the same system as the Sebastian Core.
+
 ## 1.Configuring Apache web server daemon for the Sebastian web GUI
 
 ### 1.0. NOTE:
