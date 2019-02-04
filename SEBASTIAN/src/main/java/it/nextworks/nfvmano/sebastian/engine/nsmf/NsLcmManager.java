@@ -167,7 +167,8 @@ public class NsLcmManager {
 				SapData sData = new SapData(sap.getCpdId(), 							//SAPD ID
 						"SAP-" + name + "-" + sap.getCpdId(),							//name 
 						"SAP " + sap.getCpdId() + " for Network Slice " + name, 		//description
-						null);															//address
+						null,															//address
+						null);															//locationInfo
 				sapData.add(sData);
 			}
 			log.debug("Completed SAP Data");
