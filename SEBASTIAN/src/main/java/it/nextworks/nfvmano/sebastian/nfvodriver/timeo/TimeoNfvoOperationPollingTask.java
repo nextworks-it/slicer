@@ -112,16 +112,28 @@ public class TimeoNfvoOperationPollingTask implements Runnable {
 				log.debug("Operation still under processing - continuing polling.");
 				return false;
 			}
-		} catch (MethodNotImplementedException e) {
+		} catch (MethodNotImplementedException | NotExistingEntityException | FailedOperationException | MalformattedElementException e) {
 			log.error(e.getMessage());
-		} catch (NotExistingEntityException e) {
-			log.error(e.getMessage());
-		} catch (FailedOperationException e) {
-			log.error(e.getMessage());
-		} catch (MalformattedElementException e) {
-			log.error(e.getMessage());
-		}
-		return false;
+			log.debug("Stack trace", e);
+			log.error("Operation terminated with a failure due to an exception");
+			NsLifecycleChangeNotification notification = new NsLifecycleChangeNotification(operation.getNfvNsiId(), 
+					operationId,
+					operation.getOperationType(), 
+					LcmNotificationType.LIFECYCLE_OPERATION_RESULT, 
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null);
+			try {
+				listener.notifyNsLifecycleChange(notification);
+				log.debug("Notification sent");
+			} catch (MethodNotImplementedException ex) {
+				log.error("Error while sending notification to VS core.");
+			}
+			return true;
+		} 
 	}
 
 }
