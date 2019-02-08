@@ -82,18 +82,25 @@ public class NfvoNotificationsManager implements NfvoNotificationInterface {
 					log.error("The operation has failed on the NFVO.");
 					successful = false;
 				}
-				NsStatusChange changeType = NsStatusChange.NOT_SPECIFIED;
-				if (operation.equals("NS_INSTANTIATION")) changeType=NsStatusChange.NS_CREATED;
-				else if (operation.equals("NS_TERMINATION")) changeType=NsStatusChange.NS_TERMINATED;
+				NsStatusChange changeType = readChangeType(operation);
 				log.debug("Forwarding the notification to the engine.");
 				engine.notifyNfvNsStatusChange(nfvNsId, changeType, successful);
 			} catch (MethodNotImplementedException | NotExistingEntityException | FailedOperationException | MalformattedElementException e) {
 				log.error("Error while trying to get operation status: " + e.getMessage());
-				log.error("Skipping message.");
+				log.error("Sending a message about a failure at the NFVO.");
+				NsStatusChange changeType = readChangeType(operation);
+				engine.notifyNfvNsStatusChange(nfvNsId, changeType, false);
 			}
 		} else {
 			throw new MethodNotImplementedException("Notification type not supported.");
 		}
+	}
+	
+	private NsStatusChange readChangeType(String operation) {
+		NsStatusChange changeType = NsStatusChange.NOT_SPECIFIED;
+		if (operation.equals("NS_INSTANTIATION")) changeType=NsStatusChange.NS_CREATED;
+		else if (operation.equals("NS_TERMINATION")) changeType=NsStatusChange.NS_TERMINATED;
+		return changeType;
 	}
 
 	@Override
