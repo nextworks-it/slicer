@@ -202,11 +202,11 @@ public class Engine {
 	 * @param vsiId ID of the Vertical Service instance associated to the network slice, if available
 	 * @throws NotExistingEntityException if the NS LCM manager is not found
 	 */
-	public void instantiateNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String vsiId) throws NotExistingEntityException {
+	public void instantiateNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String vsiId, List<String> nsSubnetIds) throws NotExistingEntityException {
 		log.debug("Processing new NSI instantiation request for NSI ID " + nsiId);
 		if (nsLcmManagers.containsKey(nsiId)) {
 			String topic = "nslifecycle.instantiatens." + nsiId;
-			InstantiateNsiRequestMessage internalMessage = new InstantiateNsiRequestMessage(nsiId, nsdId, nsdVersion, dfId, instantiationLevelId);
+			InstantiateNsiRequestMessage internalMessage = new InstantiateNsiRequestMessage(nsiId, nsdId, nsdVersion, dfId, instantiationLevelId, nsSubnetIds);
 			try {
 				sendMessageToQueue(internalMessage, topic);
 			} catch (JsonProcessingException e) {

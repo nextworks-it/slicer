@@ -173,12 +173,15 @@ public class NsLcmManager {
 			}
 			log.debug("Completed SAP Data");
 			
+			//TODO: Read NFV_NS_IDs from nsSubnetIds and put in nestedNsInstanceId list
+			List<String> nestedNsId = new ArrayList<>();
+			
 			String operationId = nfvoService.instantiateNs(new InstantiateNsRequest(nfvNsId, 
 					dfId, 					//flavourId 
 					sapData, 				//sapData
 					null,					//pnfInfo
 					null,					//vnfInstanceData
-					null,					//nestedNsInstanceId 
+					nestedNsId,			 	//nestedNsInstanceId 
 					null,					//locationConstraints 
 					null,					//additionalParamForNs 
 					null,					//additionalParamForVnf 
@@ -207,6 +210,11 @@ public class NsLcmManager {
 			case INSTANTIATING: {
 				log.debug("Successful instantiation of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
 				this.internalStatus=NetworkSliceStatus.INSTANTIATED;
+				
+				//TODO: if the network slice includes slice subnets, update or create the related entries
+				//Note that some subnets can be explicit (i.e. VS-managed, so already available in db) or implicit (i.e. SO-managed, so you need to create a new entry in this phase if not yet present)
+				//You need to read the NS info from the NFVO
+				
 				vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
 				log.debug("Sending notification to engine.");
 				engine.notifyNetworkSliceStatusChange(networkSliceInstanceId, NsStatusChange.NS_CREATED, true);

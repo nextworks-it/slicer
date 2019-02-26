@@ -193,8 +193,11 @@ public class VsLcmManager {
 				vsRecordService.setNsiInVsi(vsiId, nsiId);
 				log.debug("Record updated with info about NSI and VSI association.");
 				engine.initNewNsLcmManager(networkSliceId, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
+				List<String> nsSubnetInstanceIds = new ArrayList<>();
+				// TODO: put info from arbitratorResponse in list
+				
 				engine.instantiateNs(nsiId, tenantId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(), 
-						nsiInfo.getDeploymentFlavourId(), nsiInfo.getInstantiationLevelId(), vsiId);
+						nsiInfo.getDeploymentFlavourId(), nsiInfo.getInstantiationLevelId(), vsiId, nsSubnetInstanceIds);
 			} else {
 				//slice to be shared, not supported at the moment
 				manageVsError("Error while instantiating VS " + vsiId + ": solution with slice sharing returned from the arbitrator. Not supported at the moment.");

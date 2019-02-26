@@ -15,6 +15,9 @@
 */
 package it.nextworks.nfvmano.sebastian.engine.messages;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -35,6 +38,8 @@ public class InstantiateNsiRequestMessage extends EngineMessage {
 	@JsonProperty("ilId")
 	private String ilId;
 	
+	@JsonProperty("nsSubnetIds")
+	private List<String> nsSubnetIds = new ArrayList<>();
 	
 
 	/**
@@ -49,13 +54,15 @@ public class InstantiateNsiRequestMessage extends EngineMessage {
 			@JsonProperty("nfvNsdId") String nfvNsdId,
 			@JsonProperty("nfvNsdVersion") String nfvNsdVersion,
 			@JsonProperty("dfId") String dfId, 
-			@JsonProperty("ilId") String ilId) {
+			@JsonProperty("ilId") String ilId, 
+			@JsonProperty("nsSubnetIds") List<String> nsSubnetIds) {
 		this.type = EngineMessageType.INSTANTIATE_NSI_REQUEST;
 		this.nsiId = nsiId;
 		this.nfvNsdId = nfvNsdId;
 		this.nfvNsdVersion = nfvNsdVersion;
 		this.dfId = dfId;
 		this.ilId = ilId;
+		if (nsSubnetIds != null) this.nsSubnetIds = nsSubnetIds;
 	}
 
 	/**
@@ -91,6 +98,13 @@ public class InstantiateNsiRequestMessage extends EngineMessage {
 	 */
 	public String getNfvNsdVersion() {
 		return nfvNsdVersion;
+	}
+
+	/**
+	 * @return the nsSubnetIds
+	 */
+	public List<String> getNsSubnetIds() {
+		return nsSubnetIds;
 	}
 	
 	

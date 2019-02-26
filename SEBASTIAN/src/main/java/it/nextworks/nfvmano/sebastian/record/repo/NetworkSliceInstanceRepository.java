@@ -27,5 +27,7 @@ public interface NetworkSliceInstanceRepository extends JpaRepository<NetworkSli
 	Optional<NetworkSliceInstance> findByNsiId(String nsiId);
 	Optional<NetworkSliceInstance> findByNfvNsId(String nfvNsId);
 	List<NetworkSliceInstance> findByTenantId(String tenantId);
+	List<NetworkSliceInstance> findByTenantIdAndNsdIdAndNsdVersion(String tenantId, String nsdId, String nsdVersion);
+	List<NetworkSliceInstance> findByTenantIdAndNsdIdAndNsdVersionAndDfIdAndInstantiationLevelId(String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevel);
 	
 }
