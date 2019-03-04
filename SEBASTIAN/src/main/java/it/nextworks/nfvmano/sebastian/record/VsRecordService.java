@@ -194,7 +194,7 @@ public class VsRecordService {
 	 * @throws NotExistingEntityException if the Vertical Service instance associated to the network slice does not exist
 	 * @throws FailedOperationException if the operation fails, e.g. because the VSI is already associated to a network slice instance
 	 */
-	public synchronized String createNetworkSliceForVsi(String vsiId, String nsdId, String nsdVersion, String dfId, String ilId, String tenantId, String name, String description) 
+	public synchronized String createNetworkSliceForVsi(String vsiId, String nsdId, String nsdVersion, String dfId, String ilId, List<String> networkSliceSubnetInstances, String tenantId, String name, String description)
 			throws NotExistingEntityException, FailedOperationException {
 		log.debug("Creating a new Network Slice instance associated to a vertical service in DB.");
 		VerticalServiceInstance vsi = getVsInstance(vsiId);
@@ -202,7 +202,7 @@ public class VsRecordService {
 			log.error("The VSI " + vsiId + " is already associated to a network slice instance. Impossible to create a new one");
 			throw new FailedOperationException("The VSI " + vsiId + " is already associated to a network slice instance. Impossible to create a new one");
 		}
-		NetworkSliceInstance nsi = new NetworkSliceInstance(null, nsdId, nsdVersion, dfId, ilId, null, null, tenantId, name, description);
+		NetworkSliceInstance nsi = new NetworkSliceInstance(null, nsdId, nsdVersion, dfId, ilId, null, networkSliceSubnetInstances, tenantId, name, description);
 		nsInstanceRepository.saveAndFlush(nsi);
 		String nsiId = nsi.getId().toString();
 		log.debug("Created Network Slice instance with ID " + nsiId);
@@ -300,7 +300,21 @@ public class VsRecordService {
 		if (nsi.isPresent()) return nsi.get();
 		else throw new NotExistingEntityException("NSI associated to NFV network service with ID " + nfvNsiId + " not present in DB.");
 	}
-	
+
+	/**
+	 *
+	 * @param tenantId ID of the tenant
+	 * @param nsdId ID of the Network Slice
+	 * @param nsdVersion NSD Version
+	 * @param dfId Deployment Flavour ID
+	 * @param instantiationLevel Instantiation Level ID
+	 * @return List of NSI matching input parameters
+	 */
+
+	public List<NetworkSliceInstance> getByTenantIdAndNsdIdAndNsdVersionAndDfIdAndInstantiationLevelId(String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevel){
+		return nsInstanceRepository.findByTenantIdAndNsdIdAndNsdVersionAndDfIdAndInstantiationLevelId(tenantId, nsdId, nsdVersion, dfId, instantiationLevel);
+	}
+
 	/**
 	 * This method returns all the NSI stored in DB.
 	 * 

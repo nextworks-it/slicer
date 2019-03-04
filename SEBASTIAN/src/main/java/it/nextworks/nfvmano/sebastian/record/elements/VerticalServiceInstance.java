@@ -21,6 +21,9 @@ import javax.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.awt.*;
+import java.util.List;
+
 @Entity
 public class VerticalServiceInstance {
 
@@ -37,6 +40,8 @@ public class VerticalServiceInstance {
 	private VerticalServiceStatus status;
 	
 	private String networkSliceId;
+
+	//TODO:private List<String> nestedVsi;
 	
 	private String errorMessage; //this field gets a value only in case of failure
 	

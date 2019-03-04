@@ -16,9 +16,12 @@
 package it.nextworks.nfvmano.sebastian.arbitrator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
+import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,10 +66,32 @@ public class BasicArbitrator extends AbstractArbitrator {
 		for (Map.Entry<String, NfvNsInstantiationInfo> e : nsInitInfos.entrySet()) {
 			nsInitInfo = e.getValue();
 		}
-		
+
 		log.debug("The request is for tenant " + tenantId + " and for NSD " + nsInitInfo.getNfvNsdId() + " with DF " + nsInitInfo.getDeploymentFlavourId() + " and instantiation level " + nsInitInfo.getInstantiationLevelId());
 		
 		try {
+
+			//Retrieve NSD info
+			String nfvNsId = nsInitInfo.getNfvNsdId();
+			String nsdVersion = nsInitInfo.getNsdVersion();
+			Nsd nsd = nfvoService.retriveNsd(nfvNsId, nsdVersion);
+			List<String> nestedNsdId = nsd.getNestedNsdId();
+			Map<String, Boolean> existingNsiIds = null;
+			if (!nestedNsdId.isEmpty()){
+				//
+				//Retrieve <DF, IL> from nsInitInfo
+				String instantiationLevelId = nsInitInfo.getInstantiationLevelId();
+				String deploymentFlavourID = nsInitInfo.getDeploymentFlavourId();
+
+				//Check existing NSI per id, tenant, IL, DF
+				List<NetworkSliceInstance> nsis = vsRecordService.getByTenantIdAndNsdIdAndNsdVersionAndDfIdAndInstantiationLevelId(tenantId, nfvNsId, nsdVersion, deploymentFlavourID, instantiationLevelId);
+				//Create NSIid sublist
+				existingNsiIds = new HashMap<>();
+				for(NetworkSliceInstance nsi: nsis) {
+					existingNsiIds.put(nsi.getNsiId(), false);
+				}
+			}
+
 			VirtualResourceUsage requiredRes = nfvoService.computeVirtualResourceUsage(nsInitInfo);
 			log.debug("The total amount of required resources for the service is the following: " + requiredRes.toString());
 			
@@ -92,7 +117,7 @@ public class BasicArbitrator extends AbstractArbitrator {
 					true, 								//newSliceRequired, 
 					null, 								//existingCompositeSlice, 
 					false, 								//existingCompositeSliceToUpdate, 
-					null, 
+					existingNsiIds,
 					null);
 			List<ArbitratorResponse> responses = new ArrayList<>();
 			responses.add(response);

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +70,7 @@ public class VsLcmManager {
 	private Engine engine;
 	
 	private VerticalServiceStatus internalStatus;
+	private List<String> nestedVsi = new ArrayList<>();
 	
 	private String networkSliceId;
 	
@@ -186,16 +188,27 @@ public class VsLcmManager {
 				log.debug("A new network slice should be instantiated for the Vertical Service instance " + vsiId);
 				NfvNsInstantiationInfo nsiInfo = nsInfo.get(vsdId);
 				//TODO: to be extended for composite VSDs
+
+				List<String> nsSubnetInstanceIds;
+				if (arbitratorResponse.getExistingSliceSubnets().isEmpty())
+					nsSubnetInstanceIds = new ArrayList<>();
+				else
+					nsSubnetInstanceIds = new ArrayList<>(arbitratorResponse.getExistingSliceSubnets().keySet());
+
 				String nsiId = vsRecordService.createNetworkSliceForVsi(vsiId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(), nsiInfo.getDeploymentFlavourId(),
-						nsiInfo.getInstantiationLevelId(), tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
+						nsiInfo.getInstantiationLevelId(), nsSubnetInstanceIds, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
 				log.debug("Network Slice ID " + nsiId + " created for VSI " + vsiId);
 				this.networkSliceId = nsiId;
 				vsRecordService.setNsiInVsi(vsiId, nsiId);
+
+				//Add nested VSI if any
+				for(String nestedNsiId : nsSubnetInstanceIds) {
+
+					this.nestedVsi.add(vsRecordService.getVsInstancesFromNetworkSlice(nestedNsiId).get(0).getVsiId());
+
+				}
 				log.debug("Record updated with info about NSI and VSI association.");
 				engine.initNewNsLcmManager(networkSliceId, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
-				List<String> nsSubnetInstanceIds = new ArrayList<>();
-				// TODO: put info from arbitratorResponse in list
-				
 				engine.instantiateNs(nsiId, tenantId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(), 
 						nsiInfo.getDeploymentFlavourId(), nsiInfo.getInstantiationLevelId(), vsiId, nsSubnetInstanceIds);
 			} else {

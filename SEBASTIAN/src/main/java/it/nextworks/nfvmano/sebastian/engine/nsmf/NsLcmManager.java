@@ -19,6 +19,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.QueryNsResponse;
+import it.nextworks.nfvmano.libs.records.nsinfo.NsInfo;
+import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +63,7 @@ public class NsLcmManager {
 	private String networkSliceInstanceId;
 	private String name;
 	private String description;
+	private List<String> nestedNsiIds;
 	private String tenantId;
 	private NfvoService nfvoService;
 	private VsRecordService vsRecordService;
@@ -173,8 +178,13 @@ public class NsLcmManager {
 			}
 			log.debug("Completed SAP Data");
 			
-			//TODO: Read NFV_NS_IDs from nsSubnetIds and put in nestedNsInstanceId list
+			//Read NFV_NS_IDs from nsSubnetIds and put in nestedNsInstanceId list
 			List<String> nestedNsId = new ArrayList<>();
+			for(String nsiId : msg.getNsSubnetIds()){
+				NetworkSliceInstance nsi = vsRecordService.getNsInstance(nsiId);
+				nestedNsId.add(nsi.getNfvNsId());
+				this.nestedNsiIds.add(nsi.getNsiId());
+			}
 			
 			String operationId = nfvoService.instantiateNs(new InstantiateNsRequest(nfvNsId, 
 					dfId, 					//flavourId 
@@ -205,38 +215,46 @@ public class NsLcmManager {
 			manageNsError("Received notification about NFV NS not associated to network slice.");
 			return;
 		}
-		if (msg.isSuccessful()) {
-			switch (internalStatus) {
-			case INSTANTIATING: {
-				log.debug("Successful instantiation of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
-				this.internalStatus=NetworkSliceStatus.INSTANTIATED;
-				
-				//TODO: if the network slice includes slice subnets, update or create the related entries
-				//Note that some subnets can be explicit (i.e. VS-managed, so already available in db) or implicit (i.e. SO-managed, so you need to create a new entry in this phase if not yet present)
-				//You need to read the NS info from the NFVO
-				
-				vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
-				log.debug("Sending notification to engine.");
-				engine.notifyNetworkSliceStatusChange(networkSliceInstanceId, NsStatusChange.NS_CREATED, true);
-				return;
-			}
-			
-			case TERMINATING: {
-				log.debug("Successful termination of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
-				//TODO: should we also remove the NS instance ID from the NFVO?
-				this.internalStatus=NetworkSliceStatus.TERMINATED;
-				vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.TERMINATED);
-				log.debug("Sending notification to engine.");
-				engine.notifyNetworkSliceStatusChange(networkSliceInstanceId, NsStatusChange.NS_TERMINATED, true);
-				return;
-			}
+		try{
+			if (msg.isSuccessful()) {
+				switch (internalStatus) {
+				case INSTANTIATING: {
+					log.debug("Successful instantiation of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
+					this.internalStatus=NetworkSliceStatus.INSTANTIATED;
 
-			default:
-				break;
+					//TODO: if the network slice includes slice subnets, update or create the related entries
+					//Note that some subnets can be explicit (i.e. VS-managed, so already available in db) or implicit (i.e. SO-managed, so you need to create a new entry in this phase if not yet present)
+					//You need to read the NS info from the NFVO
+
+					QueryNsResponse queryNs = nfvoService.queryNs(new GeneralizedQueryRequest(Utilities.buildNfvNsiFilter(msg.getNfvNsiId()), null));
+					NsInfo nsInfo = queryNs.getQueryNsResult().get(0);
+
+
+					vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
+					log.debug("Sending notification to engine.");
+					engine.notifyNetworkSliceStatusChange(networkSliceInstanceId, NsStatusChange.NS_CREATED, true);
+					return;
+				}
+
+				case TERMINATING: {
+					log.debug("Successful termination of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
+					//TODO: should we also remove the NS instance ID from the NFVO?
+					this.internalStatus=NetworkSliceStatus.TERMINATED;
+					vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.TERMINATED);
+					log.debug("Sending notification to engine.");
+					engine.notifyNetworkSliceStatusChange(networkSliceInstanceId, NsStatusChange.NS_TERMINATED, true);
+					return;
+				}
+
+				default:
+					break;
+				}
+			} else {
+				log.error("The operation associated to NFV network service " + msg.getNfvNsiId() + " has failed.");
+				manageNsError("The operation associated to NFV network service " + msg.getNfvNsiId() + " has failed.");
 			}
-		} else {
-			log.error("The operation associated to NFV network service " + msg.getNfvNsiId() + " has failed.");
-			manageNsError("The operation associated to NFV network service " + msg.getNfvNsiId() + " has failed.");
+		}catch (Exception e){
+			manageNsError(e.getMessage());
 		}
 	}
 	

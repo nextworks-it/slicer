@@ -160,10 +160,10 @@ MecAppPackageManagementProviderInterface, NsdManagementProviderInterface, VnfPac
 		int ram = 0;
 		int vCPU = 0;
 		int disk = 0;
-		
+
 		QueryNsdResponse nsdRep = queryNsd(new GeneralizedQueryRequest(Utilities.buildNsdFilter(nsdId, nsdVersion), null));
 		Nsd nsd = nsdRep.getQueryResult().get(0).getNsd();
-		
+
 		//return a map with key = VNFD_ID and value a map with keys = [VNFD_ID, VNF_DF_ID, VNF_INSTANCES, VNF_INSTANTIATION_LEVEL]
 		Map<String,Map<String, String>> vnfData = nsd.getVnfdDataFromFlavour(deploymentFlavourId, instantiationLevelId);
 		
@@ -225,6 +225,12 @@ MecAppPackageManagementProviderInterface, NsdManagementProviderInterface, VnfPac
 		
 		VirtualResourceUsage vru = new VirtualResourceUsage(disk, vCPU, ram);
 		return vru;
+	}
+
+	//TODO: add the following to the inherit interface
+	public Nsd retriveNsd(String nsdId, String nsdVersion) throws Exception {
+		QueryNsdResponse nsdRep = queryNsd(new GeneralizedQueryRequest(Utilities.buildNsdFilter(nsdId, nsdVersion), null));
+		return nsdRep.getQueryResult().get(0).getNsd();
 	}
 	
 	@Override
