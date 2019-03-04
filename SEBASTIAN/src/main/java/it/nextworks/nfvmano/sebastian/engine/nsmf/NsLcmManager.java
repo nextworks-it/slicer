@@ -63,7 +63,7 @@ public class NsLcmManager {
 	private String networkSliceInstanceId;
 	private String name;
 	private String description;
-	private List<String> nestedNsiIds;
+	private List<String> nestedNsiIds = new ArrayList<>();
 	private String tenantId;
 	private NfvoService nfvoService;
 	private VsRecordService vsRecordService;
