@@ -64,6 +64,7 @@ public class NsLcmManager {
 	private String name;
 	private String description;
 	private List<String> nestedNsiIds = new ArrayList<>();
+	private List<String> soNestedNsiIds = new ArrayList<>();
 	private String tenantId;
 	private NfvoService nfvoService;
 	private VsRecordService vsRecordService;
@@ -228,6 +229,16 @@ public class NsLcmManager {
 
 					QueryNsResponse queryNs = nfvoService.queryNs(new GeneralizedQueryRequest(Utilities.buildNfvNsiFilter(msg.getNfvNsiId()), null));
 					NsInfo nsInfo = queryNs.getQueryNsResult().get(0);
+					List<String> nfvNsIds = nsInfo.getNestedNsInfoId();
+					for (String nfvNsId : nfvNsIds){
+						try{
+							vsRecordService.getNsInstanceFromNfvNsi(nfvNsId);
+						}catch (NotExistingEntityException e){
+							soNestedNsiIds.add(vsRecordService.createNetworkSliceInstanceEntry(null,
+									null, null, null, nfvNsId, null,
+									null, null, null, true));
+						}
+					}
 
 
 					vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
@@ -239,12 +250,13 @@ public class NsLcmManager {
 				case TERMINATING: {
 					log.debug("Successful termination of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
 					//TODO: should we also remove the NS instance ID from the NFVO?
+					//TODO: set all implicit nsi to Terminated
 					this.internalStatus=NetworkSliceStatus.TERMINATED;
 					vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.TERMINATED);
 					log.debug("Sending notification to engine.");
 					engine.notifyNetworkSliceStatusChange(networkSliceInstanceId, NsStatusChange.NS_TERMINATED, true);
 					return;
-				}
+				}	
 
 				default:
 					break;

@@ -231,7 +231,11 @@ public class VsLcmService implements VsLcmProviderInterface {
 		
 		VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiId);
 		if (tenantId.equals(adminTenant) || vsi.getTenantId().equals(tenantId)) {
+			String nsiId = vsi.getNetworkSliceId();
+			vsRecordService.deleteNsInstance(nsiId);
+			//TODO remove also the SO-managed NSIs
 			vsRecordService.removeVsInstance(vsiId);
+			engine.removeVerticalServiceLcmManager(vsiId);
 			log.debug("VSI purge action completed for VSI ID " + vsiId);
 		} else {
 			log.debug("Tenant " + tenantId + " is not allowed to purge VS instance " + vsiId);

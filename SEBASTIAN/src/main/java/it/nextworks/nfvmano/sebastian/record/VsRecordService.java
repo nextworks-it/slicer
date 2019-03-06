@@ -202,7 +202,7 @@ public class VsRecordService {
 			log.error("The VSI " + vsiId + " is already associated to a network slice instance. Impossible to create a new one");
 			throw new FailedOperationException("The VSI " + vsiId + " is already associated to a network slice instance. Impossible to create a new one");
 		}
-		NetworkSliceInstance nsi = new NetworkSliceInstance(null, nsdId, nsdVersion, dfId, ilId, null, networkSliceSubnetInstances, tenantId, name, description);
+		NetworkSliceInstance nsi = new NetworkSliceInstance(null, nsdId, nsdVersion, dfId, ilId, null, networkSliceSubnetInstances, tenantId, name, description, false);
 		nsInstanceRepository.saveAndFlush(nsi);
 		String nsiId = nsi.getId().toString();
 		log.debug("Created Network Slice instance with ID " + nsiId);
@@ -211,6 +211,20 @@ public class VsRecordService {
 		vsi.setNetworkSliceId(nsiId);
 		vsInstanceRepository.saveAndFlush(vsi);
 		log.debug("Info about network slice instance updated in DB.");
+		return nsiId;
+	}
+
+	public synchronized String createNetworkSliceInstanceEntry(String nsdId, String nsdVersion, String dfId,
+															   String ilId, String nfvNsId, List<String> networkSliceSubnetInstances,
+															   String tenantId, String name, String description,
+															   boolean soManaged){
+		log.debug("Creating a new Network Slice instance handled by SO");
+		NetworkSliceInstance nsi = new NetworkSliceInstance(null, nsdId, nsdVersion, dfId, ilId, nfvNsId, networkSliceSubnetInstances, tenantId, name, description, soManaged);
+		nsInstanceRepository.saveAndFlush(nsi);
+		String nsiId = nsi.getId().toString();
+		log.debug("Created Network Slice instance with ID " + nsiId);
+		nsi.setNsiId(nsiId);
+		nsInstanceRepository.saveAndFlush(nsi);
 		return nsiId;
 	}
 	
@@ -299,6 +313,16 @@ public class VsRecordService {
 		Optional<NetworkSliceInstance> nsi = nsInstanceRepository.findByNfvNsId(nfvNsiId);
 		if (nsi.isPresent()) return nsi.get();
 		else throw new NotExistingEntityException("NSI associated to NFV network service with ID " + nfvNsiId + " not present in DB.");
+	}
+
+
+	public synchronized void deleteNsInstance(String nsiId) throws NotExistingEntityException, NotPermittedOperationException {
+		log.debug("Removing NSI with ID " + nsiId + " from DB.");
+		NetworkSliceInstance nsi = getNsInstance(nsiId);
+		if (nsi.getStatus() != NetworkSliceStatus.TERMINATED)
+			throw new NotPermittedOperationException("NS instance " + nsiId + " not in terminated status. Impossible to remove it from DB.");
+		nsInstanceRepository.delete(nsi);
+		log.debug("NS instance " + nsiId + " removed from DB.");
 	}
 
 	/**

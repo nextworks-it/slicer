@@ -54,6 +54,8 @@ public class NetworkSliceInstance {
 	private String instantiationLevelId;	//ID of the instantiation level in the NFV network service
 	
 	private String nfvNsId;	//ID of the NFV network service that implements the network slice
+
+	private boolean soManaged;
 	
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	@ElementCollection(fetch=FetchType.EAGER)
@@ -80,7 +82,7 @@ public class NetworkSliceInstance {
 	 * @param tenantId owner of the slice
 	 */
 	public NetworkSliceInstance(String nsiId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String nfvNsId,
-			List<String> networkSliceSubnetInstances, String tenantId, String name, String description) {
+			List<String> networkSliceSubnetInstances, String tenantId, String name, String description, boolean soManaged) {
 		this.nsiId = nsiId;
 		this.nsdId = nsdId;
 		this.nsdVersion = nsdVersion;
@@ -92,6 +94,7 @@ public class NetworkSliceInstance {
 		this.status = NetworkSliceStatus.INSTANTIATING;
 		this.name = name;
 		this.description = description;
+		this.soManaged = soManaged;
 	}
 	
 	
@@ -129,6 +132,22 @@ public class NetworkSliceInstance {
 	 */
 	public Long getId() {
 		return id;
+	}
+
+	/**
+	 *
+	 * @return soManaged: if true, NS is created and managed by SO
+	 */
+	public boolean getSoManaged() {
+		return soManaged;
+	}
+
+	/**
+	 *
+	 * @param soManaged if true, NS is created and managed by SO
+	 */
+	public void setSoManaged(boolean soManaged) {
+		this.soManaged = soManaged;
 	}
 
 	/**

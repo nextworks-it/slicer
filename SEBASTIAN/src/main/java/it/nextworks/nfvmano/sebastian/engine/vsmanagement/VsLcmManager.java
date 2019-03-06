@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -227,16 +228,42 @@ public class VsLcmManager {
 		}
 		//TODO: check if the network slices composing the VS are shared. At the moment slice sharing not supported.
 		log.debug("Terminating Vertical Service " + vsiId);
-		log.debug("Network slice " + networkSliceId + " must be terminated.");
 		this.internalStatus = VerticalServiceStatus.TERMINATING;
 		try {
 			vsRecordService.setVsStatus(vsiId, VerticalServiceStatus.TERMINATING);
-			engine.terminateNs(networkSliceId);
+			List<VerticalServiceInstance> vsis = vsRecordService.getVsInstancesFromNetworkSlice(networkSliceId);
+			if (vsis.size() > 1) {
+				nsStatusChangeOperations(VerticalServiceStatus.TERMINATED);
+			}else{
+				log.debug("Network slice " + networkSliceId + " must be terminated.");
+				engine.terminateNs(networkSliceId);
+			}
 		} catch (Exception e) {
 			manageVsError("Error while terminating VS " + vsiId + ": " + e.getMessage());
 		}
 	}
-	
+
+	private void nsStatusChangeOperations(VerticalServiceStatus status) throws NotExistingEntityException, Exception {
+
+		NetworkSliceInstance nsi = vsRecordService.getNsInstance(networkSliceId);
+		VirtualResourceUsage resourceUsage = nfvoService.computeVirtualResourceUsage(new NfvNsInstantiationInfo(nsi.getNsdId(),
+				nsi.getNsdVersion(),
+				nsi.getDfId(),
+				nsi.getInstantiationLevelId()));
+		if(status == VerticalServiceStatus.INSTANTIATED && internalStatus == VerticalServiceStatus.INSTANTIATING ){
+			adminService.addUsedResourcesInTenant(tenantId, resourceUsage.getDiskStorage(), resourceUsage.getvCPU(), resourceUsage.getMemoryRAM());
+			log.debug("Updated resource usage for tenant " + tenantId + ". Instantiation procedure completed.");
+		}else if (status == VerticalServiceStatus.TERMINATED && internalStatus == VerticalServiceStatus.TERMINATING ){
+			adminService.removeUsedResourcesInTenant(tenantId, resourceUsage.getDiskStorage(), resourceUsage.getvCPU(), resourceUsage.getMemoryRAM());
+			log.debug("Updated resource usage for tenant " + tenantId + ". Termination procedure completed.");
+		}else{
+			manageVsError("Received notification about NSI creation in wrong status.");
+			return;
+		}
+		this.internalStatus = status;
+		vsRecordService.setVsStatus(vsiId, status);
+	}
+
 	private void processNsiStatusChangeNotification(NotifyNsiStatusChange msg) {
 		if (! ((internalStatus == VerticalServiceStatus.INSTANTIATING) || (internalStatus == VerticalServiceStatus.TERMINATING))) {
 			manageVsError("Received NSI status change notification in wrong status. Skipping message.");
@@ -246,7 +273,7 @@ public class VsLcmManager {
 		try {
 			switch (nsStatusChange) {
 			case NS_CREATED: {
-				if (internalStatus == VerticalServiceStatus.INSTANTIATING) {
+				/*if (internalStatus == VerticalServiceStatus.INSTANTIATING) {
 					log.debug("The network slice " + msg.getNsiId() + " associated to vertical service " + vsiId + " has been successfully created. Vertical service established.");
 					this.internalStatus = VerticalServiceStatus.INSTANTIATED;
 					vsRecordService.setVsStatus(vsiId, VerticalServiceStatus.INSTANTIATED);
@@ -259,25 +286,13 @@ public class VsLcmManager {
 					log.debug("Updated resource usage for tenant " + tenantId + ". Instantiation procedure completed.");
 				} else {
 					manageVsError("Received notification about NSI creation in wrong status.");
-				}
+				}*/
+				nsStatusChangeOperations(VerticalServiceStatus.INSTANTIATED);
 				break;
 			}
 
 			case NS_TERMINATED: {
-				if (internalStatus == VerticalServiceStatus.TERMINATING) {
-					log.debug("The network slice " + msg.getNsiId() + " associated to vertical service " + vsiId + " has been successfully terminated. Vertical service terminated.");
-					this.internalStatus = VerticalServiceStatus.TERMINATED;
-					vsRecordService.setVsStatus(vsiId, VerticalServiceStatus.TERMINATED);
-					NetworkSliceInstance nsi = vsRecordService.getNsInstance(networkSliceId);
-					VirtualResourceUsage resourceUsage = nfvoService.computeVirtualResourceUsage(new NfvNsInstantiationInfo(nsi.getNsdId(), 
-							nsi.getNsdVersion(), 
-							nsi.getDfId(),
-							nsi.getInstantiationLevelId()));
-					adminService.removeUsedResourcesInTenant(tenantId, resourceUsage.getDiskStorage(), resourceUsage.getvCPU(), resourceUsage.getMemoryRAM());
-					log.debug("Updated resource usage for tenant " + tenantId + ". Termination procedure completed.");
-				} else {
-					manageVsError("Received notification about NSI termination in wrong status.");
-				}
+				nsStatusChangeOperations(VerticalServiceStatus.TERMINATED);
 				break;
 			}
 
