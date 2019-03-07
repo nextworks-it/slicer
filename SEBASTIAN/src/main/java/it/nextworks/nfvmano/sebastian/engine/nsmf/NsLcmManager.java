@@ -63,8 +63,8 @@ public class NsLcmManager {
 	private String networkSliceInstanceId;
 	private String name;
 	private String description;
-	private List<String> nestedNsiIds = new ArrayList<>();
-	private List<String> soNestedNsiIds = new ArrayList<>();
+	private List<String> nestedNsiIds = new ArrayList<>();			//network slice subnets explicitly handled by the VS
+	private List<String> soNestedNsiIds = new ArrayList<>();        //network slice subnets implicitly created by the SO, and so controlled by the SO only
 	private String tenantId;
 	private NfvoService nfvoService;
 	private VsRecordService vsRecordService;
@@ -180,19 +180,20 @@ public class NsLcmManager {
 			log.debug("Completed SAP Data");
 			
 			//Read NFV_NS_IDs from nsSubnetIds and put in nestedNsInstanceId list
-			List<String> nestedNsId = new ArrayList<>();
+			List<String> nestedNfvNsId = new ArrayList<>();
 			for(String nsiId : msg.getNsSubnetIds()){
 				NetworkSliceInstance nsi = vsRecordService.getNsInstance(nsiId);
-				nestedNsId.add(nsi.getNfvNsId());
+				nestedNfvNsId.add(nsi.getNfvNsId());
 				this.nestedNsiIds.add(nsi.getNsiId());
 			}
+			vsRecordService.addNsSubnetsInNetworkSliceInstance(networkSliceInstanceId, this.nestedNsiIds);
 			
 			String operationId = nfvoService.instantiateNs(new InstantiateNsRequest(nfvNsId, 
 					dfId, 					//flavourId 
 					sapData, 				//sapData
 					null,					//pnfInfo
 					null,					//vnfInstanceData
-					nestedNsId,			 	//nestedNsInstanceId 
+					nestedNfvNsId,			//nestedNsInstanceId 
 					null,					//locationConstraints 
 					null,					//additionalParamForNs 
 					null,					//additionalParamForVnf 
@@ -239,7 +240,7 @@ public class NsLcmManager {
 									null, null, null, true));
 						}
 					}
-
+					vsRecordService.addNsSubnetsInNetworkSliceInstance(networkSliceInstanceId, soNestedNsiIds);
 
 					vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
 					log.debug("Sending notification to engine.");

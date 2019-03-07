@@ -287,6 +287,27 @@ public class VsRecordService {
 	}
 	
 	/**
+	 * This method adds slice subnets into a network slice
+	 * 
+	 * @param parentNsiId ID of the parent network slice 
+	 * @param sliceSubnetIds IDs of the slice subnets to be added
+	 */
+	public synchronized void addNsSubnetsInNetworkSliceInstance(String parentNsiId, List<String> sliceSubnetIds) {
+		log.debug("Adding slice subnets into parent slice " + parentNsiId + " in DB.");
+		try {
+			NetworkSliceInstance nsi = getNsInstance(parentNsiId);
+			for (String s : sliceSubnetIds) {
+				nsi.addSubnet(s);
+				log.debug("Slice subnet " + s + " added.");
+			}
+			nsInstanceRepository.saveAndFlush(nsi);
+			log.debug("Subnets for network slice " + parentNsiId + " added.");
+		} catch (NotExistingEntityException e) {
+			log.error("NSI not present in DB. Impossible to complete the subnets updates.");
+		}
+	}
+	
+	/**
 	 * This method returns the NSI stored in DB that matches a given ID.
 	 * 
 	 * @param nsiId ID of the Network Slice instance to be returned
@@ -315,7 +336,13 @@ public class VsRecordService {
 		else throw new NotExistingEntityException("NSI associated to NFV network service with ID " + nfvNsiId + " not present in DB.");
 	}
 
-
+	/**
+	 * This method deletes an NSI stored in DB given its ID.
+	 * 
+	 * @param nsiId ID of the network slice to be removed
+	 * @throws NotExistingEntityException if the NSI does not exist
+	 * @throws NotPermittedOperationException if the operation is not permitted
+	 */
 	public synchronized void deleteNsInstance(String nsiId) throws NotExistingEntityException, NotPermittedOperationException {
 		log.debug("Removing NSI with ID " + nsiId + " from DB.");
 		NetworkSliceInstance nsi = getNsInstance(nsiId);
@@ -334,7 +361,6 @@ public class VsRecordService {
 	 * @param instantiationLevel Instantiation Level ID
 	 * @return List of NSI matching input parameters
 	 */
-
 	public List<NetworkSliceInstance> getByTenantIdAndNsdIdAndNsdVersionAndDfIdAndInstantiationLevelId(String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevel){
 		return nsInstanceRepository.findByTenantIdAndNsdIdAndNsdVersionAndDfIdAndInstantiationLevelId(tenantId, nsdId, nsdVersion, dfId, instantiationLevel);
 	}

@@ -220,7 +220,14 @@ public class NetworkSliceInstance {
 		this.nfvNsId = nfvNsId;
 	}
 	
-	
+	/**
+	 * This method adds a new slice subnet into the main slice
+	 * 
+	 * @param subnetId ID of the subnet to be added
+	 */
+	public void addSubnet(String subnetId) {
+		this.networkSliceSubnetInstances.add(subnetId);
+	}
 	
 	/**
 	 * @return the errorMessage
