@@ -78,11 +78,11 @@ public class BasicArbitratorTest {
 
         when(arbitratorRequestMock.getTenantId()).thenReturn("banana");
         when(arbitratorRequestMock.getInstantiationNsd()).thenReturn(nsInitInfos);
-        when(nfvoMock.retriveNsd(any(), any())).thenReturn(this.nsdMock);
+        when(nfvoMock.queryNsdAssumingOne(any(), any())).thenReturn(this.nsdMock);
         when(nsdMock.getNestedNsdId()).thenReturn(Collections.singletonList("nestedID"));
         when(networkSliceInstanceMock.getNsiId()).thenReturn("nestedNsi");
-        when(vsRecordServiceMock.getByTenantIdAndNsdIdAndNsdVersionAndDfIdAndInstantiationLevelId(any(), any(), any(), any(), any())).thenReturn(nsis);
-        when(nfvoMock.computeVirtualResourceUsage(any())).thenReturn(new VirtualResourceUsage());
+        when(vsRecordServiceMock.getUsableSlices(any(), any(), any(), any(), any())).thenReturn(nsis);
+        when(nfvoMock.computeVirtualResourceUsage(any(NfvNsInstantiationInfo.class))).thenReturn(new VirtualResourceUsage());
         when(adminServiceMock.getTenant("banana")).thenReturn(tenantMock);
         when(tenantMock.getActiveSla()).thenReturn(tenantSlaMock);
         when(tenantSlaMock.getGlobalConstraint()).thenReturn(scMock);

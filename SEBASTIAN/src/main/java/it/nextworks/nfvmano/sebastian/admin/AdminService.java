@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -261,22 +262,22 @@ public class AdminService {
 		tenantRepository.saveAndFlush(tenant);
 		log.debug("Removed VSI " + vsiId + " from tenant " + tenantId);
 	}
-	
-	public synchronized void addUsedResourcesInTenant(String tenantId, int storage, int vCPU, int ram)
+
+	public synchronized void addUsedResourcesInTenant(String tenantId, VirtualResourceUsage vru)
 			throws NotExistingEntityException {
 		log.debug("Adding consumed resources to tenant " + tenantId);
 		Tenant tenant = getTenant(tenantId);
-		tenant.addUsedResources(storage, vCPU, ram);
+		tenant.addUsedResources(vru);
 		tenantRepository.saveAndFlush(tenant);
 		log.debug("Added consumed resources to tenant " + tenantId);
 	}
-	
-	public synchronized void removeUsedResourcesInTenant(String tenantId, int storage, int vCPU, int ram)
+
+	public synchronized void removeUsedResourcesInTenant(String tenantId, VirtualResourceUsage vru)
 			throws NotExistingEntityException {
 		log.debug("Removing consumed resources to tenant " + tenantId);
 		Tenant tenant = getTenant(tenantId);
-		tenant.removeUsedResources(storage, vCPU, ram);
+		tenant.removeUsedResources(vru);
 		tenantRepository.saveAndFlush(tenant);
 		log.debug("Removed consumed resources to tenant " + tenantId);
 	}
-}
+	}

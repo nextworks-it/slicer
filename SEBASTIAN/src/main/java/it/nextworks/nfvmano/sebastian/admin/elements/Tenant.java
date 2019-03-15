@@ -175,13 +175,13 @@ public class Tenant {
 	public VirtualResourceUsage getAllocatedResources() {
 		return allocatedResources;
 	}
-	
-	public void addUsedResources(int storage, int vCPU, int ram) {
-		allocatedResources.addResources(storage, vCPU, ram);
+
+	public void addUsedResources(VirtualResourceUsage vru) {
+		allocatedResources.addResources(vru);
 	}
-	
-	public void removeUsedResources(int storage, int vCPU, int ram) {
-		allocatedResources.removeResources(storage, vCPU, ram);
+
+	public void removeUsedResources(VirtualResourceUsage vru) {
+		allocatedResources.removeResources(vru);
 	}
 	
 	@JsonIgnore

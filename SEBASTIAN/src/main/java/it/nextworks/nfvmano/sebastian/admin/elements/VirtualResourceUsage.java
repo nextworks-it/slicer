@@ -56,14 +56,22 @@ public class VirtualResourceUsage {
 	public int getMemoryRAM() {
 		return memoryRAM;
 	}
+
+	public void addResources(VirtualResourceUsage other) {
+		addResources(other.getDiskStorage(), other.getvCPU(), other.getMemoryRAM());
+	}
 	
-	public void addResources(int storage, int cpu, int ram) {
+	private void addResources(int storage, int cpu, int ram) {
 		this.diskStorage += storage;
 		this.vCPU += cpu;
 		this.memoryRAM += ram;
 	}
-	
-	public void removeResources(int storage, int cpu, int ram) {
+
+	public void removeResources(VirtualResourceUsage other) {
+		removeResources(other.getDiskStorage(), other.getvCPU(), other.getMemoryRAM());
+	}
+
+	private void removeResources(int storage, int cpu, int ram) {
 		this.diskStorage -= storage;
 		this.vCPU -= cpu;
 		this.memoryRAM -= ram;

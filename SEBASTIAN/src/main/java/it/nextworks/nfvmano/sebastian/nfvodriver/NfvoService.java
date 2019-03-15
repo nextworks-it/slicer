@@ -27,6 +27,7 @@ import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.nfvodriver.timeo.TimeoDriver;
 import it.nextworks.nfvmano.sebastian.nfvodriver.timeo.TimeoNfvoOperationPollingManager;
+import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
 
 import org.slf4j.Logger;
@@ -140,6 +141,10 @@ MecAppPackageManagementProviderInterface, NsdManagementProviderInterface, VnfPac
 		}
 	}
 
+	public VirtualResourceUsage computeVirtualResourceUsage(NetworkSliceInstance nsi) throws Exception {
+		return computeVirtualResourceUsage(nsi.getNsInstantiationInfo());
+	}
+
 	/**
 	 * This method computes the amount of resources (disk, vCPU, RAM) needed to instantiate an NSD with the given ID and the given deployment flavours and instantiation levels.
 	 * The amount of virtual resources is derived from the NSD and the VNFD.
@@ -148,7 +153,7 @@ MecAppPackageManagementProviderInterface, NsdManagementProviderInterface, VnfPac
 	 * @return the amount of virtual resources needed to instantiate the VNFs of the NSD
 	 * @throws Exception if something goes wrong in the interaction with the NFVO
 	 */
-	public VirtualResourceUsage computeVirtualResourceUsage(NfvNsInstantiationInfo nsInstantiationInfo) throws NotExistingEntityException, Exception {
+	public VirtualResourceUsage computeVirtualResourceUsage(NfvNsInstantiationInfo nsInstantiationInfo) throws Exception {
 		log.debug("Computing the amount of resources associated to a NS instantiation.");
 		
 		//TODO: parse the MEC app data when available

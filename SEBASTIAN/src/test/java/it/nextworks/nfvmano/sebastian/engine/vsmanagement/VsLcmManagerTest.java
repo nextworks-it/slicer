@@ -7,6 +7,7 @@ import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.admin.elements.Sla;
 import it.nextworks.nfvmano.sebastian.admin.elements.SlaVirtualResourceConstraint;
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
+import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorRequest;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorResponse;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
@@ -15,6 +16,7 @@ import it.nextworks.nfvmano.sebastian.catalogue.repo.VsDescriptorRepository;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.engine.messages.InstantiateVsiRequestMessage;
+import it.nextworks.nfvmano.sebastian.engine.messages.TerminateVsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
@@ -92,8 +94,16 @@ public class VsLcmManagerTest {
                 new NfvNsInstantiationInfo("nfvID", "nsdVersion", "deploymentFlavour", "instatiationLevelId");
 
         InstantiateVsRequest instantiateVsRequest = new InstantiateVsRequest("Vsname", "vsdescription", "vsdId", "tenantId", "stringa",null);
-        VsLcmManager vsLcmManager = new VsLcmManager
-                ("vsiId", vsRecordServiceMock, vsDescriptorRepositoryMock, translatorServiceMock, arbitratorServiceMock, adminServiceMock, nfvoMock, engineMock);
+        VsLcmManager vsLcmManager = new VsLcmManager(
+                "vsiId",
+                vsRecordServiceMock,
+                vsDescriptorRepositoryMock,
+                translatorServiceMock,
+                arbitratorServiceMock,
+                adminServiceMock,
+                nfvoMock,
+                engineMock
+        );
 
         InstantiateVsiRequestMessage msg = new InstantiateVsiRequestMessage("vsiId", instantiateVsRequest);
         when(instantiateVsRequestMock.getVsdId()).thenReturn("vsdId");
@@ -117,7 +127,68 @@ public class VsLcmManagerTest {
         verify(engineMock, times(1)).initNewNsLcmManager(any(), any(), any(), any());
         verify(engineMock, times(1)).instantiateNs(any(), any(), any(), any(), any(), any(), any(), any());
         //System.out.println(vsLcmManager.getNestedVsi().get(0));
+    }
 
+    @Test
+    public void testTerminateLastService() throws Exception {
+        String id = "vsiId";
+        VsLcmManager vsLcmManager = new VsLcmManager(
+                id,
+                vsRecordServiceMock,
+                vsDescriptorRepositoryMock,
+                translatorServiceMock,
+                arbitratorServiceMock,
+                adminServiceMock,
+                nfvoMock,
+                engineMock
+        );
+        String sliceId = "nsiId";
+        vsLcmManager.setNetworkSliceId(sliceId);
+        vsLcmManager.setInternalStatus(VerticalServiceStatus.INSTANTIATED);
+        VerticalServiceInstance vsi = mock(VerticalServiceInstance.class);
+        when(vsRecordServiceMock.getVsInstancesFromNetworkSlice(sliceId)).thenReturn(Collections.singletonList(vsi));
+
+        TerminateVsiRequestMessage message = new TerminateVsiRequestMessage(id);
+        vsLcmManager.processTerminateRequest(message);
+
+        verify(vsRecordServiceMock, times(1)).setVsStatus(id, VerticalServiceStatus.TERMINATING);
+        verify(engineMock, times(1)).terminateNs(sliceId);
+
+    }
+
+    @Test
+    public void testTerminateShared() throws Exception {
+        String id = "vsiId";
+        VsLcmManager vsLcmManager = new VsLcmManager(
+                id,
+                vsRecordServiceMock,
+                vsDescriptorRepositoryMock,
+                translatorServiceMock,
+                arbitratorServiceMock,
+                adminServiceMock,
+                nfvoMock,
+                engineMock
+        );
+        String sliceId = "nsiId";
+        vsLcmManager.setNetworkSliceId(sliceId);
+        vsLcmManager.setInternalStatus(VerticalServiceStatus.INSTANTIATED);
+        vsLcmManager.setTenantId("tenantId");
+
+        VerticalServiceInstance vsi1 = mock(VerticalServiceInstance.class);
+        VerticalServiceInstance vsi2 = mock(VerticalServiceInstance.class);
+        VirtualResourceUsage vruMock = mock(VirtualResourceUsage.class);
+
+        when(vsRecordServiceMock.getVsInstancesFromNetworkSlice(sliceId)).thenReturn(Arrays.asList(vsi1, vsi2));
+        when(vsRecordServiceMock.getNsInstance(sliceId)).thenReturn(networkSliceInstanceMock);
+        when(nfvoMock.computeVirtualResourceUsage(networkSliceInstanceMock)).thenReturn(vruMock);
+
+        TerminateVsiRequestMessage message = new TerminateVsiRequestMessage(id);
+        vsLcmManager.processTerminateRequest(message);
+
+        verify(vsRecordServiceMock, times(1)).setVsStatus(id, VerticalServiceStatus.TERMINATING);
+        verify(adminServiceMock, times(1)).removeUsedResourcesInTenant("tenantId", vruMock);
+        verify(vsRecordServiceMock, times(1)).setVsStatus(id, VerticalServiceStatus.TERMINATED);
+        assert vsLcmManager.getInternalStatus().equals(VerticalServiceStatus.TERMINATED);
     }
 
 }
