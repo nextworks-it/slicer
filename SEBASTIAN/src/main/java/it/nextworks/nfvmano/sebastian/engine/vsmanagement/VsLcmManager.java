@@ -71,6 +71,7 @@ public class VsLcmManager {
 	private Engine engine;
 	
 	private VerticalServiceStatus internalStatus;
+
 	private List<String> nestedVsi = new ArrayList<>();
 	
 	private String networkSliceId;
@@ -159,7 +160,7 @@ public class VsLcmManager {
 		}
 	}
 	
-	private void processInstantiateRequest(InstantiateVsiRequestMessage msg) {
+	 void processInstantiateRequest(InstantiateVsiRequestMessage msg) {
 		if (internalStatus != VerticalServiceStatus.INSTANTIATING) {
 			manageVsError("Received instantiation request in wrong status. Skipping message.");
 			return;
@@ -309,7 +310,7 @@ public class VsLcmManager {
 			manageVsError("Error while processing NSI status change notification: " + e.getMessage());
 		}
 	}
-	
+
 	private void manageVsError(String errorMessage) {
 		log.error(errorMessage);
 		vsRecordService.setVsFailureInfo(vsiId, errorMessage);

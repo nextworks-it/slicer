@@ -142,7 +142,7 @@ public class NsLcmManager {
 		}
 	}
 	
-	private void processInstantiateRequest(InstantiateNsiRequestMessage msg) {
+	void processInstantiateRequest(InstantiateNsiRequestMessage msg) {
 		if (internalStatus != NetworkSliceStatus.INSTANTIATING) {
 			manageNsError("Received instantiation request in wrong status. Skipping message.");
 			return;
@@ -208,7 +208,7 @@ public class NsLcmManager {
 		}
 	}
 	
-	private void processNfvNsChangeNotification(NotifyNfvNsiStatusChange msg) {
+	 void processNfvNsChangeNotification(NotifyNfvNsiStatusChange msg) {
 		if (! ((internalStatus == NetworkSliceStatus.INSTANTIATING) || (internalStatus == NetworkSliceStatus.TERMINATING))) {
 			manageNsError("Received notification about NFV NS status change in wrong status.");
 			return;
