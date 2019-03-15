@@ -228,12 +228,13 @@ public class VsLcmManager {
 			manageVsError("Received termination request in wrong status. Skipping message.");
 			return;
 		}
-		//TODO: check if the network slices composing the VS are shared. At the moment slice sharing not supported.
+
 		log.debug("Terminating Vertical Service " + vsiId);
 		this.internalStatus = VerticalServiceStatus.TERMINATING;
 		try {
 			vsRecordService.setVsStatus(vsiId, VerticalServiceStatus.TERMINATING);
 			List<VerticalServiceInstance> vsis = vsRecordService.getVsInstancesFromNetworkSlice(networkSliceId);
+			// Shared NSI support: if vsis > 1 nsi is shared.
 			if (vsis.size() > 1) {
 				nsStatusChangeOperations(VerticalServiceStatus.TERMINATED);
 			}else{

@@ -232,8 +232,18 @@ public class VsLcmService implements VsLcmProviderInterface {
 		VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiId);
 		if (tenantId.equals(adminTenant) || vsi.getTenantId().equals(tenantId)) {
 			String nsiId = vsi.getNetworkSliceId();
+
+			//Remove also the SO-managed NSIs
+			//Retrieve nsInstance -> get all nsSubnets
+			//For nsSub : nsSubnets -> id nsSub.soManaged==true -> vsRecords.deleteNsInstance
+			NetworkSliceInstance nsi = vsRecordService.getNsInstance(nsiId);
+			for (String nsiSubnetId : nsi.getNetworkSliceSubnetInstances()){
+				nsi = vsRecordService.getNsInstance(nsiSubnetId);
+				if (nsi.getSoManaged()){
+					vsRecordService.deleteNsInstance(nsiSubnetId);
+				}
+			}
 			vsRecordService.deleteNsInstance(nsiId);
-			//TODO remove also the SO-managed NSIs
 			vsRecordService.removeVsInstance(vsiId);
 			engine.removeVerticalServiceLcmManager(vsiId);
 			log.debug("VSI purge action completed for VSI ID " + vsiId);

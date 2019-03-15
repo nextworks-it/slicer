@@ -251,7 +251,9 @@ public class NsLcmManager {
 				case TERMINATING: {
 					log.debug("Successful termination of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
 					//TODO: should we also remove the NS instance ID from the NFVO?
-					//TODO: set all implicit nsi to Terminated
+                    for (String soManagedNsiId : soNestedNsiIds){
+                        vsRecordService.setNsStatus(soManagedNsiId, NetworkSliceStatus.TERMINATED);
+                    }
 					this.internalStatus=NetworkSliceStatus.TERMINATED;
 					vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.TERMINATED);
 					log.debug("Sending notification to engine.");
