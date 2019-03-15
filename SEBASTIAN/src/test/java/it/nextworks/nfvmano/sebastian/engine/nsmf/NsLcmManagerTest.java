@@ -26,6 +26,7 @@ import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.engine.messages.InstantiateNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.engine.messages.NotifyNfvNsiStatusChange;
 import it.nextworks.nfvmano.sebastian.engine.messages.NsStatusChange;
+import it.nextworks.nfvmano.sebastian.engine.messages.TerminateNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
@@ -139,11 +140,16 @@ public class NsLcmManagerTest {
         nsLcmManager.processNfvNsChangeNotification(msg);
 
         verify(vsRecordServiceMock, times(1)).addNsSubnetsInNetworkSliceInstance("nsiId", Collections.singletonList("nsiNotToBeFound"));
-
         verify(vsRecordServiceMock, times(1)).setNsStatus("nsiId", NetworkSliceStatus.INSTANTIATED);
         verify(engineMock, times(1)).notifyNetworkSliceStatusChange("nsiId", NsStatusChange.NS_CREATED, true);
 
+        TerminateNsiRequestMessage message = new TerminateNsiRequestMessage("nsiId");
+        when(nfvoMock.terminateNs(any())).thenReturn("operationId");
+        nsLcmManager.processTerminateRequest(message);
 
+        msg = new NotifyNfvNsiStatusChange("nfvNsId", NsStatusChange.NS_TERMINATED, true);
+        nsLcmManager.processNfvNsChangeNotification(msg);
+        verify(vsRecordServiceMock, times(1)).setNsStatus("nsiNotToBeFound", NetworkSliceStatus.TERMINATED);
     }
 
     @Test

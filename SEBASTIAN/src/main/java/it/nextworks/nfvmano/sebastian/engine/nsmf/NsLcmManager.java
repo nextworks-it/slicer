@@ -273,11 +273,15 @@ public class NsLcmManager {
 		}
 	}
 	
-	private void processTerminateRequest(TerminateNsiRequestMessage msg) {
+	void processTerminateRequest(TerminateNsiRequestMessage msg) {
 		if (internalStatus != NetworkSliceStatus.INSTANTIATED) {
 			manageNsError("Received termination request in wrong status. Skipping message.");
 			return;
-		}
+		} else if (!msg.getNsiId().equals(networkSliceInstanceId)){
+            manageNsError("Received termination request with wrong nsiId " + msg.getNsiId());
+            return;
+        }
+
 		log.debug("Terminating network slice " + networkSliceInstanceId);
 		this.internalStatus = NetworkSliceStatus.TERMINATING;
 		vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.TERMINATING);
