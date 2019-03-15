@@ -18,10 +18,12 @@ package it.nextworks.nfvmano.sebastian.record.elements;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
-import java.awt.*;
 import java.util.List;
 
 @Entity
@@ -41,7 +43,9 @@ public class VerticalServiceInstance {
 	
 	private String networkSliceId;
 
-	//TODO:private List<String> nestedVsi;
+	@OneToMany
+	@LazyCollection(LazyCollectionOption.FALSE)
+	private List<VerticalServiceInstance> nestedVsi;
 	
 	private String errorMessage; //this field gets a value only in case of failure
 	

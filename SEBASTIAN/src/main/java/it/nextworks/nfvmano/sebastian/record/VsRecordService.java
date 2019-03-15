@@ -52,6 +52,8 @@ public class VsRecordService {
 	private NetworkSliceInstanceRepository nsInstanceRepository;
 	
 	//Methods about vertical services
+
+	// TODO add method to populate sub-VS-instances of given instance
 	
 	/**
 	 * This methods creates a new Vertical Service instance, assigning it an ID, and it stores it in the DB.
@@ -298,10 +300,10 @@ public class VsRecordService {
 			NetworkSliceInstance nsi = getNsInstance(parentNsiId);
 			for (String s : sliceSubnetIds) {
 				nsi.addSubnet(s);
-				log.debug("Slice subnet " + s + " added.");
+				log.debug("Slice subnet {} added.", s);
 			}
 			nsInstanceRepository.saveAndFlush(nsi);
-			log.debug("Subnets for network slice " + parentNsiId + " added.");
+			log.debug("Subnets for network slice {} added.", parentNsiId);
 		} catch (NotExistingEntityException e) {
 			log.error("NSI not present in DB. Impossible to complete the subnets updates.");
 		}
@@ -361,7 +363,7 @@ public class VsRecordService {
 	 * @param instantiationLevel Instantiation Level ID
 	 * @return List of NSI matching input parameters
 	 */
-	public List<NetworkSliceInstance> getByTenantIdAndNsdIdAndNsdVersionAndDfIdAndInstantiationLevelId(String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevel){
+	public List<NetworkSliceInstance> getUsableSlices(String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevel){
 		return nsInstanceRepository.findByTenantIdAndNsdIdAndNsdVersionAndDfIdAndInstantiationLevelId(tenantId, nsdId, nsdVersion, dfId, instantiationLevel);
 	}
 

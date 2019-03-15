@@ -207,6 +207,7 @@ public class VsLcmManager {
 				for(String nestedNsiId : nsSubnetInstanceIds) {
 
 					this.nestedVsi.add(vsRecordService.getVsInstancesFromNetworkSlice(nestedNsiId).get(0).getVsiId());
+					// TODO notify record to add sub-instance to main instance
 
 				}
 				log.debug("Record updated with info about NSI and VSI association.");

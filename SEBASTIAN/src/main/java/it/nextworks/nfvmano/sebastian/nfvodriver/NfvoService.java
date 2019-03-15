@@ -21,6 +21,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import it.nextworks.nfvmano.libs.catalogues.interfaces.elements.NsdInfo;
 import it.nextworks.nfvmano.nfvodriver.logging.LoggingDriver;
 import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
@@ -222,14 +223,23 @@ MecAppPackageManagementProviderInterface, NsdManagementProviderInterface, VnfPac
 		}
 		
 		log.debug("Values for the whole NSD with ID " + nsdId + ", DF " + deploymentFlavourId + ", IL " + instantiationLevelId + "- vCPU: " + vCPU + "; RAM: " + ram + "; Disk: " + disk);
-		
-		VirtualResourceUsage vru = new VirtualResourceUsage(disk, vCPU, ram);
-		return vru;
+
+		return new VirtualResourceUsage(disk, vCPU, ram);
 	}
 
-	//TODO: add the following to the inherit interface
-	public Nsd retriveNsd(String nsdId, String nsdVersion) throws Exception {
+	public Nsd queryNsdAssumingOne(String nsdId, String nsdVersion) throws Exception {
 		QueryNsdResponse nsdRep = queryNsd(new GeneralizedQueryRequest(Utilities.buildNsdFilter(nsdId, nsdVersion), null));
+		List<NsdInfo> nsds = nsdRep.getQueryResult();
+		if (nsds.size() == 0) {
+			throw new NotExistingEntityException(
+					String.format("No nsd with nsdId %s and version %s", nsdId, nsdVersion)
+			);
+		}
+		if (nsds.size() > 1) {
+			throw new FailedOperationException(
+					String.format("More than one nsd with nsdId %s and version %s", nsdId, nsdVersion)
+			);
+		}
 		return nsdRep.getQueryResult().get(0).getNsd();
 	}
 	
