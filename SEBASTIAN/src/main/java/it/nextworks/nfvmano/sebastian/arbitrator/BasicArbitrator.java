@@ -56,7 +56,7 @@ public class BasicArbitrator extends AbstractArbitrator {
 	@Override
 	public List<ArbitratorResponse> computeArbitratorSolution(List<ArbitratorRequest> requests) 
 			throws FailedOperationException, NotExistingEntityException {
-		log.debug("Received request at the arbitrator. At the moment dummy reply.");
+		log.debug("Received request at the arbitrator.");
 		
 		//TODO: At the moment we process only the first request and the first ns init info
 		ArbitratorRequest req = requests.get(0);
@@ -78,7 +78,7 @@ public class BasicArbitrator extends AbstractArbitrator {
 			List<String> nestedNsdIds = nsd.getNestedNsdId();
 			Map<String, Boolean> existingNsiIds = null;
 			if (!nestedNsdIds.isEmpty()){
-				//
+
 				//Retrieve <DF, IL> from nsInitInfo
 				String instantiationLevelId = nsInitInfo.getInstantiationLevelId();
 				String deploymentFlavourID = nsInitInfo.getDeploymentFlavourId();
@@ -90,6 +90,7 @@ public class BasicArbitrator extends AbstractArbitrator {
 
 					for (NetworkSliceInstance nsi : nsis) {
 						existingNsiIds.put(nsi.getNsiId(), false);
+						log.debug("Existing NSI found found: {}", nsi.getNsiId());
 					}
 				}
 			}

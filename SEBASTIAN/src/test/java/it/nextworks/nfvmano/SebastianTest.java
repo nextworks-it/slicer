@@ -25,7 +25,6 @@ import it.nextworks.nfvmano.sebastian.vsnbi.messages.PurgeVsRequest;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.TerminateVsRequest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -59,8 +58,13 @@ public class SebastianTest {
     @Autowired
     VsLcmService vsLcmService;
 
+    /**
+     * This test cover the workflow: createChildVsi -> createParentVsi -> terminateParentVsi -> purgeParentVsi
+     * NOTE: parentVsi will reuse childVsi as nested Vsi
+     * @throws Exception
+     */
     @Test
-    public void nestedInstantiationTest() throws Exception {
+    public void vsLcTest() throws Exception {
         /**
          * Local Mocks
          */
@@ -101,7 +105,7 @@ public class SebastianTest {
         /**
          * VsLcmManager
          */
-        when(translatorService.translateVsd(any())).thenReturn(Collections.singletonMap("vsdId", nsInstantiationInfo));
+        when(translatorService.translateVsd(Collections.singletonList("vsdId"))).thenReturn(Collections.singletonMap("vsdId", nsInstantiationInfo));
         when(vsDescriptorRepository.findByVsDescriptorId("vsdId")).thenReturn(Optional.of(vsdMock));
         /**
          * Arbitrator (Basic Arbitrator)
@@ -276,7 +280,7 @@ public class SebastianTest {
          * Triggering VS PURGE
          */
         vsLcmService.purgeVs(purgeVsRequest);
-        Thread.sleep(5000);
+        Thread.sleep(500);
 
     }
 
