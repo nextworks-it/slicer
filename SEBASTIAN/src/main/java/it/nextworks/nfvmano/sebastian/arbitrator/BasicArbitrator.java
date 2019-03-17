@@ -75,20 +75,22 @@ public class BasicArbitrator extends AbstractArbitrator {
 			String nfvNsId = nsInitInfo.getNfvNsdId();
 			String nsdVersion = nsInitInfo.getNsdVersion();
 			Nsd nsd = nfvoService.queryNsdAssumingOne(nfvNsId, nsdVersion);
-			List<String> nestedNsdId = nsd.getNestedNsdId();
+			List<String> nestedNsdIds = nsd.getNestedNsdId();
 			Map<String, Boolean> existingNsiIds = null;
-			if (!nestedNsdId.isEmpty()){
+			if (!nestedNsdIds.isEmpty()){
 				//
 				//Retrieve <DF, IL> from nsInitInfo
 				String instantiationLevelId = nsInitInfo.getInstantiationLevelId();
 				String deploymentFlavourID = nsInitInfo.getDeploymentFlavourId();
-
-				//Check existing NSI per id, tenant, IL, DF
-				List<NetworkSliceInstance> nsis = vsRecordService.getUsableSlices(tenantId, nfvNsId, nsdVersion, deploymentFlavourID, instantiationLevelId);
 				//Create NSIid sublist
 				existingNsiIds = new HashMap<>();
-				for(NetworkSliceInstance nsi: nsis) {
-					existingNsiIds.put(nsi.getNsiId(), false);
+				for(String nestedNsdId : nestedNsdIds) {
+					//Check existing NSI per id, tenant, IL, DF
+					List<NetworkSliceInstance> nsis = vsRecordService.getUsableSlices(tenantId, nestedNsdId, nsdVersion, deploymentFlavourID, instantiationLevelId);
+
+					for (NetworkSliceInstance nsi : nsis) {
+						existingNsiIds.put(nsi.getNsiId(), false);
+					}
 				}
 			}
 

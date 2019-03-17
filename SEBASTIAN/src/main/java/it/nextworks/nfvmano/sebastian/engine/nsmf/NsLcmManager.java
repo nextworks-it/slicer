@@ -186,8 +186,11 @@ public class NsLcmManager {
 				nestedNfvNsId.add(nsi.getNfvNsId());
 				this.nestedNsiIds.add(nsi.getNsiId());
 			}
-			vsRecordService.addNsSubnetsInNetworkSliceInstance(networkSliceInstanceId, this.nestedNsiIds);
-			
+			/*
+			 * DON'T STORE this.nestedNsiIds on DB:
+			 * The nested Nsi are found by the Arbitrator -> they are ALREADY on DB
+			 */
+
 			String operationId = nfvoService.instantiateNs(new InstantiateNsRequest(nfvNsId, 
 					dfId, 					//flavourId 
 					sapData, 				//sapData
@@ -224,7 +227,7 @@ public class NsLcmManager {
 					log.debug("Successful instantiation of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
 					this.internalStatus=NetworkSliceStatus.INSTANTIATED;
 
-					//TODO: if the network slice includes slice subnets, update or create the related entries
+					//If the network slice includes slice subnets, update or create the related entries
 					//Note that some subnets can be explicit (i.e. VS-managed, so already available in db) or implicit (i.e. SO-managed, so you need to create a new entry in this phase if not yet present)
 					//You need to read the NS info from the NFVO
 
@@ -235,12 +238,15 @@ public class NsLcmManager {
 						try{
 							vsRecordService.getNsInstanceFromNfvNsi(nfvNsId);
 						}catch (NotExistingEntityException e){
-							soNestedNsiIds.add(vsRecordService.createNetworkSliceInstanceEntry(null,
-									null, null, null, nfvNsId, null,
-									null, null, null, true));
+							String nestedNsiId = vsRecordService.createNetworkSliceInstanceEntry(null,
+                                    null, null, null, nfvNsId, null,
+                                    null, null, null, true);
+						    soNestedNsiIds.add(nestedNsiId);
+							vsRecordService.setNsStatus(nestedNsiId, NetworkSliceStatus.INSTANTIATED);
 						}
 					}
-					vsRecordService.addNsSubnetsInNetworkSliceInstance(networkSliceInstanceId, soNestedNsiIds);
+					if (soNestedNsiIds.size() >0 )
+					    vsRecordService.addNsSubnetsInNetworkSliceInstance(networkSliceInstanceId, soNestedNsiIds);
 
 					vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
 					log.debug("Sending notification to engine.");

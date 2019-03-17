@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.nextworks.nfvmano.sebastian.engine.messages.NsStatusChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,6 +109,7 @@ public class VsLcmService implements VsLcmProviderInterface {
 		try {
 			engine.instantiateVs(vsiId, request);
 			log.debug("Synchronous processing for VSI instantiation request completed for VSI ID " + vsiId);
+			//Thread.sleep(1000000);
 			return vsiId;
 		} catch (Exception e) {
 			vsRecordService.setVsFailureInfo(vsiId, e.getMessage());
@@ -260,4 +262,9 @@ public class VsLcmService implements VsLcmProviderInterface {
 		throw new MethodNotImplementedException("VS modification not yet supported.");
 	}
 
+	//TODO Test Method - REMOVE ASAP!!!
+	public void engineNotifyNfvNsStatusChange(String nfvNsId, NsStatusChange changeType, boolean successful) throws  Exception{
+		engine.notifyNfvNsStatusChange(nfvNsId, changeType, successful);
+
+	}
 }

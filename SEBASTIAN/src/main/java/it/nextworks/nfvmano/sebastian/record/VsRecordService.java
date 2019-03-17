@@ -179,6 +179,25 @@ public class VsRecordService {
 	public List<VerticalServiceInstance> getVsInstancesFromNetworkSlice(String sliceId) {
 		return vsInstanceRepository.findByNetworkSliceId(sliceId);
 	}
+
+	/**
+	 * This method adds nested VSI into parent VSI
+	 *
+	 * @param parentVsiId ID of the parent VSI
+	 * @param nestedVsi VS instance to be addedd
+	 */
+	public synchronized void addNestedVsInVerticalServiceInstance(String parentVsiId, VerticalServiceInstance nestedVsi) {
+		log.debug("Adding nested VSI into parent slice " + parentVsiId + " in DB.");
+		try {
+			VerticalServiceInstance vsi = getVsInstance(parentVsiId);
+			vsi.addNestedVsi(nestedVsi);
+			log.debug("Nested VSI added. Id: {}", nestedVsi.getId());
+			vsInstanceRepository.saveAndFlush(vsi);
+			log.debug("Nestded VSI for VSI {} added.", parentVsiId);
+		} catch (NotExistingEntityException e) {
+			log.error("NSI not present in DB. Impossible to complete the subnets updates.");
+		}
+	}
 	
 	//Methods about network slices
 	

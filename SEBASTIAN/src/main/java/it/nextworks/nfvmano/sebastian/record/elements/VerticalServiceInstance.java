@@ -43,6 +43,7 @@ public class VerticalServiceInstance {
 	
 	private String networkSliceId;
 
+
 	@OneToMany
 	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<VerticalServiceInstance> nestedVsi;
@@ -165,9 +166,14 @@ public class VerticalServiceInstance {
 	public void setNetworkSliceId(String networkSliceId) {
 		this.networkSliceId = networkSliceId;
 	}
-	
-	
-	
+
+	/**
+	 *
+	 * @param nestedVsiId The nested VSI
+	 */
+	public void addNestedVsi(VerticalServiceInstance nestedVsiId) {
+		this.nestedVsi.add(nestedVsiId);
+	}
 	
 	/**
 	 * @return the errorMessage

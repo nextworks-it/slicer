@@ -24,6 +24,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -95,6 +96,15 @@ public class NetworkSliceInstance {
 		this.name = name;
 		this.description = description;
 		this.soManaged = soManaged;
+	}
+
+	public NfvNsInstantiationInfo getNsInstantiationInfo() {
+		return new NfvNsInstantiationInfo(
+				nsdId,
+				nsdVersion,
+				dfId,
+				instantiationLevelId
+		);
 	}
 	
 	
