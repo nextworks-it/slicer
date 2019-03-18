@@ -1,14 +1,10 @@
 package it.nextworks.nfvmano.sebastian.engine.nsmf;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.elements.NsdInfo;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryNsdResponse;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Sapd;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.SapData;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.CreateNsIdentifierRequest;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.InstantiateNsRequest;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.QueryNsResponse;
 import it.nextworks.nfvmano.libs.records.nsinfo.NsInfo;
@@ -21,7 +17,6 @@ import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorResponse;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
 import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
 import it.nextworks.nfvmano.sebastian.catalogue.repo.VsDescriptorRepository;
-import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.engine.messages.InstantiateNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.engine.messages.NotifyNfvNsiStatusChange;
@@ -37,12 +32,13 @@ import it.nextworks.nfvmano.sebastian.translator.TranslatorService;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.InstantiateVsRequest;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -126,7 +122,17 @@ public class NsLcmManagerTest {
         nsLcmManager.processInstantiateRequest(nsiRequestMessage);
 
         verify(vsRecordServiceMock, times(1)).setNfvNsiInNsi("nsiId", "nfvNsId");
-        verify(vsRecordServiceMock, times(1)).addNsSubnetsInNetworkSliceInstance(any(), anyObject());
+        
+        // Validate the instantiation request is as it should be
+        ArgumentCaptor<InstantiateNsRequest> captor = ArgumentCaptor.forClass(InstantiateNsRequest.class);
+        verify(nfvoMock).instantiateNs(captor.capture());
+        InstantiateNsRequest req = captor.getValue();
+        assertEquals(req.getNsInstanceId(), "nfvNsId");
+        assertEquals(req.getFlavourId(), "dfId");
+        assertTrue(req.getPnfInfo().isEmpty());
+        assertTrue(req.getVnfInstanceData().isEmpty());
+        assertEquals(req.getNestedNsInstanceId(), Collections.singletonList("nsSubnetNfvId"));
+        assertEquals(req.getNsInstantiationLevelId(), "ilId");
 
         NotifyNfvNsiStatusChange msg = new NotifyNfvNsiStatusChange("nfvNsId", NsStatusChange.NS_CREATED, true);
 
@@ -150,6 +156,7 @@ public class NsLcmManagerTest {
         msg = new NotifyNfvNsiStatusChange("nfvNsId", NsStatusChange.NS_TERMINATED, true);
         nsLcmManager.processNfvNsChangeNotification(msg);
         verify(vsRecordServiceMock, times(1)).setNsStatus("nsiNotToBeFound", NetworkSliceStatus.TERMINATED);
+
     }
 
     @Test
@@ -164,12 +171,6 @@ public class NsLcmManagerTest {
         NsLcmManager nsLcmManager = new NsLcmManager(networkSliceInstanceId, name, descritpion, tenantId, nfvoMock, vsRecordServiceMock, engineMock);
         NotifyNfvNsiStatusChange msg = new NotifyNfvNsiStatusChange(nfvNsiId, NsStatusChange.NS_CREATED, true);
 
-
-
         nsLcmManager.processNfvNsChangeNotification(msg);
-
-
     }
-
-
 }

@@ -1,6 +1,5 @@
 package it.nextworks.nfvmano.sebastian.engine.vsmanagement;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.elements.NsdInfo;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
@@ -13,7 +12,6 @@ import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorResponse;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
 import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
 import it.nextworks.nfvmano.sebastian.catalogue.repo.VsDescriptorRepository;
-import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.engine.messages.InstantiateVsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.engine.messages.TerminateVsiRequestMessage;
@@ -23,11 +21,6 @@ import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
 import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 
 import it.nextworks.nfvmano.sebastian.translator.TranslatorService;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.InstantiateVsRequest;
@@ -85,8 +78,8 @@ public class VsLcmManagerTest {
         this.nfvNsInstantiationInfoMock = mock(NfvNsInstantiationInfo.class);
         this.arbitratorResponseMock = mock(ArbitratorResponse.class);
         this.verticalServiceInstanceMock = mock(VerticalServiceInstance.class);
-
     }
+
     @Test
     public void testProcessInstantiateRequest() throws Exception{
 

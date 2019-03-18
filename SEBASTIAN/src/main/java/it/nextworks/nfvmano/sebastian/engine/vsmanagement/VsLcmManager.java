@@ -121,7 +121,7 @@ public class VsLcmManager {
 
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			EngineMessage em = (EngineMessage) mapper.readValue(message, EngineMessage.class);
+			EngineMessage em = mapper.readValue(message, EngineMessage.class);
 			EngineMessageType type = em.getType();
 
 			switch (type) {
