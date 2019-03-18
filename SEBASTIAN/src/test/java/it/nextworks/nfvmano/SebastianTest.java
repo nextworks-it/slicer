@@ -14,6 +14,7 @@ import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 import it.nextworks.nfvmano.sebastian.catalogue.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
 import it.nextworks.nfvmano.sebastian.catalogue.repo.VsDescriptorRepository;
+import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.engine.messages.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
@@ -58,6 +59,9 @@ public class SebastianTest {
     @Autowired
     VsLcmService vsLcmService;
 
+    @Autowired
+    Engine engine;
+
     /**
      * This test cover the workflow: createChildVsi -> createParentVsi -> terminateParentVsi -> purgeParentVsi
      * NOTE: parentVsi will reuse childVsi as nested Vsi
@@ -70,7 +74,7 @@ public class SebastianTest {
          */
 
         VsDescriptor vsdMock = mock(VsDescriptor.class);
-        Nsd nsdMock = mock(Nsd.class);
+        Nsd nsdMock = new TestNsds().makeEMonNsd();
         Tenant tenantMock = mock(Tenant.class);
         Sla tenantSlaMock = mock(Sla.class);
         SlaVirtualResourceConstraint scMock = mock(SlaVirtualResourceConstraint.class);
@@ -92,8 +96,8 @@ public class SebastianTest {
                 "NotificationUrl",
                 null );
         NfvNsInstantiationInfo nsInstantiationInfo = new NfvNsInstantiationInfo(
-                "nfvNsdId",
-                "nsdVersion",
+                nsdMock.getNsdIdentifier(),
+                nsdMock.getVersion(),
                 "deploymentFlavour",
                 "instatiationLevelId");
         /**
@@ -110,8 +114,8 @@ public class SebastianTest {
         /**
          * Arbitrator (Basic Arbitrator)
          */
-        when(nfvoService.queryNsdAssumingOne("nfvNsdId", "nsdVersion")).thenReturn(nsdMock);
-        when(nsdMock.getNestedNsdId()).thenReturn(Collections.emptyList());
+        when(nfvoService.queryNsdAssumingOne(nsdMock.getNsdIdentifier(), nsdMock.getVersion())).thenReturn(nsdMock);
+        //when(nsdMock.getNestedNsdId()).thenReturn(Collections.emptyList());
         when(nfvoService.computeVirtualResourceUsage(any(NfvNsInstantiationInfo.class))).thenReturn(new VirtualResourceUsage(10, 10, 10));
         when(adminService.getTenant("tenantId")).thenReturn(tenantMock);
         when(tenantMock.getActiveSla()).thenReturn(tenantSlaMock);
@@ -127,8 +131,8 @@ public class SebastianTest {
         when(nsdInfoMock.getNsdInfoId()).thenReturn("nsdInfoId");
         when(nsdInfoMock.getNsd()).thenReturn(nsdMock);
         when(nfvoService.createNsIdentifier(any())).thenReturn("nfvNsId");
-        when(nsdMock.getSapd()).thenReturn(Collections.singletonList(sapdMock));
-        when(sapdMock.getCpdId()).thenReturn("cpdId");
+        //when(nsdMock.getSapd()).thenReturn(Collections.singletonList(sapdMock));
+        //when(sapdMock.getCpdId()).thenReturn("cpdId");
         when(nfvoService.instantiateNs(any())).thenReturn("INSTANTIATE_NS");
 
         /**
@@ -137,9 +141,6 @@ public class SebastianTest {
         vsLcmService.instantiateVs(instantiateVsRequest);
         Thread.sleep(5000);  // Simulate NFVO response waiting
 
-        /*verify(this.vsDescriptorCatalogueService, times(0)).getVsd("vsdId");
-        verify(this.vsDescriptorRepository, times(1)).findByVsDescriptorId(any());
-        verify(this.translatorService, times(1)).translateVsd(anyList());*/
         /**
          * After NFV NS_CREATED
          * NSLcmManager
@@ -156,13 +157,16 @@ public class SebastianTest {
         /**
          * Triggering NFVO NS_CREATED Notification
          */
-        vsLcmService.engineNotifyNfvNsStatusChange("nfvNsId", NsStatusChange.NS_CREATED, true);
+        engine.notifyNfvNsStatusChange("nfvNsId", NsStatusChange.NS_CREATED, true);
         Thread.sleep(5000); //
 
         /**
          * NEW VS Instantiation starts here
          * tenantId, nsdVersion, deploymentFlavour and instatiationLevelId don't change
          */
+
+        nsdMock = new TestNsds().makeHealtEmergencyNsd();
+
         instantiateVsRequest = new InstantiateVsRequest(
                 "vsParentName",
                 "vsParentDescription",
@@ -171,8 +175,8 @@ public class SebastianTest {
                 "ParentNotificationUrl",
                 null );
         nsInstantiationInfo = new NfvNsInstantiationInfo(
-                "nfvNsdParentId",
-                "nsdVersion",
+                nsdMock.getNsdIdentifier(),
+                nsdMock.getVersion(),
                 "deploymentFlavour",
                 "instatiationLevelId");
 
@@ -191,8 +195,8 @@ public class SebastianTest {
         /**
          * Arbitrator (Basic Arbitrator)
          */
-        when(nfvoService.queryNsdAssumingOne("nfvNsdParentId", "nsdVersion")).thenReturn(nsdMock);
-        when(nsdMock.getNestedNsdId()).thenReturn(Collections.singletonList("nfvNsdId")); //returning the existing ID (previously created)
+        when(nfvoService.queryNsdAssumingOne(nsdMock.getNsdIdentifier(), nsdMock.getVersion())).thenReturn(nsdMock);
+        //when(nsdMock.getNestedNsdId()).thenReturn(Collections.singletonList("nfvNsdId")); //returning the existing ID (previously created)
         when(nfvoService.computeVirtualResourceUsage(any(NfvNsInstantiationInfo.class))).thenReturn(new VirtualResourceUsage(15, 5, 5));
         when(adminService.getTenant("tenantId")).thenReturn(tenantMock);
         when(tenantMock.getActiveSla()).thenReturn(tenantSlaMock);
@@ -208,8 +212,8 @@ public class SebastianTest {
         when(nsdInfoMock.getNsdInfoId()).thenReturn("nsdInfoParentId");
         when(nsdInfoMock.getNsd()).thenReturn(nsdMock);
         when(nfvoService.createNsIdentifier(any())).thenReturn("nfvNsParentId");
-        when(nsdMock.getSapd()).thenReturn(Collections.singletonList(sapdMock));
-        when(sapdMock.getCpdId()).thenReturn("cpdParentId");
+        //when(nsdMock.getSapd()).thenReturn(Collections.singletonList(sapdMock));
+        //when(sapdMock.getCpdId()).thenReturn("cpdParentId");
         when(nfvoService.instantiateNs(any())).thenReturn("INSTANTIATE_PARENT_NS");
 
         /**
@@ -234,7 +238,7 @@ public class SebastianTest {
         /**
          * Triggering NFVO NS_CREATED Notification
          */
-        vsLcmService.engineNotifyNfvNsStatusChange("nfvNsParentId", NsStatusChange.NS_CREATED, true);
+        engine.notifyNfvNsStatusChange("nfvNsParentId", NsStatusChange.NS_CREATED, true);
         Thread.sleep(5000); //
 
         /************************************************** TERMINATION ***********************************************/
@@ -262,7 +266,7 @@ public class SebastianTest {
         /**
          * Triggering NFVO NS_TERMINATED Notification
          */
-        vsLcmService.engineNotifyNfvNsStatusChange("nfvNsParentId", NsStatusChange.NS_TERMINATED, true);
+        engine.notifyNfvNsStatusChange("nfvNsParentId", NsStatusChange.NS_TERMINATED, true);
         Thread.sleep(5000);
 
         /****************************************************** PURGE *************************************************/

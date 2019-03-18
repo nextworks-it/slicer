@@ -37,7 +37,6 @@ public class SebastianApplicationTests {
 	public void contextLoads() {
 	}
 
-	
 //	@Test
 //	public void testTimeoRestClient() throws Exception {
 //		

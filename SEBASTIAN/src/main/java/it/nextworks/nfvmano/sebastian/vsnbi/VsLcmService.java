@@ -262,9 +262,4 @@ public class VsLcmService implements VsLcmProviderInterface {
 		throw new MethodNotImplementedException("VS modification not yet supported.");
 	}
 
-	//TODO Test Method - REMOVE ASAP!!!
-	public void engineNotifyNfvNsStatusChange(String nfvNsId, NsStatusChange changeType, boolean successful) throws  Exception{
-		engine.notifyNfvNsStatusChange(nfvNsId, changeType, successful);
-
-	}
 }
