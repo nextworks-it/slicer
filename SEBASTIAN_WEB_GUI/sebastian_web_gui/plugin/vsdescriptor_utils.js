@@ -565,7 +565,7 @@ function createVSInstancesTableContent(data, params) {
           if (!url.startsWith('http://')) {
             url = 'http://' + url;
           }
-          button = new Button('Monitoring dashboard', popUp, [url]);
+          var button = new Button('Monitoring dashboard', popUp, [url]);
           button.renderIn(subEl);
         } else {
           if (columns[i][0] == 'status' && values == 'FAILED') {

@@ -53,7 +53,7 @@ class Button {
   renderIn(container) {
     let b = document.createElement('button');
     b.type = 'button';
-    b.classList = ['btn', 'btn-info', 'btn-sm', 'btn-block'];
+    b.classList.add('btn', 'btn-info', 'btn-sm', 'btn-block');
     b.onclick = this.make_onclick();
     b.append(this.name);
     container.append(b);

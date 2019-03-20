@@ -114,12 +114,11 @@ function createNSInstancesTableContent(data, params) {
 
   var container = document.getElementById(containerId);
 
-  var text = '';
-
   for (var i of columns) {
     var value = extract(i, data);
 
-    var subText = '<td>';
+    var subEl = document.createElement('td');
+    var subText = '';
     var subTableHead = '<table class="table table-borderless">';
 
     if (data.hasOwnProperty(i[0])) {
@@ -143,15 +142,22 @@ function createNSInstancesTableContent(data, params) {
         subText += value + '<br>' + data.errorMessage;
       } else if (i[0] == 'networkSliceSubnetInstances') {
         subText += value.join(', ');
+      } else if (i[0] === 'nfvNsId') {
+        subEl.append(value);
+        if (data.hasOwnProperty('nfvNsUrl')) {
+          var b = new Button('View', popUp, [data['nfvNsUrl']]);
+          subEl.innerHTML += '<br>';
+          b.renderIn(subEl);
+        }
       } else {
         subText += value;
       }
     }
-    subText += '</td>';
-    text += subText;
+    if (subText != '') {
+      subEl.innerHTML += subText;
+    }
+    container.append(subEl);
   }
-
-  container.innerHTML += text;
 }
 
 function fillVSICounter(data, elemId) {
