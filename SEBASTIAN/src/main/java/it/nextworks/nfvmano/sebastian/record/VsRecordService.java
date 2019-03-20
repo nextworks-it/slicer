@@ -18,6 +18,8 @@ package it.nextworks.nfvmano.sebastian.record;
 import java.util.List;
 import java.util.Optional;
 
+import it.nextworks.nfvmano.sebastian.nfvodriver.guidrivers.NfvoGuiDriver;
+import it.nextworks.nfvmano.sebastian.nfvodriver.guidrivers.StubDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +52,12 @@ public class VsRecordService {
 	
 	@Autowired
 	private NetworkSliceInstanceRepository nsInstanceRepository;
-	
+
+	private NfvoGuiDriver guiDriver;
+
+	{
+		guiDriver = new StubDriver();  // TODO fix with actual selection from config
+	}
 	//Methods about vertical services
 
 	// TODO add method to populate sub-VS-instances of given instance
@@ -260,8 +267,16 @@ public class VsRecordService {
 		log.debug("Adding NFV Network Service instance " + nfvNsiId + " to Network Slice instance " + nsiId + " in NSI DB record.");
 		NetworkSliceInstance nsi = getNsInstance(nsiId);
 		nsi.setNfvNsId(nfvNsiId);
+		String guiUrl = null;
+		if (guiDriver != null) {
+			guiUrl = guiDriver.makeNfvNsUrl(nfvNsiId);
+		}
+		nsi.setNfvNsUrl(guiUrl);
 		nsInstanceRepository.saveAndFlush(nsi);
-		log.debug("NSI with ID " + nsiId + " updated with NFV NSI " + nfvNsiId);
+		log.debug("NSI with ID {} updated with NFV NSI {}", nsiId, nfvNsiId);
+		if (guiUrl != null) {
+			log.debug("NSI with ID {} updated with NFV NSI GUI URL {}", nsiId, guiUrl);
+		}
 	}
 	
 	/**

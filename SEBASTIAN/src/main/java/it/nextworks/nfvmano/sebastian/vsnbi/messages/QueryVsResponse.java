@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import it.nextworks.nfvmano.libs.common.InterfaceMessage;
 import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.records.nsinfo.SapInfo;
@@ -42,25 +43,38 @@ public class QueryVsResponse implements InterfaceMessage {
 	private VerticalServiceStatus status;
 	private String errorMessage;
 	private List<SapInfo> externalInterconnections = new ArrayList<>();
-	
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String monitoringUrl;
+
 	//Key: VNF instance ID; Value: VNF external CPs
 	private Map<String, List<VnfExtCpInfo>> internalInterconnections = new HashMap<>();
-	
-	public QueryVsResponse() { }
-	
+
+	public QueryVsResponse() {
+	}
+
 	/**
 	 * Constructor
-	 * 
-	 * @param vsiId ID of the Vertical Service instance
-	 * @param name Name of the Vertical Service instance
-	 * @param description Description of the Vertical Service instance
-	 * @param vsdId ID of the VSD
-	 * @param status Status of the Vertical Service instance
+	 *
+	 * @param vsiId                    ID of the Vertical Service instance
+	 * @param name                     Name of the Vertical Service instance
+	 * @param description              Description of the Vertical Service instance
+	 * @param vsdId                    ID of the VSD
+	 * @param status                   Status of the Vertical Service instance
 	 * @param externalInterconnections external connection points
 	 * @param internalInterconnections internal connection points
 	 */
-	public QueryVsResponse(String vsiId, String name, String description, String vsdId, VerticalServiceStatus status,
-			List<SapInfo> externalInterconnections, Map<String, List<VnfExtCpInfo>> internalInterconnections, String errorMessage) {
+	public QueryVsResponse(
+			String vsiId,
+			String name,
+			String description,
+			String vsdId,
+			VerticalServiceStatus status,
+			List<SapInfo> externalInterconnections,
+			Map<String, List<VnfExtCpInfo>> internalInterconnections,
+			String errorMessage,
+			String monitoringUrl
+	) {
 		this.vsiId = vsiId;
 		this.name = name;
 		this.description = description;
@@ -68,10 +82,33 @@ public class QueryVsResponse implements InterfaceMessage {
 		this.status = status;
 		if (externalInterconnections != null) this.externalInterconnections = externalInterconnections;
 		if (internalInterconnections != null) this.internalInterconnections = internalInterconnections;
+		this.monitoringUrl = monitoringUrl;
 		this.errorMessage = errorMessage;
 	}
 
-	
+	public QueryVsResponse(
+			String vsiId,
+			String name,
+			String description,
+			String vsdId,
+			VerticalServiceStatus status,
+			List<SapInfo> externalInterconnections,
+			Map<String, List<VnfExtCpInfo>> internalInterconnections,
+			String errorMessage
+	) {
+		this(
+				vsiId,
+				name,
+				description,
+				vsdId,
+				status,
+				externalInterconnections,
+				internalInterconnections,
+				errorMessage,
+				null
+		);
+	}
+
 
 	/**
 	 * @return the vsiId
@@ -122,8 +159,10 @@ public class QueryVsResponse implements InterfaceMessage {
 		return internalInterconnections;
 	}
 
-	
-	
+	public String getMonitoringUrl() {
+		return monitoringUrl;
+	}
+
 	public String getErrorMessage() {
 		return errorMessage;
 	}

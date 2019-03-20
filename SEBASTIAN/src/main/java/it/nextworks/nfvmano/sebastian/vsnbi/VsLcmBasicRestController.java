@@ -75,19 +75,19 @@ public class VsLcmBasicRestController {
 				return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
 			}
 			String vsId = vsLcmService.instantiateVs(request);
-			return new ResponseEntity<String>(vsId, HttpStatus.CREATED);
+			return new ResponseEntity<>(vsId, HttpStatus.CREATED);
 		} catch (NotExistingEntityException e) {
 			log.error("VS instantiation failed due to missing elements in DB.");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (NotPermittedOperationException e) {
 			log.error("VS instantiation failed due to missing permission.");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
 		} catch (MalformattedElementException e) {
 			log.error("VS instantiation failed due to bad-formatted request.");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
 			log.error("VS instantiation failed due to internal errors.");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -97,19 +97,20 @@ public class VsLcmBasicRestController {
 		try {
 			String user = getUserFromAuth(auth);
 			QueryVsResponse response = vsLcmService.queryVs(new GeneralizedQueryRequest(Utilities.buildVsInstanceFilter(vsiId, user), null));
-			return new ResponseEntity<QueryVsResponse>(response, HttpStatus.OK);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		} catch (NotExistingEntityException e) {
 			log.error("VS instance not found");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (NotPermittedOperationException e) {
 			log.error("VS instance not visible for the given tenant.");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
 		} catch (Exception e) {
-			log.error("Internal exception");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			log.error("Internal exception: {}", e.getClass().getSimpleName());
+			log.debug("Details: ", e);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
@@ -119,16 +120,16 @@ public class VsLcmBasicRestController {
 		try {
 			String user = getUserFromAuth(auth);
 			List<String> response = vsLcmService.queryAllVsIds(new GeneralizedQueryRequest(Utilities.buildTenantFilter(user), null));
-			return new ResponseEntity<List<String>>(response, HttpStatus.OK);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		} catch (NotExistingEntityException e) {
 			log.error("VS instance not found");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
 			log.error("Internal exception");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
@@ -139,19 +140,19 @@ public class VsLcmBasicRestController {
 		try {
 			String user = getUserFromAuth(auth);
 			vsLcmService.terminateVs(new TerminateVsRequest(vsiId, user));
-			return new ResponseEntity<QueryVsResponse>(HttpStatus.OK);
+			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		} catch (NotExistingEntityException e) {
 			log.error("VS instance not found");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (NotPermittedOperationException e) {
 			log.error("VS instance not visible for the given tenant.");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
 		} catch (Exception e) {
 			log.error("Internal exception");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
@@ -161,19 +162,19 @@ public class VsLcmBasicRestController {
 		try {
 			String user = getUserFromAuth(auth);
 			vsLcmService.purgeVs(new PurgeVsRequest(vsiId, user));
-			return new ResponseEntity<QueryVsResponse>(HttpStatus.OK);
+			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		} catch (NotExistingEntityException e) {
 			log.error("VS instance not found");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (NotPermittedOperationException e) {
 			log.error("Operation not permitted: " + e.getMessage());
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
 		} catch (Exception e) {
 			log.error("Internal exception");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
@@ -186,19 +187,19 @@ public class VsLcmBasicRestController {
 				return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
 			}
 			vsLcmService.modifyVs(request); 
-			return new ResponseEntity<QueryVsResponse>(HttpStatus.OK);
+			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		} catch (NotExistingEntityException e) {
 			log.error("VS instance not found");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (NotPermittedOperationException e) {
 			log.error("VS instance not visible for the given tenant.");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
 		} catch (Exception e) {
 			log.error("Internal exception");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 		

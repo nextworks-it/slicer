@@ -66,7 +66,7 @@ import it.nextworks.nfvmano.sebastian.vsnbi.messages.TerminateVsRequest;
 @Service
 public class VsLcmService implements VsLcmProviderInterface {
 
-	private static final Logger log = LoggerFactory.getLogger(VsLcmProviderInterface.class);
+	private static final Logger log = LoggerFactory.getLogger(VsLcmService.class);
 	
 	@Autowired
 	private Engine engine;
@@ -141,19 +141,33 @@ public class VsLcmService implements VsLcmProviderInterface {
 					List<SapInfo> externalInterconnections = new ArrayList<>();
 					Map<String, List<VnfExtCpInfo>> internalInterconnections = new HashMap<>();
 					String nsiId = vsi.getNetworkSliceId();
+					String monitoringUrl = null;
 					if (nsiId != null) {
 						NetworkSliceInstance nsi = vsRecordService.getNsInstance(nsiId);
 						String nfvNsId = nsi.getNfvNsId();
 						if (nfvNsId != null) {
 							QueryNsResponse queryNs = nfvoService.queryNs(new GeneralizedQueryRequest(Utilities.buildNfvNsiFilter(nfvNsId), null));
-							NsInfo nsInfo = queryNs.getQueryNsResult().get(0);							
+							NsInfo nsInfo = queryNs.getQueryNsResult().get(0);
 							log.debug("Retrieved NS info from NFVO");
 							externalInterconnections = nsInfo.getSapInfo();
+							monitoringUrl = nsInfo.getMonitoringDashboardUrl();
+							if ("".equals(monitoringUrl)) {
+								monitoringUrl = null;
+							}
 							//TODO: in order to get VNF info we should interact with the VNFM... Still thinking about how to do that.
 						} else log.debug("The Network Slice is not associated to any NFV Network Service. No interconnection info available.");
 					} else log.debug("The VS is not associated to any Network Slice. No interconnection info available.");
-					return new QueryVsResponse(vsiId, vsi.getName(), vsi.getDescription(), vsi.getVsdId(), vsi.getStatus(),
-							externalInterconnections, internalInterconnections, vsi.getErrorMessage());
+					return new QueryVsResponse(
+							vsiId,
+							vsi.getName(),
+							vsi.getDescription(),
+							vsi.getVsdId(),
+							vsi.getStatus(),
+							externalInterconnections,
+							internalInterconnections,
+							vsi.getErrorMessage(),
+							monitoringUrl
+					);
 				} else {
 					log.error("The tenant has not access to the given VSI");
 					throw new NotPermittedOperationException("Tenant " + tenantId + " has not access to VSI with ID " + vsiId);

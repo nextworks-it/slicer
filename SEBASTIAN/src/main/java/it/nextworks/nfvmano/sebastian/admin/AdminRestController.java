@@ -189,13 +189,13 @@ public class AdminRestController {
 		log.debug("Received request to get the SLA with ID "+ slaId + " associated to the tenant with name " + username);
 		try {
 			Sla sla = adminService.getSlaById(slaId, username); 
-			return new ResponseEntity<Sla>(sla, HttpStatus.OK);
+			return new ResponseEntity<>(sla, HttpStatus.OK);
 		} catch (NotExistingEntityException e) {
 			log.debug("SLA not found");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (MalformattedElementException e) {
 			log.debug("Malformatted SLA request");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -207,10 +207,10 @@ public class AdminRestController {
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (NotExistingEntityException e) {
 			log.debug("Tenant not found");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (MalformattedElementException e) {
 			log.debug("Malformatted request");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -218,14 +218,14 @@ public class AdminRestController {
 	public ResponseEntity<?> getNetworkSlices() {
 		log.debug("Received request to get info about all the network slices");
 		List<NetworkSliceInstance> nsis = adminService.getAllNetworkSliceInstances();
-		return new ResponseEntity<List<NetworkSliceInstance>>(nsis, HttpStatus.OK);
+		return new ResponseEntity<>(nsis, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/nsmf/networksliceids", method = RequestMethod.GET)
 	public ResponseEntity<?> getNetworkSliceIds() {
 		log.debug("Received request to get IDs for all the network slices");
 		List<String> nsis = adminService.getAllNetworkSliceInstancesId();
-		return new ResponseEntity<List<String>>(nsis, HttpStatus.OK);
+		return new ResponseEntity<>(nsis, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/nsmf/networkslice/{nsiId}", method = RequestMethod.GET)
@@ -233,10 +233,10 @@ public class AdminRestController {
 		log.debug("Received request to retrieve network slice with ID " + nsiId);
 		try {
 			NetworkSliceInstance nsi = adminService.getNetworkSliceInstance(nsiId);
-			return new ResponseEntity<NetworkSliceInstance>(nsi, HttpStatus.OK);
+			return new ResponseEntity<>(nsi, HttpStatus.OK);
 		} catch (NotExistingEntityException e) {
 			log.debug("Network slice not found");
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		}
 	}
 }

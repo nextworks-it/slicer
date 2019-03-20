@@ -69,6 +69,9 @@ public class NetworkSliceInstance {
 	private NetworkSliceStatus status;
 	
 	private String errorMessage; //this field gets a value only in case of failure
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String nfvNsUrl;
 	
 	public NetworkSliceInstance() {	}
 
@@ -244,6 +247,14 @@ public class NetworkSliceInstance {
 	 */
 	public String getErrorMessage() {
 		return errorMessage;
+	}
+
+	public String getNfvNsUrl() {
+		return nfvNsUrl;
+	}
+
+	public void setNfvNsUrl(String nfvNsUrl) {
+		this.nfvNsUrl = nfvNsUrl;
 	}
 
 	/**
