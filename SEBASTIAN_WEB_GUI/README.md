@@ -2,6 +2,7 @@
 
 This readme contains the instruction for exposing the Sebastian web GUI interacting with the Sebastian core.
 There are two ways to do that:
+
 1. Manual apache2 daemon configuration
 2. Use a pre-configured docker image.
 
@@ -13,6 +14,7 @@ Note: in all cases, for the GUI to be working, it will have to run on the same s
 ## 1.Configuring Apache web server daemon for the Sebastian web GUI
 
 ### 1.0. NOTE:
+
 in the following, we will give all paths relative to the apache2 configuration root folder,
 e.g. in ubuntu it's /etc/apache2. It will also assume all other apache2 configurations are the default
 ones.
@@ -35,11 +37,11 @@ where `/path/to/folder/` is the path to the parent folder of the sebastian_web_g
 
 ### 1.2. Enable apache INCLUDE directive
 
-run the command
+run the command (with `sudo` if necessary)
+
 ```
-$ ln -s mods-available/include.load mods-enabled/include.load
+$ a2enmod include
 ```
-soft-linking the file include.load in conf-available into the folder conf-enabled
 
 ### 1.3. Enable INCLUDE directive in html files
 
@@ -51,10 +53,12 @@ AddType text/html .html
 AddOutputFilter INCLUDES .html
 ```
 
-then run the command
+then run the command (with `sudo` if necessary)
+
 ```
-$ ln -s conf-available/html-include.conf conf-enabled/html-include.conf
+$ a2enconf html-include
 ```
+
 linking it into the conf-enabled folder.
 
 ### 1.4. Configure site
@@ -78,7 +82,7 @@ with the path to the folder used in section 1.
 
 ## 2. How to build the pre-made docker image
 
-### 2.1 Basic procedure 
+### 2.1 Basic procedure
 
 In the root folder of the repo (default: sebastian) run
 
@@ -102,5 +106,5 @@ in the `docker/test` folder and rebuilding the container:
 
 ```
 docker image rm -f nextworks/sebastian-tests # if necessary
-./make-docker-container.sh TEST 
+./make-docker-container.sh TEST
 ```
