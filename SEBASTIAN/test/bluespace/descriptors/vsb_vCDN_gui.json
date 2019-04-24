@@ -1,0 +1,14 @@
+{
+
+    "version": "0.1",
+    "name": "vCDN",
+    "description": "Entertainment vCDN service",
+    "parameters": [{
+      "parameterId": "users",
+      "parameterName": "users",
+      "parameterType": "number",
+      "parameterDescription": "number of users",
+      "applicabilityField": "entertainment"
+    }]
+
+}
