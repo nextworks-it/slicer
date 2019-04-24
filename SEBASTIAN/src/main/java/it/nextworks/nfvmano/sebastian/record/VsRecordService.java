@@ -16,6 +16,7 @@
 package it.nextworks.nfvmano.sebastian.record;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import it.nextworks.nfvmano.sebastian.nfvodriver.guidrivers.NfvoGuiConnector;
@@ -91,11 +92,12 @@ public class VsRecordService {
 	 * @param description description of the VSI
 	 * @param vsdId       ID of the VSD
 	 * @param tenantId    ID owning the VSI
+	 * @param userData	  configuration parameters provided by the vertical
 	 * @return the ID assigned to the Vertical Service instance
 	 */
-	public synchronized String createVsInstance(String name, String description, String vsdId, String tenantId) {
+	public synchronized String createVsInstance(String name, String description, String vsdId, String tenantId, Map<String, String> userData) {
 		log.debug("Creating a new VS instance in DB.");
-		VerticalServiceInstance vsi = new VerticalServiceInstance(null, vsdId, tenantId, name, description, null);
+		VerticalServiceInstance vsi = new VerticalServiceInstance(null, vsdId, tenantId, name, description, null, userData);
 		vsInstanceRepository.saveAndFlush(vsi);
 		String vsiId = vsi.getId().toString();
 		log.debug("Created Vertical Service instance with ID " + vsiId);
