@@ -42,11 +42,15 @@ import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
 import it.nextworks.nfvmano.sebastian.catalogue.elements.VsBlueprint;
 import it.nextworks.nfvmano.sebastian.catalogue.elements.VsBlueprintInfo;
+import it.nextworks.nfvmano.sebastian.catalogue.elements.VsComponent;
+import it.nextworks.nfvmano.sebastian.catalogue.elements.VsbLink;
 import it.nextworks.nfvmano.sebastian.catalogue.elements.VsdNsdTranslationRule;
 import it.nextworks.nfvmano.sebastian.catalogue.messages.OnBoardVsBlueprintRequest;
 import it.nextworks.nfvmano.sebastian.catalogue.messages.QueryVsBlueprintResponse;
 import it.nextworks.nfvmano.sebastian.catalogue.repo.VsBlueprintInfoRepository;
 import it.nextworks.nfvmano.sebastian.catalogue.repo.VsBlueprintRepository;
+import it.nextworks.nfvmano.sebastian.catalogue.repo.VsComponentRepository;
+import it.nextworks.nfvmano.sebastian.catalogue.repo.VsbLinkRepository;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
 import it.nextworks.nfvmano.sebastian.translator.TranslationRuleRepository;
@@ -61,6 +65,12 @@ public class VsBlueprintCatalogueService implements VsBlueprintCatalogueInterfac
 	
 	@Autowired
 	private VsBlueprintInfoRepository vsBlueprintInfoRepository;
+	
+	@Autowired
+	private VsbLinkRepository vsbLinkRepository;
+	
+	@Autowired
+	private VsComponentRepository vsComponentRepository;
 	
 	@Autowired
 	private TranslationRuleRepository translationRuleRepository;
@@ -250,7 +260,8 @@ public class VsBlueprintCatalogueService implements VsBlueprintCatalogueInterfac
 			throw new AlreadyExistingEntityException("VS Blueprint with name " + vsBlueprint.getName() + " and version " + vsBlueprint.getVersion() + " already present in DB.");
 		}
 		
-		VsBlueprint target = new VsBlueprint(null, vsBlueprint.getVersion(), vsBlueprint.getName(), vsBlueprint.getDescription(), vsBlueprint.getImgUrl(), vsBlueprint.getParameters());
+		VsBlueprint target = new VsBlueprint(null, vsBlueprint.getVersion(), vsBlueprint.getName(), vsBlueprint.getDescription(), vsBlueprint.getImgUrl(), vsBlueprint.getParameters(),
+				vsBlueprint.getServiceSequence(), vsBlueprint.getEndPoints(), vsBlueprint.getConfigurableParameters());
 		vsBlueprintRepository.saveAndFlush(target);
 		
 		Long vsbId = target.getId();
@@ -258,6 +269,24 @@ public class VsBlueprintCatalogueService implements VsBlueprintCatalogueInterfac
 		target.setVsBlueprintId(vsbIdString);
 		vsBlueprintRepository.saveAndFlush(target);
 		log.debug("Added VS Blueprint with ID " + vsbIdString);
+		
+		List<VsComponent> atomicComponents = vsBlueprint.getAtomicComponents();
+		if (atomicComponents != null) {
+			for (VsComponent c : atomicComponents) {
+				VsComponent targetComponent = new VsComponent(target, c.getComponentId(), c.getServersNumber(), c.getImagesUrls(), c.getEndPointsIds(), c.getLifecycleOperations());
+				vsComponentRepository.saveAndFlush(targetComponent);
+			}
+			log.debug("Added atomic components in VS blueprint " + vsbIdString);
+		}
+		
+		List<VsbLink> connectivityServices = vsBlueprint.getConnectivityServices();
+		if (connectivityServices != null) {
+			for (VsbLink l : connectivityServices) {
+				VsbLink targetLink = new VsbLink(target, l.getEndPointIds(), l.isExternal(), l.getConnectivityProperties());
+				vsbLinkRepository.saveAndFlush(targetLink);
+			}
+			log.debug("Added connectivity services in VS blueprint " + vsbIdString);
+		}
 		
 		VsBlueprintInfo vsBlueprintInfo = new VsBlueprintInfo(vsbIdString, vsBlueprint.getVersion(), vsBlueprint.getName());
 		vsBlueprintInfoRepository.saveAndFlush(vsBlueprintInfo);
