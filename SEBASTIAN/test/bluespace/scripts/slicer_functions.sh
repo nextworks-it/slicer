@@ -46,11 +46,18 @@ create_vs_vsb(){
 create_vs_vsd(){
     echo create_vs_vsd
     envsubst < ${SLICER_DESCRIPTORS_FOLDER}/vsd_vCDN_template.json > ${SLICER_DESCRIPTORS_FOLDER}/vsd_vCDN.json
-    curl -b ${SLICER_SCRIPTS_FOLDER}/tenant_credentials -d @${SLICER_DESCRIPTORS_FOLDER}/vsd_vCDN.json -X POST http://$slicer:8082/vs/catalogue/vsdescriptor --header "Content-Type:application/json"
+    export current_VSD=$(curl -b ${SLICER_SCRIPTS_FOLDER}/tenant_credentials -d @${SLICER_DESCRIPTORS_FOLDER}/vsd_vCDN.json -X POST http://$slicer:8082/vs/catalogue/vsdescriptor --header "Content-Type:application/json")
+
 
 
 }
 
+instantiate_vs(){
+    echo instantiate_vs
+    envsubst < ${SLICER_SCRIPTS_FOLDER}/req_instantiate_vCDN_template.json > ${SLICER_SCRIPTS_FOLDER}/req_instantiate_vCDN.json
+    curl -v -d @${SLICER_SCRIPTS_FOLDER}/req_instantiate_vCDN.json -X POST http://$slicer:8082/vs/basic/vslcm/vs --header "Content-Type:application/json" -b
+
+}
 test_vs_vCDN(){
     #see TIMEO/test/bluespace/scripts/nfvo_functions.sh
 
