@@ -15,16 +15,25 @@
 */
 package it.nextworks.nfvmano.sebastian.record.elements;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 public class VerticalServiceInstance {
@@ -40,6 +49,12 @@ public class VerticalServiceInstance {
 	private String name;
 	private String description;
 	private VerticalServiceStatus status;
+	
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	@ElementCollection(fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@Cascade(org.hibernate.annotations.CascadeType.ALL)
+	private Map<String, String> userData = new HashMap<>();
 	
 	private String networkSliceId;
 
@@ -62,9 +77,10 @@ public class VerticalServiceInstance {
 	 * @param name name of the VS instance
 	 * @param description description of the VS instance
 	 * @param networkSliceId ID of the network slice implementing the VS instance
+	 * @param userData configuration parameters provided by the vertical
 	 */
 	public VerticalServiceInstance(String vsiId, String vsdId, String tenantId, String name, String description,
-			String networkSliceId) {
+			String networkSliceId, Map<String, String> userData) {
 		this.vsiId = vsiId;
 		this.vsdId = vsdId;
 		this.tenantId = tenantId;
@@ -72,8 +88,25 @@ public class VerticalServiceInstance {
 		this.description = description;
 		this.networkSliceId = networkSliceId;
 		this.status = VerticalServiceStatus.INSTANTIATING;
+		if (userData != null) this.userData = userData;
 	}
 
+
+
+	/**
+	 * @return the userData
+	 */
+	public Map<String, String> getUserData() {
+		return userData;
+	}
+
+
+	/**
+	 * @return the nestedVsi
+	 */
+	public List<VerticalServiceInstance> getNestedVsi() {
+		return nestedVsi;
+	}
 
 
 	/**

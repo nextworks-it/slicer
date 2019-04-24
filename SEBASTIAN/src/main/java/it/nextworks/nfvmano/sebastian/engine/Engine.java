@@ -206,7 +206,12 @@ public class Engine {
 		log.debug("Processing new NSI instantiation request for NSI ID " + nsiId);
 		if (nsLcmManagers.containsKey(nsiId)) {
 			String topic = "nslifecycle.instantiatens." + nsiId;
-			InstantiateNsiRequestMessage internalMessage = new InstantiateNsiRequestMessage(nsiId, nsdId, nsdVersion, dfId, instantiationLevelId, nsSubnetIds);
+			Map<String, String> userData = new HashMap<>();
+			if (vsiId != null) {
+				VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiId);
+				userData = vsi.getUserData();
+			}
+			InstantiateNsiRequestMessage internalMessage = new InstantiateNsiRequestMessage(nsiId, nsdId, nsdVersion, dfId, instantiationLevelId, nsSubnetIds, userData);
 			try {
 				sendMessageToQueue(internalMessage, topic);
 			} catch (JsonProcessingException e) {

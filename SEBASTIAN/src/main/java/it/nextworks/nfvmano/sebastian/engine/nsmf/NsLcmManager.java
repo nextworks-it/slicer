@@ -18,6 +18,7 @@ package it.nextworks.nfvmano.sebastian.engine.nsmf;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.QueryNsResponse;
@@ -191,6 +192,9 @@ public class NsLcmManager {
 			 * The nested Nsi are found by the Arbitrator -> they are ALREADY on DB
 			 */
 
+			//Read configuration parameters
+			Map<String, String> additionalParamForNs = msg.getUserData();
+			
 			String operationId = nfvoService.instantiateNs(new InstantiateNsRequest(nfvNsId, 
 					dfId, 					//flavourId 
 					sapData, 				//sapData
@@ -198,7 +202,7 @@ public class NsLcmManager {
 					null,					//vnfInstanceData
 					nestedNfvNsId,			//nestedNsInstanceId 
 					null,					//locationConstraints 
-					null,					//additionalParamForNs 
+					additionalParamForNs,	//additionalParamForNs 
 					null,					//additionalParamForVnf 
 					null,					//startTime
 					ilId,					//nsInstantiationLevelId
