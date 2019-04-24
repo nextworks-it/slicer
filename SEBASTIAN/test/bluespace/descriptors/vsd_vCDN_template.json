@@ -2,13 +2,13 @@
 	"vsd":{
 		"name":"VSD_TEST",
 		"version":"0.1",
-		"vsBlueprintId":"9",
+		"vsBlueprintId":"${current_VSB}",
 		"sst":"EMBB",
 		"managementType":"PROVIDER_MANAGED",
 		"qosParameters":{
 			"users":"50"
 		}
 	},
-	"tenantId":"NXW",
+	"tenantId":"${vertical_tenant}",
 	"isPublic":true
 }
