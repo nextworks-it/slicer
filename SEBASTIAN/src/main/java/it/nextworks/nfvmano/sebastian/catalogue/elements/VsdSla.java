@@ -25,7 +25,7 @@ public class VsdSla implements DescriptorInformationElement {
 
 	private ServiceCreationTimeRange serviceCreationTime;
 	private AvailabilityCoverageRange availabilityCoverage;
-	private boolean lowCostRequired;
+	private boolean lowCostRequired = false;
 	
 	public VsdSla() {
 		// JPA only

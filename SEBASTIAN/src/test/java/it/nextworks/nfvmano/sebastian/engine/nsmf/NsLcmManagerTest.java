@@ -20,6 +20,7 @@ import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryNsdResponse
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Sapd;
+import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.InstantiateNsRequest;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.QueryNsResponse;
 import it.nextworks.nfvmano.libs.records.nsinfo.NsInfo;
@@ -120,7 +121,8 @@ public class NsLcmManagerTest {
 
         NsLcmManager nsLcmManager = new NsLcmManager("nsiId", "nsName", "nsDescription", "tenantId", nfvoMock, vsRecordServiceMock, engineMock);
         InstantiateNsiRequestMessage nsiRequestMessage =
-                new InstantiateNsiRequestMessage("nsiId", "nfvNsdId", "nvfNsdVersion", "dfId", "ilId", Collections.singletonList("nsSubnetId"), new HashMap<>());
+                new InstantiateNsiRequestMessage("nsiId", "nfvNsdId", "nvfNsdVersion",
+                		"dfId", "ilId", Collections.singletonList("nsSubnetId"), new HashMap<>(), new LocationInfo(), null);
 
         when(nfvoMock.queryNsd(any())).thenReturn(this.queryNsdResponseMock);
         when(queryNsdResponseMock.getQueryResult()).thenReturn(Collections.singletonList(nsdInfoMock));

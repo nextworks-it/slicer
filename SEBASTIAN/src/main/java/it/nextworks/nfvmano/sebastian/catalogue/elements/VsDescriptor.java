@@ -46,6 +46,15 @@ import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
 @Entity
 public class VsDescriptor implements DescriptorInformationElement {
 
+	/**
+	 * @param vsBlueprintId the vsBlueprintId to set
+	 */
+	public void setVsBlueprintId(String vsBlueprintId) {
+		this.vsBlueprintId = vsBlueprintId;
+	}
+
+
+
 	@Id
     @GeneratedValue
     @JsonIgnore
@@ -110,7 +119,8 @@ public class VsDescriptor implements DescriptorInformationElement {
 		this.sst = sst;
 		this.managementType = managementType;
 		this.qosParameters = qosParameters;
-		this.sla = sla;
+		if (sla != null) this.sla = sla;
+		else sla = new VsdSla(ServiceCreationTimeRange.UNDEFINED, AvailabilityCoverageRange.UNDEFINED, false);
 		this.isPublic = isPublic;
 		this.tenantId = tenantId;
 	}

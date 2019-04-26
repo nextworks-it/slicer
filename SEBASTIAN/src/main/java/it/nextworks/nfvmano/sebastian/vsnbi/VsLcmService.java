@@ -34,6 +34,7 @@ import it.nextworks.nfvmano.libs.common.exceptions.MethodNotImplementedException
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotPermittedOperationException;
 import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
+import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.QueryNsResponse;
 import it.nextworks.nfvmano.libs.records.nsinfo.NsInfo;
 import it.nextworks.nfvmano.libs.records.nsinfo.SapInfo;
@@ -107,12 +108,14 @@ public class VsLcmService implements VsLcmProviderInterface {
 			throw new NotPermittedOperationException("Tenant " + tenantId + " is not allowed to create VS instance with VSD " + vsdId);
 		}
 		
+		String vsbId = vsd.getVsBlueprintId();
+		VsBlueprint vsb = retrieveVsb(vsbId);
+		log.debug("Retrieved VSB for the requested VSI.");
+		
 		//checking configuration parameters
 		Map<String, String> userData = request.getUserData();
 		Set<String> providedConfigParameters = userData.keySet();
 		if (!(providedConfigParameters.isEmpty())) {
-			String vsbId = vsd.getVsBlueprintId();
-			VsBlueprint vsb = retrieveVsb(vsbId);
 			List<String> acceptableConfigParameters = vsb.getConfigurableParameters(); 
 			for (String cp : providedConfigParameters) {
 				if (!(acceptableConfigParameters.contains(cp))) {
@@ -120,11 +123,21 @@ public class VsLcmService implements VsLcmProviderInterface {
 					throw new MalformattedElementException("The request includes a configuration parameter " + cp + " which is not present in the VSB. Not acceptable.");
 				}
 			}
+			log.debug("Set user configuration parameters for VS instance.");
+		}
+		
+		LocationInfo locationConstraints = request.getLocationConstraints();
+		String ranEndPointId = null;
+		if (locationConstraints != null) {
+			ranEndPointId = vsb.getRanEndPoint();
+			if (ranEndPointId != null) 
+				log.debug("Set location constraints and RAN endpoint for VS instance.");
+			else log.warn("No RAN endpoint available. Unable to specify the location constraints for the service.");
 		}
 		
 		log.debug("The VS instantion request is valid.");
 		
-		String vsiId = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData);
+		String vsiId = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData, locationConstraints, ranEndPointId);
 		engine.initNewVsLcmManager(vsiId);
 		if (!(tenantId.equals(adminTenant))) adminService.addVsiInTenant(vsiId, tenantId);
 		try {

@@ -101,7 +101,8 @@ public class VsLcmManagerTest {
         NfvNsInstantiationInfo nsInstantiationInfo =
                 new NfvNsInstantiationInfo("nfvID", "nsdVersion", "deploymentFlavour", "instatiationLevelId");
 
-        InstantiateVsRequest instantiateVsRequest = new InstantiateVsRequest("Vsname", "vsdescription", "vsdId", "tenantId", "stringa",null);
+        InstantiateVsRequest instantiateVsRequest = new InstantiateVsRequest("Vsname", "vsdescription", 
+        		"vsdId", "tenantId", "stringa",null, null);
         VsLcmManager vsLcmManager = new VsLcmManager(
                 "vsiId",
                 vsRecordServiceMock,

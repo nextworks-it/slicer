@@ -16,6 +16,7 @@
 package it.nextworks.nfvmano.sebastian.record.elements;
 
 import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -24,6 +25,8 @@ import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
+import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
@@ -56,6 +59,13 @@ public class VerticalServiceInstance {
 	@Cascade(org.hibernate.annotations.CascadeType.ALL)
 	private Map<String, String> userData = new HashMap<>();
 	
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@Embedded
+	private LocationInfo locationConstraints;
+	
+	@JsonIgnore
+	private String ranEndPointId;
+	
 	private String networkSliceId;
 
 
@@ -78,9 +88,11 @@ public class VerticalServiceInstance {
 	 * @param description description of the VS instance
 	 * @param networkSliceId ID of the network slice implementing the VS instance
 	 * @param userData configuration parameters provided by the vertical
+	 * @param locationConstraints constraint about the geographical coverage of the service
+	 * @param ranEndPointId ID of the end point attached to the RAN segment
 	 */
 	public VerticalServiceInstance(String vsiId, String vsdId, String tenantId, String name, String description,
-			String networkSliceId, Map<String, String> userData) {
+			String networkSliceId, Map<String, String> userData, LocationInfo locationConstraints, String ranEndPointId) {
 		this.vsiId = vsiId;
 		this.vsdId = vsdId;
 		this.tenantId = tenantId;
@@ -89,8 +101,27 @@ public class VerticalServiceInstance {
 		this.networkSliceId = networkSliceId;
 		this.status = VerticalServiceStatus.INSTANTIATING;
 		if (userData != null) this.userData = userData;
+		if (locationConstraints != null) this.locationConstraints = locationConstraints;
+			else this.locationConstraints = new LocationInfo();
+		this.ranEndPointId = ranEndPointId;
 	}
 
+
+
+	/**
+	 * @return the ranEndPointId
+	 */
+	public String getRanEndPointId() {
+		return ranEndPointId;
+	}
+
+
+	/**
+	 * @return the locationConstraints
+	 */
+	public LocationInfo getLocationConstraints() {
+		return locationConstraints;
+	}
 
 
 	/**
@@ -202,7 +233,7 @@ public class VerticalServiceInstance {
 
 	/**
 	 *
-	 * @param nestedVsiId The nested VSI
+	 * @param nestedVsiId the nested VSI
 	 */
 	public void addNestedVsi(VerticalServiceInstance nestedVsiId) {
 		this.nestedVsi.add(nestedVsiId);

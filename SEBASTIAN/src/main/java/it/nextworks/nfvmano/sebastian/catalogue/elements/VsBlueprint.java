@@ -217,6 +217,18 @@ public class VsBlueprint implements DescriptorInformationElement {
 		return configurableParameters;
 	}
 
+	/**
+	 * 
+	 * @return the connection point towards the RAN segment
+	 */
+	@JsonIgnore
+	public String getRanEndPoint() {
+		for (VsbEndpoint e : endPoints) {
+			if (e.isRanConnection()) return e.getEndPointId();
+		}
+		return null;
+	}
+	
 	@Override
 	public void isValid() throws MalformattedElementException {
 		for (VsBlueprintParameter p : parameters) p.isValid();

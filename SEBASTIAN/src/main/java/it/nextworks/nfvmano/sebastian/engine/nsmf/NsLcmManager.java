@@ -35,6 +35,7 @@ import it.nextworks.nfvmano.libs.catalogues.interfaces.elements.NsdInfo;
 import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Sapd;
+import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.SapData;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.CreateNsIdentifierRequest;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.InstantiateNsRequest;
@@ -168,14 +169,30 @@ public class NsLcmManager {
 			
 			log.debug("Building NFV NS instantiation request");
 			
+			String ranEndPointId = null;
+			LocationInfo locationInfo = msg.getLocationConstraints();
+			if (locationInfo.isMeaningful()) {
+				ranEndPointId = msg.getRanEndPointId();
+			}
+			
 			List<Sapd> saps = nsd.getSapd();
 			List<SapData> sapData = new ArrayList<>();
 			for (Sapd sap : saps) {
-				SapData sData = new SapData(sap.getCpdId(), 							//SAPD ID
-						"SAP-" + name + "-" + sap.getCpdId(),							//name 
-						"SAP " + sap.getCpdId() + " for Network Slice " + name, 		//description
-						null,															//address
-						null);															//locationInfo
+				SapData sData = null;
+				if (sap.getCpdId().equals(ranEndPointId)) {
+					sData = new SapData(sap.getCpdId(), 								//SAPD ID
+							"SAP-" + name + "-" + sap.getCpdId(),						//name 
+							"SAP " + sap.getCpdId() + " for Network Slice " + name, 	//description
+							null,														//address
+							locationInfo);												//locationInfo
+					log.debug("Set location constraints for SAP " + sap.getCpdId());
+				} else {
+					sData = new SapData(sap.getCpdId(), 							//SAPD ID
+						"SAP-" + name + "-" + sap.getCpdId(),						//name 
+						"SAP " + sap.getCpdId() + " for Network Slice " + name, 	//description
+						null,														//address
+						null);														//locationInfo
+				}
 				sapData.add(sData);
 			}
 			log.debug("Completed SAP Data");
