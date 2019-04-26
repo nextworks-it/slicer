@@ -55,7 +55,7 @@ create_vs_vsd(){
 instantiate_vs(){
     echo instantiate_vs
     envsubst < ${SLICER_SCRIPTS_FOLDER}/req_instantiate_vCDN_template.json > ${SLICER_SCRIPTS_FOLDER}/req_instantiate_vCDN.json
-    curl -v -d @${SLICER_SCRIPTS_FOLDER}/req_instantiate_vCDN.json -X POST http://$slicer:8082/vs/basic/vslcm/vs --header "Content-Type:application/json" -b
+    curl -b ${SLICER_SCRIPTS_FOLDER}/tenant_credentials -d @${SLICER_SCRIPTS_FOLDER}/req_instantiate_vCDN.json -X POST http://$slicer:8082/vs/basic/vslcm/vs --header "Content-Type:application/json"
 
 }
 test_vs_vCDN(){
