@@ -1,0 +1,14 @@
+{
+	"name":"CDN_big",
+	"description":"Bluespace CDN service",
+	"vsdId":"${current_VSD}",
+	"tenantId":"${vertical_tenant}",
+	"userData": {
+		"uservnf.origin_address": "10.0.8.39",
+		"uservnf.origin_fqdn": "bluespace.lab",
+		"uservnf.origin_port": "32400",
+		"uservnf.rm_dns_hosts": "true",
+		"uservnf.add_dns_hosts": "true",
+		"uservnf.timeo_address": "10.0.2.161"
+	}
+}
