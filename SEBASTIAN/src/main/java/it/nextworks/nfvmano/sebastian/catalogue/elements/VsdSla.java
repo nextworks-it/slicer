@@ -15,6 +15,7 @@
 */
 package it.nextworks.nfvmano.sebastian.catalogue.elements;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 import it.nextworks.nfvmano.libs.common.DescriptorInformationElement;
@@ -25,6 +26,7 @@ public class VsdSla implements DescriptorInformationElement {
 
 	private ServiceCreationTimeRange serviceCreationTime;
 	private AvailabilityCoverageRange availabilityCoverage;
+	@Column(name = "low_cost_required", nullable = true)
 	private boolean lowCostRequired = false;
 	
 	public VsdSla() {
