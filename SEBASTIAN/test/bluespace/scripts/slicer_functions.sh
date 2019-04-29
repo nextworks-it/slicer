@@ -60,7 +60,7 @@ instantiate_vs(){
 }
 test_vs_vCDN(){
     #see TIMEO/test/bluespace/scripts/nfvo_functions.sh
-
+    create_tenant
     onboard_pnfd
     create_pnf
     create_vim
@@ -73,10 +73,6 @@ test_vs_vCDN(){
     create_vs_vsb
     login_tenant
     create_vs_vsd
-
-
-
-
 
 }
 

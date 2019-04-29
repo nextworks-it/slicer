@@ -9,6 +9,7 @@
 		"uservnf.origin_port": "32400",
 		"uservnf.rm_dns_hosts": "true",
 		"uservnf.add_dns_hosts": "true",
-		"uservnf.timeo_address": "10.0.2.161"
+		"uservnf.timeo_address": "10.0.2.161",
+		"uservnf.monitoring_address": "10.0.8.42"
 	}
 }

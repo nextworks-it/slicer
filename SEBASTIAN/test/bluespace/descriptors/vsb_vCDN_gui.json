@@ -184,6 +184,12 @@
     }
   ],
   "configurableParameters": [
+    "uservnf.origin_address",
+    "uservnf.origin_fqdn",
+    "uservnf.origin_port",
+    "uservnf.rm_dns_hosts",
+    "uservnf.add_dns_hosts",
+    "uservnf.timeo_address"
 
   ]
 
