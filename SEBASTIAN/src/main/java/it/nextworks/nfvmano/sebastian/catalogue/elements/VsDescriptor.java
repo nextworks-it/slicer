@@ -15,18 +15,27 @@
 */
 package it.nextworks.nfvmano.sebastian.catalogue.elements;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -36,6 +45,15 @@ import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
 
 @Entity
 public class VsDescriptor implements DescriptorInformationElement {
+
+	/**
+	 * @param vsBlueprintId the vsBlueprintId to set
+	 */
+	public void setVsBlueprintId(String vsBlueprintId) {
+		this.vsBlueprintId = vsBlueprintId;
+	}
+
+
 
 	@Id
     @GeneratedValue
@@ -61,7 +79,18 @@ public class VsDescriptor implements DescriptorInformationElement {
 	private boolean isPublic;
 	
 	@JsonIgnore
-	private String tenantId; 
+	private String tenantId;
+	
+	//This is a list because it may refer to specific atomic components
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	@OneToMany(mappedBy = "vsd", cascade=CascadeType.ALL)
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	private List<ServiceConstraints> serviceConstraints = new ArrayList<>();
+	
+	@Embedded
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private VsdSla sla;
 	
 	//TODO: add further fields
 	
@@ -76,11 +105,13 @@ public class VsDescriptor implements DescriptorInformationElement {
 	 * @param sst
 	 * @param managementType
 	 * @param qosParameters
+	 * @param sla
 	 * @param isPublic
 	 * @param tenantId
+	 * 
 	 */
 	public VsDescriptor(String name, String version, String vsBlueprintId, SliceServiceType sst,
-			SliceManagementControlType managementType, Map<String, String> qosParameters,
+			SliceManagementControlType managementType, Map<String, String> qosParameters, VsdSla sla,
 			boolean isPublic, String tenantId) {
 		this.name = name;
 		this.version = version;
@@ -88,6 +119,8 @@ public class VsDescriptor implements DescriptorInformationElement {
 		this.sst = sst;
 		this.managementType = managementType;
 		this.qosParameters = qosParameters;
+		if (sla != null) this.sla = sla;
+		else sla = new VsdSla(ServiceCreationTimeRange.UNDEFINED, AvailabilityCoverageRange.UNDEFINED, false);
 		this.isPublic = isPublic;
 		this.tenantId = tenantId;
 	}
@@ -204,11 +237,34 @@ public class VsDescriptor implements DescriptorInformationElement {
 
 
 
+	/**
+	 * @return the serviceConstraints
+	 */
+	public List<ServiceConstraints> getServiceConstraints() {
+		return serviceConstraints;
+	}
+	
+	
+
+
+	/**
+	 * @return the sla
+	 */
+	public VsdSla getSla() {
+		return sla;
+	}
+
+
+
 	@Override
 	public void isValid() throws MalformattedElementException {
 		if (name == null) throw new MalformattedElementException("VSD without name");
 		if (version == null) throw new MalformattedElementException("VSD without version");
 		if (vsBlueprintId == null) throw new MalformattedElementException("VSD without VS blueprint ID");
+		if (serviceConstraints != null) {
+			for (ServiceConstraints sc : serviceConstraints) sc.isValid();
+		}
+		if (sla != null) sla.isValid();
 	}
 
 }

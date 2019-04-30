@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import it.nextworks.nfvmano.sebastian.engine.messages.NsStatusChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +34,17 @@ import it.nextworks.nfvmano.libs.common.exceptions.MethodNotImplementedException
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotPermittedOperationException;
 import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
+import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.QueryNsResponse;
 import it.nextworks.nfvmano.libs.records.nsinfo.NsInfo;
 import it.nextworks.nfvmano.libs.records.nsinfo.SapInfo;
 import it.nextworks.nfvmano.libs.records.vnfinfo.VnfExtCpInfo;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
+import it.nextworks.nfvmano.sebastian.catalogue.VsBlueprintCatalogueService;
 import it.nextworks.nfvmano.sebastian.catalogue.VsDescriptorCatalogueService;
+import it.nextworks.nfvmano.sebastian.catalogue.elements.VsBlueprint;
 import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
+import it.nextworks.nfvmano.sebastian.catalogue.messages.QueryVsBlueprintResponse;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
@@ -75,6 +79,9 @@ public class VsLcmService implements VsLcmProviderInterface {
 	private VsDescriptorCatalogueService vsDescriptorCatalogueService;
 	
 	@Autowired
+	private VsBlueprintCatalogueService vsBlueprintCatalogueService;
+	
+	@Autowired
 	private VsRecordService vsRecordService;
 	
 	@Autowired
@@ -101,15 +108,41 @@ public class VsLcmService implements VsLcmProviderInterface {
 			throw new NotPermittedOperationException("Tenant " + tenantId + " is not allowed to create VS instance with VSD " + vsdId);
 		}
 		
+		String vsbId = vsd.getVsBlueprintId();
+		VsBlueprint vsb = retrieveVsb(vsbId);
+		log.debug("Retrieved VSB for the requested VSI.");
+		
+		//checking configuration parameters
+		Map<String, String> userData = request.getUserData();
+		Set<String> providedConfigParameters = userData.keySet();
+		if (!(providedConfigParameters.isEmpty())) {
+			List<String> acceptableConfigParameters = vsb.getConfigurableParameters(); 
+			for (String cp : providedConfigParameters) {
+				if (!(acceptableConfigParameters.contains(cp))) {
+					log.error("The request includes a configuration parameter " + cp + " which is not present in the VSB. Not acceptable.");
+					throw new MalformattedElementException("The request includes a configuration parameter " + cp + " which is not present in the VSB. Not acceptable.");
+				}
+			}
+			log.debug("Set user configuration parameters for VS instance.");
+		}
+		
+		LocationInfo locationConstraints = request.getLocationConstraints();
+		String ranEndPointId = null;
+		if (locationConstraints != null) {
+			ranEndPointId = vsb.getRanEndPoint();
+			if (ranEndPointId != null) 
+				log.debug("Set location constraints and RAN endpoint for VS instance.");
+			else log.warn("No RAN endpoint available. Unable to specify the location constraints for the service.");
+		}
+		
 		log.debug("The VS instantion request is valid.");
 		
-		String vsiId = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId);
+		String vsiId = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData, locationConstraints, ranEndPointId);
 		engine.initNewVsLcmManager(vsiId);
 		if (!(tenantId.equals(adminTenant))) adminService.addVsiInTenant(vsiId, tenantId);
 		try {
 			engine.instantiateVs(vsiId, request);
 			log.debug("Synchronous processing for VSI instantiation request completed for VSI ID " + vsiId);
-			//Thread.sleep(1000000);
 			return vsiId;
 		} catch (Exception e) {
 			vsRecordService.setVsFailureInfo(vsiId, e.getMessage());
@@ -274,6 +307,21 @@ public class VsLcmService implements VsLcmProviderInterface {
 			FailedOperationException, MalformattedElementException, NotPermittedOperationException {
 		log.debug("Received request to modify a Vertical Service instance.");
 		throw new MethodNotImplementedException("VS modification not yet supported.");
+	}
+	
+	
+	private VsBlueprint retrieveVsb(String vsbId) throws NotExistingEntityException, FailedOperationException { 
+		log.debug("Retrieving VSB with ID " + vsbId);
+		try {
+			QueryVsBlueprintResponse response = vsBlueprintCatalogueService.queryVsBlueprint(new GeneralizedQueryRequest(Utilities.buildVsBlueprintFilter(vsbId), null)); 
+			return response.getVsBlueprintInfo().get(0).getVsBlueprint();
+		} catch (MalformattedElementException e) {
+			log.error("Malformatted request");
+			return null;
+		} catch (MethodNotImplementedException e) {
+			log.error("Method not implemented.");
+			return null;
+		}
 	}
 
 }

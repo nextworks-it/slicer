@@ -38,6 +38,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
 import it.nextworks.nfvmano.sebastian.catalogue.repo.VsDescriptorRepository;
@@ -206,7 +207,16 @@ public class Engine {
 		log.debug("Processing new NSI instantiation request for NSI ID " + nsiId);
 		if (nsLcmManagers.containsKey(nsiId)) {
 			String topic = "nslifecycle.instantiatens." + nsiId;
-			InstantiateNsiRequestMessage internalMessage = new InstantiateNsiRequestMessage(nsiId, nsdId, nsdVersion, dfId, instantiationLevelId, nsSubnetIds);
+			Map<String, String> userData = new HashMap<>();
+			LocationInfo locationConstraints = null;
+			String ranEndPointId = null;
+			if (vsiId != null) {
+				VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiId);
+				userData = vsi.getUserData();
+				locationConstraints = vsi.getLocationConstraints();
+				ranEndPointId = vsi.getRanEndPointId();
+			}
+			InstantiateNsiRequestMessage internalMessage = new InstantiateNsiRequestMessage(nsiId, nsdId, nsdVersion, dfId, instantiationLevelId, nsSubnetIds, userData, locationConstraints, ranEndPointId);
 			try {
 				sendMessageToQueue(internalMessage, topic);
 			} catch (JsonProcessingException e) {

@@ -17,7 +17,6 @@ package it.nextworks.nfvmano.sebastian.catalogue;
 
 import java.util.List;
 
-import it.nextworks.nfvmano.libs.common.exceptions.NotPermittedOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -33,9 +33,11 @@ import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.common.exceptions.MethodNotImplementedException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
+import it.nextworks.nfvmano.sebastian.catalogue.elements.ServiceConstraints;
 import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
 import it.nextworks.nfvmano.sebastian.catalogue.messages.OnboardVsDescriptorRequest;
 import it.nextworks.nfvmano.sebastian.catalogue.messages.QueryVsDescriptorResponse;
+import it.nextworks.nfvmano.sebastian.catalogue.repo.ServiceConstraintsRepository;
 import it.nextworks.nfvmano.sebastian.catalogue.repo.VsDescriptorRepository;
 
 @Service
@@ -45,6 +47,9 @@ public class VsDescriptorCatalogueService implements VsDescriptorCatalogueInterf
 	
 	@Autowired
 	private VsDescriptorRepository vsDescriptorRepository;
+	
+	@Autowired
+	private ServiceConstraintsRepository serviceConstraintsRepository;
 	
 	@Autowired
 	private VsBlueprintCatalogueService vsBlueprintCatalogueService;
@@ -60,8 +65,8 @@ public class VsDescriptorCatalogueService implements VsDescriptorCatalogueInterf
 		log.debug("Processing request to on-board a new VS descriptor");
 		request.isValid();
 		VsDescriptor vsd = new VsDescriptor(request.getVsd().getName(), request.getVsd().getVersion(), request.getVsd().getVsBlueprintId(), 
-				request.getVsd().getSst(), request.getVsd().getManagementType(), request.getVsd().getQosParameters(), request.isPublic(), request.getTenantId());
-		String vsdId = storeVsd(vsd);
+				request.getVsd().getSst(), request.getVsd().getManagementType(), request.getVsd().getQosParameters(), request.getVsd().getSla(), request.isPublic(), request.getTenantId());
+		String vsdId = storeVsd(vsd, request.getVsd().getServiceConstraints());
 		try {
 			vsBlueprintCatalogueService.addVsdInBlueprint(vsd.getVsBlueprintId(), vsdId);
 		} catch (NotExistingEntityException e) {
@@ -160,7 +165,7 @@ public class VsDescriptorCatalogueService implements VsDescriptorCatalogueInterf
 		else throw new NotExistingEntityException("VSD with ID " + vsdId + " not found");
 	}
 	
-	private String storeVsd(VsDescriptor vsd) throws AlreadyExistingEntityException, FailedOperationException {
+	private String storeVsd(VsDescriptor vsd, List<ServiceConstraints> serviceConstraints) throws AlreadyExistingEntityException, FailedOperationException {
 		log.debug("On boarding VSD with name " + vsd.getName() + " and version " + vsd.getVersion() + " for tenant " + vsd.getTenantId());
 		if (vsDescriptorRepository.findByNameAndVersionAndTenantId(vsd.getName(), vsd.getVersion(), vsd.getTenantId()).isPresent()) {
 			log.error("The VSD is already present");
@@ -171,6 +176,15 @@ public class VsDescriptorCatalogueService implements VsDescriptorCatalogueInterf
 		vsd.setVsDescriptorId(vsdId);
 		vsDescriptorRepository.saveAndFlush(vsd);
 		log.debug("Added VS Descriptor with ID " + vsdId);
+		if (serviceConstraints != null) {
+			for (ServiceConstraints sc : serviceConstraints) {
+				ServiceConstraints targetServiceConstraints = new ServiceConstraints(vsd, sc.isSharable(), 
+						sc.isCanIncludeSharedElements(), sc.getPriority(), sc.getPreferredProviders(), sc.getNonPreferredProviders(),
+						sc.getProhibitedProviders(), sc.getAtomicComponentId());
+				serviceConstraintsRepository.saveAndFlush(targetServiceConstraints);
+			}
+			log.debug("Added service constraints for VS descriptor with ID " + vsdId);
+		}
 		return vsdId;
 	}
 

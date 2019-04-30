@@ -16,6 +16,7 @@
 package it.nextworks.nfvmano.sebastian.record;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import it.nextworks.nfvmano.sebastian.nfvodriver.guidrivers.NfvoGuiConnector;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotPermittedOperationException;
+import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
@@ -91,11 +93,14 @@ public class VsRecordService {
 	 * @param description description of the VSI
 	 * @param vsdId       ID of the VSD
 	 * @param tenantId    ID owning the VSI
+	 * @param userData	  configuration parameters provided by the vertical
+	 * @param locationConstraints constraints on the geographical placement of the service
+	 * @param ranEndPointId ID of the connection point attached to the RAN
 	 * @return the ID assigned to the Vertical Service instance
 	 */
-	public synchronized String createVsInstance(String name, String description, String vsdId, String tenantId) {
+	public synchronized String createVsInstance(String name, String description, String vsdId, String tenantId, Map<String, String> userData, LocationInfo locationConstraints, String ranEndPointId) {
 		log.debug("Creating a new VS instance in DB.");
-		VerticalServiceInstance vsi = new VerticalServiceInstance(null, vsdId, tenantId, name, description, null);
+		VerticalServiceInstance vsi = new VerticalServiceInstance(null, vsdId, tenantId, name, description, null, userData, locationConstraints, ranEndPointId);
 		vsInstanceRepository.saveAndFlush(vsi);
 		String vsiId = vsi.getId().toString();
 		log.debug("Created Vertical Service instance with ID " + vsiId);

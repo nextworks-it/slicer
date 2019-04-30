@@ -1,7 +1,23 @@
+/*
+* Copyright 2018 Nextworks s.r.l.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package it.nextworks.nfvmano;
 
 import it.nextworks.nfvmano.libs.catalogues.interfaces.elements.NsdInfo;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryNsdResponse;
+import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Sapd;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.QueryNsResponse;
@@ -11,9 +27,17 @@ import it.nextworks.nfvmano.sebastian.admin.elements.Sla;
 import it.nextworks.nfvmano.sebastian.admin.elements.SlaVirtualResourceConstraint;
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
 import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
+import it.nextworks.nfvmano.sebastian.catalogue.VsBlueprintCatalogueService;
 import it.nextworks.nfvmano.sebastian.catalogue.VsDescriptorCatalogueService;
+import it.nextworks.nfvmano.sebastian.catalogue.elements.VsBlueprint;
+import it.nextworks.nfvmano.sebastian.catalogue.elements.VsBlueprintInfo;
 import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
+import it.nextworks.nfvmano.sebastian.catalogue.elements.VsdNsdTranslationRule;
+import it.nextworks.nfvmano.sebastian.catalogue.elements.VsdParameterValueRange;
+import it.nextworks.nfvmano.sebastian.catalogue.messages.OnBoardVsBlueprintRequest;
+import it.nextworks.nfvmano.sebastian.catalogue.messages.QueryVsBlueprintResponse;
 import it.nextworks.nfvmano.sebastian.catalogue.repo.VsDescriptorRepository;
+import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.engine.messages.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
@@ -46,6 +70,9 @@ public class SebastianTest {
 
     @MockBean
     private VsDescriptorCatalogueService vsDescriptorCatalogueService;
+    
+    @Autowired
+    private VsBlueprintCatalogueService vsBlueprintCatalogueService;
 
     @MockBean
     private AdminService adminService;
@@ -73,6 +100,8 @@ public class SebastianTest {
          * Local Mocks
          */
 
+    	//VsBlueprintInfo vsbInfoMock = mock(VsBlueprintInfo.class);
+    	//VsBlueprint vsbMock = mock(VsBlueprint.class);
         VsDescriptor vsdMock = mock(VsDescriptor.class);
         Nsd nsdMock = new TestNsds().makeEMonNsd();
         Tenant tenantMock = mock(Tenant.class);
@@ -94,17 +123,35 @@ public class SebastianTest {
                 "vsdId",
                 "tenantId",
                 "NotificationUrl",
-                null );
+                null,
+                null);
         NfvNsInstantiationInfo nsInstantiationInfo = new NfvNsInstantiationInfo(
                 nsdMock.getNsdIdentifier(),
                 nsdMock.getVersion(),
                 "deploymentFlavour",
                 "instatiationLevelId");
+        
+        List<VsdNsdTranslationRule> translationRules = new ArrayList<>();
+        List<VsdParameterValueRange> pvrs = new ArrayList<>();
+        VsdParameterValueRange pvr = new VsdParameterValueRange("parameterId", 0, 1);
+        pvrs.add(pvr);
+        VsdNsdTranslationRule rule = new VsdNsdTranslationRule(pvrs, "nsdId", "nsdVersion", "nsFlavourId", "nsInstantiationLevelId");
+        translationRules.add(rule);
+        VsBlueprint vsb = new VsBlueprint(null, "0.1", "VsbName", null, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        OnBoardVsBlueprintRequest request = new OnBoardVsBlueprintRequest(vsb, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), translationRules);
+        String vsbId = vsBlueprintCatalogueService.onBoardVsBlueprint(request);
+        
         /**
          * VsLcmService
          */
         when(vsDescriptorCatalogueService.getVsd("vsdId")).thenReturn(vsdMock);
         when(vsdMock.getTenantId()).thenReturn("tenantId");
+        when(vsdMock.getVsBlueprintId()).thenReturn(vsbId);
+        //when(vsbInfoMock.getVsBlueprint()).thenReturn(vsbMock);
+        //when(vsbMock.getVsBlueprintId()).thenReturn("vsbId");
+        
+        
+        //when(vsBlueprintCatalogueService.queryVsBlueprint(new GeneralizedQueryRequest(Utilities.buildVsBlueprintFilter("vsbId"), null))).thenReturn(new QueryVsBlueprintResponse(Collections.singletonList(vsbInfoMock)));
 
         /**
          * VsLcmManager
@@ -173,7 +220,8 @@ public class SebastianTest {
                 "vsdParentId",
                 "tenantId",
                 "ParentNotificationUrl",
-                null );
+                null,
+                null);
         nsInstantiationInfo = new NfvNsInstantiationInfo(
                 nsdMock.getNsdIdentifier(),
                 nsdMock.getVersion(),
@@ -248,7 +296,7 @@ public class SebastianTest {
          * termination message
          */
         TerminateVsRequest terminateVsRequest = new TerminateVsRequest(
-                "3",
+                "6",
                 "tenantId"
         );
 
@@ -276,7 +324,7 @@ public class SebastianTest {
          * purge message
          */
         PurgeVsRequest purgeVsRequest= new PurgeVsRequest(
-                "3",
+                "6",
                 "tenantId"
         );
 

@@ -16,10 +16,14 @@
 package it.nextworks.nfvmano.sebastian.engine.messages;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 
 public class InstantiateNsiRequestMessage extends EngineMessage {
 
@@ -41,13 +45,27 @@ public class InstantiateNsiRequestMessage extends EngineMessage {
 	@JsonProperty("nsSubnetIds")
 	private List<String> nsSubnetIds = new ArrayList<>();
 	
+	@JsonProperty("userData")
+	private Map<String, String> userData = new HashMap<>();
+	
+	@JsonProperty("locationConstraints")
+	private LocationInfo locationConstraints;
+	
+	@JsonProperty("ranEndPointId")
+	private String ranEndPointId;
 
 	/**
+	 * Constructor
+	 * 
 	 * @param nsiId
 	 * @param nfvNsId
 	 * @param nfvNsdVersion
 	 * @param dfId
 	 * @param ilId
+	 * @param nsSubnetIds
+	 * @param userData
+	 * @param locationConstraints
+	 * @param ranEndPointId
 	 */
 	@JsonCreator
 	public InstantiateNsiRequestMessage(@JsonProperty("nsiId") String nsiId, 
@@ -55,7 +73,10 @@ public class InstantiateNsiRequestMessage extends EngineMessage {
 			@JsonProperty("nfvNsdVersion") String nfvNsdVersion,
 			@JsonProperty("dfId") String dfId, 
 			@JsonProperty("ilId") String ilId, 
-			@JsonProperty("nsSubnetIds") List<String> nsSubnetIds) {
+			@JsonProperty("nsSubnetIds") List<String> nsSubnetIds,
+			@JsonProperty("userData") Map<String, String> userData,
+			@JsonProperty("locationConstraints") LocationInfo locationConstraints,
+			@JsonProperty("ranEndPointId") String ranEndPointId) {
 		this.type = EngineMessageType.INSTANTIATE_NSI_REQUEST;
 		this.nsiId = nsiId;
 		this.nfvNsdId = nfvNsdId;
@@ -63,6 +84,9 @@ public class InstantiateNsiRequestMessage extends EngineMessage {
 		this.dfId = dfId;
 		this.ilId = ilId;
 		if (nsSubnetIds != null) this.nsSubnetIds = nsSubnetIds;
+		if (userData != null) this.userData = userData;
+		this.locationConstraints = locationConstraints;
+		this.ranEndPointId = ranEndPointId;
 	}
 
 	/**
@@ -105,6 +129,27 @@ public class InstantiateNsiRequestMessage extends EngineMessage {
 	 */
 	public List<String> getNsSubnetIds() {
 		return nsSubnetIds;
+	}
+	
+	/**
+	 * @return the userData
+	 */
+	public Map<String, String> getUserData() {
+		return userData;
+	}
+
+	/**
+	 * @return the locationConstraints
+	 */
+	public LocationInfo getLocationConstraints() {
+		return locationConstraints;
+	}
+
+	/**
+	 * @return the ranEndPointId
+	 */
+	public String getRanEndPointId() {
+		return ranEndPointId;
 	}
 	
 	
