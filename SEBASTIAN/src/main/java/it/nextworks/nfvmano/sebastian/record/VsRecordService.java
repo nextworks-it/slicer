@@ -71,7 +71,7 @@ public class VsRecordService {
 	@PostConstruct
 	private void setupGuiConnector() {
 		switch (nfvoGuiType) {
-			case "STUB":
+			case "NONE":
 				nfvoGuiConnector = new StubConnector();
 				break;
 			case "TIMEO":
