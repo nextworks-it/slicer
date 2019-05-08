@@ -731,6 +731,26 @@ function createVSTopology(data){
     					'color': '#000',
     					'label': 'data(name)'
     				})
+    			.selector('.faded')
+                    .css({
+                        'opacity': 0.25,
+                        'text-opacity': 0
+                    })
+                .selector('.top-left')
+                    .css({
+                        'text-valign': 'top',
+                        'text-halign': 'left'
+                    })
+                .selector('.top-right')
+                    .css({
+                        'text-valign': 'top',
+                        'text-halign': 'right'
+                    })
+                .selector('.bottom-center')
+                    .css({
+                        'text-valign': 'bottom',
+                        'text-halign': 'center'
+                    })
     			.selector(':selected')
                     .css({
                         'border-width': 3,
