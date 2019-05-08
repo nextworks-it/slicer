@@ -689,7 +689,7 @@ function createVSTopology(data){
     var atomicComponents = data.vsBlueprint.atomicComponents;
     for(var component in atomicComponents){
         var cId = atomicComponents[component].componentId
-        nodes.push({ group: 'nodes', data: { id: cId, name: 'AtomicComponent - '+cId , label: 'AtomicComponent - ' + cId, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center vnf'});
+        nodes.push({ group: 'nodes', data: { id: cId, name: 'AtomicComponent - '+cId , label: 'AtomicComponent - ' + cId, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center atomic_component'});
     }
     var cy = cytoscape({
     		container: document.getElementById('cy'),
@@ -708,10 +708,32 @@ function createVSTopology(data){
     					'text-outline-width': 0,
     					'text-width': 2,
     					//'text-outline-color': '#000',
-    					//'background-color': 'data(faveColor)',
+    					'background-color': 'data(faveColor)',
     					'color': '#000',
     					'label': 'data(name)'
-    				}),
+    				})
+    			.selector(':selected')
+                    .css({
+                        'border-width': 3,
+                        'border-color': '#333'
+                    })
+                .selector('edge')
+                    .css({
+                        'curve-style': 'bezier',
+                        'opacity': 0.666,
+                        'width': 'mapData(strength, 70, 100, 2, 6)',
+                        'target-arrow-shape': 'circle',
+                        'source-arrow-shape': 'circle',
+                        'line-color': 'data(faveColor)',
+                        'source-arrow-color': 'data(faveColor)',
+                        'target-arrow-color': 'data(faveColor)'
+                    })
+                .selector('.atomic_component')
+                    .css({
+                        'background-image': '../../images/atomic_component_icon_80.png',
+                        'width': 80,//'mapData(weight, 40, 80, 20, 60)',
+                        'height': 80
+                    }),
 
             elements: {
               nodes: nodes,
