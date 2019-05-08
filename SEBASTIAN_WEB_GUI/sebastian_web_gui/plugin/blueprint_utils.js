@@ -687,9 +687,15 @@ function createVSTopology(data){
     var nodes =  [];
     var edges = [];
     var atomicComponents = data.vsBlueprint.atomicComponents;
+    var connectivityServices = data.vsBlueprint.connectivityServices;
     for(var component in atomicComponents){
         var cId = atomicComponents[component].componentId
         nodes.push({ group: 'nodes', data: { id: cId, name: 'AtomicComponent - '+cId , label: 'AtomicComponent - ' + cId, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center atomic_component'});
+    }
+
+    for(var connectivityService in connectivityServices){
+        var csId = ""
+        nodes.push({ group: 'nodes', data: { id: csId, name: csId , label: csId, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center connectivity_service'});
     }
     var cy = cytoscape({
     		container: document.getElementById('cy'),
@@ -733,6 +739,12 @@ function createVSTopology(data){
                         'background-image': '../../../images/atomic_component_icon_80.png',
                         'width': 80,//'mapData(weight, 40, 80, 20, 60)',
                         'height': 80
+                    })
+                .selector('.connectivity_service')
+                    .css({
+                        'background-image': '../../../images/net_icon_50.png',
+                        'width': 50,//'mapData(weight, 40, 80, 20, 60)',
+                        'height': 50
                     }),
 
             elements: {
