@@ -730,7 +730,7 @@ function createVSTopology(data){
                     })
                 .selector('.atomic_component')
                     .css({
-                        'background-image': '../../images/atomic_component_icon_80.png',
+                        'background-image': '../../../images/atomic_component_icon_80.png',
                         'width': 80,//'mapData(weight, 40, 80, 20, 60)',
                         'height': 80
                     }),
