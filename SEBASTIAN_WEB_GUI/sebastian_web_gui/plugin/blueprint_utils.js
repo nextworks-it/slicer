@@ -710,7 +710,7 @@ function createVSTopology(data){
             type+="ran_connection ";
         }
         if(allEndpoints[endpointIndex].external){
-             type+="management ";
+             type+="external ";
         }
         endpointType[endpointId]=type;
 
@@ -754,7 +754,7 @@ function createVSTopology(data){
                     })
                 .selector('.management')
                     .css({
-                        'color': 'red',
+                        'border-color': 'red',
 
                     })
                 .selector('.top-left')
