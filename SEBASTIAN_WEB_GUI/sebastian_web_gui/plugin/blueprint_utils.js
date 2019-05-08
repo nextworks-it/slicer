@@ -717,12 +717,6 @@ function createVSTopology(data){
     					'border-width': 3,
     					'border-color': '#333'
     				})
-                .selector('.sap')
-                    .css({
-                        'background-image': '../../images/sap_icon_grey_50.png',
-                        'width': 50,//'mapData(weight, 40, 80, 20, 60)',
-                        'height': 50
-                    })
                 .selector('.faded')
                     .css({
                         'opacity': 0.25,
