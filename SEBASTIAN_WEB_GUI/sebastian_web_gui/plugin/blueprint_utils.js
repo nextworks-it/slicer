@@ -687,8 +687,10 @@ function createVSTopology(data){
     var nodes =  [];
     var edges = [];
     var atomicComponents = data.vsBlueprint.atomicComponents;
+    var allEndpoints = data.vsBlueprint.endPoints;
     var connectivityServices = data.vsBlueprint.connectivityServices;
     var endpointToAC = {};
+    var endpointType = {};
     for(var component in atomicComponents){
         var elementId = "ac_"+atomicComponents[component].componentId;
         var elementName = atomicComponents[component].componentId;
@@ -698,14 +700,28 @@ function createVSTopology(data){
         }
         nodes.push({ group: 'nodes', data: { id: elementId, name: elementName , label: elementName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center atomic_component'});
     }
+    for(var endpointIndex in allEndpoints  ){
+        var endpointId = allEndpoints[endpointIndex].endPointId;
+        var type="";
+        if(allEndpoints[endpointIndex].management){
+            type+="management ";
+        }
+        if(allEndpoints[endpointIndex].ranConnection){
+            type+="ran_connection ";
+        }
+        if(allEndpoints[endpointIndex].external){
+             type+="management ";
+        }
+        endpointType[endpointId]=type;
 
+    }
     for(var connectivityService in connectivityServices){
         var csId = "cs_"+connectivityService;
         var csName = "";
         nodes.push({ group: 'nodes', data: { id: csId, name: csName , label: csName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center connectivity_service'});
         for(var i in connectivityServices[connectivityService].endPointIds){
          	var endpointId = connectivityServices[connectivityService].endPointIds[i];
-            edges.push({ group: 'edges', data: { source: endpointToAC[endpointId], target: csId, faveColor: '#706f6f', strength: 70 }});
+            edges.push({ group: 'edges', data: { source: endpointToAC[endpointId], target: csId, faveColor: '#706f6f', strength: 70 }, classes: endpointType[endpointId]});
         }
     }
 
@@ -735,6 +751,11 @@ function createVSTopology(data){
                     .css({
                         'opacity': 0.25,
                         'text-opacity': 0
+                    })
+                .selector('.management')
+                    .css({
+                        'color': 'red',
+
                     })
                 .selector('.top-left')
                     .css({
