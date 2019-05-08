@@ -703,8 +703,8 @@ function createVSTopology(data){
         var csId = "cs_"+connectivityService;
         var csName = "";
         nodes.push({ group: 'nodes', data: { id: csId, name: csName , label: csName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center connectivity_service'});
-        for( var endpoint in connectivityServices[connectivityService].endPointsIds ){
-            endpointId = connectivityServices[connectivityService].endPointsIds[endpoint];
+        for(var i in connectivityServices[connectivityService].endPointIds){
+         	var endpointId = connectivityServices[connectivityService].endPointIds[i];
             edges.push({ group: 'edges', data: { source: endpointToAC[endpointId], target: csId, faveColor: '#706f6f', strength: 70 }});
         }
     }
