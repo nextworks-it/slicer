@@ -687,7 +687,7 @@ function createVSTopology(data){
     var nodes =  [];
     var edges = [];
     var atomicComponents = data.vsBlueprint.atomicComponents;
-    for(component in atomicComponents){
+    for(var component in atomicComponents){
         var cId = component.componentId
         nodes.push({ group: 'nodes', data: { id: cId, name: 'AtomicComponent - '+cId , label: 'AtomicComponent - ' + cId, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center vnf'});
     }
