@@ -708,35 +708,10 @@ function createVSTopology(data){
     					'text-outline-width': 0,
     					'text-width': 2,
     					//'text-outline-color': '#000',
-    					'background-color': 'data(faveColor)',
+    					//'background-color': 'data(faveColor)',
     					'color': '#000',
     					'label': 'data(name)'
-    				})
-    			.selector(':selected')
-    				.css({
-    					'border-width': 3,
-    					'border-color': '#333'
-    				})
-                .selector('.faded')
-                    .css({
-                        'opacity': 0.25,
-                        'text-opacity': 0
-                    })
-                .selector('.top-left')
-                    .css({
-                        'text-valign': 'top',
-                        'text-halign': 'left'
-                    })
-                .selector('.top-right')
-                    .css({
-                        'text-valign': 'top',
-                        'text-halign': 'right'
-                    })
-                .selector('.bottom-center')
-                    .css({
-                        'text-valign': 'bottom',
-                        'text-halign': 'center'
-                    }),
+    				}),
 
             elements: {
               nodes: nodes,
@@ -747,6 +722,10 @@ function createVSTopology(data){
               window.cy = this;
             }
         });
+    //cy.minZoom(0.8);
+    cy.maxZoom(1.6);
+
+
 }
 
 
