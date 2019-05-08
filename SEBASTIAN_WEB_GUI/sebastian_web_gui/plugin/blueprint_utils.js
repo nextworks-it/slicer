@@ -689,13 +689,14 @@ function createVSTopology(data){
     var atomicComponents = data.vsBlueprint.atomicComponents;
     var connectivityServices = data.vsBlueprint.connectivityServices;
     for(var component in atomicComponents){
-        var cId = atomicComponents[component].componentId
-        nodes.push({ group: 'nodes', data: { id: cId, name: 'AtomicComponent - '+cId , label: 'AtomicComponent - ' + cId, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center atomic_component'});
+        var cId = atomicComponents[component].componentId;
+        nodes.push({ group: 'nodes', data: { id: "ac_"+cId, name: 'AtomicComponent - '+cId , label: 'AtomicComponent - ' + cId, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center atomic_component'});
     }
 
     for(var connectivityService in connectivityServices){
-        var csId = ""
-        nodes.push({ group: 'nodes', data: { id: csId, name: csId , label: csId, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center connectivity_service'});
+        var csId = "cs_"+connectivityService;
+        var csName = "";
+        nodes.push({ group: 'nodes', data: { id: csId, name: csName , label: csName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center connectivity_service'});
     }
     var cy = cytoscape({
     		container: document.getElementById('cy'),
