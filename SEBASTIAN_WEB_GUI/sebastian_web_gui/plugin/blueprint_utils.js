@@ -693,7 +693,7 @@ function createVSTopology(data){
         var elementId = "ac_"+atomicComponents[component].componentId;
         var elementName = atomicComponents[component].componentId;
 
-        for( endpoint in atomicComponents[component].endPointsIds ){
+        for( var endpoint in atomicComponents[component].endPointsIds ){
             endpointToAC[ atomicComponents[component].endPointsIds[endpoint] ] = elementId;
         }
         nodes.push({ group: 'nodes', data: { id: elementId, name: elementName , label: elementName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center atomic_component'});
@@ -703,7 +703,7 @@ function createVSTopology(data){
         var csId = "cs_"+connectivityService;
         var csName = "";
         nodes.push({ group: 'nodes', data: { id: csId, name: csName , label: csName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center connectivity_service'});
-        for( endpoint in connectivityServices[connectivityService].endPointsIds ){
+        for( var endpoint in connectivityServices[connectivityService].endPointsIds ){
             endpointId = connectivityServices[connectivityService].endPointsIds[endpoint];
             edges.push({ group: 'edges', data: { source: endpointToAC[endpointId], target: csId, faveColor: '#706f6f', strength: 70 }});
         }
