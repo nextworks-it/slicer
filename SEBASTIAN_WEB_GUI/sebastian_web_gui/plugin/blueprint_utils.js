@@ -688,16 +688,28 @@ function createVSTopology(data){
     var edges = [];
     var atomicComponents = data.vsBlueprint.atomicComponents;
     var connectivityServices = data.vsBlueprint.connectivityServices;
+    var endpointToAC = {};
     for(var component in atomicComponents){
-        var cId = atomicComponents[component].componentId;
-        nodes.push({ group: 'nodes', data: { id: "ac_"+cId, name: 'AtomicComponent - '+cId , label: 'AtomicComponent - ' + cId, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center atomic_component'});
+        var elementId = "ac_"+atomicComponents[component].componentId;
+        var elementName = atomicComponents[component].componentId;
+
+        for( endpoint in atomicComponents[component].endPointsIds ){
+            endpointToAC[ atomicComponents[component].endPointsIds[endpoint] ] = elementId;
+        }
+        nodes.push({ group: 'nodes', data: { id: elementId, name: elementName , label: elementName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center atomic_component'});
     }
 
     for(var connectivityService in connectivityServices){
         var csId = "cs_"+connectivityService;
         var csName = "";
         nodes.push({ group: 'nodes', data: { id: csId, name: csName , label: csName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center connectivity_service'});
+        for( endpoint in connectivityServices[connectivityService].endPointsIds ){
+            endpointId = connectivityServices[connectivityService].endPointsIds[endpoint];
+            edges.push({ group: 'edges', data: { source: endpointToAC[endpointId], target: csId, faveColor: '#706f6f', strength: 70 }});
+        }
     }
+
+
     var cy = cytoscape({
     		container: document.getElementById('cy'),
 
