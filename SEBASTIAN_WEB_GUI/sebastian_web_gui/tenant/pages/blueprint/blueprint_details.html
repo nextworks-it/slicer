@@ -46,6 +46,14 @@
     <script src="../../../plugin/tenant_utils.js"></script>
     <script src="../../../plugin/group_utils.js"></script>
     <script src="../../../plugin/blueprint_utils.js"></script>
+    <style>
+      #cy {
+        min-height: 600px;
+        width: auto;
+        left: 0;
+        top: 0;
+      }
+    </style>
     <script src="../../../plugin/login_utils.js"></script>
     <script src="../../../plugin/cytoscape.js-3.1.0/cytoscape.min.js"></script>
   </head>
@@ -187,7 +195,12 @@
             <div class="row">
               <div class="col-md-2"></div>
               <div class="col-md-8">
-                <div id="cy"></div>
+                <div class="x_panel">
+                  <div class="x_content">
+                    <div id="cy"></div>
+                    <script>readNSD("nsdDetailsTable", "response");</script>
+                  </div>
+                </div>
                 <img id="image" src="http://placehold.it/400x600" alt="VSB graphical representation" height="400" width="600">
               </div>
               <div class="col-md-2"></div>
