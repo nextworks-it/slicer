@@ -517,6 +517,7 @@ function createVSBlueprintDetailsTable(data, params) {
     table.innerHTML = header + conts;
     var image = document.getElementById(params[1]);
     image.src = data.vsBlueprint.imgUrl || defaultImage;
+    createVSTopology(data);
 }
 
 function createVSBlueprintTableContents(data, btnFlag, names, cbacks, columns) {	
@@ -679,6 +680,79 @@ function createVSDescriptorModals(data, params) {
     </div></div></div></div>';
     
     div.innerHTML += text;
+}
+
+function createVSTopology(data){
+    console.log(JSON.stringify(data, null, 4));
+    var nodes =  [];
+    var edges = [];
+    var atomicComponents = data.vsblueprint.atomicComponents;
+    for(component in atomicComponents){
+        var cId = component.componentId
+        nodes.push({ group: 'nodes', data: { id: cId, name: 'AtomicComponent - '+cId , label: 'AtomicComponent - ' + cId, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center vnf'});
+    }
+    var cy = cytoscape({
+    		container: document.getElementById('cy'),
+
+    		layout: {
+    			name: 'cose',
+    			padding: 10,
+    		},
+
+    		style: cytoscape.stylesheet()
+    			.selector('node')
+    				.css({
+    					'shape': 'data(faveShape)',
+    					'content': 'data(name)',
+    					'text-valign': 'center',
+    					'text-outline-width': 0,
+    					'text-width': 2,
+    					//'text-outline-color': '#000',
+    					'background-color': 'data(faveColor)',
+    					'color': '#000',
+    					'label': 'data(name)'
+    				})
+    			.selector(':selected')
+    				.css({
+    					'border-width': 3,
+    					'border-color': '#333'
+    				})
+                .selector('.sap')
+                    .css({
+                        'background-image': '../../images/sap_icon_grey_50.png',
+                        'width': 50,//'mapData(weight, 40, 80, 20, 60)',
+                        'height': 50
+                    })
+                .selector('.faded')
+                    .css({
+                        'opacity': 0.25,
+                        'text-opacity': 0
+                    })
+                .selector('.top-left')
+                    .css({
+                        'text-valign': 'top',
+                        'text-halign': 'left'
+                    })
+                .selector('.top-right')
+                    .css({
+                        'text-valign': 'top',
+                        'text-halign': 'right'
+                    })
+                .selector('.bottom-center')
+                    .css({
+                        'text-valign': 'bottom',
+                        'text-halign': 'center'
+                    }),
+
+            elements: {
+              nodes: nodes,
+              edges: edges
+            },
+
+            ready: function(){
+              window.cy = this;
+            }
+        });
 }
 
 
