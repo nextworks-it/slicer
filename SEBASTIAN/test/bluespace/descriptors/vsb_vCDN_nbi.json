@@ -19,7 +19,7 @@
         "imagesUrls": [],
         "endPointsIds": [
           "vCacheMid_mgmt_ext",
-          "vCacheMid_cache_ext",
+          "vCacheMid_caches_ext",
           "vCacheMid_origin_ext"
         ],
         "lifecycleOperations": {
@@ -47,7 +47,7 @@
         "imagesUrls": [],
         "endPointsIds": [
           "vCacheEdge_1_mgmt_ext",
-          "vCacheEdge_1_cache_ext",
+          "vCacheEdge_1_caches_ext",
           "vCacheEdge_1_users_ext"
         ],
         "lifecycleOperations": {
@@ -177,9 +177,7 @@
       "uservnf.origin_fqdn",
       "uservnf.origin_port",
       "uservnf.rm_dns_hosts",
-      "uservnf.add_dns_hosts",
-      "uservnf.timeo_address",
-      "uservnf.monitoring_address"
+      "uservnf.add_dns_hosts"
     ],
     "imgUrl": "http://sebastian-bluespace-test:8080/cee94dc1-3853-4fae-bf53-b19d902f6107.jpg"
   },
