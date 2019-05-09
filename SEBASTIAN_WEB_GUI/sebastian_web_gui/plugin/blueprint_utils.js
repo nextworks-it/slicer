@@ -724,8 +724,8 @@ function createVSTopology(data){
         }
 
         nodes.push({ group: 'nodes', data: { id: csId, name: csName , label: csName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: csClasses });
-        for(var i in connectivityServices[connectivityService].endPointIds){
-         	var endpointId = connectivityServices[connectivityService].endPointIds[i];
+        for(var i in connectivityServices[csIndex].endPointIds){
+         	var endpointId = connectivityServices[csIndex].endPointIds[i];
             if(endpointId in endpointToAC){
                 edges.push({ group: 'edges', data: { source: endpointToAC[endpointId], target: csId, faveColor: '#706f6f', strength: 70 }, classes: endpointType[endpointId]});
 
