@@ -715,13 +715,24 @@ function createVSTopology(data){
         endpointType[endpointId]=type;
 
     }
-    for(var connectivityService in connectivityServices){
-        var csId = "cs_"+connectivityService;
+    for(var csIndex in connectivityServices){
+        var csId = "cs_"+csIndex;
         var csName = "";
-        nodes.push({ group: 'nodes', data: { id: csId, name: csName , label: csName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center connectivity_service'});
+        var csClasses = 'bottom-center connectivity_service_internal';
+        if(connectivityServices[csIndex].external){
+            csClasses='bottom-center connectivity_service_external';
+        }
+
+        nodes.push({ group: 'nodes', data: { id: csId, name: csName , label: csName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: csClasses });
         for(var i in connectivityServices[connectivityService].endPointIds){
          	var endpointId = connectivityServices[connectivityService].endPointIds[i];
-            edges.push({ group: 'edges', data: { source: endpointToAC[endpointId], target: csId, faveColor: '#706f6f', strength: 70 }, classes: endpointType[endpointId]});
+            if(endpointId in endpointToAC){
+                edges.push({ group: 'edges', data: { source: endpointToAC[endpointId], target: csId, faveColor: '#706f6f', strength: 70 }, classes: endpointType[endpointId]});
+
+            }else{
+                console.log("missing atomic_component for endpoint:"+endpointId);
+            }
+
         }
     }
 
@@ -794,12 +805,18 @@ function createVSTopology(data){
                         'width': 80,//'mapData(weight, 40, 80, 20, 60)',
                         'height': 80
                     })
-                .selector('.connectivity_service')
+                .selector('.connectivity_service_internal')
                     .css({
                         'background-image': '../../../images/net_icon_50.png',
                         'width': 50,//'mapData(weight, 40, 80, 20, 60)',
                         'height': 50
-                    }),
+                    })
+                .selector('.connectivity_service_external')
+                     .css({
+                         'background-image': '../../../images/net_icon_80.png',
+                         'width': 80,//'mapData(weight, 40, 80, 20, 60)',
+                         'height': 80
+                     }),
 
             elements: {
               nodes: nodes,
