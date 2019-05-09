@@ -813,7 +813,7 @@ function createVSTopology(data){
                     })
                 .selector('.connectivity_service_external')
                      .css({
-                         'background-image': '../../../images/net_icon_80.png',
+                         'background-image': '../../../images/user_icon.png',
                          'width': 80,//'mapData(weight, 40, 80, 20, 60)',
                          'height': 80
                      }),
