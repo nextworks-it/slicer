@@ -11,11 +11,6 @@ public class StubConnector implements NfvoGuiConnector {
 
     @Override
     public Optional<String> makeNfvNsUrl(String nfvNsId) {
-        return Optional.of(
-                String.format(
-                        "https://www.google.it/search?q=%s",
-                        nfvNsId.replace(" ", "+")
-                )
-        );
+        return Optional.empty();
     }
 }
