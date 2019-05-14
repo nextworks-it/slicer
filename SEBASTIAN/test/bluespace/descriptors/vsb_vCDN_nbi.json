@@ -34,7 +34,8 @@
         "serversNumber": 1,
         "imagesUrls": [],
         "endPointsIds": [
-          "dns_users"
+          "dns_users_ext",
+	  "dns_mgmt_ext"
         ],
         "lifecycleOperations": {
           "update": "scripts/update",
@@ -62,7 +63,8 @@
         "serversNumber": 1,
         "imagesUrls": [],
         "endPointsIds": [
-          "origin_caches"
+          "origin_caches",
+	  "origin_mgmt"
         ],
         "lifecycleOperations": {
           "update": "scripts/update",
@@ -94,10 +96,22 @@
     ],
     "endPoints": [
       {
-        "endPointId": "vCacheEdge_1_users_ext",
+        "endPointId": "sap_users",
         "external": true,
         "management": false,
         "ranConnection": true
+      },
+      {
+        "endPointId": "sap_mgmt",
+        "external": true,
+        "management": false,
+        "ranConnection": false
+      },
+      {
+        "endPointId": "vCacheEdge_1_users_ext",
+        "external": true,
+        "management": false,
+        "ranConnection": false
       },
       {
         "endPointId": "vCacheEdge_1_cache_ext",
@@ -119,7 +133,7 @@
       },
       {
         "endPointId": "vCacheMid_origin_ext",
-        "external": true,
+        "external": false,
         "management": false,
         "ranConnection": false
       },
@@ -131,30 +145,45 @@
       },
       {
         "endPointId": "origin_caches",
+        "external": false,
+        "management": false,
+        "ranConnection": false
+      },
+      {
+        "endPointId": "origin_mgmt",
         "external": true,
         "management": true,
         "ranConnection": false
       },
       {
-        "endPointId": "dns_users",
+        "endPointId": "dns_users_ext",
+        "external": true,
+        "management": false,
+        "ranConnection": false
+      },
+      {
+        "endPointId": "dns_mgmt_ext",
         "external": true,
         "management": true,
-        "ranConnection": true
+        "ranConnection": false
       }
     ],
     "connectivityServices": [
       {
         "endPointIds": [
-          "vCacheEdge_1_users_ext"
+          "vCacheEdge_1_users_ext",
+	  "dns_users_ext",
+	  "sap_users"
         ],
         "external": true
       },
       {
         "endPointIds": [
           "vCacheEdge_1_mgmt_ext",
-          "dns_users",
+          "dns_mgmt_ext",
           "vCacheMid_mgmt_ext",
-          "origin_caches"
+          "origin_mgmt",
+	  "sap_mgmt"
         ],
         "external": true
       },
@@ -167,9 +196,10 @@
       },
       {
         "endPointIds": [
-          "vCacheMid_origin_ext"
+          "vCacheMid_origin_ext",
+	  "origin_caches"
         ],
-        "external": true
+        "external": false
       }
     ],
     "configurableParameters": [
