@@ -700,6 +700,7 @@ function createVSTopology(data){
         }
         nodes.push({ group: 'nodes', data: { id: elementId, name: elementName , label: elementName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: 'bottom-center atomic_component'});
     }
+    //console.log(endpointToAC);
     for(var endpointIndex in allEndpoints  ){
         var endpointId = allEndpoints[endpointIndex].endPointId;
         var type="";
@@ -721,21 +722,20 @@ function createVSTopology(data){
         var csClasses = 'bottom-center connectivity_service_internal';
         if(connectivityServices[csIndex].external){
             csClasses='bottom-center connectivity_service_external';
-        }
-
+        }else{
         nodes.push({ group: 'nodes', data: { id: csId, name: csName , label: csName, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: csClasses });
-        for(var i in connectivityServices[csIndex].endPointIds){
-         	var endpointId = connectivityServices[csIndex].endPointIds[i];
-            if(endpointId in endpointToAC){
-                edges.push({ group: 'edges', data: { source: endpointToAC[endpointId], target: csId, faveColor: '#706f6f', strength: 70 }, classes: endpointType[endpointId]});
-
-            }else{
-                console.log("missing atomic_component for endpoint:"+endpointId);
-            }
-
         }
+        for(var i in connectivityServices[csIndex].endPointIds){
+            var endpointId = connectivityServices[csIndex].endPointIds[i];
+            //console.log(endpointToAC);
+           if (endpointId in endpointToAC){
+              edges.push({ group: 'edges', data: { source: endpointToAC[endpointId], target: csId, label:endpointId,  faveColor: '#706f6f', strength: 70 }, classes: endpointType[endpointId] + " bottom-center"});
+           }else{
+               //console.log("missing atomic_component for endpoint:"+endpointId);
+               nodes.push({ group: 'nodes', data: { id: csId, name: endpointId , label: endpointId, weight: 70, faveColor: '#fff', faveShape: 'ellipse' }, classes: csClasses });
+           }
+       }
     }
-
 
     var cy = cytoscape({
     		container: document.getElementById('cy'),
@@ -791,31 +791,38 @@ function createVSTopology(data){
                 .selector('edge')
                     .css({
                         'curve-style': 'bezier',
-                        'opacity': 0.666,
+                        'opacity': 0.5,
                         'width': 'mapData(strength, 70, 100, 2, 6)',
                         'target-arrow-shape': 'circle',
                         'source-arrow-shape': 'circle',
                         'line-color': 'data(faveColor)',
                         'source-arrow-color': 'data(faveColor)',
-                        'target-arrow-color': 'data(faveColor)'
+                        'target-arrow-color': 'data(faveColor)',
+                        //'label': 'data(label)',
+                        //"edge-text-rotation": "autorotate",
+                        //'text-color': '#000',
+                        //'text-valign': 'top'
                     })
                 .selector('.atomic_component')
                     .css({
                         'background-image': '../../../images/atomic_component_icon_80.png',
                         'width': 80,//'mapData(weight, 40, 80, 20, 60)',
                         'height': 80
+                        
                     })
                 .selector('.connectivity_service_internal')
                     .css({
                         'background-image': '../../../images/net_icon_50.png',
                         'width': 50,//'mapData(weight, 40, 80, 20, 60)',
                         'height': 50
+                        
                     })
                 .selector('.connectivity_service_external')
                      .css({
-                         'background-image': '../../../images/user_icon.png',
-                         'width': 80,//'mapData(weight, 40, 80, 20, 60)',
-                         'height': 80
+                         'background-image': '../../../images/sap_icon_50.png',
+                         'width': 50,//'mapData(weight, 40, 80, 20, 60)',
+                         'height': 50
+                         
                      }),
 
             elements: {
