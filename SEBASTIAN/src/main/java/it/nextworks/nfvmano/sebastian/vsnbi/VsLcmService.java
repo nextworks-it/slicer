@@ -306,6 +306,19 @@ public class VsLcmService implements VsLcmProviderInterface {
 	public void modifyVs(ModifyVsRequest request) throws MethodNotImplementedException, NotExistingEntityException,
 			FailedOperationException, MalformattedElementException, NotPermittedOperationException {
 		log.debug("Received request to modify a Vertical Service instance.");
+		request.isValid();
+
+		String tenantId = request.getTenantId();
+		String vsiId = request.getVsiId();
+		String vsdId = request.getVsdId();
+
+		VsDescriptor vsd = vsDescriptorCatalogueService.getVsd(vsdId);
+		if ((!(vsd.getTenantId().equals(tenantId))) && (!(tenantId.equals(adminTenant)))) {
+			log.debug("Tenant " + tenantId + " is not allowed to modify VS instance with VSD " + vsdId);
+			throw new NotPermittedOperationException("Tenant " + tenantId + " is not allowed to modify VS instance with VSD " + vsdId);
+		}
+		engine.modifyVs(vsiId, request);
+		log.debug("Synchronous processing for VSI modification request completed for VSI ID " + vsiId);
 		throw new MethodNotImplementedException("VS modification not yet supported.");
 	}
 	

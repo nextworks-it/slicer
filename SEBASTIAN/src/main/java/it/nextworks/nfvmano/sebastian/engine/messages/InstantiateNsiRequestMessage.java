@@ -58,7 +58,7 @@ public class InstantiateNsiRequestMessage extends EngineMessage {
 	 * Constructor
 	 * 
 	 * @param nsiId
-	 * @param nfvNsId
+	 * @param nfvNsdId
 	 * @param nfvNsdVersion
 	 * @param dfId
 	 * @param ilId

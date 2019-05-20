@@ -185,6 +185,14 @@ public class NetworkSliceInstance {
 	}
 
 	/**
+	 *
+ 	 * @param instantiationLevelId
+	 */
+	public void setInstantiationLevelId(String instantiationLevelId) {
+		this.instantiationLevelId = instantiationLevelId;
+	}
+
+	/**
 	 * @return the nfvNsId
 	 */
 	public String getNfvNsId() {

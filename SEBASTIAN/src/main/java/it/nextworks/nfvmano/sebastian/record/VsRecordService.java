@@ -367,6 +367,19 @@ public class VsRecordService {
 		}
 	}
 
+	public synchronized void setNsInstantiationLevel(String nsiId, String instantiationLevelId){
+		log.debug("Setting new Instantiation Level Id " + instantiationLevelId + " for network slice " + nsiId + " in DB.");
+		try {
+			NetworkSliceInstance nsi = getNsInstance(nsiId);
+			nsi.setInstantiationLevelId(instantiationLevelId);
+			nsInstanceRepository.saveAndFlush(nsi);
+			log.debug("Status set for network slice " + nsiId);
+
+		} catch (NotExistingEntityException e) {
+			log.error("NSI not present in DB. Impossible to complete the state setting.");
+		}
+	}
+
 	/**
 	 * This method adds slice subnets into a network slice
 	 *

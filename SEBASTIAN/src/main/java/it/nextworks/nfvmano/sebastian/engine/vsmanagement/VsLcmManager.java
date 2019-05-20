@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
+import it.nextworks.nfvmano.sebastian.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,12 +40,6 @@ import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
 import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
 import it.nextworks.nfvmano.sebastian.catalogue.repo.VsDescriptorRepository;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
-import it.nextworks.nfvmano.sebastian.engine.messages.EngineMessage;
-import it.nextworks.nfvmano.sebastian.engine.messages.EngineMessageType;
-import it.nextworks.nfvmano.sebastian.engine.messages.InstantiateVsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.engine.messages.NotifyNsiStatusChange;
-import it.nextworks.nfvmano.sebastian.engine.messages.NsStatusChange;
-import it.nextworks.nfvmano.sebastian.engine.messages.TerminateVsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
@@ -232,6 +228,77 @@ public class VsLcmManager {
 		}
 	}
 
+	void processModifyRequest(ModifyVsiRequestMessage msg){
+		if (!msg.getVsiId().equals(vsiId)) {
+			throw new IllegalArgumentException(String.format("Wrong VSI ID: %s", msg.getVsiId()));
+		}
+		if (internalStatus != VerticalServiceStatus.INSTANTIATED) {
+			manageVsError("Received termination request in wrong status. Skipping message.");
+			return;
+		}
+		log.debug("Modifying Vertical Service " + vsiId);
+		this.internalStatus = VerticalServiceStatus.UNDER_MODIFICATION;
+
+		String vsdId = msg.getRequest().getVsdId();
+		VsDescriptor vsd = vsDescriptorRepository.findByVsDescriptorId(vsdId).get();
+
+		List<String> vsdIds = new ArrayList<>();
+		vsdIds.add(vsdId);
+		try {
+			//Translate VSDId into NfvNsInstantiationInfo
+			Map<String, NfvNsInstantiationInfo> nsInfos = translatorService.translateVsd(vsdIds);
+			log.debug("The VSD has been translated in the required network slice characteristics.");
+			// assuming one
+			NfvNsInstantiationInfo nsInfo = nsInfos.get(vsdId);
+			String newDfId = nsInfo.getDeploymentFlavourId();
+			String newInstantiationLevelId = nsInfo.getInstantiationLevelId();
+			String newNsdId = nsInfo.getNfvNsdId();
+
+			// retrieve info about current NSI
+			NetworkSliceInstance nsi = vsRecordService.getNsInstance(networkSliceId);
+			String currentDfId = nsi.getDfId();
+			String currentInstantiationLevelId = nsi.getInstantiationLevelId();
+			String currentNsdId = nsi.getNsdId();
+
+			/*compare the triples
+				Case 1: only ILs are different -> Scale
+				Case 2: nothing is different -> set the new VSDid
+				Case 3: either nsdIds or Dfs are different -> Error
+			 */
+			if(newNsdId.equals(currentNsdId) && newDfId.equals(currentDfId)){
+				if(newInstantiationLevelId.equals(currentInstantiationLevelId)){
+					//Case 2
+					log.debug("New vsd set.");
+					this.vsDescriptors.put(vsdId, vsd);
+				}else{
+					//Case 1
+					//Assemble Arbitrator request
+					//this is a trick: in this way, the current Nsi (networkSliceId) and the new one (nsInfos) are both on the same request
+					nsInfos.remove(vsdId);
+					nsInfos.put(networkSliceId, nsInfo);
+
+					List<ArbitratorRequest> arbitratorRequests = new ArrayList<>();
+					ArbitratorRequest arbitratorRequest = new ArbitratorRequest("scaleRequest", tenantId, vsd, nsInfos);
+					arbitratorRequests.add(arbitratorRequest);
+					ArbitratorResponse arbitratorResponse = arbitratorService.arbitrateVsScaling(arbitratorRequests).get(0);
+					if (!(arbitratorResponse.isAcceptableRequest())) {
+						manageVsError("Error while trying modify VS " + vsiId + ": no solution returned from the arbitrator");
+						return;
+					}
+					//TODO Addititional controls on ArbitratorResponse might be required
+					engine.modifyNs(nsi.getNsiId(), tenantId, currentNsdId, nsInfo.getNsdVersion(), newDfId, newInstantiationLevelId, vsiId);
+				}
+			}else{
+				// Case 3
+				manageVsError("Error while modifying VS " + vsiId + ": Deployment Flavour and Nsd update are not supported yet");
+			}
+
+		} catch (Exception e) {
+			manageVsError("Error while instantiating VS " + vsiId + ": " + e.getMessage());
+		}
+
+	}
+
 	void processTerminateRequest(TerminateVsiRequestMessage msg) {
 		if (!msg.getVsiId().equals(vsiId)) {
 			throw new IllegalArgumentException(String.format("Wrong VSI ID: %s", msg.getVsiId()));
@@ -276,6 +343,11 @@ public class VsLcmManager {
 		} else if (status == VerticalServiceStatus.TERMINATED && internalStatus == VerticalServiceStatus.TERMINATING) {
 			adminService.removeUsedResourcesInTenant(tenantId, resourceUsage);
 			log.debug("Updated resource usage for tenant " + tenantId + ". Termination procedure completed.");
+
+		} else if (status == VerticalServiceStatus.MODIFIED && internalStatus == VerticalServiceStatus.UNDER_MODIFICATION) {
+			internalStatus = VerticalServiceStatus.INSTANTIATED;
+			log.debug("VS Modification procedure completed.");
+
 		} else {
 			manageVsError("Received notification about NSI creation in wrong status.");
 			return;
@@ -293,24 +365,14 @@ public class VsLcmManager {
 		try {
 			switch (nsStatusChange) {
 				case NS_CREATED: {
-				/*if (internalStatus == VerticalServiceStatus.INSTANTIATING) {
-					log.debug("The network slice " + msg.getNsiId() + " associated to vertical service " + vsiId + " has been successfully created. Vertical service established.");
-					this.internalStatus = VerticalServiceStatus.INSTANTIATED;
-					vsRecordService.setVsStatus(vsiId, VerticalServiceStatus.INSTANTIATED);
-					NetworkSliceInstance nsi = vsRecordService.getNsInstance(networkSliceId);
-					VirtualResourceUsage resourceUsage = nfvoService.computeVirtualResourceUsage(new NfvNsInstantiationInfo(nsi.getNsdId(), 
-							nsi.getNsdVersion(), 
-							nsi.getDfId(),
-							nsi.getInstantiationLevelId()));
-					adminService.addUsedResourcesInTenant(tenantId, resourceUsage.getDiskStorage(), resourceUsage.getvCPU(), resourceUsage.getMemoryRAM());
-					log.debug("Updated resource usage for tenant " + tenantId + ". Instantiation procedure completed.");
-				} else {
-					manageVsError("Received notification about NSI creation in wrong status.");
-				}*/
+
 					nsStatusChangeOperations(VerticalServiceStatus.INSTANTIATED);
 					break;
 				}
-
+				case NS_MODIFIED: {
+					nsStatusChangeOperations(VerticalServiceStatus.MODIFIED);
+					break;
+				}
 				case NS_TERMINATED: {
 					nsStatusChangeOperations(VerticalServiceStatus.TERMINATED);
 					break;
@@ -321,9 +383,9 @@ public class VsLcmManager {
 					break;
 				}
 
-				default: {
+				default:
 					break;
-				}
+
 			}
 		} catch (Exception e) {
 			manageVsError("Error while processing NSI status change notification: " + e.getMessage());

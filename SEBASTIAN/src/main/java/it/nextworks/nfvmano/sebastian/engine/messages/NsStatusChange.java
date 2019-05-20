@@ -19,6 +19,7 @@ public enum NsStatusChange {
 
 	NS_CREATED,
 	NS_TERMINATED,
+	NS_MODIFIED,
 	NS_FAILED,
 	NOT_SPECIFIED
 	

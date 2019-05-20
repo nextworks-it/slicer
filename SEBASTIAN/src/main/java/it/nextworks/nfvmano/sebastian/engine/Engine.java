@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.nextworks.nfvmano.sebastian.engine.messages.*;
+import it.nextworks.nfvmano.sebastian.vsnbi.messages.ModifyVsRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.BindingBuilder;
@@ -44,14 +46,6 @@ import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
 import it.nextworks.nfvmano.sebastian.catalogue.repo.VsDescriptorRepository;
 import it.nextworks.nfvmano.sebastian.common.ConfigurationParameters;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
-import it.nextworks.nfvmano.sebastian.engine.messages.EngineMessage;
-import it.nextworks.nfvmano.sebastian.engine.messages.InstantiateNsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.engine.messages.InstantiateVsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.engine.messages.NotifyNfvNsiStatusChange;
-import it.nextworks.nfvmano.sebastian.engine.messages.NotifyNsiStatusChange;
-import it.nextworks.nfvmano.sebastian.engine.messages.NsStatusChange;
-import it.nextworks.nfvmano.sebastian.engine.messages.TerminateNsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.engine.messages.TerminateVsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.engine.nsmf.NsLcmManager;
 import it.nextworks.nfvmano.sebastian.engine.vsmanagement.VsLcmManager;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
@@ -164,6 +158,31 @@ public class Engine {
 			throw new NotExistingEntityException("Unable to find VS LCM Manager for VSI ID " + vsiId + ". Unable to instantiate the VSI.");
 		}
 	}
+
+	/**
+	 * This method starts the procedures to modify an existing VS by sending a message to
+	 * the proper VS LCM Manager
+	 *
+	 * @param vsiId ID of the VSI to be instantiated
+	 * @param request request with the modification details
+	 * @throws NotExistingEntityException
+	 */
+	public void modifyVs(String vsiId, ModifyVsRequest request) throws NotExistingEntityException{
+		log.debug("Processing new VSI modification request for VSI ID " + vsiId);
+		if (vsLcmManagers.containsKey(vsiId)) {
+			String topic = "lifecycle.modifyvs." + vsiId;
+			ModifyVsiRequestMessage internalMessage = new ModifyVsiRequestMessage(vsiId, request);
+			try {
+				sendMessageToQueue(internalMessage, topic);
+			} catch (JsonProcessingException e) {
+				log.error("Error while translating internal VS modification message in Json format.");
+				vsRecordService.setVsFailureInfo(vsiId, "Error while translating internal VS modification message in Json format.");
+			}
+		} else {
+			log.error("Unable to find VS LCM Manager for VSI ID " + vsiId + ". Unable to modify the VSI.");
+			throw new NotExistingEntityException("Unable to find VS LCM Manager for VSI ID " + vsiId + ". Unable to modify the VSI.");
+		}
+	}
 	
 	/**
 	 * This method starts the procedures to terminate a VSI, sending a message to 
@@ -189,7 +208,7 @@ public class Engine {
 			throw new NotExistingEntityException("Unable to find VS LCM Manager for VSI ID " + vsiId + ". Unable to terminate the VSI.");
 		}
 	}
-	
+
 	/**
 	 * This method starts the procedures to instantiate a NSI, sending a message to 
 	 * the related NS LCM Manager
@@ -228,7 +247,38 @@ public class Engine {
 			throw new NotExistingEntityException("Unable to find NS LCM Manager for NSI ID " + nsiId + ". Unable to instantiate the NSI.");
 		}
 	}
-	
+
+	/**
+	 * This method starts the procedures to modify a NSI, sending a message to
+	 * the related NS LCM Manager
+	 *
+	 * @param nsiId ID of the NS instance to be instantiated
+	 * @param tenantId tenant owning the NS instance
+	 * @param nsdId NSD ID of the NFV NS that implements the NS instance
+	 * @param nsdVersion NSD version of the NFV NS that implements the NS instance
+	 * @param dfId DF ID of the NFV NS that implements the NS instance
+	 * @param instantiationLevelId instantiation level ID of the NFV NS that implements the NS instance
+	 * @param vsiId ID of the Vertical Service instance associated to the network slice, if available
+	 * @throws NotExistingEntityException if the NS LCM manager is not found
+	 */
+	public void modifyNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String vsiId)
+			throws NotExistingEntityException {
+		log.debug("Processing new NSI modification request for NSI ID " + nsiId);
+		if (nsLcmManagers.containsKey(nsiId)) {
+			String topic = "nslifecycle.modifyns." + nsiId;
+			ModifyNsiRequestMessage internalMessage = new ModifyNsiRequestMessage(nsiId, nsdId, nsdVersion, dfId, instantiationLevelId, vsiId);
+			try {
+				sendMessageToQueue(internalMessage, topic);
+			} catch (JsonProcessingException e) {
+				log.error("Error while translating internal NS modification message in Json format.");
+				if (vsiId != null) vsRecordService.setVsFailureInfo(vsiId, "Error while translating internal NS modification message in Json format.");
+			}
+		} else {
+			log.error("Unable to find Network Slice LCM Manager for NSI ID " + nsiId + ". Unable to modify the NSI.");
+			throw new NotExistingEntityException("Unable to find NS LCM Manager for NSI ID " + nsiId + ". Unable to modify the NSI.");
+		}
+	}
+
 	/**
 	 * This method starts the procedures to terminate a NSI, sending a message to 
 	 * the related NS LCM Manager
