@@ -115,7 +115,7 @@ public class NsLcmManager {
 			case MODIFY_NSI_REQUEST: {
 				log.debug("Processing NSI modification request.");
 				ModifyNsiRequestMessage modifyNsiRequestMessage = (ModifyNsiRequestMessage)em;
-
+                processModifyRequest(modifyNsiRequestMessage);
 				break;
 			}
 			case TERMINATE_NSI_REQUEST: {
