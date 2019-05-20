@@ -72,7 +72,7 @@ public class NsLcmManager {
 	
 	private NetworkSliceStatus internalStatus;
 
-	private String requestedInstantiatonLevelId;
+	private String requestedInstantiationLevelId;
 	
 	public NsLcmManager(String networkSliceInstanceId,
 			String name,
@@ -265,7 +265,7 @@ public class NsLcmManager {
 			String operationId = nfvoService.scaleNs(scaleReq);
 			log.debug("Sent request to NFVO service for modifying NFV NS " + nfvNsiInstanceId + ": operation ID " + operationId);
 			//Save the requested instantiation level id in an auxiliary attribute
-			requestedInstantiatonLevelId = msg.getIlId();
+			requestedInstantiationLevelId = msg.getIlId();
 		} catch (Exception e) {
 			manageNsError(e.getMessage());
 		}
@@ -317,8 +317,8 @@ public class NsLcmManager {
 					case UNDER_MODIFICATION: {
 						log.debug("Successful modification of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
 						this.internalStatus=NetworkSliceStatus.INSTANTIATED;
-						//TODO check on requestedInstantiatonLevelId
-						vsRecordService.setNsInstantiationLevel(networkSliceInstanceId, requestedInstantiatonLevelId);
+						//TODO check on requestedInstantiationLevelId
+						vsRecordService.setNsInstantiationLevel(networkSliceInstanceId, requestedInstantiationLevelId);
 						vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
 						engine.notifyNetworkSliceStatusChange(networkSliceInstanceId, NsStatusChange.NS_MODIFIED, true);
 						break;

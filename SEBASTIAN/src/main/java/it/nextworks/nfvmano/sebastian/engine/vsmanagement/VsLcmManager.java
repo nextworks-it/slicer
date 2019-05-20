@@ -128,6 +128,13 @@ public class VsLcmManager {
 					break;
 				}
 
+				case MODIFY_VSI_REQUEST: {
+					log.debug("Processing VSI termination request.");
+					ModifyVsiRequestMessage modifyVsRequestMsg = (ModifyVsiRequestMessage) em;
+					processModifyRequest(modifyVsRequestMsg);
+					break;
+				}
+
 				case TERMINATE_VSI_REQUEST: {
 					log.debug("Processing VSI termination request.");
 					TerminateVsiRequestMessage terminateVsRequestMsg = (TerminateVsiRequestMessage) em;
