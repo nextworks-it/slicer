@@ -54,7 +54,7 @@ public class BasicArbitrator extends AbstractArbitrator {
 	}
 
 	@Override
-	public List<ArbitratorResponse> computeArbitratorSolution(List<ArbitratorRequest> requests) 
+	public List<ArbitratorResponse> computeArbitratorSolution(List<ArbitratorRequest> requests)
 			throws FailedOperationException, NotExistingEntityException {
 		log.debug("Received request at the arbitrator.");
 		
@@ -133,7 +133,70 @@ public class BasicArbitrator extends AbstractArbitrator {
 			throw new FailedOperationException(e.getMessage());
 		}
 	}
-	
-	
+
+	@Override
+	public List<ArbitratorResponse> arbitrateVsScaling(List<ArbitratorRequest> requests)
+		throws FailedOperationException, NotExistingEntityException {
+		log.debug("Received VS Scaling request at the arbitrator.");
+
+		//TODO: At the moment we process only the first request and the first ns init info
+		ArbitratorRequest req = requests.get(0);
+		String tenantId = req.getTenantId();
+		String nsiId = null;
+		NfvNsInstantiationInfo nsInitInfo = null;
+		Map<String, NfvNsInstantiationInfo> nsInitInfos = req.getInstantiationNsd();
+		for (Map.Entry<String, NfvNsInstantiationInfo> e : nsInitInfos.entrySet()) {
+			nsInitInfo = e.getValue();
+			nsiId = e.getKey();
+		}
+		log.debug("The request is for tenant " + tenantId + " and for NSD " + nsInitInfo.getNfvNsdId() + " with DF " + nsInitInfo.getDeploymentFlavourId() + " and instantiation level " + nsInitInfo.getInstantiationLevelId());
+		//Retrieving NSI for the current NS
+		try {
+			NetworkSliceInstance nsi = vsRecordService.getNsInstance(nsiId);
+
+			//Compute resource usage for nsi
+			VirtualResourceUsage currentNsRes = nfvoService.computeVirtualResourceUsage(nsi);
+			//Compute resoruce required for the scaled ns
+			VirtualResourceUsage requiredRes = nfvoService.computeVirtualResourceUsage(nsInitInfo);
+
+			//Retrieving SLA constraints and current resource usage for the tenant?
+			Tenant tenant = adminService.getTenant(tenantId);
+			Sla tenantSla = tenant.getActiveSla();
+			//TODO: At the moment we are considering only the SLA about global resource usage. MEC versus cloud still to be managed.
+			SlaVirtualResourceConstraint sc = tenantSla.getGlobalConstraint();
+			VirtualResourceUsage maxRes = sc.getMaxResourceLimit();
+			log.debug("The maximum amount of global virtual resources allowed for the tenant is the following: " + maxRes.toString());
+
+			VirtualResourceUsage usedRes = tenant.getAllocatedResources();
+			log.debug("The current resource usage for the tenant is the following: " + usedRes.toString());
+
+			//Compute resource
+			boolean acceptableRequest = true;
+			if ((requiredRes.getDiskStorage() + usedRes.getDiskStorage()) - currentNsRes.getDiskStorage() > maxRes.getDiskStorage()) acceptableRequest = false;
+			if ((requiredRes.getMemoryRAM() + usedRes.getMemoryRAM()) -currentNsRes.getMemoryRAM() > maxRes.getMemoryRAM()) acceptableRequest = false;
+			if ((requiredRes.getvCPU() + usedRes.getvCPU()) - currentNsRes.getvCPU() > maxRes.getvCPU()) acceptableRequest = false;
+
+			ArbitratorResponse response = new ArbitratorResponse(requests.get(0).getRequestId(),
+					acceptableRequest,					//acceptableRequest
+					false, 								//newSliceRequired,
+					null, 								//existingCompositeSlice,
+					false, 								//existingCompositeSliceToUpdate,
+					null,
+					null);
+			List<ArbitratorResponse> responses = new ArrayList<>();
+			responses.add(response);
+			return responses;
+
+		} catch (NotExistingEntityException e) {
+			log.error("Info not found from NFVO or DB: " + e.getMessage());
+			throw new NotExistingEntityException("Error retrieving info at the arbitrator: " + e.getMessage());
+
+		} catch (Exception e) {
+			log.error("Failure at the arbitrator: " + e.getMessage());
+			throw new FailedOperationException(e.getMessage());
+		}
+
+	}
 
 }
+

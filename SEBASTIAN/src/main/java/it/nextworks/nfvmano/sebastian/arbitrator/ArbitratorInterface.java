@@ -50,5 +50,8 @@ public interface ArbitratorInterface {
 	 */
 	List<ArbitratorResponse> computeArbitratorSolution(List<ArbitratorRequest> requests) 
 			throws FailedOperationException, NotExistingEntityException;
+
+	List<ArbitratorResponse> arbitrateVsScaling(List<ArbitratorRequest> requests)
+			throws FailedOperationException, NotExistingEntityException;
 	
 }
