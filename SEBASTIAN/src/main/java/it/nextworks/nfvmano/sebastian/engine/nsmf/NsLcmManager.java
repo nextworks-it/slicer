@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import it.nextworks.nfvmano.libs.common.enums.NsScaleType;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.*;
 import it.nextworks.nfvmano.libs.records.nsinfo.NsInfo;
@@ -36,8 +37,10 @@ import it.nextworks.nfvmano.libs.catalogues.interfaces.elements.NsdInfo;
 import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Sapd;
+import it.nextworks.nfvmano.libs.descriptors.nsd.ScaleNsToLevelData;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.SapData;
+import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.elements.ScaleNsData;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
@@ -246,8 +249,20 @@ public class NsLcmManager {
 		vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.UNDER_MODIFICATION);
 		log.debug("Sending request to modify NFV network service " + nfvNsiInstanceId);
 		try {
-			//TODO Assemble ScaleNSRequest
-			String operationId = nfvoService.scaleNs(new ScaleNsRequest());
+			ScaleNsToLevelData scaleNsToLevelData = new ScaleNsToLevelData(msg.getIlId(), null);
+			ScaleNsData scaleNsData = new ScaleNsData(null, 
+					null, 
+					null, 
+					scaleNsToLevelData, 
+					null, 
+					null, 
+					null);
+			ScaleNsRequest scaleReq = new ScaleNsRequest(nfvNsiInstanceId, 
+					NsScaleType.SCALE_NS, 
+					scaleNsData, 
+					null, 
+					null);
+			String operationId = nfvoService.scaleNs(scaleReq);
 			log.debug("Sent request to NFVO service for modifying NFV NS " + nfvNsiInstanceId + ": operation ID " + operationId);
 			//Save the requested instantiation level id in an auxiliary attribute
 			requestedInstantiatonLevelId = msg.getIlId();
