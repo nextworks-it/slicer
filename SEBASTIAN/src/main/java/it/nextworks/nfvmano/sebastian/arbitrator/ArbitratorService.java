@@ -80,4 +80,10 @@ public class ArbitratorService implements ArbitratorInterface {
 		return arbitrator.computeArbitratorSolution(requests);
 	}
 
+	@Override
+	public List<ArbitratorResponse> arbitrateVsScaling(List<ArbitratorRequest> requests)
+			throws FailedOperationException, NotExistingEntityException {
+		return arbitrator.arbitrateVsScaling(requests);
+	}
+
 }
