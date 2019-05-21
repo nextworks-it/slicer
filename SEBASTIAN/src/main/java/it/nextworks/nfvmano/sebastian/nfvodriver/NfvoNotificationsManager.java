@@ -100,6 +100,7 @@ public class NfvoNotificationsManager implements NfvoNotificationInterface {
 		NsStatusChange changeType = NsStatusChange.NOT_SPECIFIED;
 		if (operation.equals("NS_INSTANTIATION")) changeType=NsStatusChange.NS_CREATED;
 		else if (operation.equals("NS_TERMINATION")) changeType=NsStatusChange.NS_TERMINATED;
+		else if (operation.equals("NS_SCALING")) changeType=NsStatusChange.NS_MODIFIED;
 		return changeType;
 	}
 

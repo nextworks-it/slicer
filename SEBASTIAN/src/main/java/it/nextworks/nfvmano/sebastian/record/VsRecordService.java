@@ -373,10 +373,36 @@ public class VsRecordService {
 			NetworkSliceInstance nsi = getNsInstance(nsiId);
 			nsi.setInstantiationLevelId(instantiationLevelId);
 			nsInstanceRepository.saveAndFlush(nsi);
-			log.debug("Status set for network slice " + nsiId);
+			log.debug("NS IL set for network slice " + nsiId);
 
 		} catch (NotExistingEntityException e) {
-			log.error("NSI not present in DB. Impossible to complete the state setting.");
+			log.error("NSI not present in DB. Impossible to complete the IL setting.");
+		}
+	}
+	
+	public synchronized void updateNsInstantiationLevelAfterScaling(String nsiId, String newInstantiationLevel) {
+		log.debug("Updating instantiation level after scaling: new Instantiation Level Id " + newInstantiationLevel + " for network slice " + nsiId + " in DB.");
+		try {
+			NetworkSliceInstance nsi = getNsInstance(nsiId);
+			nsi.updateInstantiationLevelAfterScaling(newInstantiationLevel);
+			nsInstanceRepository.saveAndFlush(nsi);
+			log.debug("NS IL and old NS IL set for network slice " + nsiId);
+
+		} catch (NotExistingEntityException e) {
+			log.error("NSI not present in DB. Impossible to complete the IL setting.");
+		}
+	}
+	
+	public synchronized void resetOldNsInstantiationLevel(String nsiId) {
+		log.debug("Resetting old instantiation level after scaling for network slice " + nsiId + " in DB.");
+		try {
+			NetworkSliceInstance nsi = getNsInstance(nsiId);
+			nsi.setOldInstantiationLevelId(null);
+			nsInstanceRepository.saveAndFlush(nsi);
+			log.debug("Reset old IL for network slice " + nsiId);
+
+		} catch (NotExistingEntityException e) {
+			log.error("NSI not present in DB. Impossible to complete the old IL setting.");
 		}
 	}
 

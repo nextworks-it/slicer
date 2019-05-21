@@ -54,6 +54,9 @@ public class NetworkSliceInstance {
 	
 	private String instantiationLevelId;	//ID of the instantiation level in the NFV network service
 	
+	@JsonIgnore
+	private String oldInstantiationLevelId; //ID of the previous instantiation level when the NFV network service is scaled
+	
 	private String nfvNsId;	//ID of the NFV network service that implements the network slice
 
 	private boolean soManaged;
@@ -101,13 +104,18 @@ public class NetworkSliceInstance {
 		this.soManaged = soManaged;
 	}
 
-	public NfvNsInstantiationInfo getNsInstantiationInfo() {
+	public NfvNsInstantiationInfo getNsInstantiationInfo(boolean current) {
+		if (current)
 		return new NfvNsInstantiationInfo(
 				nsdId,
 				nsdVersion,
 				dfId,
-				instantiationLevelId
-		);
+				instantiationLevelId); 
+		else return new NfvNsInstantiationInfo(
+				nsdId,
+				nsdVersion,
+				dfId,
+				oldInstantiationLevelId);
 	}
 	
 	
@@ -263,6 +271,30 @@ public class NetworkSliceInstance {
 
 	public void setNfvNsUrl(String nfvNsUrl) {
 		this.nfvNsUrl = nfvNsUrl;
+	}
+	
+	@JsonIgnore
+	public void updateInstantiationLevelAfterScaling(String newInstantiationLevel) {
+		oldInstantiationLevelId = this.instantiationLevelId;
+		instantiationLevelId = newInstantiationLevel;
+	}
+	
+	
+
+	/**
+	 * @return the oldInstantiationLevelId
+	 */
+	@JsonIgnore
+	public String getOldInstantiationLevelId() {
+		return oldInstantiationLevelId;
+	}
+
+	/**
+	 * @param oldInstantiationLevelId the oldInstantiationLevelId to set
+	 */
+	@JsonIgnore
+	public void setOldInstantiationLevelId(String oldInstantiationLevelId) {
+		this.oldInstantiationLevelId = oldInstantiationLevelId;
 	}
 
 	/**

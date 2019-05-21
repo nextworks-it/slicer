@@ -141,9 +141,19 @@ MecAppPackageManagementProviderInterface, NsdManagementProviderInterface, VnfPac
 		}
 	}
 
-	public VirtualResourceUsage computeVirtualResourceUsage(NetworkSliceInstance nsi) throws Exception {
-		return computeVirtualResourceUsage(nsi.getNsInstantiationInfo());
+	/**
+	 * This method computes the amount of virtual resources consumed by a network slice with the current or previous instantiation level.
+	 * 
+	 * @param nsi ID of the network slice instance
+	 * @param current true if it refers to the current instantiation level
+	 * @return the amount of consumed virtual resources
+	 * @throws Exception
+	 */
+	public VirtualResourceUsage computeVirtualResourceUsage(NetworkSliceInstance nsi, boolean current) throws Exception {
+		return computeVirtualResourceUsage(nsi.getNsInstantiationInfo(current));
 	}
+	
+	
 
 	/**
 	 * This method computes the amount of resources (disk, vCPU, RAM) needed to instantiate an NSD with the given ID and the given deployment flavours and instantiation levels.

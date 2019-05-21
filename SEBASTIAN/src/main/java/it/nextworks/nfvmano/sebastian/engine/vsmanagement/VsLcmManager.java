@@ -343,7 +343,7 @@ public class VsLcmManager {
 	private void nsStatusChangeOperations(VerticalServiceStatus status) throws NotExistingEntityException, Exception {
 
 		NetworkSliceInstance nsi = vsRecordService.getNsInstance(networkSliceId);
-		VirtualResourceUsage resourceUsage = nfvoService.computeVirtualResourceUsage(nsi);
+		VirtualResourceUsage resourceUsage = nfvoService.computeVirtualResourceUsage(nsi, true);
 		if (status == VerticalServiceStatus.INSTANTIATED && internalStatus == VerticalServiceStatus.INSTANTIATING) {
 			adminService.addUsedResourcesInTenant(tenantId, resourceUsage);
 			log.debug("Updated resource usage for tenant " + tenantId + ". Instantiation procedure completed.");
@@ -352,6 +352,10 @@ public class VsLcmManager {
 			log.debug("Updated resource usage for tenant " + tenantId + ". Termination procedure completed.");
 
 		} else if (status == VerticalServiceStatus.MODIFIED && internalStatus == VerticalServiceStatus.UNDER_MODIFICATION) {
+			VirtualResourceUsage oldResourceUsage = nfvoService.computeVirtualResourceUsage(nsi, false);
+			adminService.removeUsedResourcesInTenant(tenantId, oldResourceUsage);
+			adminService.addUsedResourcesInTenant(tenantId, resourceUsage);
+			vsRecordService.resetOldNsInstantiationLevel(nsi.getNsiId());
 			internalStatus = VerticalServiceStatus.INSTANTIATED;
 			log.debug("VS Modification procedure completed.");
 
@@ -364,7 +368,7 @@ public class VsLcmManager {
 	}
 
 	void processNsiStatusChangeNotification(NotifyNsiStatusChange msg) {
-		if (!((internalStatus == VerticalServiceStatus.INSTANTIATING) || (internalStatus == VerticalServiceStatus.TERMINATING))) {
+		if (!((internalStatus == VerticalServiceStatus.INSTANTIATING) || (internalStatus == VerticalServiceStatus.TERMINATING) || (internalStatus == VerticalServiceStatus.UNDER_MODIFICATION))) {
 			manageVsError("Received NSI status change notification in wrong status. Skipping message.");
 			return;
 		}

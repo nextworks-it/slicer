@@ -155,7 +155,7 @@ public class BasicArbitrator extends AbstractArbitrator {
 			NetworkSliceInstance nsi = vsRecordService.getNsInstance(nsiId);
 
 			//Compute resource usage for nsi
-			VirtualResourceUsage currentNsRes = nfvoService.computeVirtualResourceUsage(nsi);
+			VirtualResourceUsage currentNsRes = nfvoService.computeVirtualResourceUsage(nsi, true);
 			//Compute resoruce required for the scaled ns
 			VirtualResourceUsage requiredRes = nfvoService.computeVirtualResourceUsage(nsInitInfo);
 

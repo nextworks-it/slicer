@@ -273,7 +273,7 @@ public class NsLcmManager {
 	}
 
 	void processNfvNsChangeNotification(NotifyNfvNsiStatusChange msg) {
-		if (! ((internalStatus == NetworkSliceStatus.INSTANTIATING) || (internalStatus == NetworkSliceStatus.TERMINATING))) {
+		if (! ((internalStatus == NetworkSliceStatus.INSTANTIATING) || (internalStatus == NetworkSliceStatus.TERMINATING) || (internalStatus == NetworkSliceStatus.UNDER_MODIFICATION))) {
 			manageNsError("Received notification about NFV NS status change in wrong status.");
 			return;
 		}
@@ -318,7 +318,7 @@ public class NsLcmManager {
 						log.debug("Successful modification of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
 						this.internalStatus=NetworkSliceStatus.INSTANTIATED;
 						//TODO check on requestedInstantiationLevelId
-						vsRecordService.setNsInstantiationLevel(networkSliceInstanceId, requestedInstantiationLevelId);
+						vsRecordService.updateNsInstantiationLevelAfterScaling(networkSliceInstanceId, requestedInstantiationLevelId);
 						vsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
 						engine.notifyNetworkSliceStatusChange(networkSliceInstanceId, NsStatusChange.NS_MODIFIED, true);
 						break;

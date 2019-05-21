@@ -199,7 +199,7 @@ public class SebastianTest {
         /**
          * VsLcmManager
          */
-        when(nfvoService.computeVirtualResourceUsage(any(NetworkSliceInstance.class))).thenReturn(new VirtualResourceUsage(10,10,10));
+        when(nfvoService.computeVirtualResourceUsage(any(NetworkSliceInstance.class), eq(true))).thenReturn(new VirtualResourceUsage(10,10,10));
 
         /**
          * Triggering NFVO NS_CREATED Notification
@@ -281,7 +281,7 @@ public class SebastianTest {
         /**
          * VsLcmManager
          */
-        when(nfvoService.computeVirtualResourceUsage(any(NetworkSliceInstance.class))).thenReturn(new VirtualResourceUsage(25,15,15));
+        when(nfvoService.computeVirtualResourceUsage(any(NetworkSliceInstance.class), eq(true))).thenReturn(new VirtualResourceUsage(25,15,15));
 
         /**
          * Triggering NFVO NS_CREATED Notification

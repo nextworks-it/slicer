@@ -189,7 +189,7 @@ public class VsLcmManagerTest {
 
         when(vsRecordServiceMock.getVsInstancesFromNetworkSlice(sliceId)).thenReturn(Arrays.asList(vsi1, vsi2));
         when(vsRecordServiceMock.getNsInstance(sliceId)).thenReturn(networkSliceInstanceMock);
-        when(nfvoMock.computeVirtualResourceUsage(networkSliceInstanceMock)).thenReturn(vruMock);
+        when(nfvoMock.computeVirtualResourceUsage(networkSliceInstanceMock, true)).thenReturn(vruMock);
 
         TerminateVsiRequestMessage message = new TerminateVsiRequestMessage(id);
         vsLcmManager.processTerminateRequest(message);
