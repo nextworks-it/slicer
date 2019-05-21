@@ -16,6 +16,7 @@
 package it.nextworks.nfvmano.sebastian.nfvodriver.timeo;
 
 
+import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -43,10 +44,6 @@ import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.common.exceptions.MethodNotImplementedException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.CreateNsIdentifierRequest;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.InstantiateNsRequest;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.QueryNsResponse;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.TerminateNsRequest;
 
 
 /**
@@ -155,6 +152,42 @@ public class TimeoRestClient {
 				throw new FailedOperationException("Generic error on NFVO during NS instantiation");
 			}
 			
+		} catch (RestClientException e) {
+			log.debug("Error while interacting with NFVO.");
+			throw new FailedOperationException("Error while interacting with NFVO LCM at url " + url);
+		}
+	}
+
+	public String scaleNs(ScaleNsRequest request) throws NotExistingEntityException, FailedOperationException, MalformattedElementException {
+		String nsId = request.getNsInstanceId();
+		log.debug("Building HTTP request to scale NS instance " + nsId);
+
+		HttpHeaders header = new HttpHeaders();
+		header.add("Content-Type", "application/json");
+		HttpEntity<?> putEntity = new HttpEntity<>(request, header);
+
+		String url = nsLifecycleServiceUrl + "/ns/" + nsId + "/scale";
+
+		try {
+			log.debug("Sending HTTP request to instantiate NS.");
+			ResponseEntity<String> httpResponse =
+					restTemplate.exchange(url, HttpMethod.PUT, putEntity, String.class);
+
+			log.debug("Response code: " + httpResponse.getStatusCode().toString());
+			HttpStatus code = httpResponse.getStatusCode();
+
+			if (code.equals(HttpStatus.OK)) {
+				String operationId = httpResponse.getBody();
+				log.debug("Started NS instantiation at NFVO. Operation ID: " + operationId);
+				return operationId;
+			} else if (code.equals(HttpStatus.NOT_FOUND)) {
+				throw new NotExistingEntityException("Error during NS instantiation at NFVO: " + httpResponse.getBody());
+			} else if (code.equals(HttpStatus.BAD_REQUEST)) {
+				throw new MalformattedElementException("Error during NS instantiation at NFVO: " + httpResponse.getBody());
+			} else {
+				throw new FailedOperationException("Generic error on NFVO during NS instantiation");
+			}
+
 		} catch (RestClientException e) {
 			log.debug("Error while interacting with NFVO.");
 			throw new FailedOperationException("Error while interacting with NFVO LCM at url " + url);

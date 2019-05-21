@@ -108,7 +108,9 @@ public class TimeoDriver extends NfvoAbstractDriver {
 	@Override
 	public String scaleNs(ScaleNsRequest request) throws MethodNotImplementedException, NotExistingEntityException,
 			FailedOperationException, MalformattedElementException {
-		throw new MethodNotImplementedException("NFV NS scaling not supported in TIMEO.");
+		String operationId = restClient.scaleNs(request);
+		timeoNfvoOperationPollingManager.addOperation(operationId, OperationStatus.SUCCESSFULLY_DONE, request.getNsInstanceId(), "NS_SCALING");
+		return operationId;
 	}
 
 	@Override
