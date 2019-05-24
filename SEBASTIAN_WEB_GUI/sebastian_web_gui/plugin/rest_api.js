@@ -110,6 +110,13 @@ function getFromURLWithAuth(resourceUrl, callback, params) {
 }
 
 function postJsonToURLWithAuth(resourceUrl, jsonData, callback, params) {
+    sendJsonToURLWithAuth(resourceUrl, jsonData, callback, params, 'POST');
+}
+
+function sendJsonToURLWithAuth(resourceUrl, jsonData, callback, params, verb) {
+    if (verb === undefined) {
+        verb = 'POST';
+    }
     
     if (!checkUser('username')) {
         redirectToError('401');
@@ -119,7 +126,7 @@ function postJsonToURLWithAuth(resourceUrl, jsonData, callback, params) {
             "async": true,
             "crossDomain": true,
             "url": resourceUrl,
-            "method": "POST",
+            "method": verb,
             "headers": {
                 "Content-Type": "application/json"
             },

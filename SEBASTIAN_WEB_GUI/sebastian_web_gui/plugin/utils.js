@@ -465,7 +465,9 @@ function createActionButton(id, btnNames, btnCallbacks) {
 
 function createButton(id, btnName, btnCallback) {
   var text = '<button type="button" class="btn btn-info btn-sm btn-block';
-  if (
+  if (btnCallback instanceof Function) {
+    text += '" onclick=' + btnCallback.name + '("' + id + '")>';
+  } else if (
     btnCallback.toLowerCase().indexOf('delete') >= 0 ||
     btnCallback.toLowerCase().indexOf('purge') >= 0 ||
     btnCallback.toLowerCase().indexOf('enable') >= 0 ||
