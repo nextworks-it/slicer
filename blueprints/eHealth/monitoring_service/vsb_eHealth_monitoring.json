@@ -1,0 +1,86 @@
+{
+
+    "version": "0.1",
+    "name": "eHealthMonitoring",
+    "description": "Monitoring Service for eHealth use case",
+    "parameters": [{
+      "parameterId": "MaximumNumberUsers",
+      "parameterName": "MaximumNumberUsers",
+      "parameterType": "number",
+      "parameterDescription": "Maximum number of users that should be supported by the service",
+      "applicabilityField": "eHealth"
+    }],
+    "atomicComponents": [{
+	"componentId": "eHealth_monitoring_backend",
+	"serversNumber": 1,
+	"endPointsIds": ["data_ehealth_mon_be_sap", "mgt_ehealth_mon_be_sap"]
+    }, {
+	"componentId": "vEPC",
+	"serversNumber": 1,
+	"endPointsIds": ["s1c_s1u_vepc_sap", "sgi_vepc_sap", "s5_vepc_sap", "mgt_vepc_sap"]
+    }],
+    "endPoints": [{
+	"endPointId": "s1c_s1u_ehealth_mon_sap",
+	"external": true,
+	"management": false,
+	"ranConnection": true
+    }, {
+	"endPointId": "mgt_eHealth_mon_sap",
+	"external": true,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "sgi_ehealth_mon_sap",
+	"external": true,
+	"management": false,
+	"ranConnection": false
+    }, {
+	"endPointId": "s5_ehealth_mon_sap",
+	"external": true,
+	"management": false,
+	"ranConnection": false
+    }, {
+	"endPointId": "data_ehealth_mon_be_sap",
+	"external": false,
+	"management": false,
+	"ranConnection": true
+    }, {
+	"endPointId": "mgt_ehealth_mon_be_sap",
+	"external": false,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "s1c_s1u_vepc_sap",
+	"external": false,
+	"management": false,
+	"ranConnection": true
+    }, {
+	"endPointId": "sgi_vepc_sap",
+	"external": false,
+	"management": false,
+	"ranConnection": false
+    }, {
+	"endPointId": "s5_vepc_sap",
+	"external": false,
+	"management": false,
+	"ranConnection": false
+    }, {
+	"endPointId": "mgt_vepc_sap",
+	"external": false,
+	"management": true,
+	"ranConnection": false
+    }],
+    "connectivityServices": [{
+	"endPointIds": ["mgt_vepc_sap","mgt_ehealth_mon_be_sap","mgt_eHealth_mon_sap"],
+	"external": true
+    }, {
+	"endPointIds": ["s1c_s1u_ehealth_mon_sap","s1c_s1u_vepc_sap"],
+	"external": true
+    }, {
+	"endPointIds": ["s5_ehealth_mon_sap","s5_vepc_sap"],
+	"external": true
+    }, {
+	"endPointIds": ["sgi_ehealth_mon_sap","sgi_vepc_sap","data_ehealth_mon_be_sap"],
+	"external": true
+    }]
+}

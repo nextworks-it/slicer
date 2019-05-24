@@ -1,0 +1,124 @@
+{
+  "vnfdId": "vFCS",
+  "vnfProvider": "TEI-NXW",
+  "vnfProductName": "vFCS",
+  "vnfSoftwareVersion": "0.1",
+  "vnfdVersion": "0.1",
+  "vnfProductInfoName": "vFCS",
+  "vnfProductInfoDescription": "Factory Control Server @ eIndustry UC",
+  "vnfmInfo": ["SDK"],
+  "vdu": [
+    {
+      "vduId": "fcs_vdu",
+      "name": "fcs_vdu",
+      "description": "VDU of the Factory Control Server",
+      "intCpd": [
+        {
+          "cpdId": "fcs_data_int",
+          "layerProtocol": "IPV4",
+          "description": "FCS Internal CP to fcs_vl_data",
+          "addressData": [
+            {
+              "addressType": "IP_ADDRESS",
+              "iPAddressAssignment": false,
+              "floatingIpActivated": true,
+              "iPAddressType": "IPv4",
+              "numberOfIpAddress": 1,
+              "management": true
+            }]
+        }
+      ],
+      "virtualComputeDesc": "fcs_vcd",
+      "virtualStorageDesc": ["fcs_vsd"],
+      "swImageDesc": {
+        "id": "fcs_swid",
+        "name": "cirros",
+        "version": "0.1",
+        "checksum": "TBD",
+        "containerFormat": "QCOW",
+        "diskFormat": "QCOW",
+        "minDisk": 1,
+        "minRam": 1,
+        "size": 10,
+        "swImage": "cirros",
+        "operatingSystem": "ubuntu-server"
+      },
+      "configurableProperties": {}
+  }],
+  "virtualComputeDesc": [{
+    "virtualComputeDescId": "fcs_vcd",
+    "virtualMemory": {
+      "virtualMemSize": 1,
+      "virtualMemOversubscriptionPolicy": "nn",
+      "numaEnabled": false
+    },
+    "virtualCpu": {
+      "numVirtualCpu": 1,
+      "cpuArchitecture": "x86_64",
+      "virtualCpuClock": 0,
+      "virtualCpuOversubscriptionPolicy": "nn"
+    }
+
+  }],
+  "virtualStorageDesc": [{
+    "id": "fcs_vsd",
+    "typeOfStorage": "VOLUME",
+    "sizeOfStorage": 10,
+    "swImageDesc": "cirros"
+  }],
+  "vnfExtCpd": [{
+    "cpdId": "fcs_data_ext",
+    "layerProtocol": "IPV4",
+    "description": "FCS External CP to fcs_vl_data",
+    "addressData": [{
+      "addressType": "IP_ADDRESS",
+      "iPAddressAssignment": false,
+      "floatingIpActivated": true,
+      "iPAddressType": "IPv4",
+      "numberOfIpAddress": 1,
+      "management": true
+    }],
+    "intCpd": "fcs_data_int"
+   }
+  ],
+  "deploymentFlavour": [{
+    "flavourId": "fcs_df",
+    "description": "Standard deployment flavour of the Factory Control Server VNF",
+    "vduProfile": [{
+      "vduId": "fcs_vdu",
+      "minNumberOfInstances": 1,
+      "maxNumberOfInstances": 1
+    }],
+    "instantiationLevel": [{
+      "levelId": "fcs_il",
+      "description": "Standard instantiation level of the Factory Control Server VNF",
+      "vduLevel": [{
+        "vduId": "fcs_vdu",
+        "numberOfInstances": 1
+      }]
+    }],
+    "vnfLcmOperationsConfiguration": {}
+  }],
+  "configurableProperties": {
+    "autoScalable": false,
+    "autoHealable": false,
+    "additionalConfigurableProperty": [
+
+    ]
+  },
+  "modifiableAttributes": {},
+  "lifeCycleManagementScript": [{
+    "event": ["START_VNF_INSTANTIATION"],
+    "script": ""
+
+  }, {
+    "event": ["END_VNF_INSTANTIATION"],
+    "script": ""
+  }, {
+    "event": ["START_VNF_TERMINATION"],
+    "script": ""
+  }, {
+    "event": ["END_VNF_TERMINATION"],
+    "script": ""
+  }]
+}

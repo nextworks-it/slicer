@@ -1,0 +1,72 @@
+{
+
+    "version": "0.1",
+    "name": "CDN",
+    "description": "Content Delivery Network Service",
+    "parameters": [{
+      "parameterId": "MaximumNumberUsers",
+      "parameterName": "MaximumNumberUsers",
+      "parameterType": "number",
+      "parameterDescription": "Maximum number of users that should be supported by the service",
+      "applicabilityField": "entertainment"
+    }],
+    "atomicComponents": [{
+	"componentId": "OriginServer",
+	"serversNumber": 1,
+	"endPointsIds": ["spr1MgtExt", "spr1DataExt"]
+    }, {
+	"componentId": "VideoCache",
+	"serversNumber": 2,
+	"endPointsIds": ["spr2DistExt", "spr2DataExt"]
+    }, {
+	"componentId": "WebServer",
+	"serversNumber": 1,
+	"endPointsIds": ["webDistExt"]
+    }],
+    "endPoints": [{
+	"endPointId": "mgtSap",
+	"external": true,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "videoSap",
+	"external": true,
+	"management": true,
+	"ranConnection": true
+    }, {
+	"endPointId": "spr1MgtExt",
+	"external": true,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "spr1DataExt",
+	"external": false,
+	"management": false,
+	"ranConnection": false
+    }, {
+	"endPointId": "spr2DistExt",
+	"external": true,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "spr2DataExt",
+	"external": false,
+	"management": false,
+	"ranConnection": false
+    }, {
+	"endPointId": "webDistExt",
+	"external": true,
+	"management": true,
+	"ranConnection": false
+    }],
+    "connectivityServices": [{
+	"endPointIds": ["videoSap","spr2DistExt","webDistExt"],
+	"external": true
+    }, {
+	"endPointIds": ["mgtSap","spr1MgtExt"],
+	"external": true
+    }, {
+	"endPointIds": ["spr1DataExt","spr2DataExt"],
+	"external": false
+    }]
+}

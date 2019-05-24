@@ -1,0 +1,124 @@
+{
+  "vnfdId": "vVS_Algorithm",
+  "vnfProvider": "SSSA-NXW",
+  "vnfProductName": "vVS_Algorithm",
+  "vnfSoftwareVersion": "0.1",
+  "vnfdVersion": "0.1",
+  "vnfProductInfoName": "vVS_Algorithm",
+  "vnfProductInfoDescription": "Algorithm for Video Streaming adaptation @ Automotive UC",
+  "vnfmInfo": ["SDK"],
+  "vdu": [
+    {
+      "vduId": "vVS_algo_vdu",
+      "name": "vVS_algo_vdu",
+      "description": "VDU of the vVS Algorithm",
+      "intCpd": [
+        {
+          "cpdId": "vVS_algo_data_int",
+          "layerProtocol": "IPV4",
+          "description": "vVS Algorithm Internal CP to vl_data",
+          "addressData": [
+            {
+              "addressType": "IP_ADDRESS",
+              "iPAddressAssignment": false,
+              "floatingIpActivated": true,
+              "iPAddressType": "IPv4",
+              "numberOfIpAddress": 1,
+              "management": true
+            }]
+        }
+      ],
+      "virtualComputeDesc": "vVS_algo_vcd",
+      "virtualStorageDesc": ["vVS_algo_vsd"],
+      "swImageDesc": {
+        "id": "vVS_algo_swid",
+        "name": "cirros",
+        "version": "0.1",
+        "checksum": "TBD",
+        "containerFormat": "QCOW",
+        "diskFormat": "QCOW",
+        "minDisk": 1,
+        "minRam": 4,
+        "size": 10,
+        "swImage": "cirros",
+        "operatingSystem": "ubuntu-server"
+      },
+      "configurableProperties": {}
+  }],
+  "virtualComputeDesc": [{
+    "virtualComputeDescId": "vVS_algo_vcd",
+    "virtualMemory": {
+      "virtualMemSize": 4,
+      "virtualMemOversubscriptionPolicy": "nn",
+      "numaEnabled": false
+    },
+    "virtualCpu": {
+      "numVirtualCpu": 1,
+      "cpuArchitecture": "x86_64",
+      "virtualCpuClock": 0,
+      "virtualCpuOversubscriptionPolicy": "nn"
+    }
+
+  }],
+  "virtualStorageDesc": [{
+    "id": "vVS_algo_vsd",
+    "typeOfStorage": "VOLUME",
+    "sizeOfStorage": 10,
+    "swImageDesc": "cirros"
+  }],
+  "vnfExtCpd": [{
+    "cpdId": "vVS_algo_data_ext",
+    "layerProtocol": "IPV4",
+    "description": "vVS Algorithm External CP to vl_data",
+    "addressData": [{
+      "addressType": "IP_ADDRESS",
+      "iPAddressAssignment": false,
+      "floatingIpActivated": true,
+      "iPAddressType": "IPv4",
+      "numberOfIpAddress": 1,
+      "management": true
+    }],
+    "intCpd": "vVS_algo_data_int"
+   }
+  ],
+  "deploymentFlavour": [{
+    "flavourId": "vVS_algo_df",
+    "description": "Standard deployment flavour of the vVS Algorithm VNF",
+    "vduProfile": [{
+      "vduId": "vVS_algo_vdu",
+      "minNumberOfInstances": 1,
+      "maxNumberOfInstances": 1
+    }],
+    "instantiationLevel": [{
+      "levelId": "vVS_algo_il",
+      "description": "Standard instantiation level of the vVS Algorithm VNF",
+      "vduLevel": [{
+        "vduId": "vVS_algo_vdu",
+        "numberOfInstances": 1
+      }]
+    }],
+    "vnfLcmOperationsConfiguration": {}
+  }],
+  "configurableProperties": {
+    "autoScalable": false,
+    "autoHealable": false,
+    "additionalConfigurableProperty": [
+
+    ]
+  },
+  "modifiableAttributes": {},
+  "lifeCycleManagementScript": [{
+    "event": ["START_VNF_INSTANTIATION"],
+    "script": ""
+
+  }, {
+    "event": ["END_VNF_INSTANTIATION"],
+    "script": ""
+  }, {
+    "event": ["START_VNF_TERMINATION"],
+    "script": ""
+  }, {
+    "event": ["END_VNF_TERMINATION"],
+    "script": ""
+  }]
+}

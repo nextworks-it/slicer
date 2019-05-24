@@ -1,0 +1,188 @@
+{
+	"vnfdId": "wef_ovs_vnfd",
+	"vnfProvider": "Bcom",
+	"vnfProductName": "wef_ovs",
+	"vnfSoftwareVersion": "1.2.1",
+	"vnfdVersion": "0.1",
+	"vnfProductInfoName": "Bcom WEF OVS",
+	"vnfProductInfoDescription": "Bcom WEF OVS",
+	"vnfmInfo": ["WEF_VNFM"],
+	"vdu": [{
+		"vduId": "wef_ovs_vdu",
+		"name": "wef_ovs_vdu",
+		"description": "VDU of the OVS",
+		"intCpd": [{
+			"cpdId": "wef-ovs-ens3_int",
+			"layerProtocol": "IPV4",
+			"description": "Management CP of the OVS",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": true,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		}, {
+			"cpdId": "wef-ovs-ens4_int",
+			"layerProtocol": "IPV4",
+			"description": "CP for the Core network interface of the OVS",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": false,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		},
+		{
+			"cpdId": "wef-ovs-ens5_int",
+			"layerProtocol": "IPV4",
+			"description": "CP for the SDN network interface of the OVS",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": false,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		},
+		{
+			"cpdId": "wef-ovs-ens6_int",
+			"layerProtocol": "IPV4",
+			"description": "CP for the LTE network interface of the OVS",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": false,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		},
+		{
+			"cpdId": "wef-ovs-ens7_int",
+			"layerProtocol": "IPV4",
+			"description": "CP to Access to the user plan",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": false,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		}],
+		"virtualComputeDesc": "VCD_WEF_OVS",
+		"virtualStorageDesc": ["VSD_WEF_OVS"],
+		"swImageDesc": {
+			"id": "WEF_OVS_SWID",
+			"name": "WEF_OVS",
+			"version": "0.1",
+			"checksum": "13dcb67413d7c78bf6450ef668b8a7e3",
+			"containerFormat": "BARE",
+			"diskFormat": "QCOW2",
+			"minDisk": 1,
+			"minRam": 1,
+			"size": 5,
+			"swImage": "wef_ovs_5gt",
+			"operatingSystem": "ubuntu-server-16.04-amd64"
+		},
+		"configurableProperties": {}
+	}],
+	"virtualComputeDesc": [{
+		"virtualComputeDescId": "VCD_WEF_OVS",
+		"virtualMemory": {
+			"virtualMemSize": 1
+		},
+		"virtualCpu": {
+			"numVirtualCpu": 1
+		}
+	}],
+	"virtualStorageDesc": [{
+		"id": "VSD_WEF_OVS",
+		"typeOfStorage": "VOLUME",
+		"sizeOfStorage": 5,
+		"swImageDesc": "WEF_OVS_SWID"
+	}],
+	"vnfExtCpd": [{
+		"cpdId": "wef-ovs-ens3_ext",
+		"layerProtocol": "IPV4",
+		"description": "Management external CP of the OVS",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": true,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "wef-ovs-ens3_int"
+	}, {
+		"cpdId": "wef-ovs-ens4_ext",
+		"layerProtocol": "IPV4",
+		"description": "External CP for the Core network interface of the OVS",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": false,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "wef-ovs-ens4_int"
+	},
+	{
+		"cpdId": "wef-ovs-ens5_ext",
+		"layerProtocol": "IPV4",
+		"description": "External CP for the SDN network interface of the OVS",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": true,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "wef-ovs-ens5_int"
+	},
+	{
+		"cpdId": "wef-ovs-ens6_ext",
+		"layerProtocol": "IPV4",
+		"description": "External CP for the LTE network interface of the OVS",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": false,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "wef-ovs-ens6_int"
+	},
+	{
+		"cpdId": "wef-ovs-ens7_ext",
+		"layerProtocol": "IPV4",
+		"description": "External CP to Access to the user plan",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": false,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "wef-ovs-ens7_int"
+	}],
+	"deploymentFlavour": [{
+		"flavourId": "df_wef_ovs",
+		"description": "Standard deployment flavour of the OVS",
+		"vduProfile": [{
+			"vduId": "wef_ovs_vdu",
+			"minNumberOfInstances": 1,
+			"maxNumberOfInstances": 1
+		}],
+		"instantiationLevel": [{
+			"levelId": "il_wef_ovs",
+			"description": "Standard instantiation level of the OVS",
+			"vduLevel": [{
+				"vduId": "wef_ovs_vdu",
+				"numberOfInstances": 1
+			}]
+		}],
+		"vnfLcmOperationsConfiguration": {}
+	}],
+	"modifiableAttributes": {}
+}

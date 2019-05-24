@@ -1,0 +1,124 @@
+{
+  "vnfdId": "vDENMgenerator",
+  "vnfProvider": "NXW",
+  "vnfProductName": "CIM",
+  "vnfSoftwareVersion": "0.1",
+  "vnfdVersion": "0.1",
+  "vnfProductInfoName": "vDENMgenerator",
+  "vnfProductInfoDescription": "Virtual DENM generator ",
+  "vnfmInfo": ["SDK"],
+  "vdu": [
+    {
+      "vduId": "vDENMgenerator_vdu",
+      "name": "vDENMgenerator_vdu",
+      "description": "VDU of the vDENMgenerator",
+      "intCpd": [
+        {
+          "cpdId": "vDENMgenerator_data_int",
+          "layerProtocol": "IPV4",
+          "description": "vDENMgenerator Internal CP to vl_data",
+          "addressData": [
+            {
+              "addressType": "IP_ADDRESS",
+              "iPAddressAssignment": false,
+              "floatingIpActivated": true,
+              "iPAddressType": "IPv4",
+              "numberOfIpAddress": 1,
+              "management": true
+            }]
+        }
+      ],
+      "virtualComputeDesc": "vDENMgenerator_vcd",
+      "virtualStorageDesc": ["vDENMgenerator_vsd"],
+      "swImageDesc": {
+        "id": "vDENMgenerator_swid",
+        "name": "cirros",
+        "version": "0.1",
+        "checksum": "TBD",
+        "containerFormat": "QCOW",
+        "diskFormat": "QCOW",
+        "minDisk": 10,
+        "minRam": 2,
+        "size": 10,
+        "swImage": "cirros",
+        "operatingSystem": "ubuntu-server"
+      },
+      "configurableProperties": {}
+  }],
+  "virtualComputeDesc": [{
+    "virtualComputeDescId": "vDENMgenerator_vcd",
+    "virtualMemory": {
+      "virtualMemSize": 2,
+      "virtualMemOversubscriptionPolicy": "asdasd",
+      "numaEnabled": false
+    },
+    "virtualCpu": {
+      "numVirtualCpu": 1,
+      "cpuArchitecture": "x86_64",
+      "virtualCpuClock": 0,
+      "virtualCpuOversubscriptionPolicy": "asdasd"
+    }
+
+  }],
+  "virtualStorageDesc": [{
+    "id": "vDENMgenerator_vsd",
+    "typeOfStorage": "VOLUME",
+    "sizeOfStorage": 10,
+    "swImageDesc": "cirros"
+  }],
+  "vnfExtCpd": [{
+    "cpdId": "vDENMgenerator_data_ext",
+    "layerProtocol": "IPV4",
+    "description": "vDENMgenerator External CP to vl_data",
+    "addressData": [{
+      "addressType": "IP_ADDRESS",
+      "iPAddressAssignment": false,
+      "floatingIpActivated": true,
+      "iPAddressType": "IPv4",
+      "numberOfIpAddress": 1,
+      "management": true
+    }],
+    "intCpd": "vDENMgenerator_data_int"
+   }
+  ],
+  "deploymentFlavour": [{
+    "flavourId": "vDENMgenerator_df",
+    "description": "Standard deployment flavour of the vDENMgenerator VNF",
+    "vduProfile": [{
+      "vduId": "vDENMgenerator_vdu",
+      "minNumberOfInstances": 1,
+      "maxNumberOfInstances": 1
+    }],
+    "instantiationLevel": [{
+      "levelId": "vDENMgenerator_il",
+      "description": "Standard instantiation level of the vDENMgenerator VNF",
+      "vduLevel": [{
+        "vduId": "vDENMgenerator_vdu",
+        "numberOfInstances": 1
+      }]
+    }],
+    "vnfLcmOperationsConfiguration": {}
+  }],
+  "configurableProperties": {
+    "autoScalable": false,
+    "autoHealable": false,
+    "additionalConfigurableProperty": [
+
+    ]
+  },
+  "modifiableAttributes": {},
+  "lifeCycleManagementScript": [{
+    "event": ["START_VNF_INSTANTIATION"],
+    "script": ""
+
+  }, {
+    "event": ["END_VNF_INSTANTIATION"],
+    "script": ""
+  }, {
+    "event": ["START_VNF_TERMINATION"],
+    "script": ""
+  }, {
+    "event": ["END_VNF_TERMINATION"],
+    "script": ""
+  }]
+}

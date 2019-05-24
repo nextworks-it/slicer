@@ -1,0 +1,269 @@
+{
+	"nsd": {
+		"nsdIdentifier": "nsEVS",
+		"designer": "CRF-POLITO-NXW",
+		"version": "0.1",
+		"nsdName": "EVS service @ 5GT",
+		"nsdInvariantId": "EVS service @ 5GT\"",
+		"vnfdId": ["vCIM", "vDENMgenerator", "vEVS"],
+		"pnfdId": ["pEPC"],
+		"sapd": [
+			{
+				"cpdId": "evs_sap_data",
+				"description": "SAP to access the EVS service",
+				"layerProtocol": "IPV4",
+				"cpRole": "ROOT",
+				"addressData": [{
+					"addressType": "IP_ADDRESS",
+					"iPAddressAssignment": false,
+					"floatingIpActivated": true,
+					"iPAddressType": "IPv4",
+					"numberOfIpAddress": 1
+				}],
+				"sapAddressAssignment": false,
+				"nsVirtualLinkDescId": "vl_data"
+			}
+		],
+		"virtualLinkDesc": [
+			{
+				"virtualLinkDescId": "vl_data",
+				"virtualLinkDescProvider": "NXW",
+				"virtuaLinkDescVersion": "0.1",
+				"connectivityType": {
+					"layerProtocol": "IPV4"
+				},
+				"virtualLinkDf": [{
+					"flavourId": "vl_df_data",
+					"qos": {
+						"latency": 20,
+						"packetDelayVariation": 0,
+						"packetLossRatio": 0,
+						"priority": 0
+					},
+					"serviceAvaibilityLevel": "LEVEL_1",
+					"bitrateRequirements": {
+						"root": 0,
+						"leaf": 0
+					}
+				}],
+				"description": "Network to connect to the users"
+			}
+		],
+		"nsDf": [{
+			"nsDfId": "nsEVS_df",
+			"flavourKey": "nsEVS_fk",
+			"vnfProfile": [
+
+				{
+					"vnfProfileId": "vCIM_profile",
+					"vnfdId": "vCIM",
+					"flavourId": "vCIM_df",
+					"instantiationLevel": "vCIM_il",
+					"minNumberOfInstances": 1,
+					"maxNumberOfInstances": 1,
+					"nsVirtualLinkConnectivity": [{
+						"virtualLinkProfileId": "vl_profile_data",
+						"cpdId": [
+							"vCIM_data_ext"
+						]
+					 }
+					]
+				},
+				{
+					"vnfProfileId": "vDENMgenerator_profile",
+					"vnfdId": "vDENMgenerator",
+					"flavourId": "vDENMgenerator_df",
+					"instantiationLevel": "vDENMgenerator_il",
+					"minNumberOfInstances": 1,
+					"maxNumberOfInstances": 1,
+					"nsVirtualLinkConnectivity": [{
+							"virtualLinkProfileId": "vl_profile_data",
+							"cpdId": [
+								"vDENMgenerator_data_ext"
+							]
+						}
+					]
+				},
+				{
+					"vnfProfileId": "vEVS_profile",
+					"vnfdId": "vEVS",
+					"flavourId": "vEVS_df",
+					"instantiationLevel": "vEVS_il",
+					"minNumberOfInstances": 1,
+					"maxNumberOfInstances": 2,
+					"nsVirtualLinkConnectivity": [{
+						"virtualLinkProfileId": "vl_profile_data",
+						"cpdId": [
+							"vEVS_data_ext"
+						]
+					  }
+
+					]
+				}
+			],
+			"pnfProfile": [{
+				"pnfProfileId": "pEPC_profile",
+				"pnfdId": "pEPC",
+				"pnfVirtualLinkConnectivity": [{
+					"virtualLinkProfileId": "vl_profile_data",
+					"cpdId": [
+						"pEPC_data"
+					]
+				}]}
+			],
+			"virtualLinkProfile": [
+				{
+					"virtualLinkProfileId": "vl_profile_data",
+					"virtualLinkDescId": "vl_data",
+					"flavourId": "vl_df_data",
+					"maxBitrateRequirements": {
+						"root": "0",
+						"leaf": "0"
+					},
+					"minBitrateRequirements": {
+						"root": "0",
+						"leaf": "0"
+					}
+				}
+			],
+			"nsInstantiationLevel": [
+				{
+					"nsLevelId": "nsEVS_il_big",
+					"description": "Big instantiation level for the EVS",
+					"vnfToLevelMapping": [
+
+						{
+							"vnfProfileId": "vCIM_profile",
+							"numberOfInstances": 1
+						},
+						{
+							"vnfProfileId": "vDENMgenerator_profile",
+							"numberOfInstances": 1
+						},
+						{
+							"vnfProfileId": "vEVS_profile",
+							"numberOfInstances": 2
+						}
+					],
+					"virtualLinkToLevelMapping": [
+						{
+							"virtualLinkProfileId": "vl_profile_data",
+							"bitRateRequirements": {
+								"root": "0",
+								"leaf": "0"
+							}
+						}
+					]
+				},
+				{
+					"nsLevelId": "nsEVS_il_small",
+					"description": "Small instantiation level for the EVS",
+					"vnfToLevelMapping": [
+
+						{
+							"vnfProfileId": "vCIM_profile",
+							"numberOfInstances": 1
+						},
+						{
+							"vnfProfileId": "vDENMgenerator_profile",
+							"numberOfInstances": 1
+						},
+						{
+							"vnfProfileId": "vEVS_profile",
+							"numberOfInstances": 1
+						}
+
+					],
+					"virtualLinkToLevelMapping": [
+						{
+							"virtualLinkProfileId": "vl_profile_data",
+							"bitRateRequirements": {
+								"root": "0",
+								"leaf": "0"
+							}
+						}
+					]
+				}
+			],
+			"defaultNsInstantiationLevelId": "nsEVS_il_small",
+			"nsProfile": [
+				{
+					"nsProfileId": "nsEVS_profile_big",
+					"nsdId": "nsEVS",
+					"nsDfId": "nsEVS_df",
+					"nsInstantiationLevelId": "nsEVS_il_big",
+					"minNumberOfInstances": 1,
+					"maxNumberOfInstances": 1
+				},
+				{
+					"nsProfileId": "nsEVS_profile_small",
+					"nsdId": "nsEVS",
+					"nsDfId": "nsEVS_df",
+					"nsInstantiationLevelId": "nsEVS_il_small",
+					"minNumberOfInstances": 1,
+					"maxNumberOfInstances": 1
+				}
+			],
+			"dependencies": [
+				{
+					"primaryId": ["vCIM_profile"],
+					"secondaryId": [
+						"vDENMgenerator_profile",
+						"vEVS1_profile",
+						"vEVS2_profile"
+					]
+				},
+				{
+					"primaryId": ["vDENMgenerator_profile"],
+					"secondaryId": [
+						"vEVS1_profile",
+						"vEVS2_profile"
+					]
+				},{
+					"primaryId": ["vEVS1_profile"],
+					"secondaryId": [
+						"vEVS2_profile"
+					]
+				}
+
+			]
+		}],
+		"security": {
+			"signature": "EVS_NSD_SIGNATURE",
+			"algorithm": "EVS_NSD_ALGORITHM",
+			"certificate": "EVS_NSD_CERTIFICATE"
+		},
+		"monitoredInfo": [
+			{
+				"monitoringParameter": {
+					"monitoringParameterId": "mp_CurrentClientConnections.vEVS1",
+					"name": "CurrentClientConnections.vEVS1",
+					"performanceMetric": "CurrentClientConnections.vEVS1"
+				}
+			}
+		],
+		"autoScalingRule" : [{
+			"ruleId": "ar1",
+			"ruleConditions": {
+				"name": "cache1-overload",
+				"scalingType": "AUTOMATED_SCALING",
+				"enabled": true,
+				"thresholdTime": 150,
+				"cooldownTime": 60,
+				"initialInstantiationLevel": "nsEVS_il_small",
+				"scalingCriteria": [{
+					"name": "cache-overload",
+					"scaleOutThreshold": "75",
+					"scaleOutRelationalOperation": "GT",
+					"nsMonitoringParamRef": "mp_CurrentClientConnections.vEVS1"
+				}]
+			},
+			"ruleActions": [{
+				"scaleType": "SCALE_NS",
+				"scaleNsToLevelData": {
+					"nsInstantiationLevel": "nsEVS_il_big"
+				}
+			}]
+		}]
+	}
+}

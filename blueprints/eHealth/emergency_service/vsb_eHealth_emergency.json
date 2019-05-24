@@ -1,0 +1,81 @@
+{
+
+    "version": "0.1",
+    "name": "eHealthEmergency",
+    "description": "Emergency Service for eHealth use case",
+    "parameters": [{
+      "parameterId": "MaximumNumberAmbulances",
+      "parameterName": "MaximumNumberAmbulances",
+      "parameterType": "number",
+      "parameterDescription": "Maximum number of ambulances that should be supported by the service",
+      "applicabilityField": "eHealth"
+    }],
+    "atomicComponents": [{
+	"componentId": "eHealth_monitoring_service",
+	"serversNumber": 1,
+	"endPointsIds": ["sgi_ehealth_mon_sap", "s5_ehealth_mon_sap", "s1c_s1u_ehealth_mon_sap", "mgt_ehealth_mon_sap"]
+    }, {
+	"componentId": "eHealth_edge",
+	"serversNumber": 1,
+	"endPointsIds": ["sgi_ehealth_emergency_edge_sap", "s5_ehealth_emergency_edge_sap", "mgt_ehealth_emergency_edge_sap"]
+    }],
+    "endPoints": [{
+	"endPointId": "s1c_s1u_ehealth_emergency_sap",
+	"external": true,
+	"management": false,
+	"ranConnection": true
+    }, {
+	"endPointId": "mgt_ehealth_emergency_sap",
+	"external": true,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "sgi_ehealth_mon_sap",
+	"external": false,
+	"management": false,
+	"ranConnection": true
+    }, {
+	"endPointId": "s5_ehealth_mon_sap",
+	"external": false,
+	"management": false,
+	"ranConnection": false
+    }, {
+	"endPointId": "s1c_s1u_ehealth_mon_sap",
+	"external": false,
+	"management": false,
+	"ranConnection": true
+    }, {
+	"endPointId": "mgt_ehealth_mon_sap",
+	"external": false,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "sgi_ehealth_emergency_edge_sap",
+	"external": false,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "s5_ehealth_emergency_edge_sap",
+	"external": false,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "mgt_ehealth_emergency_edge_sap",
+	"external": false,
+	"management": true,
+	"ranConnection": false
+    }],
+    "connectivityServices": [{
+	"endPointIds": ["mgt_ehealth_emergency_edge_sap","mgt_ehealth_mon_sap","mgt_ehealth_emergency_sap"],
+	"external": true
+    }, {
+	"endPointIds": ["s1c_s1u_ehealth_mon_sap","s1c_s1u_ehealth_emergency_sap"],
+	"external": true
+    }, {
+	"endPointIds": ["s5_ehealth_emergency_edge_sap","s5_ehealth_mon_sap"],
+	"external": false
+    }, {
+	"endPointIds": ["sgi_ehealth_emergency_edge_sap","sgi_ehealth_mon_sap"],
+	"external": false
+    }]
+}

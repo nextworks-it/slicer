@@ -1,0 +1,113 @@
+{
+	"vnfdId": "wef_monitoring_vnfd",
+	"vnfProvider": "Bcom",
+	"vnfProductName": "wef_monitoring",
+	"vnfSoftwareVersion": "1.2.1",
+	"vnfdVersion": "0.1",
+	"vnfProductInfoName": "Bcom WEF Monitoring",
+	"vnfProductInfoDescription": "Bcom WEF Monitoring",
+	"vnfmInfo": ["WEF_VNFM"],
+	"vdu": [{
+		"vduId": "wef_monitoring_vdu",
+		"name": "wef_monitoring_vdu",
+		"description": "VDU of the Monitoring",
+		"intCpd": [{
+			"cpdId": "wef-monitoring-ens3_int",
+			"layerProtocol": "IPV4",
+			"description": "Management CP of the Monitoring",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": true,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		}, {
+			"cpdId": "wef-monitoring-ens4_int",
+			"layerProtocol": "IPV4",
+			"description": "CP for the Core network interface of the Monitoring",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": false,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		}],
+		"virtualComputeDesc": "VCD_WEF_Monitoring",
+		"virtualStorageDesc": ["VSD_WEF_Monitoring"],
+		"swImageDesc": {
+			"id": "WEF_Monitoring_SWID",
+			"name": "WEF_Monitoring",
+			"version": "0.1",
+			"checksum": "57d968d5d726b75ae3581150f6d0314d",
+			"containerFormat": "BARE",
+			"diskFormat": "QCOW2",
+			"minDisk": 1,
+			"minRam": 1,
+			"size": 5,
+			"swImage": "wef_monitor_5gt",
+			"operatingSystem": "ubuntu-server-16.04-amd64"
+		},
+		"configurableProperties": {}
+	}],
+	"virtualComputeDesc": [{
+		"virtualComputeDescId": "VCD_WEF_Monitoring",
+		"virtualMemory": {
+			"virtualMemSize": 1
+		},
+		"virtualCpu": {
+			"numVirtualCpu": 1
+		}
+	}],
+	"virtualStorageDesc": [{
+		"id": "VSD_WEF_Monitoring",
+		"typeOfStorage": "VOLUME",
+		"sizeOfStorage": 5,
+		"swImageDesc": "WEF_Monitoring_SWID"
+	}],
+	"vnfExtCpd": [{
+		"cpdId": "wef-monitoring-ens3_ext",
+		"layerProtocol": "IPV4",
+		"description": "Management external CP of the Monitoring",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": true,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "wef-monitoring-ens3_int"
+	}, {
+		"cpdId": "wef-monitoring-ens4_ext",
+		"layerProtocol": "IPV4",
+		"description": "External CP for the Core network interface of the Monitoring",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": false,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "wef-monitoring-ens4_int"
+	}],
+	"deploymentFlavour": [{
+		"flavourId": "df_wef_monitoring",
+		"description": "Standard deployment flavour of the Monitoring",
+		"vduProfile": [{
+			"vduId": "wef_monitoring_vdu",
+			"minNumberOfInstances": 1,
+			"maxNumberOfInstances": 1
+		}],
+		"instantiationLevel": [{
+			"levelId": "il_wef_monitoring",
+			"description": "Standard instantiation level of the Monitoring",
+			"vduLevel": [{
+				"vduId": "wef_monitoring_vdu",
+				"numberOfInstances": 1
+			}]
+		}],
+		"vnfLcmOperationsConfiguration": {}
+	}],
+	"modifiableAttributes": {}
+}

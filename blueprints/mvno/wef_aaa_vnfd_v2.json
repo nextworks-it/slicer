@@ -1,0 +1,138 @@
+{
+	"vnfdId": "wef_aaa_vnfd",
+	"vnfProvider": "Bcom",
+	"vnfProductName": "wef_aaa",
+	"vnfSoftwareVersion": "1.2.1",
+	"vnfdVersion": "0.1",
+	"vnfProductInfoName": "Bcom WEF AAA",
+	"vnfProductInfoDescription": "Bcom WEF AAA",
+	"vnfmInfo": ["WEF_VNFM"],
+	"vdu": [{
+		"vduId": "wef_aaa_vdu",
+		"name": "wef_aaa_vdu",
+		"description": "VDU of the AAA",
+		"intCpd": [{
+			"cpdId": "wef-aaa-ens3-int",
+			"layerProtocol": "IPV4",
+			"description": "Management CP of the AAA",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": true,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		}, {
+			"cpdId": "wef-aaa-ens4_int",
+			"layerProtocol": "IPV4",
+			"description": "CP for the Core network interface of the AAA",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": false,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		},
+		{
+			"cpdId": "wef-aaa-ens5_int",
+			"layerProtocol": "IPV4",
+			"description": "CP for the Secure network interface of the AAA",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": false,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		}],
+		"virtualComputeDesc": "VCD_WEF_AAA",
+		"virtualStorageDesc": ["VSD_WEF_AAA"],
+		"swImageDesc": {
+			"id": "WEF_AAA_SWID",
+			"name": "WEF_AAA",
+			"version": "0.1",
+			"checksum": "54a30391417ecf7a760183cddf8dab64",
+			"containerFormat": "BARE",
+			"diskFormat": "QCOW2",
+			"minDisk": 1,
+			"minRam": 1,
+			"size": 5,
+			"swImage": "wef_aaa_5gt",
+			"operatingSystem": "ubuntu-server-16.04-amd64"
+		},
+		"configurableProperties": {}
+	}],
+	"virtualComputeDesc": [{
+		"virtualComputeDescId": "VCD_WEF_AAA",
+		"virtualMemory": {
+			"virtualMemSize": 1
+		},
+		"virtualCpu": {
+			"numVirtualCpu": 1
+		}
+	}],
+	"virtualStorageDesc": [{
+		"id": "VSD_WEF_AAA",
+		"typeOfStorage": "VOLUME",
+		"sizeOfStorage": 5,
+		"swImageDesc": "WEF_AAA_SWID"
+	}],
+	"vnfExtCpd": [{
+		"cpdId": "wef-aaa-ens3_ext",
+		"layerProtocol": "IPV4",
+		"description": "Management external CP of the AAA",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": true,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "wef-aaa-ens3_int"
+	}, {
+		"cpdId": "wef-aaa-ens4_ext",
+		"layerProtocol": "IPV4",
+		"description": "External CP for the Core network interface of the AAA",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": false,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "wef-aaa-ens4_int"
+	},
+	{
+		"cpdId": "wef-aaa-ens5_ext",
+		"layerProtocol": "IPV4",
+		"description": "External CP for the Secure network interface of the AAA",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": true,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "wef-aaa-ens5_int"
+	}],
+	"deploymentFlavour": [{
+		"flavourId": "df_wef_aaa",
+		"description": "Standard deployment flavour of the AAA",
+		"vduProfile": [{
+			"vduId": "wef_aaa_vdu",
+			"minNumberOfInstances": 1,
+			"maxNumberOfInstances": 1
+		}],
+		"instantiationLevel": [{
+			"levelId": "il_wef_aaa",
+			"description": "Standard instantiation level of the AAA",
+			"vduLevel": [{
+				"vduId": "wef_aaa_vdu",
+				"numberOfInstances": 1
+			}]
+		}],
+		"vnfLcmOperationsConfiguration": {}
+	}],
+	"modifiableAttributes": {}
+}

@@ -1,0 +1,48 @@
+{
+
+    "version": "0.1",
+    "name": "eIndustry",
+    "description": "Factory Control Service",
+    "parameters": [{
+      "parameterId": "MaximumNumberEndDevices",
+      "parameterName": "MaximumNumberEndDevices",
+      "parameterType": "number",
+      "parameterDescription": "Maximum number of end devices that should be supported by the service",
+      "applicabilityField": "eIndustry"
+    }, {
+      "parameterId": "EndDevicesDensity",
+      "parameterName": "EndDevicesDensity",
+      "parameterType": "number",
+      "parameterDescription": "Maximum density of end devices that should be supported by the service",
+      "applicabilityField": "eIndustry"
+    }],
+    "atomicComponents": [{
+	"componentId": "FactoryControlServer",
+	"serversNumber": 1,
+	"endPointsIds": ["fcs_data_ext"]
+    }, {
+	"componentId": "EPC",
+	"serversNumber": 1,
+	"endPointsIds": ["pEPC_data"]
+    }],
+    "endPoints": [{
+	"endPointId": "fc_sap_data",
+	"external": true,
+	"management": true,
+	"ranConnection": true
+    }, {
+	"endPointId": "fcs_data_ext",
+	"external": true,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "pEPC_data_ext",
+	"external": true,
+	"management": true,
+	"ranConnection": false
+    }],
+    "connectivityServices": [{
+	"endPointIds": ["fc_sap_data","fcs_data_ext","pEPC_data"],
+	"external": true
+    }]
+}
