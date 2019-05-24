@@ -43,7 +43,7 @@ function submitBlueprintCreationRequest(blueprintId) {
     var blueprint = document.getElementById(blueprintId).innerHTML;
     jsonObj.vsBlueprint = JSON.parse(blueprint);
     
-    jsonObj.vsBlueprint.imgUrl = image_url;
+    //jsonObj.vsBlueprint.imgUrl = image_url;
     
     jsonObj.nsds = nsds;
     
@@ -61,16 +61,16 @@ function submitBlueprintCreationRequest(blueprintId) {
 }
 
 function createVSDFromForm(formIds, qosNum) {
-    var jsonObj = JSON.parse('{}');
+    var jsonObj = {};
     
-    var vsdObj = JSON.parse('{}');
+    var vsdObj = {};
     
     jsonObj.vsd = vsdObj;
     
-    var vsbId = document.getElementById(formIds[0]).value;
+    var vsbId = formIds[0];
     jsonObj.vsd.vsBlueprintId = vsbId;
     
-    var tenantId = document.getElementById(formIds[1]).value;
+    var tenantId = formIds[1];
     jsonObj.tenantId = tenantId;
     
     var name = document.getElementById(formIds[2]).value;
@@ -85,7 +85,7 @@ function createVSDFromForm(formIds, qosNum) {
     var mt = document.getElementById(formIds[6]).value;
     jsonObj.vsd.managementType = mt;
     
-    var qos = JSON.parse('{}');
+    var qos = {};
     
     console.log(qosNum);
     
@@ -103,7 +103,51 @@ function createVSDFromForm(formIds, qosNum) {
     var ispublic = document.getElementById(formIds[7]).checked;
     
     jsonObj.isPublic = ispublic;
-    
+
+    var constraint = {};
+
+    var priority = document.getElementById(formIds[8]).value;
+    constraint.priority = priority;
+
+    var share = document.getElementById(formIds[9]).checked;
+    constraint.sharable = share;
+
+    var shareElements = document.getElementById(formIds[10]).checked;
+    constraint.canIncludeSharedElements = shareElements;
+
+    var preferred = $('#' + formIds[11]).tagsinput('items');
+    if (preferred instanceof Object) {
+        preferred = $('#' + formIds[11]).tagsinput('items');
+    }
+    constraint.preferredProviders = preferred;
+
+    var nPref = $('#' + formIds[12]).tagsinput('items');
+    if (nPref instanceof Object) {
+        nPref = $('#' + formIds[12]).tagsinput('items');
+    }
+    constraint.nonPreferredProviders = nPref;
+
+    var prohibited = $('#' + formIds[13]).tagsinput('items');
+    if (prohibited instanceof Object) {
+        prohibited = $('#' + formIds[13]).tagsinput('items');
+    }
+    constraint.prohibitedProviders = prohibited;
+
+    vsdObj.serviceConstraints = [constraint];
+
+    var sla = {};
+
+    var creation = document.getElementById(formIds[14]).value;
+    sla.serviceCreationTime = creation;
+
+    var coverage = document.getElementById(formIds[15]).value;
+    sla.availabilityCoverage = coverage;
+
+    var lowCost = document.getElementById(formIds[16]).checked;
+    sla.low_cost_required = lowCost;
+
+    vsdObj.sla = sla;
+
     var json = JSON.stringify(jsonObj, null, 4);
     
     console.log(json);
@@ -141,7 +185,7 @@ function progressBlueprintWizard() {
     document.getElementById('step-' + wizardCurrentStep + '_ball').setAttribute('isdone', "1");
     document.getElementById('step-' + wizardCurrentStep + '_ball').classList.remove('disabled');
     document.getElementById('step-' + wizardCurrentStep + '_ball').classList.add('selected');
-    if (wizardCurrentStep == 6) {
+    if (wizardCurrentStep == 5) {
         document.getElementById('progressBtn').classList.add('buttonDisabled');
         document.getElementById('finishBtn').classList.remove('buttonDisabled');
     } else if (wizardCurrentStep > 1) {
@@ -160,7 +204,7 @@ function undoBlueprintWizard() {
     document.getElementById('step-' + wizardCurrentStep + '_ball').classList.add('selected');
     if (wizardCurrentStep == 1) {
         document.getElementById('undoBtn').classList.add('buttonDisabled');
-    } else if (wizardCurrentStep < 6) {
+    } else if (wizardCurrentStep < 5) {
         document.getElementById('finishBtn').classList.add('buttonDisabled');
         document.getElementById('progressBtn').classList.remove('buttonDisabled');
     }
@@ -175,12 +219,11 @@ function loadImageFromFileIntoForm(evt, elemId) {
     file = evt.target.files[0];
 
     // Now upload it on the file storage
-    var storageUrl = 'http://' + window.location.hostname + ':' + fileserverPort;
+    // var storageUrl = 'http://' + window.location.hostname + ':' + fileserverPort;
+    // var image_name = uuidv4() + '.jpg';
+    // var actualUrl = storageUrl + '/' + image_name;
+    // image_url = actualUrl;
 
-    var image_name = uuidv4() + '.jpg';
-
-    var actualUrl = storageUrl + '/' + image_name;
-    image_url = actualUrl;
     var settings = {
         "async": true,
         "crossDomain": true,
@@ -515,8 +558,8 @@ function createVSBlueprintDetailsTable(data, params) {
     var columns = [['vsBlueprintId'], ['vsBlueprintVersion'], ['name'], ['vsBlueprint', 'description'], ['vsBlueprint', 'parameters'], ['activeVsdId']];
 	var conts = createVSBlueprintTableContents(data, btnFlag, names, cbacks, columns);
     table.innerHTML = header + conts;
-    var image = document.getElementById(params[1]);
-    image.src = data.vsBlueprint.imgUrl || defaultImage;
+    // var image = document.getElementById(params[1]);
+    // image.src = data.vsBlueprint.imgUrl || defaultImage;
     createVSTopology(data);
 }
 
@@ -585,53 +628,44 @@ function createVSDescriptorModals(data, params) {
                 <div class="modal-header">\
                   <button type="button" class="close" data-dismiss="modal" aria-label="Cancel"><span aria-hidden="true">×</span>\
                   </button>\
-                  <h4 class="modal-title" id="myModalLabel">Create VS Descriptor for Blueprint ' + vsbId + '</h4>\
+                  <h3 class="modal-title" id="myModalLabel">Create VS Descriptor for Blueprint ' + vsbId + '</h3>\
                 </div>\
                 <div class="modal-body">\
                   <div class="form-group">\
                     <form id="VSDForm_' + vsbId + '" data-parsley-validate="" class="form-horizontal form-label-left" novalidate="">\
-                        <div class="form-group">\
-                          <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">VSB Id <!-- span class="required">*</span -->\
-                          </label>\
-                          <div class="col-md-6 col-sm-6 col-xs-12">\
-                            <input id="createVSD_' + vsbId +'_vsbId" value="' + vsbId + '" required="required" class="date-picker form-control col-md-7 col-xs-12" type="text" disabled>\
-                          </div>\
-                        </div>\
-                        <div class="form-group">\
-                          <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Tenant Id <!-- span class="required">*</span -->\
-                          </label>\
-                          <div class="col-md-6 col-sm-6 col-xs-12">\
-                            <select id="createVSD_' + vsbId +'_tenantId" autocomplete="off" name="input-flavour" class="form-control col-md-7 col-xs-12">';
-    if (data instanceof Array) {
-        for (var i in data) {
-            var tenant = data[i].username;
-            text += '<option value="' + tenant + '">' + tenant + '</option>';
-        }
-    } else {
-        text += '<option value="' + data + '">' + data + '</option>';
-    }
-    text += '</select>\
-            </div></div>\
-            <div class="form-group">\
-                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Name <!-- span class="required">*</span -->\
-                </label>\
-                <div class="col-md-6 col-sm-6 col-xs-12">\
-                    <input id="createVSD_' + vsbId +'_name" required="required" class="date-picker form-control col-md-7 col-xs-12" type="text">\
+                      <h4 class="modal-title">\
+                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#general" aria-expanded="true" aria-controls="collapseOne">\
+                            Descriptor Metadata\
+                        </a >\
+                      </h4>\
+                      <div class="collapse in" aria-expanded="true" id="general">\
+                  <div class="form-group">\
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name"><span style="color:red">*</span>Name \
+                    </label>\
+                    <div class="col-md-6 col-sm-6 col-xs-12">\
+                        <input id="createVSD_' + vsbId +'_name" required="required" class="date-picker form-control col-md-7 col-xs-12" type="text">\
+                    </div>\
+                  </div>\
+                  <div class="form-group">\
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name"><span style="color:red">*</span>Version \
+                    </label>\
+                    <div class="col-md-6 col-sm-6 col-xs-12">\
+                        <input id="createVSD_' + vsbId +'_version" required="required" class="date-picker form-control col-md-7 col-xs-12" type="text">\
+                    </div>\
+                  </div>\
                 </div>\
-            </div>\
-            <div class="form-group">\
-                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Version <!-- span class="required">*</span -->\
-                </label>\
-                <div class="col-md-6 col-sm-6 col-xs-12">\
-                    <input id="createVSD_' + vsbId +'_version" required="required" class="date-picker form-control col-md-7 col-xs-12" type="text">\
-                </div>\
-          </div></br><h4 class="modal-title" id="myModalLabel">QoS Parameters</h4>';
+                </br><h4 class="modal-title" id="myModalLabel">\
+                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#parameters" aria-expanded="false" aria-controls="collapseOne">\
+                        QoS Parameters\
+                        </a >\
+                        </h4>\
+                <div class="collapse in" id="parameters">';
     var paramNum = 0;
     for (var j in qos) {
         $.each(qos[j], function(key, val){
             if (key == 'parameterName') {
                 text += '<div class="form-group">\
-                       <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">' + val + ' <!-- span class="required">*</span -->\
+                       <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name"> <span style="color:red">*</span>' + val + ' \
                        </label>\
                        <div id="' + vsbId +'_qos' + j + '" style="display:none;">' + val + '</div>\
                        <div class="col-md-6 col-sm-6 col-xs-12">\
@@ -643,7 +677,12 @@ function createVSDescriptorModals(data, params) {
         paramNum += 1;
     }
     		
-    text += '</br><div class="form-group">\
+    text += '</div>\
+          </br><h4 class="modal-title" id="myModalLabel">\
+                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#more" aria-expanded="false" aria-controls="collapseOne">\
+                  Slice Parameters\
+                </a ></h4>\
+            <div class="collapse" id="more"></br><div class="form-group">\
                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Slice Service Type <!-- span class="required">*</span -->\
                 </label>\
                 <div class="col-md-6 col-sm-6 col-xs-12">\
@@ -665,21 +704,143 @@ function createVSDescriptorModals(data, params) {
                         <option value="PROVIDER_MANAGED">PROVIDER_MANAGED</option>\
                         <option value="TENANT_MANAGED">TENANT_MANAGED</option></select></div></div>';
    
-    text += '<div class="form-group">\
-            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Public <!-- span class="required">*</span -->\
-            </label>\
-            <div class="col-md-6 col-sm-6 col-xs-12">\
-                <input id="createVSD_' + vsbId +'_public" type="checkbox" name="public" value="true">\
+        text += '<div class="form-group">\
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Public <!-- span class="required">*</span -->\
+                    </label>\
+                    <div class="col-md-6 col-sm-6 col-xs-12">\
+                        <input id="createVSD_' + vsbId +'_public" type="checkbox" name="public" value="true">\
+                    </div>\
+                </div>\
+            </div>\
+            </br><h4 class="modal-title" id="myModalLabel">\
+                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#constraints" aria-expanded="false" aria-controls="collapseOne">\
+                  Service constraints\
+            </a ></h4>\
+            <div class="collapse" id="constraints"></br>\
+                <div class="form-group">\
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="createVSD_' + vsbId +'_priority">Priority \
+                    </label>\
+                    <div class="col-md-6 col-sm-6 col-xs-12">\
+                        <select id="createVSD_' + vsbId +'_priority" autocomplete="off" name="priority" class="form-control col-md-7 col-xs-12">\
+                            <option value="LOW">LOW</option>\
+                            <option value="MEDIUM">MEDIUM</option>\
+                            <option value="HIGH">HIGH</option>\
+                        </select>\
+                    </div>\
+                </div>\
+                <div class="form-group">\
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="createVSD_' + vsbId +'_sharable">Sharable \
+                    </label>\
+                    <div class="col-md-6 col-sm-6 col-xs-12">\
+                        <input id="createVSD_' + vsbId +'_sharable" type="checkbox" name="sharable" value="true">\
+                    </div>\
+                </div>\
+                <div class="form-group">\
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="createVSD_' + vsbId +'_share_el">Can include shared elements \
+                    </label>\
+                    <div class="col-md-6 col-sm-6 col-xs-12">\
+                        <input id="createVSD_' + vsbId +'_share_el" type="checkbox" name="share_el" value="true">\
+                    </div>\
+                </div>\
+                <div class="form-group">\
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="createVSD_' + vsbId + '_pref">Preferred providers \
+                    </label>\
+                    <div class="col-md-6 col-sm-6 col-xs-12">\
+                        <input type="text" id="_pref" data-role="tagsinput" name="pref">\
+                        </input>\
+                    </div>\
+                </div>\
+                <div class="form-group">\
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="createVSD_' + vsbId + '_npref">Not preferred providers \
+                    </label>\
+                    <div class="col-md-6 col-sm-6 col-xs-12">\
+                        <input type="text" id="_npref" data-role="tagsinput" name="npref">\
+                        </input>\
+                    </div>\
+                </div>\
+                <div class="form-group">\
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="createVSD_' + vsbId + '_prohib">Prohibited providers \
+                    </label>\
+                    <div class="col-md-6 col-sm-6 col-xs-12">\
+                        <input type="text" id="_prohib" data-role="tagsinput" name="prohib">\
+                        </input>\
+                    </div>\
+                </div>\
+            </div>\
+            </br><h4 class="modal-title" id="myModalLabel">\
+                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#sla" aria-expanded="false" aria-controls="collapseOne">\
+                  Sla requirements\
+            </a></h4>\
+            <div class="collapse" id="sla"></br>\
+                <div class="form-group">\
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="createVSD_' + vsbId + '_creation">Service creation time \
+                    </label>\
+                    <div class="col-md-6 col-sm-6 col-xs-12">\
+                        <select id="createVSD_' + vsbId +'_creation" autocomplete="off" name="creation" class="form-control col-md-7 col-xs-12">\
+                            <option value="UNDEFINED">No requirements</option>\
+                            <option value="SERVICE_CREATION_TIME_LOW">LOW</option>\
+                            <option value="SERVICE_CREATION_TIME_MEDIUM">MEDIUM</option>\
+                        </select>\
+                    </div>\
+                </div>\
+                <div class="form-group">\
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="createVSD_' + vsbId + '_coverage">Coverage area \
+                    </label>\
+                    <div class="col-md-6 col-sm-6 col-xs-12">\
+                        <select id="createVSD_' + vsbId +'_coverage" autocomplete="off" name="coverage" class="form-control col-md-7 col-xs-12">\
+                            <option value="UNDEFINED">No requirements</option>\
+                            <option value="AVAILABILITY_COVERAGE_MEDIUM">MEDIUM</option>\
+                            <option value="AVAILABILITY_COVERAGE_HIGH">HIGH</option>\
+                        </select>\
+                    </div>\
+                </div>\
+                <div class="form-group">\
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="createVSD_' + vsbId + '_cost">Low cost \
+                    </label>\
+                    <div class="col-md-6 col-sm-6 col-xs-12">\
+                        <input id="createVSD_' + vsbId +'_cost" type="checkbox" name="cost" value="true">\
+                    </div>\
+                </div>\
             </div></form>\
         </div>\
     </div>\
     <div class="modal-footer">\
         <button type="button" class="btn btn-default pull-left" data-dismiss="modal" onclick=clearForms("VSDForm_' + vsbId + '")>Cancel</button>\
-        <button type="submit" class="btn btn-info" data-dismiss="modal" \
-        onclick=createVSDFromForm(["createVSD_' + vsbId +'_vsbId","createVSD_' + vsbId +'_tenantId","createVSD_' + vsbId +'_name","createVSD_' + vsbId +'_version","createVSD_' + vsbId +'_qos","createVSD_' + vsbId +'_sst","createVSD_' + vsbId +'_mt","createVSD_' + vsbId +'_public"],' + paramNum + ',"response")>Submit</button>\
+        <button type="submit" id="submitButton" class="btn btn-info" data-dismiss="modal">Submit</button>\
     </div></div></div></div>';
     
     div.innerHTML += text;
+    button = document.getElementById('submitButton');
+
+    var cb = function () {
+        createVSDFromForm(
+            [
+                vsbId,
+                getCookie('username'),
+                "createVSD_" + vsbId + "_name",
+                "createVSD_" + vsbId + "_version",
+                "createVSD_" + vsbId + "_qos",
+                "createVSD_" + vsbId + "_sst",
+                "createVSD_" + vsbId + "_mt",
+                "createVSD_" + vsbId + "_public",
+                "createVSD_" + vsbId + "_priority",
+                "createVSD_" + vsbId + "_sharable",
+                "createVSD_" + vsbId + "_share_el",
+                "_pref",
+                "_npref",
+                "_prohib",
+                "createVSD_" + vsbId + "_creation",
+                "createVSD_" + vsbId + "_coverage",
+                "createVSD_" + vsbId + "_cost"
+            ],
+            paramNum
+        )
+    }
+
+    button.addEventListener(
+        'click',
+        cb
+    )
 }
 
 function createVSTopology(data){

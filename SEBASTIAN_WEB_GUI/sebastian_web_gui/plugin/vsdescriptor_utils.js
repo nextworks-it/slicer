@@ -125,7 +125,7 @@ function instantiateVSDFromForm(params) {
   var tenant = document.getElementById(params[2]).value;
   var description = document.getElementById(params[3]).value;
 
-  var jsonObj = JSON.parse('{}');
+  var jsonObj = {};
 
   jsonObj.vsdId = vsdId;
   jsonObj.name = name;
@@ -171,7 +171,7 @@ function createVSDescriptorsTable(data, tableId) {
   } else {
     cbacks = [
       'vsd_details.html?Id=',
-      'instantiateVSDescriptor',
+      openInstantiateModal,
       'deleteVSDescriptor'
     ];
     names = ['View', 'Instantiate', 'Delete'];
@@ -214,47 +214,130 @@ function createVSDescriptorsTable(data, tableId) {
   table.innerHTML = header + conts + '</tbody>';
 }
 
-function createVSDescriptorDetailsTable(data, tableId) {
+function openInstantiateModal(vsdId) {
+  makeInstantiateModal(vsdId);
+  $('#instantiateVSDescriptor_' + vsdId).modal('toggle');
+}
+
+function createVSDescriptorDetailsTable(data, divId) {
   //console.log(JSON.stringify(data, null, 4));
 
-  var table = document.getElementById(tableId);
-  if (!table) {
+  var div = document.getElementById(divId);
+  if (!div) {
+    console.error('content div ' + divId + ' not found');
     return;
   }
   if (!data || data.length < 1) {
-    console.log('No VS Descriptors');
-    table.innerHTML = '<tr>No VS Descriptors stored in database</tr>';
+    console.log('No VS Descriptor');
+    table.innerHTML = '<tr>VS Descriptor not found in database</tr>';
     return;
   }
-  var btnFlag = false;
-  var header = createTableHeaderByValues(
-    [
-      'Id',
-      'Name',
-      'Version',
-      'Vsb Id',
-      'Slice Service Type',
-      'Management Type',
-      'QoS Parameters'
-    ],
-    btnFlag,
-    false
+
+  var vsd = data;
+  // Start building tables
+  var children = [];
+  children.push(
+    makeTable('VSD Metadata', {
+      Id: vsd.vsDescriptorId,
+      Name: vsd.name,
+      Version: vsd.version,
+      'VSB Id': vsd.vsBlueprintId
+    })
   );
-  var cbacks = [];
-  var names = [];
-  var columns = [
-    ['vsDescriptorId'],
-    ['name'],
-    ['version'],
-    ['vsBlueprintId'],
-    ['sst'],
-    ['managementType'],
-    ['qosParameters']
-  ];
-  var conts =
-    '<tbody>' +
-    createVSDescriptorsTableContents(data, btnFlag, names, cbacks, columns);
-  table.innerHTML = header + conts + '</tbody>';
+
+  children.push(makeTable('QoS Parameters', vsd.qosParameters));
+
+  children.push(
+    makeTable('Slice Parameters', {
+      'Slice Service Type': vsd.sst,
+      'Management Type': vsd.managementType
+    })
+  );
+
+  var generalConstraint = null;
+
+  if (vsd.serviceConstraints != null) {
+    for (constraint of vsd.serviceConstraints) {
+      if (constraint.atomicComponentId == null) {
+        generalConstraint = constraint;
+        break;
+      }
+    }
+  } else {
+    generalConstraint = {
+      priority: 'LOW',
+      sharable: false,
+      canIncludeSharedElements: false
+    };
+  }
+
+  if (generalConstraint != null) {
+    children.push(
+      makeTable(
+        'Service Constraint',
+        _.mapKeys(generalConstraint, (v, k) => _.upperFirst(_.lowerCase(k)))
+      )
+    );
+  }
+
+  var sla = vsd.sla || {
+    serviceCreationTime: 'UNDEFINED',
+    availabilityCoverage: 'UNDEFINED',
+    lowCostRequired: false
+  };
+
+  children.push(
+    makeTable('SLA', _.mapKeys(sla, (v, k) => _.upperFirst(_.lowerCase(k))))
+  );
+
+  for (child of children) {
+    div.appendChild(child);
+  }
+}
+
+function makeTable(title, data) {
+  var container = makeChildDiv(null, 'col-md-7', 'col-sm-7', 'col-xs-12');
+  var titleMetadata = makeChild(container, 'h3');
+  titleMetadata.innerText = title;
+
+  var metadataTable = makeChild(container, 'table', 'table', 'table-hover');
+
+  var tBody = makeChild(metadataTable, 'tBody');
+  for (key in data) {
+    let row = makeChild(tBody, 'tr');
+    makeChild(row, 'th').innerText = key;
+    let valueCell = makeChild(row, 'td');
+    valueCell.innerText = data[key];
+    valueCell.setAttribute('align', 'right');
+  }
+  return container;
+}
+
+function appendAsRow(table, ...cells) {
+  var row = document.createElement('tr');
+  for (cell of cells) {
+    row.appendChild(cell);
+  }
+  table.appendChild(row);
+}
+
+function makeCell(innerText) {
+  var cell = document.createElement('td');
+  cell.innerText = innerText;
+  return cell;
+}
+
+function cellFromOptional(obj, optionalProp) {
+  if (obj.hasOwnProperty(optionalProp) && obj[optionalProp] != null) {
+    let p = obj[optionalProp];
+    if (p instanceof Array) {
+      return makeCell(p.join(', '));
+    } else {
+      return makeCell(obj[optionalProp]);
+    }
+  } else {
+    return makeCell('');
+  }
 }
 
 function createVSDescriptorsTableContents(
@@ -271,7 +354,7 @@ function createVSDescriptorsTableContents(
   var btnText = '';
   if (btnFlag) {
     btnText += createActionButton(data.vsDescriptorId, names, cbacks);
-    createInstantiateVSDModalDialog(data.vsDescriptorId);
+    // createInstantiateVSDModalDialog(data.vsDescriptorId);
   }
 
   text += '<tr>' + btnText;
@@ -284,7 +367,89 @@ function createVSDescriptorsTableContents(
     var subTable = '<table class="table table-borderless">';
 
     if (data.hasOwnProperty(columns[i][0])) {
-      if (values[0] instanceof Array) {
+      if (columns[i][0] == 'serviceConstraints') {
+        var sT = document.createElement('table'); // SubTable element
+        sT.classList.add('table', 'table-borderless');
+        var head = document.createElement('thead');
+        cells = [
+          makeCell('Atomic component ID'),
+          makeCell('Priority'),
+          makeCell('Sharable'),
+          makeCell('Include shared'),
+          makeCell('Preferred providers'),
+          makeCell('Non preferred providers'),
+          makeCell('Prohibited providers')
+        ];
+        appendAsRow(head, ...cells);
+        sT.appendChild(head);
+
+        let body = document.createElement('tBody');
+
+        for (var v in values[0]) {
+          //console.log(JSON.stringify(values[0], null, 4));
+          var constraint = values[0][v];
+
+          cells = [
+            cellFromOptional(constraint, 'atomicComponentId'),
+            cellFromOptional(constraint, 'priority'),
+            cellFromOptional(constraint, 'sharable'),
+            cellFromOptional(constraint, 'canIncludeSharedElements'),
+            cellFromOptional(constraint, 'preferredProviders'),
+            cellFromOptional(constraint, 'nonPreferredProviders'),
+            cellFromOptional(constraint, 'prohibitedProviders')
+          ];
+
+          appendAsRow(body, ...cells);
+        }
+
+        sT.appendChild(body);
+
+        subText += sT.outerHTML;
+      } else if (columns[i][0] == 'sla') {
+        var sT = document.createElement('table'); // SubTable element
+        sT.classList.add('table', 'table-borderless');
+
+        let body = document.createElement('tBody');
+        //console.log(JSON.stringify(values[0], null, 4));
+        var sla = values[0];
+
+        if (
+          sla.hasOwnProperty('serviceCreationTime') &&
+          sla.serviceCreationTime != null
+        ) {
+          cells = [
+            makeCell('Service creation Time'),
+            cellFromOptional(sla, 'serviceCreationTime')
+          ];
+          appendAsRow(body, ...cells);
+        }
+
+        if (
+          sla.hasOwnProperty('availabilityCoverage') &&
+          sla.serviceCreationTime != null
+        ) {
+          cells = [
+            makeCell('Availability coverage'),
+            cellFromOptional(sla, 'availabilityCoverage')
+          ];
+          appendAsRow(body, ...cells);
+        }
+
+        if (
+          sla.hasOwnProperty('low_cost_required') &&
+          sla.serviceCreationTime != null
+        ) {
+          cells = [
+            makeCell('Low cost required'),
+            cellFromOptional(sla, 'low_cost_required')
+          ];
+          appendAsRow(body, ...cells);
+        }
+
+        sT.appendChild(body);
+
+        subText += sT.outerHTML;
+      } else if (values[0] instanceof Array) {
         for (var v in values[0]) {
           if (values[0][v] instanceof Object) {
             //console.log(JSON.stringify(values[0], null, 4));
@@ -324,6 +489,294 @@ function createVSDescriptorsTableContents(
   text += '</tr>';
 
   return text;
+}
+
+function makeChildDiv(parent, ...classes) {
+  return makeChild(parent, 'div', ...classes);
+}
+
+function makeChild(parent, tag, ...classes) {
+  var out = document.createElement(tag);
+  out.classList.add(...classes);
+  if (parent != undefined && parent != null) {
+    parent.appendChild(out);
+  }
+  return out;
+}
+
+function makeFormGroup(
+  container,
+  inputId,
+  labelText,
+  required,
+  type,
+  value,
+  readOnly
+) {
+  if (readOnly === undefined) {
+    readOnly = false;
+  }
+  if (value === undefined) {
+    value = null;
+  }
+  if (required === undefined) {
+    required = false;
+  }
+  if (type === undefined) {
+    type = 'text';
+  }
+  var group = makeChildDiv(container, 'form-group');
+  var label = makeChild(
+    group,
+    'label',
+    'control-label',
+    'col-md-3',
+    'col-sm-3',
+    'col-xs-12'
+  );
+  label.setAttribute('for', inputId);
+  label.innerText = labelText;
+
+  var inputContainer = makeChildDiv(group, 'col-md-6', 'col-sm-6', 'col-xs-12');
+  var fInput = makeChild(
+    inputContainer,
+    'input',
+    'form-control',
+    'col-md-7',
+    'col-xs-12'
+  );
+  fInput.setAttribute('id', inputId);
+  fInput.setAttribute('type', type);
+  if (required) {
+    fInput.setAttribute('required', 'required');
+  }
+  if (value != null) {
+    fInput.setAttribute('value', value);
+  }
+  if (readOnly) {
+    fInput.setAttribute('readonly', '');
+  }
+  return group;
+}
+
+function makeScaleModal(vsiId, vsdId) {
+  var main = makeChildDiv(null, 'modal', 'fade', 'bs-example-modal-md', 'in');
+  main.setAttribute('tabindex', -1);
+  main.setAttribute('role', 'dialog');
+  main.setAttribute('aria-hidden', true);
+  main.setAttribute('id', 'scaleVSI_' + vsiId);
+
+  var inner = makeChildDiv(main, 'modal-dialog', 'modal-md');
+  var content = makeChildDiv(inner, 'modal-content');
+  var header = makeChildDiv(content, 'modal-header');
+
+  var closeButton = makeChild(header, 'button', 'close');
+  closeButton.setAttribute('data-dismiss', 'modal');
+  closeButton.setAttribute('aria-label', 'Cancel');
+  var buttonSpan = makeChild(closeButton, 'span');
+  buttonSpan.innerText = '×';
+  var title = makeChild(header, 'h4', 'modal-title');
+  title.innerText = 'Scale VS Instance';
+
+  var modalBody = makeChildDiv(content, 'modal-body');
+  var formContainer = makeChildDiv(modalBody, 'form-group');
+  var form = makeChild(
+    formContainer,
+    'form',
+    'form-horizontal',
+    'form-label-left'
+  );
+  form.setAttribute('data-parsley-validate', '');
+  form.setAttribute('novalidate', '');
+  form.setAttribute('id', 'scaleVSIForm');
+
+  tenant = getCookie('username');
+
+  // make form group for the new VSD input form
+  var group = makeChildDiv(form, 'form-group');
+  var label = makeChild(
+    group,
+    'label',
+    'control-label',
+    'col-md-3',
+    'col-sm-3',
+    'col-xs-12'
+  );
+  label.setAttribute('for', 'scaleVSI-target');
+  label.innerText = 'New VSD';
+
+  var inputContainer = makeChildDiv(group, 'col-md-6', 'col-sm-6', 'col-xs-12');
+  var targetInput = makeChild(
+    inputContainer,
+    'select',
+    'form-control',
+    'col-md-7',
+    'col-xs-12'
+  );
+  targetInput.setAttribute('id', 'scaleVSI-target');
+  // End VSD input form
+
+  var parseInstance = function(data, _) {
+    var vsdId = data.vsdId;
+    getAllVSDescriptors([vsdId], populateTargetInput);
+  };
+
+  var populateTargetInput = function(data, params) {
+    var vsdId = params[0];
+    if (!data instanceof Array) {
+      console.error('Unexpected response.');
+      JSON.stringify(data);
+      throw 'Unexpected response.';
+    }
+
+    var vsdsByVsb = {};
+    var vsbId = null;
+
+    for (vsd of data) {
+      let key = vsd.vsBlueprintId;
+
+      if (vsd.vsDescriptorId == vsdId) {
+        vsbId = key;
+      } else {
+        // Skip so we don't propose to scale to the current vsd
+        vsdsByVsb[key] || (vsdsByVsb[key] = []); // Set default empty list value
+        vsdsByVsb[key].push([vsd.vsBlueprintId, vsd.name]);
+      }
+    }
+
+    if (vsbId === null) {
+      console.error('Current VSD ' + vsdId + 'not found');
+      throw 'Current VSD ' + vsdId + 'not found';
+    }
+    var vsds = vsdsByVsb[vsbId];
+
+    for (kvpair of vsds) {
+      let opt = document.createElement('option');
+      opt.setAttribute('value', kvpair[0]);
+      opt.innerText = kvpair[1];
+      targetInput.appendChild(opt);
+    }
+  };
+
+  getVSInstance(vsiId, [], parseInstance);
+
+  var modalFooter = makeChildDiv(content, 'modal-footer');
+  var cancelButton = makeChild(
+    modalFooter,
+    'button',
+    'btn',
+    'btn-default',
+    'pull-left'
+  );
+  cancelButton.setAttribute('data-dismiss', 'modal');
+  var cancelCb = function() {
+    clearForms('scaleVSI_' + vsiId);
+  };
+  cancelButton.addEventListener('click', cancelCb);
+  cancelButton.innerText = 'Cancel';
+
+  var submitButton = makeChild(
+    modalFooter,
+    'button',
+    'btn',
+    'btn-default',
+    'pull-left'
+  );
+  submitButton.setAttribute('data-dismiss', 'modal');
+  var submitCb = function() {
+    scaleVSIFromForm(vsiId, tenant, targetInput.value);
+  };
+  submitButton.addEventListener('click', submitCb);
+  submitButton.innerText = 'Submit';
+
+  document.getElementById('scaleModalDiv').appendChild(main);
+}
+
+function scaleVSIFromForm(vsiId, tenant, newVSD) {
+  var request = {
+    tenantId: tenant,
+    vsiId: vsiId,
+    vsdId: newVSD
+  };
+  sendJsonToURLWithAuth(
+    'http://' + vsAddr + ':' + vsPort + '/vs/basic/vslcm/vs/' + vsiId,
+    JSON.stringify(request),
+    showResultMessage,
+    ['Scale VS instance request sent', 'Unable to scale VS Instance'],
+    'PUT'
+  );
+}
+
+function makeInstantiateModal(vsdId) {
+  var main = makeChildDiv(null, 'modal', 'fade', 'bs-example-modal-md', 'in');
+  main.setAttribute('tabindex', -1);
+  main.setAttribute('role', 'dialog');
+  main.setAttribute('aria-hidden', true);
+  main.setAttribute('id', 'instantiateVSDescriptor_' + vsdId);
+
+  var inner = makeChildDiv(main, 'modal-dialog', 'modal-md');
+  var content = makeChildDiv(inner, 'modal-content');
+  var header = makeChildDiv(content, 'modal-header');
+
+  var closeButton = makeChild(header, 'button', 'close');
+  closeButton.setAttribute('data-dismiss', 'modal');
+  closeButton.setAttribute('aria-label', 'Cancel');
+  var buttonSpan = makeChild(closeButton, 'span');
+  buttonSpan.innerText = '×';
+  var title = makeChild(header, 'h4', 'modal-title');
+  title.innerText = 'Instantiate VS Descriptor';
+
+  var modalBody = makeChildDiv(content, 'modal-body');
+  var formContainer = makeChildDiv(modalBody, 'form-group');
+  var form = makeChild(
+    formContainer,
+    'form',
+    'form-horizontal',
+    'form-label-left'
+  );
+  form.setAttribute('data-parsley-validate', '');
+  form.setAttribute('novalidate', '');
+  form.setAttribute('id', 'createNSDIdForm');
+  makeFormGroup(form, 'instVSD-id', 'Id', true, 'text', vsdId, true);
+  makeFormGroup(form, 'instVSD-name', 'Name', true);
+  makeFormGroup(form, 'instVSD-tenant', 'Tenant', true);
+  makeFormGroup(form, 'instVSD-desc', 'Description');
+
+  var modalFooter = makeChildDiv(content, 'modal-footer');
+  var cancelButton = makeChild(
+    modalFooter,
+    'button',
+    'btn',
+    'btn-default',
+    'pull-left'
+  );
+  cancelButton.setAttribute('data-dismiss', 'modal');
+  var cancelCb = function() {
+    clearForms('instantiateVSDescriptor_' + vsdId);
+  };
+  cancelButton.addEventListener('click', cancelCb);
+  cancelButton.innerText = 'Cancel';
+
+  var submitButton = makeChild(
+    modalFooter,
+    'button',
+    'btn',
+    'btn-default',
+    'pull-left'
+  );
+  submitButton.setAttribute('data-dismiss', 'modal');
+  var submitCb = function() {
+    instantiateVSDFromForm([
+      'instVSD-id',
+      'instVSD-name',
+      'instVSD-tenant',
+      'instVSD-desc'
+    ]);
+  };
+  submitButton.addEventListener('click', submitCb);
+  submitButton.innerText = 'Submit';
+
+  document.getElementById('instantiateModalDiv').appendChild(main);
 }
 
 function createInstantiateVSDModalDialog(vsdId) {
@@ -406,6 +859,11 @@ function createInstantiateVSDModalDialog(vsdId) {
   instantiateModalDiv.innerHTML += text;
 }
 
+function scaleVSInstanceClick(instanceId) {
+  makeScaleModal(instanceId);
+  $('#scaleVSI_' + instanceId).modal('toggle');
+}
+
 function createVSInstancesTable(data, tableId) {
   //console.log(JSON.stringify(data, null, 4));
   //data = ["11", "13"];
@@ -432,8 +890,8 @@ function createVSInstancesTable(data, tableId) {
     names = [];
     btnFlag = false;
   } else {
-    cbacks = ['terminateVSInstance', 'purgeVSInstance'];
-    names = ['Terminate', 'Remove Entry'];
+    cbacks = ['terminateVSInstance', 'purgeVSInstance', scaleVSInstanceClick];
+    names = ['Terminate', 'Remove Entry', 'Scale'];
   }
 
   var header = createTableHeaderByValues(
