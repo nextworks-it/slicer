@@ -15,6 +15,8 @@
 */
 package it.nextworks.nfvmano.sebastian.arbitrator;
 
+import it.nextworks.nfvmano.sebastian.common.VsAction;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,9 +57,9 @@ public class ArbitratorResponse {
 	//the subnets not included in this map needs to be created from scratch
 	private Map<String, Boolean> existingSliceSubnets = new HashMap<>();
 	
-	//in case of existing VS instances to be scaled down, 
-	//the key indicates the vertical service instance ID and the value the ID of the target VSD
-	private Map<String, String> impactedVerticalServiceInstances = new HashMap<>();
+	//in case of existing VS instances to be scaled down or terminated,
+	//the key indicates the vertical service instance ID and the action to be done: UPDATE or TERMINATE
+	private Map<String, VsAction> impactedVerticalServiceInstances = new HashMap<>();
 
 	
 	
@@ -72,7 +74,7 @@ public class ArbitratorResponse {
 	 */
 	public ArbitratorResponse(String requestId, boolean acceptableRequest, boolean newSliceRequired, String existingCompositeSlice,
 			boolean existingCompositeSliceToUpdate, Map<String, Boolean> existingSliceSubnets,
-			Map<String, String> impactedVerticalServiceInstances) {
+			Map<String, VsAction> impactedVerticalServiceInstances) {
 		this.requestId = requestId;
 		this.acceptableRequest = acceptableRequest;
 		this.newSliceRequired = newSliceRequired;
@@ -131,7 +133,7 @@ public class ArbitratorResponse {
 	/**
 	 * @return the impactedVerticalServiceInstances
 	 */
-	public Map<String, String> getImpactedVerticalServiceInstances() {
+	public Map<String, VsAction> getImpactedVerticalServiceInstances() {
 		return impactedVerticalServiceInstances;
 	}
 	

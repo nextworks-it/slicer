@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import it.nextworks.nfvmano.sebastian.catalogue.VsDescriptorCatalogueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,9 @@ public class ArbitratorService implements ArbitratorInterface {
 	
 	@Autowired
 	private VsRecordService vsRecordService;
-	
+
+	@Autowired
+	private VsDescriptorCatalogueService vsDescriptorCatalogueService;
 	@Autowired
 	private NfvoService nfvoService;
 	
@@ -68,7 +71,8 @@ public class ArbitratorService implements ArbitratorInterface {
 		log.debug("Initializing arbitrator");
 		if (arbitratorType.equals("BASIC")) {
 			log.debug("The Vertical Slicer is configured to operate with a basic arbitrator.");
-			arbitrator = new BasicArbitrator(adminService, vsRecordService, translatorService, nfvoService);
+			arbitrator = new BasicArbitrator(adminService, vsRecordService, vsDescriptorCatalogueService,
+					translatorService, nfvoService);
 		} else {
 			log.error("Arbitrator not configured!");
 		}
