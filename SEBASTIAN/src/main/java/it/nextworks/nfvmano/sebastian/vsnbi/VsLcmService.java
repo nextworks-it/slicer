@@ -319,7 +319,7 @@ public class VsLcmService implements VsLcmProviderInterface {
 		}
 		engine.modifyVs(vsiId, request);
 		log.debug("Synchronous processing for VSI modification request completed for VSI ID " + vsiId);
-		throw new MethodNotImplementedException("VS modification not yet supported.");
+		//throw new MethodNotImplementedException("VS modification not yet supported.");
 	}
 	
 	
