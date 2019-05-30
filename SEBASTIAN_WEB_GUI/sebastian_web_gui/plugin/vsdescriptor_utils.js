@@ -132,13 +132,15 @@ function instantiateVSDFromForm(params) {
   jsonObj.name = name;
   jsonObj.tenantId = tenant;
   jsonObj.description = description;
-  jsonObj.userData=JSON.parse('{}');
-  for (var i=0; i<params[5].length; i++){
+  if (params.length>5) {  
+  	jsonObj.userData=JSON.parse('{}');
+  	for (var i=0; i<params[5].length; i++){
 
-    var paramName = params[5][i];
-    var paramValue = document.getElementById("instVSDId-param_" + paramName).value;
-    jsonObj.userData[paramName]=paramValue;
+    		var paramName = params[5][i];
+   		var paramValue = document.getElementById("instVSDId-param_" + paramName).value;
+    		jsonObj.userData[paramName]=paramValue;
 
+  	}
   }
 
   if (position == '5TONIC') {
@@ -415,7 +417,8 @@ function createVSDescriptorsTableContents(
   var btnText = '';
   if (btnFlag) {
     btnText += createActionButton(data.vsDescriptorId, names, cbacks);
-    createInstantiateVSDModalDialog(data.vsDescriptorId);
+    getVSBlueprint(data.vsBlueprintId, [data.vsDescriptorId,"instVSDId-parameters"],createInstantiateVSDModalDialog);
+   //createInstantiateVSDModalDialog(data.vsDescriptorId);
   }
 
   text += '<tr>' + btnText;
