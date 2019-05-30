@@ -132,7 +132,14 @@ function instantiateVSDFromForm(params) {
   jsonObj.name = name;
   jsonObj.tenantId = tenant;
   jsonObj.description = description;
+  jsonObj.userData=JSON.parse('{}');
+  for (var i=0; i<params[5].length; i++){
 
+    var paramName = params[5][i];
+    var paramValue = document.getElementById("instVSDId-param_" + paramName).value;
+    jsonObj.userData[paramName]=paramValue;
+
+  }
   if (position == '5TONIC') {
     var jsonLocationObj = JSON.parse('{}');
     jsonLocationObj.latitude = 40.337;
@@ -406,7 +413,8 @@ function createVSDescriptorsTableContents(
   var btnText = '';
   if (btnFlag) {
     btnText += createActionButton(data.vsDescriptorId, names, cbacks);
-    createInstantiateVSDModalDialog(data.vsDescriptorId);
+    getVSBlueprint(data.vsBlueprintId, [data.vsDescriptorId,"instVSDId-parameters"],createInstantiateVSDModalDialog);
+	//createInstantiateVSDModalDialog(data.vsDescriptorId);
   }
 
   text += '<tr>' + btnText;
@@ -588,7 +596,6 @@ function makeFormGroup(
   );
   label.setAttribute('for', inputId);
   label.innerText = labelText;
-
   var inputContainer = makeChildDiv(group, 'col-md-6', 'col-sm-6', 'col-xs-12');
   var fInput = makeChild(
     inputContainer,
@@ -617,7 +624,6 @@ function makeScaleModal(vsiId, vsdId) {
   main.setAttribute('role', 'dialog');
   main.setAttribute('aria-hidden', true);
   main.setAttribute('id', 'scaleVSI_' + vsiId);
-
   var inner = makeChildDiv(main, 'modal-dialog', 'modal-md');
   var content = makeChildDiv(inner, 'modal-content');
   var header = makeChildDiv(content, 'modal-header');
@@ -831,8 +837,22 @@ function makeInstantiateModal(vsdId) {
   document.getElementById('instantiateModalDiv').appendChild(main);
 }
 
-function createInstantiateVSDModalDialog(vsdId) {
+function createInstantiateVSDModalDialog(data, params) {
   /*jshint multistr: true */
+ var vsdId=params[0];
+    var instanceParametersHtml='<br /> <h5 class="modal-title" id="myModalLabel">Instance parameters</h5> <br /> ';
+    for (var i = 0; i < data.vsBlueprint.configurableParameters.length; i++) {
+
+        var name=data.vsBlueprint.configurableParameters[i];
+        var paramPrintName = (name.split(".")).slice(-1)[0].replace(/_/g," ");
+        instanceParametersHtml += '<div class="form-group">'+
+                   '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">'+paramPrintName+'<!-- span class="required">*</span --></label>'+
+                  '<div class="col-md-6 col-sm-6 col-xs-12">'+
+                       '<input type="text" id="instVSDId-param_' + name +'" name="last-name" required="required" class="form-control col-md-7 col-xs-12">'+
+                  '</div>'+
+                  '<hr style="clear:both;">'+
+                  '</div>';
+    }
   var text =
     ' <div id="instantiateVSDescriptor_' +
     vsdId +
@@ -898,8 +918,9 @@ function createInstantiateVSDModalDialog(vsdId) {
                         		<option value="CRF">CRF</option>\
                     		</select>\
                             </div>\
-                          </div>\
-                        </form>\
+                          </div>\'+
+                         instanceParametersHtml+
+                        '</form>\
                     </div>\
                   </div>\
                   <div class="modal-footer">\
@@ -917,7 +938,8 @@ function createInstantiateVSDModalDialog(vsdId) {
     vsdId +
     '","instVSDId-position_' +
     vsdId +
-    '"],"response")>Submit</button>\
+    '",["'+data.vsBlueprint.configurableParameters.join('","')+'"]]'+
+    ',"response")>Submit</button>\
                   </div>\
                 </div>\
               </div>\
