@@ -280,4 +280,5 @@ public class AdminService {
 		tenantRepository.saveAndFlush(tenant);
 		log.debug("Removed consumed resources to tenant " + tenantId);
 	}
-	}
+
+}
