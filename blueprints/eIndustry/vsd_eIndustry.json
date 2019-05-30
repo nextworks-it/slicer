@@ -1,0 +1,20 @@
+{
+	"name": "Factory_Control_Service",
+	"version": "0.1",
+	"sst": "URLLC",
+	"managementType": "PROVIDER_MANAGED",
+	"qosParameters":{
+		"MaximumNumberEndDevices":"1000",
+		"EndDevicesDensity":"100"
+	},
+	"serviceConstraints": [{
+		"sharable": false,
+		"canIncludeSharedElements": true,
+		"priority": "HIGH"
+	}],
+	"sla": {
+		"serviceCreationTime": "SERVICE_CREATION_TIME_HIGH",
+		"availabilityCoverage": "AVAILABILITY_COVERAGE_HIGH",
+		"lowCostRequired": false
+	}
+}

@@ -18,6 +18,17 @@ RUN echo "listen_addresses='*'" >> /etc/postgresql/$POSTGRES_VERSION/main/postgr
 RUN systemctl enable postgresql
 RUN service postgresql start
 
+# Apache configuration
+ADD apache2.conf /etc/apache2/apache2.conf
+ADD ssi.conf /etc/apache2/conf-available/ssi.conf
+ADD 000-default.conf /etc/apache2/sites-available/000-default.conf
+
+RUN a2enconf ssi
+RUN a2enmod include
+
+RUN service apache2 restart
+
+
 # JAVA env vars
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 ENV PATH $JAVA_HOME/bin:$PATH

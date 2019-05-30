@@ -1,0 +1,61 @@
+{
+
+    "version": "0.1",
+    "name": "EVS",
+    "description": "Automotive Extended Virtual Sensing Service",
+    "parameters": [{
+      "parameterId": "MaximumNumberVehicles",
+      "parameterName": "MaximumNumberVehicles",
+      "parameterType": "number",
+      "parameterDescription": "Maximum number of vehicles that should be supported by the service",
+      "applicabilityField": "automotive"
+    }],
+    "atomicComponents": [{
+	"componentId": "CIM",
+	"serversNumber": 1,
+	"endPointsIds": ["vCIM_data_ext"]
+    }, {
+	"componentId": "EVS_algorithm",
+	"serversNumber": 2,
+	"endPointsIds": ["vEVS_data_ext"]
+    }, {
+	"componentId": "DENM_transmitter",
+	"serversNumber": 1,
+	"endPointsIds": ["vDENMgenerator_data_ext"]
+    }, {
+	"componentId": "EPC",
+	"serversNumber": 1,
+	"endPointsIds": ["pEPC_data"]
+    }],
+    "endPoints": [{
+	"endPointId": "evs_sap_data",
+	"external": true,
+	"management": true,
+	"ranConnection": true
+    }, {
+	"endPointId": "vCIM_data_ext",
+	"external": true,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "vEVS_data_ext",
+	"external": true,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "vDENMgenerator_data_ext",
+	"external": true,
+	"management": true,
+	"ranConnection": false
+    }, {
+	"endPointId": "pEPC_data",
+	"external": true,
+	"management": true,
+	"ranConnection": false
+    }],
+    "connectivityServices": [{
+	"endPointIds": ["sap_data","vCIM_data_ext","vEVS_data_ext","DENM_transmitter"],
+	"external": true
+    }],
+    "configurableParameters": ["MinTargetTimeToCollision","MaxTargetTimeToCollision"]
+}

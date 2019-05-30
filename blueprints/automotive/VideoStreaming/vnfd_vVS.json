@@ -1,0 +1,124 @@
+{
+  "vnfdId": "vVS",
+  "vnfProvider": "SSSA-NXW",
+  "vnfProductName": "vVS",
+  "vnfSoftwareVersion": "0.1",
+  "vnfdVersion": "0.1",
+  "vnfProductInfoName": "vVS",
+  "vnfProductInfoDescription": "Video Streamer @ Automotive UC",
+  "vnfmInfo": ["SDK"],
+  "vdu": [
+    {
+      "vduId": "vVS_vdu",
+      "name": "vVS_vdu",
+      "description": "VDU of the vVS",
+      "intCpd": [
+        {
+          "cpdId": "vVS_data_int",
+          "layerProtocol": "IPV4",
+          "description": "vVS Internal CP to vl_data",
+          "addressData": [
+            {
+              "addressType": "IP_ADDRESS",
+              "iPAddressAssignment": false,
+              "floatingIpActivated": true,
+              "iPAddressType": "IPv4",
+              "numberOfIpAddress": 1,
+              "management": true
+            }]
+        }
+      ],
+      "virtualComputeDesc": "vVS_vcd",
+      "virtualStorageDesc": ["vVS_vsd"],
+      "swImageDesc": {
+        "id": "vVS_swid",
+        "name": "cirros",
+        "version": "0.1",
+        "checksum": "TBD",
+        "containerFormat": "QCOW",
+        "diskFormat": "QCOW",
+        "minDisk": 1,
+        "minRam": 1,
+        "size": 10,
+        "swImage": "cirros",
+        "operatingSystem": "ubuntu-server"
+      },
+      "configurableProperties": {}
+  }],
+  "virtualComputeDesc": [{
+    "virtualComputeDescId": "vVS_vcd",
+    "virtualMemory": {
+      "virtualMemSize": 1,
+      "virtualMemOversubscriptionPolicy": "nn",
+      "numaEnabled": false
+    },
+    "virtualCpu": {
+      "numVirtualCpu": 1,
+      "cpuArchitecture": "x86_64",
+      "virtualCpuClock": 0,
+      "virtualCpuOversubscriptionPolicy": "nn"
+    }
+
+  }],
+  "virtualStorageDesc": [{
+    "id": "vVS_vsd",
+    "typeOfStorage": "VOLUME",
+    "sizeOfStorage": 10,
+    "swImageDesc": "cirros"
+  }],
+  "vnfExtCpd": [{
+    "cpdId": "vVS_data_ext",
+    "layerProtocol": "IPV4",
+    "description": "vVS External CP to vl_data",
+    "addressData": [{
+      "addressType": "IP_ADDRESS",
+      "iPAddressAssignment": false,
+      "floatingIpActivated": true,
+      "iPAddressType": "IPv4",
+      "numberOfIpAddress": 1,
+      "management": true
+    }],
+    "intCpd": "vVS_data_int"
+   }
+  ],
+  "deploymentFlavour": [{
+    "flavourId": "vVS_df",
+    "description": "Standard deployment flavour of the vVS VNF",
+    "vduProfile": [{
+      "vduId": "vVS_vdu",
+      "minNumberOfInstances": 1,
+      "maxNumberOfInstances": 1
+    }],
+    "instantiationLevel": [{
+      "levelId": "vVS_il",
+      "description": "Standard instantiation level of the vVS VNF",
+      "vduLevel": [{
+        "vduId": "vVS_vdu",
+        "numberOfInstances": 1
+      }]
+    }],
+    "vnfLcmOperationsConfiguration": {}
+  }],
+  "configurableProperties": {
+    "autoScalable": false,
+    "autoHealable": false,
+    "additionalConfigurableProperty": [
+
+    ]
+  },
+  "modifiableAttributes": {},
+  "lifeCycleManagementScript": [{
+    "event": ["START_VNF_INSTANTIATION"],
+    "script": ""
+
+  }, {
+    "event": ["END_VNF_INSTANTIATION"],
+    "script": ""
+  }, {
+    "event": ["START_VNF_TERMINATION"],
+    "script": ""
+  }, {
+    "event": ["END_VNF_TERMINATION"],
+    "script": ""
+  }]
+}

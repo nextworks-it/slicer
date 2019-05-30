@@ -1,0 +1,19 @@
+{
+	"name": "eHealthMonitoring",
+	"version": "0.1",
+	"sst": "M_IOT",
+	"managementType": "PROVIDER_MANAGED",
+	"qosParameters":{
+		"MaximumNumberAmbulances":"500"
+	},
+	"serviceConstraints": [{
+		"sharable": false,
+		"canIncludeSharedElements": true,
+		"priority": "HIGH"
+	}],
+	"sla": {
+		"serviceCreationTime": "SERVICE_CREATION_TIME_MEDIUM",
+		"availabilityCoverage": "AVAILABILITY_COVERAGE_MEDIUM",
+		"lowCostRequired": false
+	}
+}

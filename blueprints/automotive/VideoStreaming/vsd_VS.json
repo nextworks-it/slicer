@@ -1,0 +1,19 @@
+{
+	"name": "VS_small",
+	"version": "0.1",
+	"sst": "EMBB",
+	"managementType": "PROVIDER_MANAGED",
+	"qosParameters":{
+		"MaximumNumberUsers":"50"
+	},
+	"serviceConstraints": [{
+		"sharable": false,
+		"canIncludeSharedElements": true,
+		"priority": "LOW"
+	}],
+	"sla": {
+		"serviceCreationTime": "SERVICE_CREATION_TIME_MEDIUM",
+		"availabilityCoverage": "AVAILABILITY_COVERAGE_MEDIUM",
+		"lowCostRequired": false
+	}
+}

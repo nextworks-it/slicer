@@ -1,0 +1,201 @@
+{
+	"vnfdId": "P-GW_VNF",
+	"vnfProvider": "UC3M-CTTC",
+	"vnfProductName": "P-GW_VNF",
+	"vnfSoftwareVersion": "0.1",
+	"vnfdVersion": "0.1",
+	"vnfProductInfoName": "P-GW_VNF",
+	"vnfProductInfoDescription": "P-GW_VNF",
+	"vnfmInfo": ["P-GW_VNFM"],
+	"localizationLanguage": [],
+	"defaultLocalizationLanguage": "",
+	"vdu": [{
+		"vduId": "P-GW_vdu",
+		"name": "P-GW",
+		"description": "VDU of the P-GW_VNF",
+		"intCpd": [{
+			"cpdId": "pgw_mgt_intcp",
+			"layerProtocol": "IPV4",
+			"description": "Management CP of the P-GW",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": true,
+				"management": true,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		}, {
+			"cpdId": "pgw_sgi_intcp",
+			"layerProtocol": "IPV4",
+			"description": "CP for the P-GW to connect to the internet",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": false,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		}, {
+			"cpdId": "pgw_s5_intcp",
+			"layerProtocol": "IPV4",
+			"description": "CP for the P-GW to connect to the S-GW",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": false,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		}],
+		"virtualComputeDesc": "VCD_P-GW",
+		"virtualStorageDesc": ["VSD_P-GW"],
+		"bootOrder": {},
+		"swImageDesc": {
+			"id": "P-GW_SWID",
+			"name": "P-GW_VNF_eHealth",
+			"version": "0.1",
+			"checksum": "TBD",
+			"containerFormat": "QCOW2",
+			"diskFormat": "QCOW2",
+			"minDisk": 1,
+			"minRam": 1,
+			"size": 15,
+			"swImage": "P-GW_VNF_eHealth",
+			"operatingSystem": "Ubuntu-14.04",
+			"supportedVirtualisationEnvironment": ""
+		},
+
+		"nfviConstraint": [],
+		"monitoringParameter": [],
+		"configurableProperties": {}
+	}],
+	"swImageDesc": [{
+		"id": "P-GW_SWID",
+		"name": "P-GW_VNF_eHealth",
+		"version": "0.1",
+		"checksum": "TBD",
+		"containerFormat": "QCOW2",
+		"diskFormat": "QCOW2",
+		"minDisk": 1,
+		"minRam": 1,
+		"size": 15,
+		"swImage": "P-GW_VNF_eHealth",
+		"operatingSystem": "Ubuntu-14.04",
+		"supportedVirtualisationEnvironment": ""
+	}],
+	"virtualComputeDesc": [{
+		"virtualComputeDescId": "VCD_P-GW",
+		"logicalNode": {},
+		"requestedAdditionalCapabilities": "",
+		"computeRequirements": "",
+		"virtualMemory": {
+			"virtualMemSize": 1,
+			"virtualMemOversubscriptionPolicy": "asdasd",
+			"vduMemRequirements": "",
+			"numaEnabled": false
+		},
+		"virtualCpu": {
+			"numVirtualCpu": 1,
+			"cpuArchitecture": "x86_64",
+			"virtualCpuClock": 0,
+			"virtualCpuOversubscriptionPolicy": "asdasd",
+			"vduCpuRequirements": "",
+			"virtualCpuPinning": ""
+		}	
+	}],
+	"virtualStorageDesc": [{
+		"id": "VSD_P-GW",
+		"typeOfStorage": "VOLUME",
+		"sizeOfStorage": 15,
+		"vduStorageRequirements": "",
+		"rdmaEnabled": false,
+		"swImageDesc": "P-GW_SWID"
+	}],
+	"intVirtualLinkDesc": [],
+	"vnfExtCpd": [{
+		"cpdId": "pgw_mgt_extcp",
+		"layerProtocol": "IPV4",
+		"description": "Management external CP of the P-GW",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": true,
+			"management": true,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "pgw_mgt_intcp"
+	}, {
+		"cpdId": "pgw_sgi_extcp",
+		"layerProtocol": "IPV4",
+		"description": "External CP for the P-GW to connect to the internet",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": false,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "pgw_sgi_intcp"
+	}, {
+		"cpdId": "pgw_s5_extcp",
+		"layerProtocol": "IPV4",
+		"description": "External CP for the P-GW to connect to the S-GW",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": false,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "pgw_s5_intcp"
+	}],
+	"deploymentFlavour": [{
+		"flavourId": "P-GW_VNF_df",
+		"description": "Standard deployment flavour of the P-GW",
+		"vduProfile": [{
+			"vduId": "P-GW_vdu",
+			"minNumberOfInstances": 1,
+			"maxNumberOfInstances": 1
+		}],
+		"instantiationLevel": [{
+			"levelId": "il_P-GW",
+			"description": "Standard instantiation level of the P-GW",
+			"vduLevel": [{
+				"vduId": "P-GW_vdu",
+				"numberOfInstances": 1
+			}]
+		}],
+		"vnfLcmOperationsConfiguration": {},
+		"defaultInstantiationLevelId": "",
+		"supportedOperation": [],
+		"affinityOrAntiAffinityGroup": [],
+		"vnfIndicator": "",
+		"monitoringParameter": [],
+		"scalingAspect": [],
+		"initialDelta": ""
+	}],
+	"configurableProperties": {
+			"autoScalable": false,
+			"autoHealable": false,
+			"additionalConfigurableProperty": [ ]
+	},
+	"modifiableAttributes": {},
+	"lifeCycleManagementScript": [{
+		"event": ["START_VNF_INSTANTIATION"],
+		"script": ""
+	}, {
+		"event": ["END_VNF_INSTANTIATION"],
+		"script": ""
+	}, {
+		"event": ["START_VNF_TERMINATION"],
+		"script": ""
+	}, {
+		"event": ["END_VNF_TERMINATION"],
+		"script": ""
+	}],
+	"elementGroup": [],
+	"vnfIndicator": [],
+	"autoScale": ""
+}

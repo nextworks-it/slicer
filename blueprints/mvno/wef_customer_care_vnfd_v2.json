@@ -1,0 +1,90 @@
+{
+	"vnfdId": "customer_care_1_2_vnfd",
+	"vnfProvider": "Bcom",
+	"vnfProductName": "wef_customer_care",
+	"vnfSoftwareVersion": "1.2.1",
+	"vnfdVersion": "0.1",
+	"vnfProductInfoName": "Bcom WEF Customer Care",
+	"vnfProductInfoDescription": "Bcom WEF Customer Care",
+	"vnfmInfo": ["WEF_VNFM"],
+	"vdu": [{
+		"vduId": "wef_customer_care_vdu",
+		"name": "wef_customer_care_vdu",
+		"description": "VDU of the Customer Care",
+		"intCpd": [{
+			"cpdId": "wef-customer-care-ens3_int",
+			"layerProtocol": "IPV4",
+			"description": "Management CP of the Customer Care",
+			"addressData": [{
+				"addressType": "IP_ADDRESS",
+				"iPAddressAssignment": false,
+				"floatingIpActivated": true,
+				"iPAddressType": "IPv4",
+				"numberOfIpAddress": 1
+			}]
+		}],
+		"virtualComputeDesc": "VCD_WEF_CustomerCare",
+		"virtualStorageDesc": ["VSD_WEF_CustomerCare"],
+		"swImageDesc": {
+			"id": "WEF_CustomerCare_SWID",
+			"name": "WEF_CustomerCare",
+			"version": "0.1",
+			"checksum": "65c045ac61a02fad7e250014b1c60197",
+			"containerFormat": "BARE",
+			"diskFormat": "QCOW2",
+			"minDisk": 1,
+			"minRam": 1,
+			"size": 5,
+			"swImage": "wef_customer_care_5gt",
+			"operatingSystem": "ubuntu-server-16.04-amd64"
+		},
+		"configurableProperties": {}
+	}],
+	"virtualComputeDesc": [{
+		"virtualComputeDescId": "VCD_WEF_CustomerCare",
+		"virtualMemory": {
+			"virtualMemSize": 1
+		},
+		"virtualCpu": {
+			"numVirtualCpu": 1
+		}
+	}],
+	"virtualStorageDesc": [{
+		"id": "VSD_WEF_CustomerCare",
+		"typeOfStorage": "VOLUME",
+		"sizeOfStorage": 5,
+		"swImageDesc": "WEF_CustomerCare_SWID"
+	}],
+	"vnfExtCpd": [{
+		"cpdId": "wef-customer-care-ens3_ext",
+		"layerProtocol": "IPV4",
+		"description": "Management external CP of the Customer Care",
+		"addressData": [{
+			"addressType": "IP_ADDRESS",
+			"iPAddressAssignment": false,
+			"floatingIpActivated": true,
+			"iPAddressType": "IPv4",
+			"numberOfIpAddress": 1
+		}],
+		"intCpd": "wef-customer-care-ens3_int"
+	}],
+	"deploymentFlavour": [{
+		"flavourId": "df_wef_customer_care",
+		"description": "Standard deployment flavour of the Customer Care",
+		"vduProfile": [{
+			"vduId": "wef_customer_care_vdu",
+			"minNumberOfInstances": 1,
+			"maxNumberOfInstances": 1
+		}],
+		"instantiationLevel": [{
+			"levelId": "il_wef_customer_care",
+			"description": "Standard instantiation level of the Customer Care",
+			"vduLevel": [{
+				"vduId": "wef_customer_care_vdu",
+				"numberOfInstances": 1
+			}]
+		}],
+		"vnfLcmOperationsConfiguration": {}
+	}],
+	"modifiableAttributes": {}
+}

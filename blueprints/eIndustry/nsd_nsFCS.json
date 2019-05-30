@@ -1,0 +1,138 @@
+{
+	"nsd": {
+		"nsdIdentifier": "nsFC",
+		"designer": "TEI-NXW",
+		"version": "0.1",
+		"nsdName": "Factory Control service @ 5GT",
+		"nsdInvariantId": "Factory Control service @ 5GT\"",
+		"vnfdId": ["vFCS"],
+		"pnfdId": ["pEPC"],
+		"sapd": [
+			{
+				"cpdId": "fc_sap_data",
+				"description": "SAP for all the Factory Control service",
+				"layerProtocol": "IPV4",
+				"cpRole": "ROOT",
+				"addressData": [{
+					"addressType": "IP_ADDRESS",
+					"iPAddressAssignment": false,
+					"floatingIpActivated": true,
+					"iPAddressType": "IPv4",
+					"numberOfIpAddress": 1
+				}],
+				"sapAddressAssignment": false,
+				"nsVirtualLinkDescId": "fc_vl_data"
+			}
+		],
+		"virtualLinkDesc": [
+			{
+				"virtualLinkDescId": "fc_vl_data",
+				"virtualLinkDescProvider": "TEI-NXW",
+				"virtuaLinkDescVersion": "0.1",
+				"connectivityType": {
+					"layerProtocol": "IPV4"
+				},
+				"virtualLinkDf": [{
+					"flavourId": "fc_vl_df_data",
+					"qos": {
+						"latency": 0,
+						"packetDelayVariation": 0,
+						"packetLossRatio": 0,
+						"priority": 0
+					},
+					"serviceAvaibilityLevel": "LEVEL_1",
+					"bitrateRequirements": {
+						"root": 2,
+						"leaf": 2
+					}
+				}],
+				"description": "Network to connect to the factory devices"
+			}
+		],
+		"nsDf": [{
+			"nsDfId": "nsFc_df",
+			"flavourKey": "nsFc_fk",
+			"vnfProfile": [
+
+				{
+					"vnfProfileId": "vFcs_profile",
+					"vnfdId": "vFCS",
+					"flavourId": "fcs_df",
+					"instantiationLevel": "fcs_il",
+					"minNumberOfInstances": 1,
+					"maxNumberOfInstances": 1,
+					"nsVirtualLinkConnectivity": [{
+						"virtualLinkProfileId": "fc_vl_profile_data",
+						"cpdId": [
+							"fcs_data_ext"
+						]
+					 }
+					]
+				}
+			],
+			"pnfProfile": [{
+				"pnfProfileId": "pEPC_profile",
+				"pnfdId": "pEPC",
+				"pnfVirtualLinkConnectivity": [{
+					"virtualLinkProfileId": "fc_vl_profile_data",
+					"cpdId": [
+						"pEPC_data"
+					]
+				}]}
+			],
+			"virtualLinkProfile": [
+				{
+					"virtualLinkProfileId": "fc_vl_profile_data",
+					"virtualLinkDescId": "fc_vl_data",
+					"flavourId": "fc_vl_df_data",
+					"maxBitrateRequirements": {
+						"root": "1",
+						"leaf": "1"
+					},
+					"minBitrateRequirements": {
+						"root": "1",
+						"leaf": "1"
+					}
+				}
+			],
+			"nsInstantiationLevel": [
+				{
+					"nsLevelId": "nsFC_il",
+					"description": "Default instantiation level for the Factory Control service",
+					"vnfToLevelMapping": [
+						{
+							"vnfProfileId": "vFcs_profile",
+							"numberOfInstances": 1
+						}
+					],
+					"virtualLinkToLevelMapping": [
+						{
+							"virtualLinkProfileId": "fc_vl_profile_data",
+							"bitRateRequirements": {
+								"root": "1",
+								"leaf": "1"
+							}
+						}
+					]
+				}
+			],
+			"defaultNsInstantiationLevelId": "nsFC_il",
+			"nsProfile": [
+				{
+					"nsProfileId": "nsFC_profile",
+					"nsdId": "nsFC",
+					"nsDfId": "nsFc_df",
+					"nsInstantiationLevelId": "nsFC_il",
+					"minNumberOfInstances": 1,
+					"maxNumberOfInstances": 1
+				}
+			],
+			"dependencies": []
+		}],
+		"security": {
+			"signature": "FC_NSD_SIGNATURE",
+			"algorithm": "FC_NSD_ALGORITHM",
+			"certificate": "FC_NSD_CERTIFICATE"
+		}
+	}
+}

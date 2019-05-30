@@ -1,0 +1,33 @@
+{
+  "pnfd": {
+    "pnfdId": "pEPC",
+    "provider": "NXW",
+    "version": "0.1",
+    "pnfExtCp": [
+
+      {
+        "cpdId": "pEPC_data",
+        "description": "Connection point of the pEPC",
+        "layerProtocol": "IPV4",
+        "cpRole": "ROOT",
+        "addressData": [
+          {
+            "addressType": "IP_ADDRESS",
+            "iPAddressAssignment": false,
+            "floatingIpActivated": false,
+            "iPAddressType": "IPv4",
+            "numberOfIpAddress": 1
+          }
+        ]
+      }
+    ],
+    "security": {
+      "signature": "pEPC_PNFD_SIGNATURE",
+      "algorithm": "pEPC_PNFD_ALGORITHM",
+      "certificate": "pEPC_PNFD_CERTIFICATE"
+    },
+    "configurableProperty": [
+
+    ]
+  }
+}

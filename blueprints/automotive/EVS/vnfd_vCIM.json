@@ -1,0 +1,124 @@
+{
+  "vnfdId": "vCIM",
+  "vnfProvider": "CRF-POLITO-NXW",
+  "vnfProductName": "CIM",
+  "vnfSoftwareVersion": "0.1",
+  "vnfdVersion": "0.1",
+  "vnfProductInfoName": "vCIM",
+  "vnfProductInfoDescription": "Virtual Collaborative Information Manager ",
+  "vnfmInfo": ["SDK"],
+  "vdu": [
+    {
+      "vduId": "vCIM_vdu",
+      "name": "vCIM_vdu",
+      "description": "VDU of the vCIM",
+      "intCpd": [
+        {
+          "cpdId": "vCIM_data_int",
+          "layerProtocol": "IPV4",
+          "description": "vCIM Internal CP to vl_data",
+          "addressData": [
+            {
+              "addressType": "IP_ADDRESS",
+              "iPAddressAssignment": false,
+              "floatingIpActivated": true,
+              "iPAddressType": "IPv4",
+              "numberOfIpAddress": 1,
+              "management": true
+            }]
+        }
+      ],
+      "virtualComputeDesc": "vCIM_vcd",
+      "virtualStorageDesc": ["vCIM_vsd"],
+      "swImageDesc": {
+        "id": "vCIM_swid",
+        "name": "cirros",
+        "version": "0.1",
+        "checksum": "TBD",
+        "containerFormat": "QCOW",
+        "diskFormat": "QCOW",
+        "minDisk": 20,
+        "minRam": 8,
+        "size": 20,
+        "swImage": "cirros",
+        "operatingSystem": "ubuntu-server"
+      },
+      "configurableProperties": {}
+  }],
+  "virtualComputeDesc": [{
+    "virtualComputeDescId": "vCIM_vcd",
+    "virtualMemory": {
+      "virtualMemSize": 8,
+      "virtualMemOversubscriptionPolicy": "",
+      "numaEnabled": false
+    },
+    "virtualCpu": {
+      "numVirtualCpu": 2,
+      "cpuArchitecture": "x86_64",
+      "virtualCpuClock": 0,
+      "virtualCpuOversubscriptionPolicy": ""
+    }
+
+  }],
+  "virtualStorageDesc": [{
+    "id": "vCIM_vsd",
+    "typeOfStorage": "VOLUME",
+    "sizeOfStorage": 10,
+    "swImageDesc": "cirros"
+  }],
+  "vnfExtCpd": [{
+    "cpdId": "vCIM_data_ext",
+    "layerProtocol": "IPV4",
+    "description": "vCIM External CP to vl_data",
+    "addressData": [{
+      "addressType": "IP_ADDRESS",
+      "iPAddressAssignment": false,
+      "floatingIpActivated": true,
+      "iPAddressType": "IPv4",
+      "numberOfIpAddress": 1,
+      "management": true
+    }],
+    "intCpd": "vCIM_data_int"
+   }
+  ],
+  "deploymentFlavour": [{
+    "flavourId": "vCIM_df",
+    "description": "Standard deployment flavour of the vCIM VNF",
+    "vduProfile": [{
+      "vduId": "vCIM_vdu",
+      "minNumberOfInstances": 1,
+      "maxNumberOfInstances": 1
+    }],
+    "instantiationLevel": [{
+      "levelId": "vCIM_il",
+      "description": "Standard instantiation level of the vCIM VNF",
+      "vduLevel": [{
+        "vduId": "vCIM_vdu",
+        "numberOfInstances": 1
+      }]
+    }],
+    "vnfLcmOperationsConfiguration": {}
+  }],
+  "configurableProperties": {
+    "autoScalable": false,
+    "autoHealable": false,
+    "additionalConfigurableProperty": [
+
+    ]
+  },
+  "modifiableAttributes": {},
+  "lifeCycleManagementScript": [{
+    "event": ["START_VNF_INSTANTIATION"],
+    "script": ""
+
+  }, {
+    "event": ["END_VNF_INSTANTIATION"],
+    "script": ""
+  }, {
+    "event": ["START_VNF_TERMINATION"],
+    "script": ""
+  }, {
+    "event": ["END_VNF_TERMINATION"],
+    "script": ""
+  }]
+}

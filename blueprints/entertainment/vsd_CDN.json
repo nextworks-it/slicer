@@ -1,0 +1,19 @@
+{
+	"name": "vCDN_small",
+	"version": "0.1",
+	"sst": "EMBB",
+	"managementType": "PROVIDER_MANAGED",
+	"qosParameters":{
+		"MaximumNumberUsers":"50"
+	},
+	"serviceConstraints": [{
+		"sharable": false,
+		"canIncludeSharedElements": false,
+		"priority": "HIGH"
+	}],
+	"sla": {
+		"serviceCreationTime": "UNDEFINED",
+		"availabilityCoverage": "AVAILABILITY_COVERAGE_MEDIUM",
+		"lowCostRequired": false
+	}
+}
