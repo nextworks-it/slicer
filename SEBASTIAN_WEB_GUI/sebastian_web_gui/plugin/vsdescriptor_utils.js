@@ -843,9 +843,23 @@ function makeInstantiateModal(vsdId) {
   document.getElementById('instantiateModalDiv').appendChild(main);
 }
 
-function createInstantiateVSDModalDialog(vsdId) {
+function createInstantiateVSDModalDialog(data, params) {
   /*jshint multistr: true */
-  var text =
+   var vsdId=params[0];
+    var instanceParametersHtml='<br /> <h5 class="modal-title" id="myModalLabel">Instance parameters</h5> <br /> ';
+    for (var i = 0; i < data.vsBlueprint.configurableParameters.length; i++) {
+
+        var name=data.vsBlueprint.configurableParameters[i];
+        var paramPrintName = (name.split(".")).slice(-1)[0].replace(/_/g," ");
+        instanceParametersHtml += '<div class="form-group">'+
+                   '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">'+paramPrintName+'<!-- span class="required">*</span --></label>'+
+                  '<div class="col-md-6 col-sm-6 col-xs-12">'+
+                       '<input type="text" id="instVSDId-param_' + name +'" name="last-name" required="required" class="form-control col-md-7 col-xs-12">'+
+                  '</div>'+
+                  '<hr style="clear:both;">'+
+                  '</div>';
+    }
+   var text =
     ' <div id="instantiateVSDescriptor_' +
     vsdId +
     '" class="modal fade bs-example-modal-md in" tabindex="-1" role="dialog" aria-hidden="true">\
