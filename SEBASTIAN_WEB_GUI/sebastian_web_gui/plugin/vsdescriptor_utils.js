@@ -944,7 +944,7 @@ function createInstantiateVSDModalDialog(data, params) {
     vsdId +
     '","instVSDId-position_' +
     vsdId +
-    '"],"response")>Submit</button>\
+    '",["'+data.vsBlueprint.configurableParameters.join('","')+'"]],"response")>Submit</button>\
                   </div>\
                 </div>\
               </div>\
