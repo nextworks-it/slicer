@@ -924,8 +924,9 @@ function createInstantiateVSDModalDialog(data, params) {
                         		<option value="CRF">CRF</option>\
                     		</select>\
                             </div>\
-                          </div>\
-                        </form>\
+                          </div>'+
+                         instanceParametersHtml+
+                        '</form>\
                     </div>\
                   </div>\
                   <div class="modal-footer">\
