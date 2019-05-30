@@ -124,13 +124,64 @@ function instantiateVSDFromForm(params) {
   var name = document.getElementById(params[1]).value;
   var tenant = document.getElementById(params[2]).value;
   var description = document.getElementById(params[3]).value;
-
-  var jsonObj = {};
+  var position = document.getElementById(params[4]).value;
+  
+  var jsonObj = JSON.parse('{}');
 
   jsonObj.vsdId = vsdId;
   jsonObj.name = name;
   jsonObj.tenantId = tenant;
   jsonObj.description = description;
+
+  if (position == '5TONIC') {
+    var jsonLocationObj = JSON.parse('{}');
+    jsonLocationObj.latitude = 40.337;
+    jsonLocationObj.longitude = -3.77;
+    jsonLocationObj.altitude = 0;
+    jsonLocationObj.range = 10;
+
+    jsonObj.locationConstraints = jsonLocationObj;
+  }
+
+  if (position == 'CTTC') {
+    var jsonLocationObj = JSON.parse('{}');
+    jsonLocationObj.latitude = 41.275;
+    jsonLocationObj.longitude = 1.988;
+    jsonLocationObj.altitude = 0;
+    jsonLocationObj.range = 10;
+
+    jsonObj.locationConstraints = jsonLocationObj;
+  }
+
+  if (position == 'ARNO') {
+    var jsonLocationObj = JSON.parse('{}');
+    jsonLocationObj.latitude = 43.718;
+    jsonLocationObj.longitude = 10.425;
+    jsonLocationObj.altitude = 0;
+    jsonLocationObj.range = 10;
+
+    jsonObj.locationConstraints = jsonLocationObj;
+  }
+
+  if (position == 'POLITO') {
+    var jsonLocationObj = JSON.parse('{}');
+    jsonLocationObj.latitude = 45.063;
+    jsonLocationObj.longitude = 7.662;
+    jsonLocationObj.altitude = 0;
+    jsonLocationObj.range = 10;
+
+    jsonObj.locationConstraints = jsonLocationObj;
+  }
+
+  if (position == 'CRF') {
+    var jsonLocationObj = JSON.parse('{}');
+    jsonLocationObj.latitude = 45.013;
+    jsonLocationObj.longitude = 7.566;
+    jsonLocationObj.altitude = 0;
+    jsonLocationObj.range = 10;
+
+    jsonObj.locationConstraints = jsonLocationObj;
+  }
 
   var json = JSON.stringify(jsonObj, null, 4);
   console.log(json);
@@ -171,7 +222,8 @@ function createVSDescriptorsTable(data, tableId) {
   } else {
     cbacks = [
       'vsd_details.html?Id=',
-      openInstantiateModal,
+//      openInstantiateModal,
+      'instantiateVSDescriptor',
       'deleteVSDescriptor'
     ];
     names = ['View', 'Instantiate', 'Delete'];
@@ -354,7 +406,7 @@ function createVSDescriptorsTableContents(
   var btnText = '';
   if (btnFlag) {
     btnText += createActionButton(data.vsDescriptorId, names, cbacks);
-    // createInstantiateVSDModalDialog(data.vsDescriptorId);
+    createInstantiateVSDModalDialog(data.vsDescriptorId);
   }
 
   text += '<tr>' + btnText;
@@ -833,6 +885,20 @@ function createInstantiateVSDModalDialog(vsdId) {
     '" name="last-name" required="required" class="form-control col-md-7 col-xs-12">\
                             </div>\
                           </div>\
+			  <div class="form-group">\
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Position<!-- span class="required">*</span -->\
+                            </label>\
+                            <div class="col-md-6 col-sm-6 col-xs-12">\
+				<select id="instVSDId-position_' + vsdId +'" autocomplete="off" name="last-name" class="form-control col-md-7 col-xs-12">\
+                        		<option value="NONE">NONE</option>\
+                        		<option value="5TONIC">5TONIC</option>\
+                        		<option value="CTTC">CTTC</option>\
+                        		<option value="ARNO">ARNO</option>\
+                        		<option value="POLITO">POLITO</option>\
+                        		<option value="CRF">CRF</option>\
+                    		</select>\
+                            </div>\
+                          </div>\
                         </form>\
                     </div>\
                   </div>\
@@ -848,6 +914,8 @@ function createInstantiateVSDModalDialog(vsdId) {
     '","instVSDId-tenant_' +
     vsdId +
     '","instVSDId-description_' +
+    vsdId +
+    '","instVSDId-position_' +
     vsdId +
     '"],"response")>Submit</button>\
                   </div>\
