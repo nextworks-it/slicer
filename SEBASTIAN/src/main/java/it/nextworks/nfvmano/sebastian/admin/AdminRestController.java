@@ -15,7 +15,10 @@
 */
 package it.nextworks.nfvmano.sebastian.admin;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -30,10 +33,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.nextworks.nfvmano.libs.common.elements.Filter;
 import it.nextworks.nfvmano.libs.common.exceptions.AlreadyExistingEntityException;
 import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
+import it.nextworks.nfvmano.libs.policy.interfaces.messages.DeletePolicyResponse;
+import it.nextworks.nfvmano.libs.policy.interfaces.messages.GenericPolicyListRequest;
+import it.nextworks.nfvmano.libs.policy.interfaces.messages.QueryPolicyResponse;
+import it.nextworks.nfvmano.libs.policy.interfaces.messages.TransferPolicyRequest;
 import it.nextworks.nfvmano.sebastian.admin.elements.Sla;
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
 import it.nextworks.nfvmano.sebastian.admin.elements.TenantGroup;
@@ -49,7 +58,77 @@ public class AdminRestController {
 	@Autowired
 	private AdminService adminService;
 	
+	@Autowired
+	private PolicyManagementService policyManagementService;
+	
 	public AdminRestController() {	}
+	
+	@RequestMapping(value = "/policy", method = RequestMethod.POST)
+	public ResponseEntity<?> createPolicy(@RequestBody TransferPolicyRequest request) {
+		log.debug("Received request to create policy");
+		try {
+			String policyId = policyManagementService.transferPolicy(request);
+			return new ResponseEntity<String>(policyId, HttpStatus.CREATED);
+		} catch (MalformattedElementException e) {
+			log.debug("Malformatted request: " + e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			log.debug("General exception: " + e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@RequestMapping(value = "/policy/{policyid}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deletePolicy(@PathVariable String policyid) {
+		log.debug("Received request to delete policy " + policyid);
+		try {
+			List<String> policyInfoId = new ArrayList<>();
+			policyInfoId.add(policyid);
+			GenericPolicyListRequest request = new GenericPolicyListRequest(policyInfoId);
+			DeletePolicyResponse response = policyManagementService.deletePolicy(request);
+			if (response.getDeletedPolicyInfoId().get(0).equals(policyid)) return new ResponseEntity<>(HttpStatus.OK);
+			else return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (MalformattedElementException e) {
+			log.debug("Malformatted request: " + e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			log.debug("General exception: " + e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@RequestMapping(value = "/policy", method = RequestMethod.GET)
+	public ResponseEntity<?> getPolicies() {
+		log.debug("Received request to get all policies");
+		Filter filter = new Filter(new HashMap<>());
+		GeneralizedQueryRequest request = new GeneralizedQueryRequest(filter, null);
+		try {
+			QueryPolicyResponse response = policyManagementService.queryPolicy(request);
+			return new ResponseEntity<QueryPolicyResponse>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			log.debug("General exception: " + e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@RequestMapping(value = "/policy/{policyid}", method = RequestMethod.GET)
+	public ResponseEntity<?> getPolicy(@PathVariable String policyid) {
+		log.debug("Received request to get policy " + policyid);
+		Map<String, String> filterMap = new HashMap<>();
+		filterMap.put("POLICY_ID", policyid);
+		Filter filter = new Filter(filterMap);
+		GeneralizedQueryRequest request = new GeneralizedQueryRequest(filter, null);
+		try {
+			QueryPolicyResponse response = policyManagementService.queryPolicy(request);
+			return new ResponseEntity<QueryPolicyResponse>(response, HttpStatus.OK);
+		} catch (NotExistingEntityException e) {
+			log.debug("Not found exception: " + e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			log.debug("General exception: " + e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 	
 	@RequestMapping(value = "/group/{name}", method = RequestMethod.POST)
 	public ResponseEntity<?> createGroup(@PathVariable String name) {
