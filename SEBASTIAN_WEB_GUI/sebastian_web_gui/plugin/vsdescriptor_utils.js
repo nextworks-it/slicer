@@ -704,7 +704,7 @@ function makeScaleModal(vsiId, vsdId) {
       } else {
         // Skip so we don't propose to scale to the current vsd
         vsdsByVsb[key] || (vsdsByVsb[key] = []); // Set default empty list value
-        vsdsByVsb[key].push([vsd.vsBlueprintId, vsd.name]);
+        vsdsByVsb[key].push([vsd.vsDescriptorId, vsd.name]);
       }
     }
 
