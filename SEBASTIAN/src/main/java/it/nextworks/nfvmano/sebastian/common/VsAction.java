@@ -20,10 +20,14 @@ import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
 
 import javax.persistence.Embeddable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Embeddable
 public class VsAction {
     private String vsiId;
     private VsActionType actionType;
+    
+    @JsonIgnore
     private NfvNsInstantiationInfo nsInstantiationInfo;
 
     public VsAction() {
