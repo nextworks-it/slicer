@@ -27,7 +27,7 @@ public class VsAction {
     private String vsiId;
     private VsActionType actionType;
     
-    @JsonIgnore
+   
     private NfvNsInstantiationInfo nsInstantiationInfo;
 
     public VsAction() {
