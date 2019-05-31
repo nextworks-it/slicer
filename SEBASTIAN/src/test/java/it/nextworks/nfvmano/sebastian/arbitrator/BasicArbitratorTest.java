@@ -22,6 +22,7 @@ import it.nextworks.nfvmano.sebastian.admin.elements.Sla;
 import it.nextworks.nfvmano.sebastian.admin.elements.SlaVirtualResourceConstraint;
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
 import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
+import it.nextworks.nfvmano.sebastian.catalogue.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
@@ -41,6 +42,7 @@ public class BasicArbitratorTest {
 
     NfvoService nfvoMock;
     VsRecordService vsRecordServiceMock;
+    VsDescriptorCatalogueService vsDescriptorCatalogueMock;
     Engine engineMock;
     NsdInfo nsdInfoMock;
     AdminService adminServiceMock;
@@ -66,6 +68,7 @@ public class BasicArbitratorTest {
         this.tenantMock = mock(Tenant.class);
         this.tenantSlaMock = mock(Sla.class);
         this.scMock = mock(SlaVirtualResourceConstraint.class);
+        this.vsDescriptorCatalogueMock = mock(VsDescriptorCatalogueService.class);
 
     }
 
@@ -85,7 +88,7 @@ public class BasicArbitratorTest {
 
         BasicArbitrator basicArbitrator = new BasicArbitrator(this.adminServiceMock,
                 this.vsRecordServiceMock,
-                this.translatorServiceMock,
+                this.vsDescriptorCatalogueMock, this.translatorServiceMock,
                 this.nfvoMock);
 
         List<ArbitratorRequest> request = new ArrayList<>();
