@@ -57,6 +57,7 @@ public abstract class AbstractArbitrator implements ArbitratorInterface {
 			TranslatorService translatorService, NfvoService nfvoService, ArbitratorType type) {
 		this.adminService = adminService;
 		this.vsRecordService = vsRecordService;
+		this.vsDescriptorCatalogueService=vsDescriptorCatalogueService;
 		this.translatorService = translatorService;
 		this.nfvoService = nfvoService;
 		this.type = type;
