@@ -479,7 +479,7 @@ public class Engine {
 	 * @param vsCoordinator VSI coordinator in charge of processing messages
 	 */
 	private void createQueue(String vsCoordinatorId, VsCoordinator vsCoordinator) {
-		String queueName = ConfigurationParameters.engineQueueNamePrefix + vsCoordinatorId;
+		String queueName = ConfigurationParameters.engineQueueNamePrefix +"coord"+ vsCoordinatorId;
 		log.debug("Creating new Queue " + queueName + " in rabbit host " + rabbitHost);
 		CachingConnectionFactory cf = new CachingConnectionFactory();
 		cf.setAddresses(rabbitHost);
