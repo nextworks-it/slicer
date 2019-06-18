@@ -22,6 +22,10 @@ public class NfvNsInstantiationInfo {
 	private String deploymentFlavourId;
 	private String instantiationLevelId;
 	
+	
+	public NfvNsInstantiationInfo() {
+		
+	}
 	/**
 	 * Constructor
 	 * 
@@ -40,6 +44,22 @@ public class NfvNsInstantiationInfo {
 		this.instantiationLevelId = instantiationLevelId;
 	}
 	
+	public void setNfvNsdId(String nfvNsdId) {
+		this.nfvNsdId = nfvNsdId;
+	}
+
+	public void setNsdVersion(String nsdVersion) {
+		this.nsdVersion = nsdVersion;
+	}
+
+	public void setDeploymentFlavourId(String deploymentFlavourId) {
+		this.deploymentFlavourId = deploymentFlavourId;
+	}
+
+	public void setInstantiationLevelId(String instantiationLevelId) {
+		this.instantiationLevelId = instantiationLevelId;
+	}
+
 	/**
 	 * @return the nfvNsdId
 	 */

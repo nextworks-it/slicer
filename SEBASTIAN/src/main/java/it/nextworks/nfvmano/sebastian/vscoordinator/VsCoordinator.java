@@ -72,7 +72,7 @@ public class VsCoordinator {
                 case NOTIFY_TERMINATION:{
                     log.debug("Processing VSI termination notification.");
                     VsiTerminationNotificationMessage vsiTerminationNotificationMessage = (VsiTerminationNotificationMessage) em;
-                    processTerninationNofification(vsiTerminationNotificationMessage);
+                    processTerminationNofification(vsiTerminationNotificationMessage);
                     break;
                 }
 
@@ -114,7 +114,7 @@ public class VsCoordinator {
         }
     }
 
-    synchronized void processTerninationNofification(VsiTerminationNotificationMessage msg) throws Exception{
+    synchronized void processTerminationNofification(VsiTerminationNotificationMessage msg) throws Exception{
         String vsiId = msg.getVsiId();
         if(candidateVsis.containsKey(vsiId)) {
             candidateVsis.remove(vsiId);

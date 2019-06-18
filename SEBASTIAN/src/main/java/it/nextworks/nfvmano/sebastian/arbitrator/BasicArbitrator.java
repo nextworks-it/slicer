@@ -29,6 +29,8 @@ import it.nextworks.nfvmano.sebastian.common.VsAction;
 import it.nextworks.nfvmano.sebastian.common.VsActionType;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
+import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +76,7 @@ public class BasicArbitrator extends AbstractArbitrator {
 			// check vsd priority
 			VsDescriptor vsd = vsDescriptorCatalogueService.getVsd(vsi.getVsdId());
 			List<ServiceConstraints> serviceConstraints = vsd.getServiceConstraints();
+			if (!(vsi.getStatus()==VerticalServiceStatus.INSTANTIATED)) break;
 			if(serviceConstraints.isEmpty() || serviceConstraints.get(0).getPriority() == ServicePriorityLevel.LOW){
 				//retrive NSInfo
 				NetworkSliceInstance nsi = vsRecordService.getNsInstance(vsi.getNetworkSliceId());

@@ -211,7 +211,7 @@ public class Engine {
 		log.debug("Processing new VSI coordination request from VSI " + invokerVsiId);
 		if (!vsCoordinators.containsKey(invokerVsiId))
 			initNewVsCoordinator(invokerVsiId);
-		String topic = "lifecyclecoord.coordinatevs." + invokerVsiId;
+		String topic = "coordlifecycle.coordinatevs." + invokerVsiId;
 		CoordinateVsiRequest internalMessage = new CoordinateVsiRequest(invokerVsiId, candidateVsis);
 		try {
 			sendMessageToQueue(internalMessage, topic);
@@ -286,7 +286,7 @@ public class Engine {
 			for (Map.Entry<String, VsCoordinator> coordEntry: vsCoordinators.entrySet()){
 				VsCoordinator coordinator = coordEntry.getValue();
 				if(coordinator.getCandidateVsis().containsKey(vsiId)){
-					String topic = "lifecyclecoord.notifyterm." + coordEntry.getKey();
+					String topic = "coordlifecycle.notifyterm." + coordEntry.getKey();
 					VsiTerminationNotificationMessage internalMessage = new VsiTerminationNotificationMessage(vsiId);
 					try {
 						sendMessageToQueue(internalMessage, topic);
@@ -479,7 +479,7 @@ public class Engine {
 	 * @param vsCoordinator VSI coordinator in charge of processing messages
 	 */
 	private void createQueue(String vsCoordinatorId, VsCoordinator vsCoordinator) {
-		String queueName = ConfigurationParameters.engineQueueNamePrefix + vsCoordinatorId;
+		String queueName = ConfigurationParameters.engineQueueNamePrefix +"coord"+ vsCoordinatorId;
 		log.debug("Creating new Queue " + queueName + " in rabbit host " + rabbitHost);
 		CachingConnectionFactory cf = new CachingConnectionFactory();
 		cf.setAddresses(rabbitHost);
@@ -488,7 +488,7 @@ public class Engine {
 		Queue queue = new Queue(queueName, false, false, true);
 		rabbitAdmin.declareQueue(queue);
 		rabbitAdmin.declareExchange(messageExchange);
-		rabbitAdmin.declareBinding(BindingBuilder.bind(queue).to(messageExchange).with("lifecyclecoord.*." + vsCoordinatorId));
+		rabbitAdmin.declareBinding(BindingBuilder.bind(queue).to(messageExchange).with("coordlifecycle.*." + vsCoordinatorId));
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(cf);
 		MessageListenerAdapter adapter = new MessageListenerAdapter(vsCoordinator, "receiveMessage");
 		container.setMessageListener(adapter);

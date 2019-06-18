@@ -26,7 +26,7 @@ public class NotifyResourceGranted extends EngineMessage{
      *
      * @param vsiId id of the VSI invoked to coordination
      */
-    public NotifyResourceGranted(String vsiId) {
+    public NotifyResourceGranted(@JsonProperty("vsiId") String vsiId) {
         this.type = EngineMessageType.RESOURCES_GRANTED;
         this.vsiId = vsiId;
     }
