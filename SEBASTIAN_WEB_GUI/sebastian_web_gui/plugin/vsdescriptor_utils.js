@@ -848,13 +848,18 @@ function makeInstantiateModal(vsdId) {
 function createInstantiateVSDModalDialog(data, params) {
   /*jshint multistr: true */
   var vsdId = params[0];
-  var instanceParametersHtml =
-    '<br /> <h5 class="modal-title" id="myModalLabel">Instance parameters</h5> <br /> ';
   var cParams;
   if (data.vsBlueprint.configurableParameters == undefined) {
     cParams = [];
   } else {
     cParams = data.vsBlueprint.configurableParameters;
+  }
+  var instanceParametersHtml;
+  if (cParams.length > 0) {
+    instanceParametersHtml =
+      '<br /> <h5 class="modal-title" id="myModalLabel">Instance parameters</h5> <br /> ';
+  } else {
+    instanceParametersHtml = '';
   }
   for (var i = 0; i < cParams.length; i++) {
     var name = cParams[i];
@@ -875,6 +880,11 @@ function createInstantiateVSDModalDialog(data, params) {
       '<hr style="clear:both;">' +
       '</div>';
   }
+
+  var quote = function(elName) {
+    return '"' + elName + '"';
+  };
+
   var text =
     ' <div id="instantiateVSDescriptor_' +
     vsdId +
@@ -962,9 +972,9 @@ function createInstantiateVSDModalDialog(data, params) {
     vsdId +
     '","instVSDId-position_' +
     vsdId +
-    '",["' +
-    cParams.join('","') +
-    '"]],"response")>Submit</button>\
+    '",[' +
+    cParams.map(quote).join(',') +
+    ']],"response")>Submit</button>\
                   </div>\
                 </div>\
               </div>\
