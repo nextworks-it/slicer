@@ -467,8 +467,15 @@ public class VsRecordService {
 	public synchronized void deleteNsInstance(String nsiId) throws NotExistingEntityException, NotPermittedOperationException {
 		log.debug("Removing NSI with ID " + nsiId + " from DB.");
 		NetworkSliceInstance nsi = getNsInstance(nsiId);
-		if (!nsi.getStatus().equals(NetworkSliceStatus.TERMINATED))
-			throw new NotPermittedOperationException("NS instance " + nsiId + " not in terminated status. Impossible to remove it from DB.");
+		if (
+				!nsi.getStatus().equals(NetworkSliceStatus.TERMINATED)
+						&& !nsi.getStatus().equals(NetworkSliceStatus.FAILED)
+		) {
+			throw new NotPermittedOperationException(String.format(
+					"NS instance %s not in terminated status. Impossible to remove it from DB.",
+					nsiId
+			));
+		}
 		nsInstanceRepository.delete(nsi);
 		log.debug("NS instance " + nsiId + " removed from DB.");
 	}
