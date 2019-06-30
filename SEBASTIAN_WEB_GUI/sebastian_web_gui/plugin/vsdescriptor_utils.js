@@ -125,22 +125,21 @@ function instantiateVSDFromForm(params) {
   var tenant = document.getElementById(params[2]).value;
   var description = document.getElementById(params[3]).value;
   var position = document.getElementById(params[4]).value;
-  
+
   var jsonObj = JSON.parse('{}');
 
   jsonObj.vsdId = vsdId;
   jsonObj.name = name;
   jsonObj.tenantId = tenant;
   jsonObj.description = description;
-  if (params.length>5) {  
-  	jsonObj.userData=JSON.parse('{}');
-  	for (var i=0; i<params[5].length; i++){
-
-    		var paramName = params[5][i];
-   		var paramValue = document.getElementById("instVSDId-param_" + paramName).value;
-    		jsonObj.userData[paramName]=paramValue;
-
-  	}
+  if (params.length > 5) {
+    jsonObj.userData = JSON.parse('{}');
+    for (var i = 0; i < params[5].length; i++) {
+      var paramName = params[5][i];
+      var paramValue = document.getElementById('instVSDId-param_' + paramName)
+        .value;
+      jsonObj.userData[paramName] = paramValue;
+    }
   }
 
   if (position == '5TONIC') {
@@ -193,7 +192,6 @@ function instantiateVSDFromForm(params) {
     jsonObj.locationConstraints = jsonLocationObj;
   }
 
-
   var json = JSON.stringify(jsonObj, null, 4);
   console.log(json);
 
@@ -233,7 +231,7 @@ function createVSDescriptorsTable(data, tableId) {
   } else {
     cbacks = [
       'vsd_details.html?Id=',
-//      openInstantiateModal,
+      //      openInstantiateModal,
       'instantiateVSDescriptor',
       'deleteVSDescriptor'
     ];
@@ -417,8 +415,12 @@ function createVSDescriptorsTableContents(
   var btnText = '';
   if (btnFlag) {
     btnText += createActionButton(data.vsDescriptorId, names, cbacks);
-    getVSBlueprint(data.vsBlueprintId, [data.vsDescriptorId,"instVSDId-parameters"],createInstantiateVSDModalDialog);
-   //createInstantiateVSDModalDialog(data.vsDescriptorId);
+    getVSBlueprint(
+      data.vsBlueprintId,
+      [data.vsDescriptorId, 'instVSDId-parameters'],
+      createInstantiateVSDModalDialog
+    );
+    //createInstantiateVSDModalDialog(data.vsDescriptorId);
   }
 
   text += '<tr>' + btnText;
@@ -845,21 +847,45 @@ function makeInstantiateModal(vsdId) {
 
 function createInstantiateVSDModalDialog(data, params) {
   /*jshint multistr: true */
-   var vsdId=params[0];
-    var instanceParametersHtml='<br /> <h5 class="modal-title" id="myModalLabel">Instance parameters</h5> <br /> ';
-    for (var i = 0; i < data.vsBlueprint.configurableParameters.length; i++) {
+  var vsdId = params[0];
+  var cParams;
+  if (data.vsBlueprint.configurableParameters == undefined) {
+    cParams = [];
+  } else {
+    cParams = data.vsBlueprint.configurableParameters;
+  }
+  var instanceParametersHtml;
+  if (cParams.length > 0) {
+    instanceParametersHtml =
+      '<br /> <h5 class="modal-title" id="myModalLabel">Instance parameters</h5> <br /> ';
+  } else {
+    instanceParametersHtml = '';
+  }
+  for (var i = 0; i < cParams.length; i++) {
+    var name = cParams[i];
+    var paramPrintName = name
+      .split('.')
+      .slice(-1)[0]
+      .replace(/_/g, ' ');
+    instanceParametersHtml +=
+      '<div class="form-group">' +
+      '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">' +
+      paramPrintName +
+      '<!-- span class="required">*</span --></label>' +
+      '<div class="col-md-6 col-sm-6 col-xs-12">' +
+      '<input type="text" id="instVSDId-param_' +
+      name +
+      '" name="last-name" required="required" class="form-control col-md-7 col-xs-12">' +
+      '</div>' +
+      '<hr style="clear:both;">' +
+      '</div>';
+  }
 
-        var name=data.vsBlueprint.configurableParameters[i];
-        var paramPrintName = (name.split(".")).slice(-1)[0].replace(/_/g," ");
-        instanceParametersHtml += '<div class="form-group">'+
-                   '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">'+paramPrintName+'<!-- span class="required">*</span --></label>'+
-                  '<div class="col-md-6 col-sm-6 col-xs-12">'+
-                       '<input type="text" id="instVSDId-param_' + name +'" name="last-name" required="required" class="form-control col-md-7 col-xs-12">'+
-                  '</div>'+
-                  '<hr style="clear:both;">'+
-                  '</div>';
-    }
-   var text =
+  var quote = function(elName) {
+    return '"' + elName + '"';
+  };
+
+  var text =
     ' <div id="instantiateVSDescriptor_' +
     vsdId +
     '" class="modal fade bs-example-modal-md in" tabindex="-1" role="dialog" aria-hidden="true">\
@@ -915,7 +941,9 @@ function createInstantiateVSDModalDialog(data, params) {
                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Position<!-- span class="required">*</span -->\
                             </label>\
                             <div class="col-md-6 col-sm-6 col-xs-12">\
-				<select id="instVSDId-position_' + vsdId +'" autocomplete="off" name="last-name" class="form-control col-md-7 col-xs-12">\
+				<select id="instVSDId-position_' +
+    vsdId +
+    '" autocomplete="off" name="last-name" class="form-control col-md-7 col-xs-12">\
                         		<option value="NONE">NONE</option>\
                         		<option value="5TONIC">5TONIC</option>\
                         		<option value="CTTC">CTTC</option>\
@@ -924,9 +952,9 @@ function createInstantiateVSDModalDialog(data, params) {
                         		<option value="CRF">CRF</option>\
                     		</select>\
                             </div>\
-                          </div>'+
-                         instanceParametersHtml+
-                        '</form>\
+                          </div>' +
+    instanceParametersHtml +
+    '</form>\
                     </div>\
                   </div>\
                   <div class="modal-footer">\
@@ -944,7 +972,9 @@ function createInstantiateVSDModalDialog(data, params) {
     vsdId +
     '","instVSDId-position_' +
     vsdId +
-    '",["'+data.vsBlueprint.configurableParameters.join('","')+'"]],"response")>Submit</button>\
+    '",[' +
+    cParams.map(quote).join(',') +
+    ']],"response")>Submit</button>\
                   </div>\
                 </div>\
               </div>\
