@@ -36,6 +36,19 @@
         "heal": "scripts/heal"
 
       }
+    },
+    {
+
+      "componentId": "pCU_v01",
+      "serversNumber": 1,
+      "imagesUrls": [],
+      "endPointsIds": ["cu_users"],
+      "lifecycleOperations": {
+        "update": "scripts/update",
+        "heal": "scripts/heal"
+
+      }
+      
 
 
     },
@@ -148,6 +161,13 @@
       "management": true,
       "ranConnection": true
 
+    },
+    {
+      "endPointId": "cu_users",
+      "external": true,
+      "management": true,
+      "ranConnection": true
+
     }
   ],
   "connectivityServices": [
@@ -184,13 +204,11 @@
     }
   ],
   "configurableParameters": [
-    "uservnf.origin_address",
     "uservnf.origin_fqdn",
     "uservnf.origin_port",
     "uservnf.rm_dns_hosts",
-    "uservnf.add_dns_hosts",
-    "uservnf.timeo_address"
-
+    "uservnf.add_dns_hosts"
+   
   ]
 
 

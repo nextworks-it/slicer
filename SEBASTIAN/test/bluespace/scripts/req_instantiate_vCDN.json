@@ -1,8 +1,8 @@
 {
 	"name":"CDN_big",
 	"description":"Bluespace CDN service",
-	"vsdId":"${current_VSD}",
-	"tenantId":"${vertical_tenant}",
+	"vsdId":"22",
+	"tenantId":"NXW",
 	"userData": {
 		"uservnf.origin_address": "10.0.8.39",
 		"uservnf.origin_fqdn": "bluespace.lab",

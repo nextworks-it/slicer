@@ -2,7 +2,7 @@
 	"slaStatus": "ENABLED",
 	"slaConstraints": [{
 		"maxResourceLimit": {
-				"diskStorage": 100,
+				"diskStorage": 60,
 				"vCPU": 10,
 				"memoryRAM": 10240
 			},

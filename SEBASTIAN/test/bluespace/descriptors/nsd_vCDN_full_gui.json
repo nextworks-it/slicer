@@ -1,221 +1,4 @@
 {
-  "vsBlueprint": {
-
-    "version": "0.1",
-    "name": "vCDN",
-    "description": "Entertainment vCDN service",
-    "parameters": [{
-      "parameterId": "users",
-      "parameterName": "users",
-      "parameterType": "number",
-      "parameterDescription": "number of users",
-      "applicabilityField": "entertainment"
-    }],
-  "atomicComponents": [
-    {
-      "componentId": "vCacheMid_01",
-      "serversNumber": 1,
-      "imagesUrls": [],
-      "endPointsIds": ["vCacheMid_mgmt_ext", "vCacheMid_cache_ext", "vCacheMid_origin_ext"],
-      "lifecycleOperations": {
-        "update": "scripts/update",
-        "heal": "scripts/heal",
-        "instantiate": "scripts/instantiate",
-        "terminate": "scripts/terminate"
-      }
-
-
-    },
-    {
-
-      "componentId": "pDNS_v01",
-      "serversNumber": 1,
-      "imagesUrls": [],
-      "endPointsIds": ["dns_users"],
-      "lifecycleOperations": {
-        "update": "scripts/update",
-        "heal": "scripts/heal"
-
-      }
-    },
-    {
-
-      "componentId": "pCU_v01",
-      "serversNumber": 1,
-      "imagesUrls": [],
-      "endPointsIds": ["cu_users"],
-      "lifecycleOperations": {
-        "update": "scripts/update",
-        "heal": "scripts/heal"
-
-      }
-      
-
-
-    },
-    {
-      "componentId": "vCacheEdge_1_01",
-      "serversNumber": 2,
-      "imagesUrls": [],
-      "endPointsIds": ["vCacheEdge_1_mgmt_ext", "vCacheEdge_1_cache_ext", "vCacheEdge_1_users_ext"],
-      "lifecycleOperations": {
-        "update": "scripts/update",
-        "heal": "scripts/heal",
-        "instantiate": "scripts/instantiate",
-        "terminate": "scripts/terminate"
-      }
-
-    },
-    {
-
-      "componentId": "pOrigin_v01",
-      "serversNumber": 1,
-      "imagesUrls": [],
-      "endPointsIds": ["origin_caches"],
-      "lifecycleOperations": {
-        "update": "scripts/update",
-        "heal": "scripts/heal"
-
-      }
-
-
-    }
-
-  ],
-  "serviceSequence": [
-    {
-      "vsComponentId": "vCacheEdge_1_01",
-      "endPointId":  "vCacheEdge_1_users_ext"
-    },
-    {
-      "vsComponentId": "vCacheEdge_1_01",
-      "endPointId":  "vCacheEdge_1_cache_ext"
-    },
-    {
-      "vsComponentId": "vCacheMid_01",
-      "endPointId":  "vCacheMid_cache_ext"
-    },
-    {
-      "vsComponentId": "vCacheMid_01",
-      "endPointId":  "vCacheMid_origin_ext"
-    },
-    {
-      "vsComponentId": "pOrigin_v01",
-      "endPointId":  "origin_caches"
-    }
-
-  ],
-  "endPoints": [
-    {
-      "endPointId": "vCacheEdge_1_users_ext",
-      "external": true,
-      "management": false,
-      "ranConnection": true
-
-    },
-    {
-      "endPointId": "vCacheEdge_1_cache_ext",
-      "external": false,
-      "management": false,
-      "ranConnection": false
-
-    },
-    {
-      "endPointId": "vCacheEdge_1_mgmt_ext",
-      "external": true,
-      "management": true,
-      "ranConnection": false
-
-    },
-    {
-      "endPointId": "vCacheMid_mgmt_ext",
-      "external": true,
-      "management": true,
-      "ranConnection": false
-
-
-    },
-    {
-      "endPointId": "vCacheMid_origin_ext",
-      "external": true,
-      "management": false,
-      "ranConnection": false
-
-    },
-    {
-      "endPointId": "vCacheMid_cache_ext",
-      "external": false,
-      "management": false,
-      "ranConnection": false
-
-    },
-    {
-      "endPointId": "origin_caches",
-      "external": true,
-      "management": true,
-      "ranConnection": false
-
-    },
-    {
-      "endPointId": "dns_users",
-      "external": true,
-      "management": true,
-      "ranConnection": true
-
-    },
-    {
-      "endPointId": "cu_users",
-      "external": true,
-      "management": true,
-      "ranConnection": true
-
-    }
-  ],
-  "connectivityServices": [
-    {
-      "endPointIds": [
-        "vCacheEdge_1_users_ext"
-
-      ],
-      "external": true
-    },
-    {
-      "endPointIds": [
-        "vCacheEdge_1_mgmt_ext",
-        "dns_users",
-        "vCacheMid_mgmt_ext",
-        "origin_caches"
-
-
-      ],
-      "external": true
-    },
-    {
-      "endPointIds": [
-        "vCacheEdge_1_caches_ext",
-        "vCacheMid_caches_ext"
-      ],
-      "external": false
-    },
-    {
-      "endPointIds": [
-        "vCacheMid_origin_ext"
-      ],
-      "external": true
-    }
-  ],
-  "configurableParameters": [
-    "uservnf.origin_fqdn",
-    "uservnf.origin_port",
-    "uservnf.rm_dns_hosts",
-    "uservnf.add_dns_hosts"
-   
-  ]
-
-
-	},
-  "nsds": [
-    {
 		"nsdIdentifier": "vCDN_full_v01",
 		"designer": "NXW",
 		"version": "0.1",
@@ -726,11 +509,11 @@
 				"scalingType": "AUTOMATED_SCALING",
 				"enabled": true,
 				"thresholdTime": 20,
-				"cooldownTime": 60,
+				"cooldownTime": 120,
 				"initialInstantiationLevel": "il_vCDN_small",
 				"scalingCriteria": [{
 					"name": "cache-overload",
-					"scaleOutThreshold": "3",
+					"scaleOutThreshold": "5",
 					"scaleOutRelationalOperation": "GT",
 					"nsMonitoringParamRef": "mp_CurrentClientConnections.vCacheEdge_1_01"
 				}]
@@ -742,60 +525,27 @@
 				}
 			}
 			]
-		}]
-	}
-  ],
-  "vnfPackages": [
-    {
-      "name": "CDN vCacheEdge_1",
-      "version": "0.1",
-      "provider": "NXW",
-      "checksum": "nn",
-      "vnfPackagePath": "http://localhost/vnfd/vnfd_vCacheEdge_1_v01.tar"
-    },
-    {
-      "name": "CDN vCacheEdge_2",
-      "version": "0.1",
-      "provider": "NXW",
-      "checksum": "nn",
-      "vnfPackagePath": "http://localhost/vnfd/vnfd_vCacheEdge_2_v01.tar"
-    },
-    {
-      "name": "CDN vCacheMid",
-      "version": "0.1",
-      "provider": "NXW",
-      "checksum": "nn",
-      "vnfPackagePath": "http://localhost/vnfd/vnfd_vCacheMid_v01.tar"
-    }
-  ],
-  "mecAppPackages": [],
-  "translationRules": [
-    {
-      "nsdId": "vCDN_pnf_v01",
-      "nsdVersion": "0.1",
-      "nsFlavourId": "df_vCDN",
-      "nsInstantiationLevelId": "il_vCDN_small",
-      "input": [
-        {
-          "parameterId": "users",
-          "minValue": "1",
-          "maxValue": "100"
-        }
-      ]
-    },
-    {
-      "nsdId": "vCDN_pnf_v01",
-      "nsdVersion": "0.1",
-      "nsFlavourId": "df_vCDN",
-      "nsInstantiationLevelId": "il_vCDN_big",
-      "input": [
-        {
-          "parameterId": "users",
-          "minValue": "101",
-          "maxValue": "100000"
-        }
-      ]
-    }
-  ]
+		},{
+			"ruleId": "ar2",
+			"ruleConditions": {
+				"name": "cache1-unload",
+				"scalingType": "AUTOMATED_SCALING",
+				"enabled": true,
+				"thresholdTime": 120,
+				"cooldownTime": 120,
+				"initialInstantiationLevel": "il_vCDN_big",
+				"scalingCriteria": [{
+					"name": "cache-unload",
+					"scaleOutThreshold": "3",
+					"scaleOutRelationalOperation": "LT",
+					"nsMonitoringParamRef": "mp_CurrentClientConnections.vCacheEdge_1_01"
+				}]
+			},
+			"ruleActions": [{
+				"scaleType": "SCALE_NS",
+				"scaleNsToLevelData": {
+					"nsInstantiationLevel": "il_vCDN_small"
+				}
+			}]
+	}]
 }
-
