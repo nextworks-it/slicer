@@ -1,0 +1,12 @@
+{
+	"slaStatus": "ENABLED",
+	"slaConstraints": [{
+		"maxResourceLimit": {
+				"diskStorage": 100,
+				"vCPU": 4,
+				"memoryRAM": 8192
+			},
+		"scope": "GLOBAL_VIRTUAL_RESOURCE"
+		}
+	]
+}

@@ -1,0 +1,14 @@
+{
+	"vsd":{
+		"name":"VSD_TEST_BIG",
+		"version":"0.1",
+		"vsBlueprintId":"9",
+		"sst":"EMBB",
+		"managementType":"PROVIDER_MANAGED",
+		"qosParameters":{
+			"users":"1000"
+		}
+	},
+	"tenantId":"NXW",
+	"isPublic":true
+}

@@ -1,0 +1,14 @@
+{
+	"vsd":{
+		"name":"VSD_CDN_big",
+		"version":"0.1",
+		"vsBlueprintId":"5",
+		"sst":"EMBB",
+		"managementType":"PROVIDER_MANAGED",
+		"qosParameters":{
+			"users":"2000"
+		}
+	},
+	"tenantId":"ATOS",
+	"isPublic":true
+}

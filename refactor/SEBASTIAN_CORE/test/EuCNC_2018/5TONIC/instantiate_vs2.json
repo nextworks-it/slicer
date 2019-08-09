@@ -1,0 +1,6 @@
+{
+	"name":"CDN_big",
+	"description":"CDN service for max 2500 users",
+	"vsdId":"9",
+	"tenantId":"ATOS"
+}

@@ -1,0 +1,32 @@
+This folder contains the descriptors and scripts files used to test the 5G-TRANSFORMER Use Cases, and it is structured as follows:
+
+
+descriptors:
+    <use case>
+        vsb_<vsb name>.json: Vertical Service Blueprint file to be used with the GUI (i.e. it only contains the vsb parameters)
+        vsb_<vsb name>_full.json: Vertical Service Blueprint file to be used with NBI (it contains the translation rules, the NSD, vnfds, and translation rules)
+        vsd_<vsb name>_template.json: Vertical Service Descriptor template which is used by the scripts to generate the final VSD with the obtained blueprint id
+        vsd_<vsb name>.json: Vertical Service Descriptor file generated from the previous file
+
+scripts:
+     <use case>
+        properties.sh: file containing the environment variables used by the functions in slicer_functions.sh for this use case (vsbs to onboard, tenant, group)
+
+     slicer_functions.sh: defines the bash functions to interact with the 5GT-VS NBI
+
+
+HOWTO
+
+From the 5gt folder:
+
+$ source scripts/slicer_functions.sh
+$ export USE_CASE="automotive|entertainment|eIndustry|eHealth"
+$ login_admin
+$ create_vs_group
+$ create_vs_tenant
+$ create_vs_sla
+$ create_vs_vsb
+$ login_tenant
+$ create_vs_vsd
+
+
