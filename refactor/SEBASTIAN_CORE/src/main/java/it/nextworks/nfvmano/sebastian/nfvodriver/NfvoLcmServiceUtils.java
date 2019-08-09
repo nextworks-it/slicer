@@ -20,7 +20,7 @@ public class NfvoLcmServiceUtils {
     @Value("${nfvo.lcm.type}")
     private String nfvoLcmType;
 
-    @Value("${nfvo.lcm.addresss}")
+    @Value("${nfvo.lcm.address}")
     private String nfvoLcmAddress;
 
     @Autowired

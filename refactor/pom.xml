@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>it.nextworks.nfvmano</groupId>
+    <artifactId>sebastian-aggregator</artifactId>
+    <version>0.0.2-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+      <module>NFVO_CATALOGUE_DRIVER</module>
+      <module>NFVO_CATALOGUE_SERVICE</module>
+      <module>NFVO_LCM_DRIVER</module>
+      <module>NFVO_LCM_SERVICE</module>
+      <module>NFVO_LOGGING_DRIVER</module>
+      <module>SEBASTIAN_MGMT_LIB</module>
+      <module>SEBASTIAN_MGMT_INTERFACES</module>
+      <module>SEBASTIAN_MGMT_CATALOGUE</module>
+      <module>BLUEPRINTS_LIB</module>
+      <module>BLUEPRINTS_INTERFACES</module>
+      <module>BLUEPRINTS_CATALOGUE</module>
+      <module>SEBASTIAN_CORE</module>
+    </modules>
+</project>
+
