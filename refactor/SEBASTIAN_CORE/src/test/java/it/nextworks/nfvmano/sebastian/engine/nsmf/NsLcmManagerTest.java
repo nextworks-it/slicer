@@ -36,7 +36,7 @@ import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.engine.messages.InstantiateNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.engine.messages.NotifyNfvNsiStatusChange;
-import it.nextworks.nfvmano.sebastian.engine.messages.NsStatusChange;
+import it.nextworks.nfvmano.sebastian.nfvodriver.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.engine.messages.TerminateNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoLcmService;

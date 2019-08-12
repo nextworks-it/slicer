@@ -27,6 +27,7 @@ import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
+import it.nextworks.nfvmano.sebastian.nfvodriver.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

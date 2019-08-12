@@ -28,6 +28,7 @@ import it.nextworks.nfvmano.sebastian.catalogue.BlueprintCatalogueUtilities;
 import it.nextworks.nfvmano.sebastian.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoLcmService;
+import it.nextworks.nfvmano.sebastian.nfvodriver.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

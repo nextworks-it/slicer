@@ -38,10 +38,10 @@ import it.nextworks.nfvmano.sebastian.catalogue.messages.OnBoardVsBlueprintReque
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
-import it.nextworks.nfvmano.sebastian.engine.messages.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoLcmService;
 
+import it.nextworks.nfvmano.sebastian.nfvodriver.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
 import it.nextworks.nfvmano.sebastian.translator.TranslatorService;

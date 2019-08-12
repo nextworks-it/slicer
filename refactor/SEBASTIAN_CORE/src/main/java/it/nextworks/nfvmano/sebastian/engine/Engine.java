@@ -30,6 +30,7 @@ import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoLcmNotificationConsumerInte
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoLcmService;
 import it.nextworks.nfvmano.sebastian.vscoordinator.VsCoordinator;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.ModifyVsRequest;
+import it.nextworks.nfvmano.sebastian.nfvodriver.NsStatusChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.BindingBuilder;
@@ -403,31 +404,7 @@ public class Engine implements NfvoCatalogueNotificationConsumerInterface, NfvoL
 		}
 	}
 	
-	/**
-	 * This method processes a notification about a change in the status 
-	 * of an NFV NS handled by the NFVO.
-	 * The engine dispatches the notification to the associated NS LCM Manager 
-	 * 
-	 * @param nfvNsId ID of the NFV NS instance affected by the change of status
-	 * @param changeType type of change in the NFV NS status
-	 * @param successful indicates if the change has been successful or not
-	 */
-	public void notifyNfvNsStatusChange(String nfvNsId, NsStatusChange changeType, boolean successful) {
-		log.debug("Processing notification about status change for NFV NS " + nfvNsId);
-		try {
-			NetworkSliceInstance nsi = vsRecordService.getNsInstanceFromNfvNsi(nfvNsId);
-			String nsiId = nsi.getNsiId();
-			log.debug("NFV NS " + nfvNsId + " is associated to network slice " + nsiId);
-			String topic = "nslifecycle.notifynfvns." + nsiId;
-			NotifyNfvNsiStatusChange internalMessage = new NotifyNfvNsiStatusChange(nfvNsId, changeType, successful);
-			sendMessageToQueue(internalMessage, topic);
-		} catch (NotExistingEntityException e) {
-			log.error("Unable to process the notification: " + e.getMessage() + ". Skipping message.");
-		} catch (Exception e) {
-			log.error("General exception while processing notification: " + e.getMessage());
-		}
-	}
-	
+
 	/** 
 	 * This method processes a notification about a change in the status of a network slice.
 	 * The engine dispatches the notification to the associated VS LCM Manager
@@ -562,8 +539,20 @@ public class Engine implements NfvoCatalogueNotificationConsumerInterface, NfvoL
 	}
 
 	@Override
-	public void notifyNfvNsStatusChange(String nfvNsId, it.nextworks.nfvmano.sebastian.nfvodriver.NsStatusChange changeType, boolean b) {
-		//TODO: Implement method to receive NS status change notifications
+	public void notifyNfvNsStatusChange(String nfvNsId, NsStatusChange changeType, boolean successful) {
+		log.debug("Processing notification about status change for NFV NS " + nfvNsId);
+		try {
+			NetworkSliceInstance nsi = vsRecordService.getNsInstanceFromNfvNsi(nfvNsId);
+			String nsiId = nsi.getNsiId();
+			log.debug("NFV NS " + nfvNsId + " is associated to network slice " + nsiId);
+			String topic = "nslifecycle.notifynfvns." + nsiId;
+			NotifyNfvNsiStatusChange internalMessage = new NotifyNfvNsiStatusChange(nfvNsId, changeType, successful);
+			sendMessageToQueue(internalMessage, topic);
+		} catch (NotExistingEntityException e) {
+			log.error("Unable to process the notification: " + e.getMessage() + ". Skipping message.");
+		} catch (Exception e) {
+			log.error("General exception while processing notification: " + e.getMessage());
+		}
 
 	}
 }

@@ -17,6 +17,7 @@ package it.nextworks.nfvmano.sebastian.engine.messages;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.nextworks.nfvmano.sebastian.nfvodriver.NsStatusChange;
 
 public class NotifyNfvNsiStatusChange extends EngineMessage {
 
@@ -30,7 +31,7 @@ public class NotifyNfvNsiStatusChange extends EngineMessage {
 	private boolean isSuccessful;
 	
 	/**
-	 * @param nsiId
+	 * @param nfvNsiId
 	 * @param statusChange
 	 * @param successful
 	 */
