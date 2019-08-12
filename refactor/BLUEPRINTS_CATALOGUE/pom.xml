@@ -79,7 +79,13 @@
 			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 
-		
+		<dependency>
+			<groupId>it.nextworks.nfvmano</groupId>
+			<artifactId>SebastianMgmtCatalogue</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>it.nextworks.nfvmano</groupId>
 			<artifactId>NfvoCatalogueService</artifactId>

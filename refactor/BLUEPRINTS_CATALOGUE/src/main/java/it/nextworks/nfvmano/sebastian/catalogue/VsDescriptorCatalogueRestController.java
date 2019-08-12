@@ -17,7 +17,7 @@ package it.nextworks.nfvmano.sebastian.catalogue;
 
 import java.util.List;
 
-import it.nextworks.nfvmano.sebastian.common.TenantUtilities;
+import it.nextworks.nfvmano.sebastian.admin.MgmtCatalogueUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
 import it.nextworks.nfvmano.sebastian.catalogue.messages.OnboardVsDescriptorRequest;
 import it.nextworks.nfvmano.sebastian.catalogue.messages.QueryVsDescriptorResponse;
-import it.nextworks.nfvmano.sebastian.catalogue.BlueprintCatalogueUtilities;
+;
 
 @RestController
 @CrossOrigin
@@ -93,7 +93,7 @@ public class VsDescriptorCatalogueRestController {
 		try {
 			String user = getUserFromAuth(auth);
 			QueryVsDescriptorResponse response = vsDescriptorCatalogueService.queryVsDescriptor(
-					new GeneralizedQueryRequest(TenantUtilities.buildTenantFilter(user), null)
+					new GeneralizedQueryRequest(MgmtCatalogueUtilities.buildTenantFilter(user), null)
 			);
 			return new ResponseEntity<List<VsDescriptor>>(response.getVsDescriptors(), HttpStatus.OK);
 		} catch (MalformattedElementException e) {
