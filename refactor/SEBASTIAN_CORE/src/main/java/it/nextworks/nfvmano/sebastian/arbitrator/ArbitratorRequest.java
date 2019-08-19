@@ -18,7 +18,7 @@ package it.nextworks.nfvmano.sebastian.arbitrator;
 import java.util.HashMap;
 import java.util.Map;
 
-import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
 import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
 
 /**

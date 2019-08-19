@@ -15,8 +15,7 @@
 */
 package it.nextworks.nfvmano.sebastian.translator;
 
-import it.nextworks.nfvmano.sebastian.catalogue.VsDescriptorCatalogueInterface;
-import it.nextworks.nfvmano.sebastian.catalogue.repo.VsDescriptorRepository;
+import it.nextworks.nfvmano.catalogue.blueprint.interfaces.VsDescriptorCatalogueInterface;
 
 public abstract class AbstractTranslator implements TranslatorInterface {
 

@@ -16,29 +16,13 @@
 package it.nextworks.nfvmano.sebastian.common;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import it.nextworks.nfvmano.libs.catalogues.interfaces.elements.NsdInfo;
-import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryNsdResponse;
-import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryOnBoardedVnfPkgInfoResponse;
 import it.nextworks.nfvmano.libs.common.elements.Filter;
-import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
-import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
-import it.nextworks.nfvmano.libs.descriptors.common.elements.VirtualComputeDesc;
-import it.nextworks.nfvmano.libs.descriptors.common.elements.VirtualStorageDesc;
-import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
-import it.nextworks.nfvmano.libs.descriptors.vnfd.*;
-import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
-import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
-import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
-import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
-import it.nextworks.nfvmano.sebastian.catalogue.BlueprintCatalogueUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

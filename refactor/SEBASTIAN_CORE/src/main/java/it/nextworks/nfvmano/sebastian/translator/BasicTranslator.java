@@ -20,15 +20,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import it.nextworks.nfvmano.sebastian.catalogue.VsDescriptorCatalogueInterface;
+import it.nextworks.nfvmano.catalogue.blueprint.interfaces.VsDescriptorCatalogueInterface;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
-import it.nextworks.nfvmano.sebastian.catalogue.elements.VsdNsdTranslationRule;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsdNsdTranslationRule;
 
 public class BasicTranslator extends AbstractTranslator {
 	

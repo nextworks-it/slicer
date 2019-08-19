@@ -19,8 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import it.nextworks.nfvmano.libs.common.exceptions.MethodNotImplementedException;
-import it.nextworks.nfvmano.sebastian.catalogue.VsDescriptorCatalogueService;
+import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.common.VsAction;
 import it.nextworks.nfvmano.sebastian.engine.messages.*;

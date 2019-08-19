@@ -24,7 +24,7 @@ import it.nextworks.nfvmano.libs.common.enums.NsScaleType;
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.*;
 import it.nextworks.nfvmano.libs.records.nsinfo.NsInfo;
-import it.nextworks.nfvmano.sebastian.catalogue.BlueprintCatalogueUtilities;
+import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
 import it.nextworks.nfvmano.sebastian.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoLcmService;

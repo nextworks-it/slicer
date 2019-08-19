@@ -20,7 +20,7 @@ public class SwaggerConfig {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("it.nextworks.nfvmano.sebastian"))
+                .apis(RequestHandlerSelectors.basePackage("it.nextworks.nfvmano"))
                 .paths(PathSelectors.any())
                 .build();
     }

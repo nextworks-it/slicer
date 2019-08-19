@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import it.nextworks.nfvmano.sebastian.catalogue.BlueprintCatalogueUtilities;
-import it.nextworks.nfvmano.sebastian.catalogue.VsBlueprintCatalogueService;
-import it.nextworks.nfvmano.sebastian.catalogue.VsDescriptorCatalogueService;
+import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
+import it.nextworks.nfvmano.catalogue.blueprint.services.VsBlueprintCatalogueService;
+import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoLcmService;
 import org.slf4j.Logger;
@@ -45,9 +45,9 @@ import it.nextworks.nfvmano.libs.records.nsinfo.NsInfo;
 import it.nextworks.nfvmano.libs.records.nsinfo.SapInfo;
 import it.nextworks.nfvmano.libs.records.vnfinfo.VnfExtCpInfo;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
-import it.nextworks.nfvmano.sebastian.catalogue.elements.VsBlueprint;
-import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
-import it.nextworks.nfvmano.sebastian.catalogue.messages.QueryVsBlueprintResponse;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsBlueprint;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
+import it.nextworks.nfvmano.catalogue.blueprint.messages.QueryVsBlueprintResponse;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 

@@ -20,7 +20,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import it.nextworks.nfvmano.sebastian.catalogue.VsDescriptorCatalogueService;
+import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

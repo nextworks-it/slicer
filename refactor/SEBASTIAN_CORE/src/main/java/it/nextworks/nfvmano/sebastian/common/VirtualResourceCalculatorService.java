@@ -9,7 +9,7 @@ import it.nextworks.nfvmano.libs.descriptors.common.elements.VirtualStorageDesc;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
 import it.nextworks.nfvmano.libs.descriptors.vnfd.*;
 import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
-import it.nextworks.nfvmano.sebastian.catalogue.BlueprintCatalogueUtilities;
+import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
@@ -59,7 +59,7 @@ public class VirtualResourceCalculatorService {
         int vCPU = 0;
         int disk = 0;
 
-        QueryNsdResponse nsdRep = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(it.nextworks.nfvmano.sebastian.catalogue.BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null));
+        QueryNsdResponse nsdRep = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null));
         Nsd nsd = nsdRep.getQueryResult().get(0).getNsd();
 
         //return a map with key = VNFD_ID and value a map with keys = [VNFD_ID, VNF_DF_ID, VNF_INSTANCES, VNF_INSTANTIATION_LEVEL]

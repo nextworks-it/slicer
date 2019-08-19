@@ -22,8 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.sebastian.catalogue.VsDescriptorCatalogueService;
-import it.nextworks.nfvmano.sebastian.common.Utilities;
+import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
@@ -41,7 +40,7 @@ import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorRequest;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorResponse;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
-import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;

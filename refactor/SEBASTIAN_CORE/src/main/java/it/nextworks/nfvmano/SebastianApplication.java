@@ -18,13 +18,19 @@ package it.nextworks.nfvmano;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(scanBasePackages = {
-		"it.nextworks.nfvmano.sebastian"
+		"it.nextworks.nfvmano"
 
 
 })
+
+@EnableJpaRepositories(basePackages = "it.nextworks.nfvmano")
+
+@EntityScan(basePackages = "it.nextworks.nfvmano")
 
 public class SebastianApplication {
 

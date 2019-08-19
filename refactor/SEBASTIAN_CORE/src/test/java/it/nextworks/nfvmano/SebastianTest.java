@@ -28,14 +28,13 @@ import it.nextworks.nfvmano.sebastian.admin.elements.SlaVirtualResourceConstrain
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
 import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 
-import it.nextworks.nfvmano.sebastian.catalogue.VsBlueprintCatalogueService;
-import it.nextworks.nfvmano.sebastian.catalogue.VsDescriptorCatalogueService;
-import it.nextworks.nfvmano.sebastian.catalogue.elements.VsBlueprint;
-import it.nextworks.nfvmano.sebastian.catalogue.elements.VsDescriptor;
-import it.nextworks.nfvmano.sebastian.catalogue.elements.VsdNsdTranslationRule;
-import it.nextworks.nfvmano.sebastian.catalogue.elements.VsdParameterValueRange;
-import it.nextworks.nfvmano.sebastian.catalogue.messages.OnBoardVsBlueprintRequest;
-import it.nextworks.nfvmano.sebastian.common.Utilities;
+import it.nextworks.nfvmano.catalogue.blueprint.services.VsBlueprintCatalogueService;
+import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsBlueprint;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsdNsdTranslationRule;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsdParameterValueRange;
+import it.nextworks.nfvmano.catalogue.blueprint.messages.OnBoardVsBlueprintRequest;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
@@ -51,8 +50,6 @@ import it.nextworks.nfvmano.sebastian.vsnbi.messages.PurgeVsRequest;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.TerminateVsRequest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -154,8 +151,8 @@ public class SebastianTest {
         when(vsDescriptorCatalogueService.getVsd("vsdId")).thenReturn(vsdMock);
         when(vsdMock.getTenantId()).thenReturn("tenantId");
         when(vsdMock.getVsBlueprintId()).thenReturn(vsbId);
-        //when(vsbInfoMock.getVsBlueprint()).thenReturn(vsbMock);
-        //when(vsbMock.getVsBlueprintId()).thenReturn("vsbId");
+        //when(vsbInfoMock.getCtxBlueprint()).thenReturn(vsbMock);
+        //when(vsbMock.getExpBlueprintId()).thenReturn("vsbId");
         
         
         //when(vsBlueprintCatalogueService.queryVsBlueprint(new GeneralizedQueryRequest(Utilities.buildVsBlueprintFilter("vsbId"), null))).thenReturn(new QueryVsBlueprintResponse(Collections.singletonList(vsbInfoMock)));
