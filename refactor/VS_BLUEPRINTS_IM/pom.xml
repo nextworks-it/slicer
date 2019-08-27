@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>it.nextworks.nfvmano</groupId>
-	<artifactId>NfvoLcmDriver</artifactId>
+	<artifactId>VsBlueprintsIM</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>NFVO_LCM_DRIVER</name>
-	<description>NFVO_LCM_DRIVER DESCRIPTION </description>
+	<name>VS_BLUEPRINTS_IM</name>
+	<description>Contains the Information Models of the entities used in SEBASTIAN </description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -54,13 +54,25 @@
 
 		<dependency>
 			<groupId>it.nextworks.nfvmano</groupId>
-			<artifactId>NfvManoLibsCataloguesIf</artifactId>
+			<artifactId>NfvManoLibsCommon</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
+
 		<dependency>
-			<groupId>it.nextworks.nfvmano</groupId>
-			<artifactId>NfvManoLibsIfa13NsLcmIf</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>2.0.1.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>6.0.2.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator-annotation-processor</artifactId>
+			<version>6.0.2.Final</version>
 		</dependency>
 
 	</dependencies>
@@ -68,6 +80,12 @@
 
 	<build>
 		<plugins>
+			<!--
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>

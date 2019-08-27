@@ -16,9 +16,9 @@
       <module>SEBASTIAN_MGMT_LIB</module>
       <module>SEBASTIAN_MGMT_INTERFACES</module>
       <module>SEBASTIAN_MGMT_CATALOGUE</module>
-      <module>BLUEPRINTS_LIB</module>
-      <module>BLUEPRINTS_INTERFACES</module>
-      <module>BLUEPRINTS_CATALOGUE</module>
+      <module>VS_BLUEPRINTS_IM</module>
+      <module>VS_BLUEPRINTS_CATALOGUE_INTERFACES</module>
+      <module>VS_BLUEPRINTS_CATALOGUE</module>
       <module>SEBASTIAN_CORE</module>
     </modules>
 </project>

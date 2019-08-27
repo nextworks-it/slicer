@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>it.nextworks.nfvmano</groupId>
-	<artifactId>BlueprintsLibs</artifactId>
+	<artifactId>VsBlueprintsCatalogue</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>BLUEPRINTS_LIBS</name>
-	<description>Contains the Information Models of the entities used in SEBASTIAN </description>
+	<name>VS_BLUEPRINTS_CATALOGUE</name>
+	<description>VS blueprints catalogue including rest controllers, services and catalogues for the elements</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -50,6 +50,15 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+
+		</dependency>
 
 
 		<dependency>
@@ -59,33 +68,34 @@
 		</dependency>
 
 		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>2.0.1.Final</version>
+			<groupId>it.nextworks.nfvmano</groupId>
+			<artifactId>BlueprintsLibs</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.hibernate.validator</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>6.0.2.Final</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate.validator</groupId>
-			<artifactId>hibernate-validator-annotation-processor</artifactId>
-			<version>6.0.2.Final</version>
+			<groupId>it.nextworks.nfvmano</groupId>
+			<artifactId>BlueprintsInterfaces</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>it.nextworks.nfvmano</groupId>
+			<artifactId>SebastianMgmtCatalogue</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>it.nextworks.nfvmano</groupId>
+			<artifactId>NfvoCatalogueService</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 
 	<build>
 		<plugins>
-			<!--
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>

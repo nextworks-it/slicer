@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>it.nextworks.nfvmano</groupId>
-	<artifactId>BlueprintsCatalogue</artifactId>
+	<artifactId>NfvoLcmAbstractDriver</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>BLUEPRINTS_CATALOGUE</name>
-	<description>Blueprints catalogue including rest controllers, services and catalogues for the elements</description>
+	<name>NFVO_LCM_ABSTRACT_DRIVER</name>
+	<description>NFVO_LCM_ABSTRACT_DRIVER DESCRIPTION </description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -50,47 +50,19 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-
-		</dependency>
 
 
 		<dependency>
 			<groupId>it.nextworks.nfvmano</groupId>
-			<artifactId>NfvManoLibsCommon</artifactId>
+			<artifactId>NfvManoLibsCataloguesIf</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
-
 		<dependency>
 			<groupId>it.nextworks.nfvmano</groupId>
-			<artifactId>BlueprintsLibs</artifactId>
+			<artifactId>NfvManoLibsIfa13NsLcmIf</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 
-		<dependency>
-			<groupId>it.nextworks.nfvmano</groupId>
-			<artifactId>BlueprintsInterfaces</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>it.nextworks.nfvmano</groupId>
-			<artifactId>SebastianMgmtCatalogue</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
-		</dependency>
-
-
-		<dependency>
-			<groupId>it.nextworks.nfvmano</groupId>
-			<artifactId>NfvoCatalogueService</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 
 

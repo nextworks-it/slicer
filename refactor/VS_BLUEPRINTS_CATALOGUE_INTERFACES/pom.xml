@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>it.nextworks.nfvmano</groupId>
-	<artifactId>NfvoCatalogueDriver</artifactId>
+	<artifactId>VsBlueprintsCatalogueInterfaces</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>NFVO_CATALOGUE_DRIVER</name>
-	<description>NFVO_CATALOGUE_DRIVER DESCRIPTION </description>
+	<name>VS_BLUEPRINTS_CATALOGUE_INTEFACES</name>
+	<description>Blueprints interfaces for the associated services</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -54,7 +54,19 @@
 
 		<dependency>
 			<groupId>it.nextworks.nfvmano</groupId>
+			<artifactId>NfvManoLibsCommon</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>it.nextworks.nfvmano</groupId>
 			<artifactId>NfvManoLibsCataloguesIf</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>it.nextworks.nfvmano</groupId>
+			<artifactId>BlueprintsLibs</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 
