@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package it.nextworks.nfvmano.sebastian.nfvodriver;
+package it.nextworks.nfvmano.nfvodriver;
 
 import it.nextworks.nfvmano.libs.catalogues.interfaces.*;
 import it.nextworks.nfvmano.libs.catalogues.interfaces.elements.NsdInfo;
@@ -23,11 +23,9 @@ import it.nextworks.nfvmano.libs.common.exceptions.*;
 import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.common.messages.SubscribeRequest;
 import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
-import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueAbstractDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;

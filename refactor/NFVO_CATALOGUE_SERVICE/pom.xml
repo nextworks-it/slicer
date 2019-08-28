@@ -54,7 +54,13 @@
 
 		<dependency>
 			<groupId>it.nextworks.nfvmano</groupId>
-			<artifactId>NfvoCatalogueDriver</artifactId>
+			<artifactId>NfvoCatalogueAbstractDriver</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>it.nextworks.nfvmano</groupId>
+			<artifactId>NfvoCatalogueSpecificDrivers</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 

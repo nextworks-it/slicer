@@ -13,9 +13,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package it.nextworks.nfvmano.sebastian.nfvodriver;
+package it.nextworks.nfvmano.nfvodriver;
 
-import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueNotificationInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +36,12 @@ import it.nextworks.nfvmano.libs.common.exceptions.MethodNotImplementedException
  *
  */
 @Service
-public class NfvoCatalogueNotificationsManager implements NfvoCatalogueNotificationInterface {
+public class NfvoCatalogueNotificationsManager implements NfvoCatalogueNotificationsConsumerInterface {
 
 	private static final Logger log = LoggerFactory.getLogger(NfvoCatalogueNotificationsManager.class);
 	
 	@Autowired
-	private NfvoCatalogueNotificationConsumerInterface engine;
+	private NfvoCatalogueNotificationsConsumerInterface engine;
 	
 
 	
