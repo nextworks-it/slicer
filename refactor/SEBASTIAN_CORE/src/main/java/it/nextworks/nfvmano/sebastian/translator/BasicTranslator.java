@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import it.nextworks.nfvmano.catalogue.blueprint.interfaces.VsDescriptorCatalogueInterface;
 
+import it.nextworks.nfvmano.catalogue.blueprint.repo.TranslationRuleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class BasicTranslator extends AbstractTranslator {
 	
 	private static final Logger log = LoggerFactory.getLogger(BasicTranslator.class);
 	
-	private TranslationRuleRepository ruleRepo;
+	private it.nextworks.nfvmano.catalogue.blueprint.repo.TranslationRuleRepository ruleRepo;
 
 	public BasicTranslator(VsDescriptorCatalogueInterface vsdRepo,
 						   TranslationRuleRepository ruleRepo) {

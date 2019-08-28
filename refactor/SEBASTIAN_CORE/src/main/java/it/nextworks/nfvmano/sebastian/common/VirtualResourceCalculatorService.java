@@ -10,7 +10,7 @@ import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
 import it.nextworks.nfvmano.libs.descriptors.vnfd.*;
 import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
-import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
+import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
 import org.slf4j.Logger;

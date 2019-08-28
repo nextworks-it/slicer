@@ -8,7 +8,7 @@
     <version>0.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>SEBASTIAN CORE</name>
+    <name>SEBASTIAN_CORE</name>
     <description>Vertical Slicer</description>
 
     <parent>
@@ -81,56 +81,42 @@
             <artifactId>NfvManoLibsIfa13NsLcmIf</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
-        
+
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>NfvManoLibsPolicyMgtIf</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>NfvoCatalogueDriver</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>NfvoLcmDriver</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-        </dependency>
+
+
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>NfvoCatalogueService</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
+
+        <!--Added for the gui drivers -->
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>NfvoCatalogueSpecificDrivers</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>NfvoLcmService</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>NfvoLoggingDriver</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-        </dependency>
+
 
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>BlueprintsLibs</artifactId>
+            <artifactId>VsBlueprintsCatalogue</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>BlueprintsInterfaces</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>BlueprintsCatalogue</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-        </dependency>
-       
+
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>SebastianMgmtCatalogue</artifactId>

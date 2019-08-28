@@ -1,0 +1,85 @@
+{
+  "ctxBlueprint": {
+
+    "version": "0.1",
+    "name": "trafficGenerator",
+    "description": "TCP traffic generator",
+    "parameters": [{
+      "parameterId": "bitrate",
+      "parameterName": "bitrate",
+      "parameterType": "number",
+      "parameterDescription": "Traffic bitrate",
+      "applicabilityField": "test"
+    }],
+    "atomicComponents": [
+      {
+        "componentId": "traffic_source",
+        "serversNumber": 1,
+        "imagesUrls": [],
+        "endPointsIds": ["traffic_source_ext" ],
+        "lifecycleOperations": {
+          "update": "scripts/update",
+          "heal": "scripts/heal",
+          "instantiate": "scripts/instantiate",
+          "terminate": "scripts/terminate"
+        }
+
+
+      },
+      {
+
+        "componentId": "traffic_sink",
+        "serversNumber": 1,
+        "imagesUrls": [],
+        "endPointsIds": ["traffic_sink_ext"],
+        "lifecycleOperations": {
+          "update": "scripts/update",
+          "heal": "scripts/heal"
+
+        }
+      }
+
+    ],
+    "serviceSequence": [
+      {
+        "vsComponentId": "traffic_source",
+        "endPointId":  "traffic_source_ext"
+      },
+      {
+        "vsComponentId": "traffic_sink",
+        "endPointId":  "traffic_sink_ext"
+      }
+
+    ],
+    "endPoints": [
+      {
+        "endPointId": "traffic_source_ext",
+        "external": false,
+        "management": false,
+        "ranConnection": false
+
+      },
+      {
+        "endPointId": "traffic_sink_ext",
+        "external": false,
+        "management": false,
+        "ranConnection": false
+
+      }
+    ],
+    "configurableParameters": [
+
+    ]
+
+
+  },
+  "nsds": [
+
+  ],
+  "vnfPackages": [
+
+  ],
+  "mecAppPackages": [],
+  "translationRules": []
+}
+

@@ -23,7 +23,7 @@ import java.util.Optional;
 import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
 import it.nextworks.nfvmano.catalogue.blueprint.interfaces.VsBlueprintCatalogueInterface;
 import it.nextworks.nfvmano.catalogue.blueprint.repo.VsBlueprintRepository;
-import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
+import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +55,7 @@ import it.nextworks.nfvmano.catalogue.blueprint.messages.QueryVsBlueprintRespons
 import it.nextworks.nfvmano.catalogue.blueprint.repo.VsBlueprintInfoRepository;
 import it.nextworks.nfvmano.catalogue.blueprint.repo.VsComponentRepository;
 import it.nextworks.nfvmano.catalogue.blueprint.repo.VsbLinkRepository;
-import it.nextworks.nfvmano.sebastian.translator.TranslationRuleRepository;
+import it.nextworks.nfvmano.catalogue.blueprint.repo.TranslationRuleRepository;
 
 @Service
 public class VsBlueprintCatalogueService implements VsBlueprintCatalogueInterface {

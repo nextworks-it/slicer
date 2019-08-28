@@ -18,7 +18,7 @@ package it.nextworks.nfvmano.sebastian.arbitrator;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
-import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
+import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.translator.TranslatorService;
 

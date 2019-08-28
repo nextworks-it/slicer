@@ -26,7 +26,7 @@ import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
-import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
+import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;

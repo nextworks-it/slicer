@@ -29,7 +29,7 @@ import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.common.VsAction;
 import it.nextworks.nfvmano.sebastian.common.VsActionType;
-import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
+import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;

@@ -3,16 +3,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>it.nextworks.nfvmano</groupId>
-    <artifactId>sebastian-aggregator</artifactId>
+    <artifactId>SebastianAggregator</artifactId>
     <version>0.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
-
+   <name>SEBASTIAN_AGGREGATOR</name>
     <modules>
       <module>NFVO_CATALOGUE_ABSTRACT_DRIVER</module>
+      <module>NFVO_CATALOGUE_SPECIFIC_DRIVERS</module>
       <module>NFVO_CATALOGUE_SERVICE</module>
       <module>NFVO_LCM_ABSTRACT_DRIVER</module>
-      <module>NFVO_LCM_SERVICE</module>
-      <module>NFVO_LOGGING_DRIVER</module>
+	<module>NFVO_LCM_SPECIFIC_DRIVERS</module>      
+	<module>NFVO_LCM_SERVICE</module>
+      
       <module>SEBASTIAN_MGMT_LIB</module>
       <module>SEBASTIAN_MGMT_INTERFACES</module>
       <module>SEBASTIAN_MGMT_CATALOGUE</module>

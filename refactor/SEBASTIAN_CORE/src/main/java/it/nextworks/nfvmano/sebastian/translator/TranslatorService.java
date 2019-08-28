@@ -20,6 +20,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import it.nextworks.nfvmano.catalogue.blueprint.repo.TranslationRuleRepository;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

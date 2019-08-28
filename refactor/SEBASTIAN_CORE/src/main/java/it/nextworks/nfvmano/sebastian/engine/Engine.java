@@ -23,13 +23,13 @@ import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueSe
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.common.VsAction;
 import it.nextworks.nfvmano.sebastian.engine.messages.*;
-import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueNotificationConsumerInterface;
-import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoCatalogueService;
-import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoLcmNotificationConsumerInterface;
-import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoLcmService;
+
+import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
+import it.nextworks.nfvmano.nfvodriver.NfvoLcmNotificationConsumerInterface;
+import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
 import it.nextworks.nfvmano.sebastian.vscoordinator.VsCoordinator;
 import it.nextworks.nfvmano.sebastian.vsnbi.messages.ModifyVsRequest;
-import it.nextworks.nfvmano.sebastian.nfvodriver.NsStatusChange;
+import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.BindingBuilder;
@@ -72,7 +72,7 @@ import it.nextworks.nfvmano.sebastian.vsnbi.messages.TerminateVsRequest;
  *
  */
 @Service
-public class Engine implements NfvoCatalogueNotificationConsumerInterface, NfvoLcmNotificationConsumerInterface {
+public class Engine implements  NfvoLcmNotificationConsumerInterface {
 
 	private static final Logger log = LoggerFactory.getLogger(Engine.class);
 	
