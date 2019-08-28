@@ -8,9 +8,9 @@
     <packaging>pom</packaging>
 
     <modules>
-      <module>NFVO_CATALOGUE_DRIVER</module>
+      <module>NFVO_CATALOGUE_ABSTRACT_DRIVER</module>
       <module>NFVO_CATALOGUE_SERVICE</module>
-      <module>NFVO_LCM_DRIVER</module>
+      <module>NFVO_LCM_ABSTRACT_DRIVER</module>
       <module>NFVO_LCM_SERVICE</module>
       <module>NFVO_LOGGING_DRIVER</module>
       <module>SEBASTIAN_MGMT_LIB</module>
