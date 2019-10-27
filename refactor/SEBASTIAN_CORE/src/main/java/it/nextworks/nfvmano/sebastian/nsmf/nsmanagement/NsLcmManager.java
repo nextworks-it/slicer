@@ -27,13 +27,9 @@ import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
 import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.NotifyNfvNsiStatusChange;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequestMessage;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.engine.EngineMessage;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.engine.EngineMessageType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

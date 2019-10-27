@@ -33,7 +33,7 @@ import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.engine.EngineMessage;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.EngineMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.BindingBuilder;
