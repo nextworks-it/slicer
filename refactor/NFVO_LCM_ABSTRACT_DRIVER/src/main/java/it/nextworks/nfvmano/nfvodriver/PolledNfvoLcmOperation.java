@@ -15,7 +15,7 @@
 */
 package it.nextworks.nfvmano.nfvodriver;
 
-import it.nextworks.nfvmano.libs.common.enums.OperationStatus;
+import it.nextworks.nfvmano.libs.ifa.common.enums.OperationStatus;
 
 public class PolledNfvoLcmOperation {
 

@@ -15,9 +15,9 @@
 */
 package it.nextworks.nfvmano.nfvodriver;
 
-import it.nextworks.nfvmano.libs.catalogues.interfaces.MecAppPackageManagementProviderInterface;
-import it.nextworks.nfvmano.libs.catalogues.interfaces.NsdManagementProviderInterface;
-import it.nextworks.nfvmano.libs.catalogues.interfaces.VnfPackageManagementProviderInterface;
+import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.MecAppPackageManagementProviderInterface;
+import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.NsdManagementProviderInterface;
+import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.VnfPackageManagementProviderInterface;
 
 
 /**

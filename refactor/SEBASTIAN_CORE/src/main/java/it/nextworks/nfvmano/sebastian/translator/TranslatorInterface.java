@@ -18,8 +18,8 @@ package it.nextworks.nfvmano.sebastian.translator;
 import java.util.List;
 import java.util.Map;
 
-import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
-import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 
 public interface TranslatorInterface {
 	

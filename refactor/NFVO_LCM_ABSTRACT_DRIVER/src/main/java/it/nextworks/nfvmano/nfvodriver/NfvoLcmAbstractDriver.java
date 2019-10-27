@@ -16,7 +16,7 @@
 package it.nextworks.nfvmano.nfvodriver;
 
 
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.NsLcmProviderInterface;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.NsLcmProviderInterface;
 
 
 /**

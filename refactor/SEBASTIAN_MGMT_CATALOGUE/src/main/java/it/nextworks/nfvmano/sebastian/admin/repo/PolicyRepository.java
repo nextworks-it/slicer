@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import it.nextworks.nfvmano.libs.policy.elements.PolicyInfo;
-import it.nextworks.nfvmano.libs.policy.enums.ActivationStatus;
+import it.nextworks.nfvmano.libs.ifa.policy.elements.PolicyInfo;
+import it.nextworks.nfvmano.libs.ifa.policy.enums.ActivationStatus;
 
 public interface PolicyRepository extends JpaRepository<PolicyInfo, Long> {
 

@@ -69,13 +69,13 @@
 
 		<dependency>
 			<groupId>it.nextworks.nfvmano</groupId>
-			<artifactId>BlueprintsLibs</artifactId>
+			<artifactId>VsBlueprintsIM</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>it.nextworks.nfvmano</groupId>
-			<artifactId>BlueprintsInterfaces</artifactId>
+			<artifactId>VsBlueprintsCatalogueInterfaces</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 

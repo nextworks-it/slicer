@@ -16,20 +16,20 @@
 package it.nextworks.nfvmano.nfvodriver;
 
 
-import it.nextworks.nfvmano.libs.common.enums.LcmNotificationType;
-import it.nextworks.nfvmano.libs.common.enums.OperationStatus;
-import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
-import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
-import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.NsIdentifierCreationNotification;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.NsIdentifierDeletionNotification;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.NsLifecycleChangeNotification;
+import it.nextworks.nfvmano.libs.ifa.common.enums.LcmNotificationType;
+import it.nextworks.nfvmano.libs.ifa.common.enums.OperationStatus;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.messages.NsIdentifierCreationNotification;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.messages.NsIdentifierDeletionNotification;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.messages.NsLifecycleChangeNotification;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmNotificationInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import it.nextworks.nfvmano.libs.common.exceptions.MethodNotImplementedException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MethodNotImplementedException;
 
 
 /**

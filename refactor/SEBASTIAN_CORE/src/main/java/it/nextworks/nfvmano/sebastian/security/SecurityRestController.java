@@ -15,7 +15,7 @@
 */
 package it.nextworks.nfvmano.sebastian.security;
 
-import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
 import it.nextworks.nfvmano.sebastian.admin.repo.TenantRepository;
 import org.slf4j.Logger;

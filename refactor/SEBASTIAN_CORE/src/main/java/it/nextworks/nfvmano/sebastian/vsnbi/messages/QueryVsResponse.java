@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import it.nextworks.nfvmano.libs.common.InterfaceMessage;
-import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
-import it.nextworks.nfvmano.libs.records.nsinfo.SapInfo;
-import it.nextworks.nfvmano.libs.records.vnfinfo.VnfExtCpInfo;
+import it.nextworks.nfvmano.libs.ifa.common.InterfaceMessage;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
+import it.nextworks.nfvmano.libs.ifa.records.nsinfo.SapInfo;
+import it.nextworks.nfvmano.libs.ifa.records.vnfinfo.VnfExtCpInfo;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
 
 /**

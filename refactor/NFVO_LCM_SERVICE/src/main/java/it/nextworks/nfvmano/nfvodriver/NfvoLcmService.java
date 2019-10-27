@@ -19,29 +19,29 @@ import java.util.List;
 import java.util.Map;
 
 
-import it.nextworks.nfvmano.libs.catalogues.interfaces.elements.NsdInfo;
-import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryNsdResponse;
-import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryOnBoardedVnfPkgInfoResponse;
-import it.nextworks.nfvmano.libs.common.enums.OperationStatus;
-import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
-import it.nextworks.nfvmano.libs.descriptors.vnfd.InstantiationLevel;
-import it.nextworks.nfvmano.libs.descriptors.vnfd.VnfDf;
-import it.nextworks.nfvmano.libs.descriptors.vnfd.Vnfd;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.NsLcmConsumerInterface;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.NsLcmProviderInterface;
-import it.nextworks.nfvmano.libs.osmanfvo.nslcm.interfaces.messages.*;
+import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.elements.NsdInfo;
+import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.messages.QueryNsdResponse;
+import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.messages.QueryOnBoardedVnfPkgInfoResponse;
+import it.nextworks.nfvmano.libs.ifa.common.enums.OperationStatus;
+import it.nextworks.nfvmano.libs.ifa.descriptors.nsd.Nsd;
+import it.nextworks.nfvmano.libs.ifa.descriptors.vnfd.InstantiationLevel;
+import it.nextworks.nfvmano.libs.ifa.descriptors.vnfd.VnfDf;
+import it.nextworks.nfvmano.libs.ifa.descriptors.vnfd.Vnfd;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.NsLcmConsumerInterface;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.NsLcmProviderInterface;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.messages.*;
 
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmAbstractDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
-import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
-import it.nextworks.nfvmano.libs.common.exceptions.MethodNotImplementedException;
-import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
-import it.nextworks.nfvmano.libs.common.messages.SubscribeRequest;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MethodNotImplementedException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
+import it.nextworks.nfvmano.libs.ifa.common.messages.SubscribeRequest;
 
 
 

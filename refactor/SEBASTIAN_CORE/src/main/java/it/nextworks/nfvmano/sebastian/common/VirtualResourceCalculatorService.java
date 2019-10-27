@@ -1,13 +1,13 @@
 package it.nextworks.nfvmano.sebastian.common;
 
 
-import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryNsdResponse;
-import it.nextworks.nfvmano.libs.catalogues.interfaces.messages.QueryOnBoardedVnfPkgInfoResponse;
-import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
-import it.nextworks.nfvmano.libs.descriptors.common.elements.VirtualComputeDesc;
-import it.nextworks.nfvmano.libs.descriptors.common.elements.VirtualStorageDesc;
-import it.nextworks.nfvmano.libs.descriptors.nsd.Nsd;
-import it.nextworks.nfvmano.libs.descriptors.vnfd.*;
+import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.messages.QueryNsdResponse;
+import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.messages.QueryOnBoardedVnfPkgInfoResponse;
+import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
+import it.nextworks.nfvmano.libs.ifa.descriptors.common.elements.VirtualComputeDesc;
+import it.nextworks.nfvmano.libs.ifa.descriptors.common.elements.VirtualStorageDesc;
+import it.nextworks.nfvmano.libs.ifa.descriptors.nsd.Nsd;
+import it.nextworks.nfvmano.libs.ifa.descriptors.vnfd.*;
 import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;

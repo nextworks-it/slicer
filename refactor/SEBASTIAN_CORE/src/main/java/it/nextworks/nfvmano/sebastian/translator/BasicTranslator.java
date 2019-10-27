@@ -26,8 +26,8 @@ import it.nextworks.nfvmano.catalogue.blueprint.repo.TranslationRuleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
-import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.VsdNsdTranslationRule;
 

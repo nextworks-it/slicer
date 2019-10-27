@@ -1,7 +1,7 @@
 package it.nextworks.nfvmano.sebastian.vsnbi.messages;
 
-import it.nextworks.nfvmano.libs.common.InterfaceMessage;
-import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
+import it.nextworks.nfvmano.libs.ifa.common.InterfaceMessage;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 
 /**
  * Request to remove a terminated vertical service instance from the system

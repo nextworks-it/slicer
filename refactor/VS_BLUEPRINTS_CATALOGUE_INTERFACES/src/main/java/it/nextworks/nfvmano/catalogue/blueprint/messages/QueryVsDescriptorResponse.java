@@ -18,8 +18,8 @@ package it.nextworks.nfvmano.catalogue.blueprint.messages;
 import java.util.ArrayList;
 import java.util.List;
 
-import it.nextworks.nfvmano.libs.common.InterfaceMessage;
-import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
+import it.nextworks.nfvmano.libs.ifa.common.InterfaceMessage;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
 
 public class QueryVsDescriptorResponse implements InterfaceMessage {

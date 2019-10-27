@@ -23,8 +23,8 @@ import javax.persistence.ManyToOne;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import it.nextworks.nfvmano.libs.common.InterfaceInformationElement;
-import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
+import it.nextworks.nfvmano.libs.ifa.common.InterfaceInformationElement;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 
 @Entity
 public class SlaVirtualResourceConstraint implements InterfaceInformationElement {

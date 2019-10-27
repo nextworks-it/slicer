@@ -31,8 +31,8 @@ import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import it.nextworks.nfvmano.libs.common.InterfaceInformationElement;
-import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
+import it.nextworks.nfvmano.libs.ifa.common.InterfaceInformationElement;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 
 @Entity
 public class VsBlueprintInfo implements InterfaceInformationElement {

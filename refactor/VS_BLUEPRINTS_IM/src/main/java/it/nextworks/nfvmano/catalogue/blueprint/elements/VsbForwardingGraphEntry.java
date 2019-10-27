@@ -17,8 +17,8 @@ package it.nextworks.nfvmano.catalogue.blueprint.elements;
 
 import javax.persistence.Embeddable;
 
-import it.nextworks.nfvmano.libs.common.DescriptorInformationElement;
-import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
+import it.nextworks.nfvmano.libs.ifa.common.DescriptorInformationElement;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 
 @Embeddable
 public class VsbForwardingGraphEntry implements DescriptorInformationElement {

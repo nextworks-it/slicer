@@ -1,6 +1,6 @@
 package it.nextworks.nfvmano.sebastian.admin;
 
-import it.nextworks.nfvmano.libs.common.elements.Filter;
+import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 
 import java.util.HashMap;
 import java.util.Map;

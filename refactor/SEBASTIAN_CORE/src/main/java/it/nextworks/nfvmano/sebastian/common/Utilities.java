@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import it.nextworks.nfvmano.libs.common.elements.Filter;
+import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

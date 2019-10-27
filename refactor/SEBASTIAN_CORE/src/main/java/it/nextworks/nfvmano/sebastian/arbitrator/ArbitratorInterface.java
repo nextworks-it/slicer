@@ -17,8 +17,8 @@ package it.nextworks.nfvmano.sebastian.arbitrator;
 
 import java.util.List;
 
-import it.nextworks.nfvmano.libs.common.exceptions.FailedOperationException;
-import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 
 /**
  * This is the interface of the Vertical Slicer Arbitrator component.
