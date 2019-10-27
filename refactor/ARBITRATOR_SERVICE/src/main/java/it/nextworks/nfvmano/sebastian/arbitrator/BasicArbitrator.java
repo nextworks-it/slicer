@@ -26,6 +26,8 @@ import it.nextworks.nfvmano.catalogue.blueprint.elements.ServiceConstraints;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.ServicePriorityLevel;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
 import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
+import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorRequest;
+import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorResponse;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.common.VsAction;
 import it.nextworks.nfvmano.sebastian.common.VsActionType;

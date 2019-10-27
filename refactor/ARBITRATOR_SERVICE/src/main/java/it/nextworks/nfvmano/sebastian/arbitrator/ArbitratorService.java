@@ -20,6 +20,9 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
+import it.nextworks.nfvmano.sebastian.arbitrator.interfaces.ArbitratorInterface;
+import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorRequest;
+import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorResponse;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import org.slf4j.Logger;
@@ -83,7 +86,7 @@ public class ArbitratorService implements ArbitratorInterface {
 	}
 
 	@Override
-	public List<ArbitratorResponse> computeArbitratorSolution(List<ArbitratorRequest> requests) 
+	public List<ArbitratorResponse> computeArbitratorSolution(List<ArbitratorRequest> requests)
 			throws FailedOperationException, NotExistingEntityException {
 		return arbitrator.computeArbitratorSolution(requests);
 	}

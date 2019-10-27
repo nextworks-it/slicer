@@ -24,6 +24,8 @@ import it.nextworks.nfvmano.sebastian.admin.elements.SlaVirtualResourceConstrain
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
 import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
+import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorRequest;
+import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorResponse;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;

@@ -96,6 +96,32 @@
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>CommonElements</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+
+        </dependency>
+
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>RecordService</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+
+        </dependency>
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>ARBITRATOR_INTERFACES</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+
+        </dependency>
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>ARBITRATOR_SERVICE</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+
+        </dependency>
+
         <!--Added for the gui drivers -->
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
@@ -169,6 +195,7 @@
             <artifactId>springfox-swagger-ui</artifactId>
             <version>2.9.2</version>
         </dependency>
+
     </dependencies>
 
     <build>

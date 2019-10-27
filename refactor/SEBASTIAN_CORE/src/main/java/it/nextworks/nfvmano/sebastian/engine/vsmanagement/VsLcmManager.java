@@ -37,8 +37,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
-import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorRequest;
-import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorResponse;
+import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorRequest;
+import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorResponse;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
