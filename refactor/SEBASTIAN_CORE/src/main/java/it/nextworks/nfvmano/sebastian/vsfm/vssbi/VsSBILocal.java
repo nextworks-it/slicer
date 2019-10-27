@@ -23,7 +23,7 @@ import java.util.List;
 
 public class VsSBILocal extends VsAbstractSBI {
     @Autowired
-    NsLcmService nsLcmService;
+    private NsLcmService nsLcmService;
 
     @Override
     public void initNewNsLcmManager(String nsiId, String tenantId, String sliceName, String sliceDescription) {

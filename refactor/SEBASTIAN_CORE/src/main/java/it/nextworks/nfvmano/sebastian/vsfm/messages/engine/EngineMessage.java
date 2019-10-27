@@ -18,10 +18,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.NotifyNfvNsiStatusChange;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequestMessage;
+//import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequestMessage;
+//import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequestMessage;
+//import it.nextworks.nfvmano.sebastian.nsmf.messages.NotifyNfvNsiStatusChange;
+//import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequestMessage;
 
 /**
  * Abstract message exchanged among the engine components.
@@ -34,12 +34,12 @@ import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequestMessage;
 	@Type(value = InstantiateVsiRequestMessage.class, 	name = "INSTANTIATE_VSI_REQUEST"),
 	@Type(value = TerminateVsiRequestMessage.class, 	name = "TERMINATE_VSI_REQUEST"),
 	@Type(value = ModifyVsiRequestMessage.class, name = "MODIFY_VSI_REQUEST"),
-	@Type(value = InstantiateNsiRequestMessage.class, 	name = "INSTANTIATE_NSI_REQUEST"),
-	@Type(value = ModifyNsiRequestMessage.class, name = "MODIFY_NSI_REQUEST"),
-	@Type(value = TerminateNsiRequestMessage.class, 	name = "TERMINATE_NSI_REQUEST"),
+//	@Type(value = InstantiateNsiRequestMessage.class, 	name = "INSTANTIATE_NSI_REQUEST"),
+//	@Type(value = ModifyNsiRequestMessage.class, name = "MODIFY_NSI_REQUEST"),
+//	@Type(value = TerminateNsiRequestMessage.class, 	name = "TERMINATE_NSI_REQUEST"),
 	@Type(value = TerminateVsiRequestMessage.class, 	name = "TERMINATE_VSI_REQUEST"),
 	@Type(value = NotifyNsiStatusChange.class, 	name = "NOTIFY_NSI_STATUS_CHANGE"),
-	@Type(value = NotifyNfvNsiStatusChange.class, 	name = "NOTIFY_NFV_NSI_STATUS_CHANGE"),
+//	@Type(value = NotifyNfvNsiStatusChange.class, 	name = "NOTIFY_NFV_NSI_STATUS_CHANGE"),
 	@Type(value = CoordinateVsiRequest.class, 	name = "COORDINATE_VSI_REQUEST"),
 	@Type(value = VsiTerminationNotificationMessage.class, 	name = "NOTIFY_TERMINATION"),
 	@Type(value = NotifyResourceGranted.class, 	name = "RESOURCES_GRANTED"),
