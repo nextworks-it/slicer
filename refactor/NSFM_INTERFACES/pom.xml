@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>it.nextworks.nfvmano</groupId>
-    <artifactId>TranslatorService</artifactId>
+    <artifactId>NSFM_INTERFACES</artifactId>
     <version>0.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -31,44 +31,21 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <name>TranslatorService</name>
-
+    <name>NSFM_INTERFACES</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
     </properties>
+   <dependencies>
 
-    <dependencies>
-        <dependency>
-            <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>VsBlueprintsCatalogue</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+       <dependency>
+           <groupId>it.nextworks.nfvmano</groupId>
+           <artifactId>NfvoLcmService</artifactId>
+           <version>0.0.2-SNAPSHOT</version>
+       </dependency>
+   </dependencies>
 
-        </dependency>
-        <dependency>
-            <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>NfvManoLibsCommon</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-
-        </dependency>
-        <dependency>
-            <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>VsBlueprintsCatalogueInterfaces</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-
-        </dependency>
-
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

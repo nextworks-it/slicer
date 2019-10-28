@@ -30,6 +30,10 @@
         <module>TranslatorService</module>
         <module>SecurityService</module>
         <module>VNComService</module>
+        <module>VSFM_INTERFACES</module>
+        <module>VSFM_SERVICE</module>
+        <module>NSFM_INTERFACES</module>
+        <module>NSFM_SERVICE</module>
     </modules>
 </project>
 
