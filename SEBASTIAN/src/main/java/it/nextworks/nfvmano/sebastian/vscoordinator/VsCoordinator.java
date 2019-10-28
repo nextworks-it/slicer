@@ -23,7 +23,7 @@ import it.nextworks.nfvmano.sebastian.common.VsAction;
 import it.nextworks.nfvmano.sebastian.common.VsActionType;
 import it.nextworks.nfvmano.sebastian.engine.Engine;
 import it.nextworks.nfvmano.sebastian.engine.messages.*;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.TerminateVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.TerminateVsRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

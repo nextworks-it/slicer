@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package it.nextworks.nfvmano.sebastian.vsnbi;
+package it.nextworks.nfvmano.sebastian.vsfm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,11 +51,11 @@ import it.nextworks.nfvmano.sebastian.nfvodriver.NfvoService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.InstantiateVsRequest;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.ModifyVsRequest;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.PurgeVsRequest;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.QueryVsResponse;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.TerminateVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.InstantiateVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.ModifyVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.PurgeVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.QueryVsResponse;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.TerminateVsRequest;
 
 /**
  * Front-end service for managing the incoming requests 

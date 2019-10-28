@@ -45,7 +45,7 @@ import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
 import it.nextworks.nfvmano.sebastian.translator.TranslatorService;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.InstantiateVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.InstantiateVsRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

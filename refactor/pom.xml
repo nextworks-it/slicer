@@ -29,6 +29,7 @@
         <module>RecordServiceIM</module>
         <module>TranslatorService</module>
         <module>SecurityService</module>
+        <module>VNComService</module>
     </modules>
 </project>
 

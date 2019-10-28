@@ -2,7 +2,7 @@ package it.nextworks.nfvmano.sebastian.engine.messages;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.ModifyVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.ModifyVsRequest;
 
 public class ModifyVsiRequestMessage extends EngineMessage {
 

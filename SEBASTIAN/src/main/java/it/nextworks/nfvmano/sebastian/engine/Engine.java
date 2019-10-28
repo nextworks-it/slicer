@@ -22,7 +22,7 @@ import java.util.Map;
 import it.nextworks.nfvmano.sebastian.common.VsAction;
 import it.nextworks.nfvmano.sebastian.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.vscoordinator.VsCoordinator;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.ModifyVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.ModifyVsRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.BindingBuilder;
@@ -55,8 +55,8 @@ import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import it.nextworks.nfvmano.sebastian.translator.TranslatorService;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.InstantiateVsRequest;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.TerminateVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.InstantiateVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.TerminateVsRequest;
 
 
 /**

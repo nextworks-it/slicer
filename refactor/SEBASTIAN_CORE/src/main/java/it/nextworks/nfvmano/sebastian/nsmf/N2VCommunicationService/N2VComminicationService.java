@@ -39,7 +39,7 @@ public class N2VComminicationService implements N2VCommunicationInterface {
             log.debug("The NSFM is configured to communicate with VSFM using local queues.");
             n2VComm = new N2VCommunicationLocal();
         } else {
-            log.error("Arbitrator not configured!");
+            log.error("N2V Comm service not configured!");
         }
 
     }

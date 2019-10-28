@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package it.nextworks.nfvmano.sebastian.vsnbi.messages;
+package it.nextworks.nfvmano.sebastian.vsfm.messages;
 
 import java.util.ArrayList;
 import java.util.HashMap;

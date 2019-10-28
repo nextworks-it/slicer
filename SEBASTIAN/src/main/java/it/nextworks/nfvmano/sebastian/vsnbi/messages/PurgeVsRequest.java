@@ -1,4 +1,4 @@
-package it.nextworks.nfvmano.sebastian.vsnbi.messages;
+package it.nextworks.nfvmano.sebastian.vsfm.messages;
 
 import it.nextworks.nfvmano.libs.common.InterfaceMessage;
 import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;

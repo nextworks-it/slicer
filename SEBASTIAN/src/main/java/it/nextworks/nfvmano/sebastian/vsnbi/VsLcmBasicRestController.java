@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package it.nextworks.nfvmano.sebastian.vsnbi;
+package it.nextworks.nfvmano.sebastian.vsfm;
 
 import java.util.List;
 
@@ -37,11 +37,11 @@ import it.nextworks.nfvmano.libs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.common.exceptions.NotPermittedOperationException;
 import it.nextworks.nfvmano.libs.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.InstantiateVsRequest;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.ModifyVsRequest;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.PurgeVsRequest;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.QueryVsResponse;
-import it.nextworks.nfvmano.sebastian.vsnbi.messages.TerminateVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.InstantiateVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.ModifyVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.PurgeVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.QueryVsResponse;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.TerminateVsRequest;
 
 @RestController
 @CrossOrigin
