@@ -25,7 +25,7 @@ import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
 import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.common.ConfigurationParameters;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
-import it.nextworks.nfvmano.sebastian.vncom.nsfm.N2VCommunicationService.N2VComminicationService;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.N2VCommunicationService.N2VCommunicationService;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NotifyNfvNsiStatusChange;
@@ -59,7 +59,7 @@ public class NsLocalEngine implements NfvoLcmNotificationConsumerInterface {
     private static final Logger log = LoggerFactory.getLogger(NsLocalEngine.class);
 
     @Autowired
-    private N2VComminicationService n2VComminicationService;
+    private N2VCommunicationService n2VCommunicationService;
 
     @Autowired
     private VsRecordService vsRecordService;
@@ -231,7 +231,7 @@ public class NsLocalEngine implements NfvoLcmNotificationConsumerInterface {
             log.debug("NS LCM removed from engine.");
         }
 
-        n2VComminicationService.notifyNetworkSliceStatusChange(networkSliceId, changeType, successful);
+        n2VCommunicationService.notifyNetworkSliceStatusChange(networkSliceId, changeType, successful);
     }
 
     /**

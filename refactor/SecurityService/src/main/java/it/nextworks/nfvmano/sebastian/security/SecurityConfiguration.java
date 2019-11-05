@@ -62,7 +62,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private AuthSuccessHandler authenticationSuccessHandler;
 
     @Autowired
-    @Qualifier("sPasswordEncoder")
+    //@Qualifier("sPasswordEncoder")
     private PasswordEncoder passwordEncoder;
 
     @Value("${sebastian.admin}")

@@ -13,12 +13,18 @@
  * limitations under the License.
  */
 
-package it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi;
+package it.nextworks.nfvmano.sebastian.nsmf;
 
-import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-public interface N2VCommunicationInterface {
-    void setVsLocalEngine(N2VCommunicationInterface vsLocalEngine);
+@RestController
+@CrossOrigin
+@RequestMapping("/ns/basic/vslcm")
+public class NsLcmBasicRestController {
+    @Autowired
+    NsLcmService nsLcmService;
 
-    void notifyNetworkSliceStatusChange(String networkSliceId, NsStatusChange changeType, boolean successful);
 }

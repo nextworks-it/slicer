@@ -35,8 +35,19 @@ public class VsSBIService implements NsManagementInterface {
 
     private VsAbstractSBI vsSBI;
 
+    //@PostConstruct
+//    public void initV2NCom(NsManagementInterface nsLcmService){
+//        log.debug("Initializing Vertical to Network Communication");
+//        if (comType.equals("LOCAL")) {
+//            log.debug("The VSFM is configured to communicate with NSFM using local queues.");
+//            vsSBI = new VsSBILocal(nsLcmService);
+//        } else {
+//            log.error("V2N Comm service not configured!");
+//        }
+//
+//    }
     @PostConstruct
-    public void initV2NCom(){
+    public void initV2NCom() {
         log.debug("Initializing Vertical to Network Communication");
         if (comType.equals("LOCAL")) {
             log.debug("The VSFM is configured to communicate with NSFM using local queues.");
@@ -45,6 +56,11 @@ public class VsSBIService implements NsManagementInterface {
             log.error("V2N Comm service not configured!");
         }
 
+    }
+
+    @Override
+    public void setNsLcmService(NsManagementInterface nsLcmService) {
+        vsSBI.setNsLcmService(nsLcmService);
     }
 
     @Override

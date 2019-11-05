@@ -27,6 +27,7 @@ import it.nextworks.nfvmano.sebastian.common.ConfigurationParameters;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.common.VsAction;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.N2VCommunicationService.N2VCommunicationService;
 import it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi.N2VCommunicationInterface;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
@@ -53,6 +54,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 ;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +64,8 @@ public class VsLocalEngine implements N2VCommunicationInterface {
 
     private static final Logger log = LoggerFactory.getLogger(VsLocalEngine.class);
     /*NOTE: this enables the communication between the VSLCMs and the NSLCMs*/
+    @Autowired
+    private N2VCommunicationService n2VCommunicationService;
     @Autowired
     private VsSBIService vsSBIService;
 
@@ -95,6 +99,9 @@ public class VsLocalEngine implements N2VCommunicationInterface {
     @Autowired
     @Qualifier(ConfigurationParameters.engineQueueExchange)
     TopicExchange messageExchange;
+
+    @PostConstruct
+    public void configComService(){this.setVsLocalEngine(this);}
 
     //internal map of VS LCM Managers
     //each VS LCM Manager is created when a new VSI ID is created and removed when the VSI ID is removed
@@ -288,6 +295,11 @@ public class VsLocalEngine implements N2VCommunicationInterface {
         log.debug("Vertical service " + vsiId + " has been terminated. Removing VS LCM from engine");
         this.vsLcmManagers.remove(vsiId);
         log.debug("VS LCM manager removed from engine.");
+    }
+
+    @Override
+    public void setVsLocalEngine(N2VCommunicationInterface vsLocalEngine) {
+        n2VCommunicationService.setVsLocalEngine(vsLocalEngine);
     }
 
     /**

@@ -21,6 +21,8 @@ import java.util.List;
 
 public interface NsManagementInterface {
 
+    void setNsLcmService(NsManagementInterface nsLcmService);
+
     /**
      * This method initializes a new NS LCM manager that will be in charge
      * of processing all the requests and events for that NSI.

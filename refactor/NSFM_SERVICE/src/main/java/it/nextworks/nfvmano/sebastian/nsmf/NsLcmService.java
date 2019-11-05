@@ -19,15 +19,30 @@ import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityExceptio
 import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.vncom.nsfm.N2VCommunicationService.NsManagementInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.NsLocalEngine;
+import it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi.VsSBIService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
 public class NsLcmService implements NsManagementInterface {
     @Autowired
     private NsLocalEngine nsLocalEngine;
+
+    @Autowired
+    private VsSBIService vsSBIService;
+
+    @PostConstruct
+    public void configComService(){
+        setNsLcmService(this);
+    }
+
+    @Override
+    public void setNsLcmService(NsManagementInterface nsLcmService) {
+        vsSBIService.setNsLcmService(nsLcmService);
+    }
 
     @Override
     public void initNewNsLcmManager(String nsiId, String tenantId, String sliceName, String sliceDescription) {

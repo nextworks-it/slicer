@@ -22,8 +22,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 public class VsSBILocal extends VsAbstractSBI {
-    @Autowired
+
+
     private NsManagementInterface nsLcmService;
+
+//    public VsSBILocal (NsManagementInterface nsLcmService) {
+//        this.nsLcmService = nsLcmService;
+//    }
+
+    @Override
+    public void setNsLcmService(NsManagementInterface nsLcmService) {
+        this.nsLcmService = nsLcmService;
+    }
 
     @Override
     public void initNewNsLcmManager(String nsiId, String tenantId, String sliceName, String sliceDescription) {

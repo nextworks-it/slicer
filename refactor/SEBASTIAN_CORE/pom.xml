@@ -7,7 +7,7 @@
     <artifactId>SebastianCore</artifactId>
     <version>0.0.2-SNAPSHOT</version>
 
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <name>SEBASTIAN_CORE</name>
     <description>Vertical Slicer</description>
@@ -24,9 +24,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
     </properties>
-
-
-
 
     <dependencies>
 
@@ -91,8 +88,50 @@
             <artifactId>NfvManoLibsPolicyMgtIf</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>NSFM_SERVICE</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>NSFM_INTERFACES</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+        </dependency>
 
 
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>VSFM_SERVICE</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+       </dependency>
+
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>VSFM_INTERFACES</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency>
 
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
@@ -113,6 +152,23 @@
             <version>0.0.2-SNAPSHOT</version>
 
         </dependency>
+
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>NSFM_SERVICE</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+
+        </dependency>
+
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>VSFM_SERVICE</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+
+        </dependency>
+
+
+
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>ARBITRATOR_INTERFACES</artifactId>
@@ -124,6 +180,11 @@
             <artifactId>ARBITRATOR_SERVICE</artifactId>
             <version>0.0.2-SNAPSHOT</version>
 
+        </dependency>
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>VNComService</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
         </dependency>
 
         <!--Added for the gui drivers -->
