@@ -81,7 +81,7 @@
         </dependency>
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>NSFM_INTERFACES</artifactId>
+            <artifactId>NSFM_IM</artifactId>
             <version>0.0.2-SNAPSHOT</version>
 
         </dependency>

@@ -25,7 +25,7 @@ import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
 import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.common.ConfigurationParameters;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
-import it.nextworks.nfvmano.sebastian.vncom.nsfm.N2VCommunicationService.N2VCommunicationService;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.N2VCommunicationService;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NotifyNfvNsiStatusChange;

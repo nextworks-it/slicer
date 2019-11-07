@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package it.nextworks.nfvmano.sebastian.vncom.nsfm.N2VCommunicationService;
+package it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.interfaces;
 
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import java.util.List;

@@ -11,6 +11,9 @@
       <module>drivers/NFVO_COMMON_DRIVER</module>
       <module>drivers/example_driver</module>
       <module>SEBASTIAN</module>
+        <module>NS_TEMPLATE_CATALOGUE</module>
+        <module>NS_TEMPLATES_CATALOGUE_INTERFACES</module>
+        <module>NS_TEMPLATES_IM</module>
     </modules>
 
 </project>

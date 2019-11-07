@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-package it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi;
+package it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi;
 
-import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.interfaces.NsNbInterface;
+import it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi.N2VCommunicationInterface;
 
-public abstract class VsAbstractSBI implements NsNbInterface {
-    public void setNsLcmService(NsNbInterface nsLcmService) { }
+public abstract class N2VAbstractCommunication implements N2VCommunicationInterface {
 }

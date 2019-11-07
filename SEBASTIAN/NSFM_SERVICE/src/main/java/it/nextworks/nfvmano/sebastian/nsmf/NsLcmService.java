@@ -15,11 +15,18 @@
 
 package it.nextworks.nfvmano.sebastian.nsmf;
 
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
-import it.nextworks.nfvmano.sebastian.vncom.nsfm.N2VCommunicationService.NsManagementInterface;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.interfaces.NsManagementInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.NsLocalEngine;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.interfaces.NsNbInterface;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.InstantiateNsRequest;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.ModifyNsRequest;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.TerminateNsRequest;
 import it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi.VsSBIService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +34,10 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
-public class NsLcmService implements NsManagementInterface {
+public class NsLcmService implements NsNbInterface {
+
+    private static final Logger log = LoggerFactory.getLogger(NsLcmService.class);
+
     @Autowired
     private NsLocalEngine nsLocalEngine;
 
@@ -39,40 +49,35 @@ public class NsLcmService implements NsManagementInterface {
         setNsLcmService(this);
     }
 
-    @Override
-    public void setNsLcmService(NsManagementInterface nsLcmService) {
+    public void setNsLcmService(NsNbInterface nsLcmService) {
         vsSBIService.setNsLcmService(nsLcmService);
     }
 
+    /********************************************************************************/
+
     @Override
-    public void initNewNsLcmManager(String nsiId, String tenantId, String sliceName, String sliceDescription) {
-        nsLocalEngine.initNewNsLcmManager(nsiId, tenantId, sliceName, sliceDescription);
+    public void instantiateNs(InstantiateNsRequest request) throws NotExistingEntityException, MalformattedElementException {
+        log.debug("Received request to instantiate a new Vertical Service instance.");
+        request.isValid();
+
+        String tenantId = request.getTenantId();
+        String nstId = request.getNstId();
+
+        //STEP 1: Extract all of the NSSTs from NST and the NSDs
+        //STEP 2: For each nsd:
+        //nsLocalEngine.initNewNsLcmManager(nsiId, tenantId, sliceName, sliceDescription);
+        //nsLocalEngine.instantiateNs(nsiId, tenantId, nsdId, nsdVersion, dfId, instantiationLevelId, vsiId, nsSubnetIds);
+
     }
 
     @Override
-    public void instantiateNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String vsiId, List<String> nsSubnetIds) throws NotExistingEntityException {
-        nsLocalEngine.instantiateNs(nsiId, tenantId, nsdId, nsdVersion, dfId, instantiationLevelId, vsiId, nsSubnetIds);
+    public void modifyNs(ModifyNsRequest request) throws NotExistingEntityException {
+//        nsLocalEngine.modifyNs(nsiId, tenantId, nsdId, nsdVersion, dfId, instantiationLevelId, vsiId);
     }
 
     @Override
-    public void modifyNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String vsiId) throws NotExistingEntityException {
-        nsLocalEngine.modifyNs(nsiId, tenantId, nsdId, nsdVersion, dfId, instantiationLevelId, vsiId);
+    public void terminateNs(TerminateNsRequest request) throws Exception {
+//        nsLocalEngine.terminateNs(nsiId);
     }
 
-    @Override
-    public void terminateNs(String nsiId) throws Exception {
-        nsLocalEngine.terminateNs(nsiId);
-    }
-
-    /**
-     * This method processes a notification about a change in the status of a network slice.
-     * This notification is dispatched towards the VSManagement
-     *
-     * @param networkSliceId ID of the network slice affected by the change of status
-     * @param changeType type of change in the network slice
-     * @param successful indicates if the change has been successful or not
-     */
-    public void notifyNetworkSliceStatusChange(String networkSliceId, NsStatusChange changeType, boolean successful) {
-        //TODO: To Remote Engine
-    }
 }

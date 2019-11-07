@@ -13,9 +13,23 @@
  * limitations under the License.
  */
 
-package it.nextworks.nfvmano.sebastian.vncom.nsfm.N2VCommunicationService;
+package it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi;
 
+import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi.N2VCommunicationInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class N2VAbstractCommunication implements N2VCommunicationInterface {
+public class N2VCommunicationLocal extends N2VAbstractCommunication{
+    @Autowired
+    private N2VCommunicationInterface vsLocalEngine;
+
+    @Override
+    public void setVsLocalEngine(N2VCommunicationInterface vsLocalEngine) {
+        this.vsLocalEngine = vsLocalEngine;
+    }
+
+    @Override
+    public void notifyNetworkSliceStatusChange(String networkSliceId, NsStatusChange changeType, boolean successful) {
+        vsLocalEngine.notifyNetworkSliceStatusChange(networkSliceId, changeType, successful);
+    }
 }

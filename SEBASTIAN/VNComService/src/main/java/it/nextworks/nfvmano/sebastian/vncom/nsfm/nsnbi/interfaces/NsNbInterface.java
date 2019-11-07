@@ -13,38 +13,20 @@
  * limitations under the License.
  */
 
-package it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi;
+package it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.interfaces;
 
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.interfaces.NsNbInterface;
 import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.InstantiateNsRequest;
 import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.ModifyNsRequest;
 import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.TerminateNsRequest;
 
-import java.util.List;
 
-public class VsSBILocal extends VsAbstractSBI {
+public interface NsNbInterface {
 
+    void instantiateNs(InstantiateNsRequest request) throws NotExistingEntityException, MalformattedElementException;
 
-    private NsNbInterface nsLcmService;
+    void modifyNs(ModifyNsRequest request) throws NotExistingEntityException;
 
-    public void setNsLcmService(NsNbInterface nsLcmService) {
-        this.nsLcmService = nsLcmService;
-    }
-
-    @Override
-    public void instantiateNs(InstantiateNsRequest request) throws NotExistingEntityException, MalformattedElementException {
-        nsLcmService.instantiateNs(request);
-    }
-
-    @Override
-    public void modifyNs(ModifyNsRequest request) throws NotExistingEntityException {
-        nsLcmService.modifyNs(request);
-    }
-
-    @Override
-    public void terminateNs(TerminateNsRequest request) throws Exception {
-        nsLcmService.terminateNs(request);
-    }
+    void terminateNs(TerminateNsRequest request) throws Exception;
 }

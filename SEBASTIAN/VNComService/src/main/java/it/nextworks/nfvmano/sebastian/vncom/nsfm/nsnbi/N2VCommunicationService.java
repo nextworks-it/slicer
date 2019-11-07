@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package it.nextworks.nfvmano.sebastian.vncom.nsfm.N2VCommunicationService;
+package it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi;
 
 import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi.N2VCommunicationInterface;

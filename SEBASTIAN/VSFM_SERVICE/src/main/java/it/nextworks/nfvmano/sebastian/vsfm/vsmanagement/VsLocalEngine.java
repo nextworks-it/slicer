@@ -18,6 +18,7 @@ package it.nextworks.nfvmano.sebastian.vsfm.vsmanagement;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
@@ -27,7 +28,10 @@ import it.nextworks.nfvmano.sebastian.common.ConfigurationParameters;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.common.VsAction;
-import it.nextworks.nfvmano.sebastian.vncom.nsfm.N2VCommunicationService.N2VCommunicationService;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.N2VCommunicationService;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.InstantiateNsRequest;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.ModifyNsRequest;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.TerminateNsRequest;
 import it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi.N2VCommunicationInterface;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
@@ -335,20 +339,31 @@ public class VsLocalEngine implements N2VCommunicationInterface {
      * METHODS for communicatig with NS Management
      */
 
-    public void initNewNsLcmManager(String nsiId, String tenantId, String sliceName, String sliceDescription) {
-        vsSBIService.initNewNsLcmManager(nsiId, tenantId, sliceName, sliceDescription);
+//    public void initNewNsLcmManager(String nsiId, String tenantId, String sliceName, String sliceDescription) {
+//        vsSBIService.initNewNsLcmManager(nsiId, tenantId, sliceName, sliceDescription);
+//    }
+
+    //FIXME change signatures for supporting NSTs
+    public void instantiateNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId,
+                              String instantiationLevelId, String vsiId, List<String> nsSubnetIds) throws
+            NotExistingEntityException, MalformattedElementException {
+        // Assemble Request
+        InstantiateNsRequest request = new InstantiateNsRequest();
+        vsSBIService.instantiateNs(request);
     }
 
-    public void instantiateNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String vsiId, List<String> nsSubnetIds) throws NotExistingEntityException {
-        vsSBIService.instantiateNs(nsiId, tenantId, nsdId, nsdVersion, dfId, instantiationLevelId, vsiId, nsSubnetIds);
+    //FIXME change signatures for supporting NSTs
+    public void modifyNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId,
+                         String instantiationLevelId, String vsiId) throws NotExistingEntityException {
+
+        ModifyNsRequest request = new ModifyNsRequest();
+        vsSBIService.modifyNs(request);
     }
 
-    public void modifyNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String vsiId) throws NotExistingEntityException {
-        vsSBIService.modifyNs(nsiId, tenantId, nsdId, nsdVersion, dfId, instantiationLevelId, vsiId);
-    }
-
+    //FIXME change signatures for supporting NSTs
     public void terminateNs(String nsiId) throws Exception {
-        vsSBIService.terminateNs(nsiId);
+        TerminateNsRequest request = new TerminateNsRequest();
+        vsSBIService.terminateNs(request);
     }
 
     /**

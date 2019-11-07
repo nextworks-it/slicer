@@ -15,8 +15,13 @@
 
 package it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi;
 
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.sebastian.vncom.nsfm.N2VCommunicationService.NsManagementInterface;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.interfaces.NsManagementInterface;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.interfaces.NsNbInterface;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.InstantiateNsRequest;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.ModifyNsRequest;
+import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.TerminateNsRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +31,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
-public class VsSBIService implements NsManagementInterface {
+public class VsSBIService implements NsNbInterface {
 
     private static final Logger log = LoggerFactory.getLogger(VsSBIService.class);
 
@@ -35,17 +40,7 @@ public class VsSBIService implements NsManagementInterface {
 
     private VsAbstractSBI vsSBI;
 
-    //@PostConstruct
-//    public void initV2NCom(NsManagementInterface nsLcmService){
-//        log.debug("Initializing Vertical to Network Communication");
-//        if (comType.equals("LOCAL")) {
-//            log.debug("The VSFM is configured to communicate with NSFM using local queues.");
-//            vsSBI = new VsSBILocal(nsLcmService);
-//        } else {
-//            log.error("V2N Comm service not configured!");
-//        }
-//
-//    }
+
     @PostConstruct
     public void initV2NCom() {
         log.debug("Initializing Vertical to Network Communication");
@@ -58,28 +53,23 @@ public class VsSBIService implements NsManagementInterface {
 
     }
 
-    @Override
-    public void setNsLcmService(NsManagementInterface nsLcmService) {
+
+    public void setNsLcmService(NsNbInterface nsLcmService) {
         vsSBI.setNsLcmService(nsLcmService);
     }
 
     @Override
-    public void initNewNsLcmManager(String nsiId, String tenantId, String sliceName, String sliceDescription) {
-        vsSBI.initNewNsLcmManager(nsiId, tenantId, sliceName, sliceDescription);
+    public void instantiateNs(InstantiateNsRequest request) throws NotExistingEntityException, MalformattedElementException {
+        vsSBI.instantiateNs(request);
     }
 
     @Override
-    public void instantiateNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String vsiId, List<String> nsSubnetIds) throws NotExistingEntityException {
-        vsSBI.instantiateNs(nsiId, tenantId, nsdId, nsdVersion, dfId, instantiationLevelId, vsiId, nsSubnetIds);
+    public void modifyNs(ModifyNsRequest request) throws NotExistingEntityException {
+        vsSBI.modifyNs(request);
     }
 
     @Override
-    public void modifyNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String vsiId) throws NotExistingEntityException {
-        vsSBI.modifyNs(nsiId, tenantId, nsdId, nsdVersion, dfId, instantiationLevelId, vsiId);
-    }
-
-    @Override
-    public void terminateNs(String nsiId) throws Exception {
-        vsSBI.terminateNs(nsiId);
+    public void terminateNs(TerminateNsRequest request) throws Exception {
+        vsSBI.terminateNs(request);
     }
 }
