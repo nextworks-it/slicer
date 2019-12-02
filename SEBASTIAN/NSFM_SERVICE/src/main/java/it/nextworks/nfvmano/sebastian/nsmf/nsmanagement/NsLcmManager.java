@@ -52,7 +52,7 @@ import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
 
 /**
  * Entity in charge of managing the lifecycle
- * of a single network slice instance
+ * of a single network sub-slice instance
  * 
  * @author nextworks
  *
@@ -79,13 +79,13 @@ public class NsLcmManager {
 	private String requestedInstantiationLevelId;
 	
 	public NsLcmManager(String networkSliceInstanceId,
-			String name,
-			String description,
-			String tenantId,
-			NfvoCatalogueService nfvoCatalogueService,
-			NfvoLcmService nfvoLcmService,
-			VsRecordService vsRecordService,
-			NsLocalEngine engine) {
+						String name,
+						String description,
+						String tenantId,
+						NfvoCatalogueService nfvoCatalogueService,
+						NfvoLcmService nfvoLcmService,
+						VsRecordService vsRecordService,
+						NsLocalEngine engine) {
 		this.networkSliceInstanceId = networkSliceInstanceId;
 		this.name = name;
 		this.description = description;
