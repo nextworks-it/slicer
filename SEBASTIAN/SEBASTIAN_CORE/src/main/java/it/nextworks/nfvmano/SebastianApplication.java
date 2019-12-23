@@ -15,17 +15,13 @@
 */
 package it.nextworks.nfvmano;
 
-import it.nextworks.nfvmano.sebastian.nsmf.NsLcmService;
-import it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi.VsSBIService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import javax.annotation.PostConstruct;
+
 
 @SpringBootApplication(scanBasePackages = {
 		"it.nextworks.nfvmano"

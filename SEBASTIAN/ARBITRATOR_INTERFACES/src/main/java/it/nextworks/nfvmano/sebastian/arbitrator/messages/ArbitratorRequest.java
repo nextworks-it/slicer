@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
-import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
+import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
 
 /**
  * This class models a request to the arbitrator.

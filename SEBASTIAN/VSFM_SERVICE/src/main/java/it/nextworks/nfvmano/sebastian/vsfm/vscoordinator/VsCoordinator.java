@@ -21,12 +21,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.sebastian.common.VsAction;
 import it.nextworks.nfvmano.sebastian.common.VsActionType;
+import it.nextworks.nfvmano.sebastian.vsfm.VsLcmService;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.CoordinateVsiRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.VsmfEngineMessage;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.VsmfEngineMessageType;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.VsiTerminationNotificationMessage;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.TerminateVsRequest;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.engine.CoordinateVsiRequest;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.engine.EngineMessage;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.engine.EngineMessageType;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.engine.VsiTerminationNotificationMessage;
-import it.nextworks.nfvmano.sebastian.vsfm.vsmanagement.VsLocalEngine;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ import java.util.Map;
 public class VsCoordinator {
     private static final Logger log = LoggerFactory.getLogger(VsCoordinator.class);
     private String vsiCoordinatorId;
-    private VsLocalEngine vsLocalEngine;
+    private VsLcmService vsLcmService;
     private Map<String, VsAction> candidateVsis;
     private VsCoordinatorStatus internalStatus;
 
@@ -44,9 +45,9 @@ public class VsCoordinator {
 
     }
 
-    public VsCoordinator(String vsiCoordinatorId, VsLocalEngine vsLocalEngine){
+    public VsCoordinator(String vsiCoordinatorId, VsLcmService vsLcmService){
         this.vsiCoordinatorId = vsiCoordinatorId;
-        this.vsLocalEngine = vsLocalEngine;
+        this.vsLcmService = vsLcmService;
         this.internalStatus = VsCoordinatorStatus.READY;
     }
 
@@ -60,8 +61,8 @@ public class VsCoordinator {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            EngineMessage em = mapper.readValue(message, EngineMessage.class);
-            EngineMessageType type = em.getType();
+            VsmfEngineMessage em = mapper.readValue(message, VsmfEngineMessage.class);
+            VsmfEngineMessageType type = em.getType();
 
             switch (type) {
                 case COORDINATE_VSI_REQUEST: {
@@ -106,7 +107,7 @@ public class VsCoordinator {
             for(Map.Entry<String, VsAction> candidateVsi: candidateVsis.entrySet()) {
                 VsAction action = candidateVsi.getValue();
                 if (action.getActionType() == VsActionType.TERMINATE) {
-                    vsLocalEngine.terminateVs(action.getVsiId(), new TerminateVsRequest(action.getVsiId(), "coordinator"));
+                	vsLcmService.terminateVs(action.getVsiId(), new TerminateVsRequest(action.getVsiId(), "coordinator"));
                 }
 
             }
@@ -121,7 +122,7 @@ public class VsCoordinator {
         if(candidateVsis.containsKey(vsiId)) {
             candidateVsis.remove(vsiId);
             if (candidateVsis.isEmpty()) {
-                vsLocalEngine.notifyVsCoordinationEnd(vsiCoordinatorId);
+            	vsLcmService.notifyVsCoordinationEnd(vsiCoordinatorId);
             }
         }
     }

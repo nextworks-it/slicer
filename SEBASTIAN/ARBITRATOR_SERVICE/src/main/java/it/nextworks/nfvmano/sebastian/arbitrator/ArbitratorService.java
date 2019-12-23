@@ -24,6 +24,7 @@ import it.nextworks.nfvmano.sebastian.arbitrator.interfaces.ArbitratorInterface;
 import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorRequest;
 import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorResponse;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
+import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
-import it.nextworks.nfvmano.sebastian.translator.TranslatorService;
+import it.nextworks.nfvmano.catalogue.translator.TranslatorService;
 
 /**
  * This is the service that implements the Vertical Slicer Arbitrator functions.
@@ -66,6 +67,9 @@ public class ArbitratorService implements ArbitratorInterface {
 
 	@Autowired
 	private VsDescriptorCatalogueService vsDescriptorCatalogueService;
+	
+	//Check with Pietro. 
+	//In theory, if the arbitrator belongs to the VSMF it should be not able to read the NFVO catalogue.
 	@Autowired
 	private NfvoCatalogueService nfvoCatalogueService;
 	
@@ -79,7 +83,7 @@ public class ArbitratorService implements ArbitratorInterface {
 		if (arbitratorType.equals("BASIC")) {
 			log.debug("The Vertical Slicer is configured to operate with a basic arbitrator.");
 			arbitrator = new BasicArbitrator(adminService, vsRecordService, vsDescriptorCatalogueService,
-					translatorService, nfvoCatalogueService, virtualResourceCalculatorService);
+					translatorService, nfvoCatalogueService, virtualResourceCalculatorService, null);
 		} else {
 			log.error("Arbitrator not configured!");
 		}
@@ -97,4 +101,10 @@ public class ArbitratorService implements ArbitratorInterface {
 		return arbitrator.arbitrateVsScaling(requests);
 	}
 
+	public void setNsmfLcmProvider(NsmfLcmProviderInterface nsmfLcmProvider) {
+		arbitrator.setNsmfLcmProvider(nsmfLcmProvider);
+	}
+
+	
+	
 }

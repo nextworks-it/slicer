@@ -31,6 +31,7 @@ import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorResponse;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.common.VsAction;
 import it.nextworks.nfvmano.sebastian.common.VsActionType;
+import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
@@ -39,16 +40,18 @@ import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
+import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.admin.elements.Sla;
 import it.nextworks.nfvmano.sebastian.admin.elements.SlaVirtualResourceConstraint;
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
 import it.nextworks.nfvmano.sebastian.admin.elements.VirtualResourceUsage;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
-import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
-import it.nextworks.nfvmano.sebastian.translator.TranslatorService;
+import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
+import it.nextworks.nfvmano.catalogue.translator.TranslatorService;
 
 /**
  * This is a basic arbitrator that only checks if the request VSI is compliant with 
@@ -61,10 +64,13 @@ public class BasicArbitrator extends AbstractArbitrator {
 
 	private static final Logger log = LoggerFactory.getLogger(BasicArbitrator.class);
 
+	
 
 	public BasicArbitrator(AdminService adminService, VsRecordService vsRecordService, VsDescriptorCatalogueService vsDescriptorCatalogueService,
-						   TranslatorService translatorService, NfvoCatalogueService nfvoService, VirtualResourceCalculatorService vsc) {
-		super(adminService, vsRecordService, vsDescriptorCatalogueService, translatorService, nfvoService, ArbitratorType.BASIC_ARBITRATOR, vsc);
+						   TranslatorService translatorService, NfvoCatalogueService nfvoService, 
+						   VirtualResourceCalculatorService vsc, NsmfLcmProviderInterface nsmfLcmProvider) {
+		super(adminService, vsRecordService, vsDescriptorCatalogueService, translatorService, nfvoService, 
+				ArbitratorType.BASIC_ARBITRATOR, vsc, nsmfLcmProvider);
 	}
 
 	/**
@@ -73,7 +79,7 @@ public class BasicArbitrator extends AbstractArbitrator {
 	 * @return impactedVerticalServiceInstances of impacted VSIs and associated actions
 	 * @throws NotExistingEntityException
 	 */
-	private Map<String, VsAction> generateImpactedVsList(String tenantId) throws NotExistingEntityException{
+	private Map<String, VsAction> generateImpactedVsList(String tenantId) throws NotExistingEntityException, FailedOperationException {
 		// search VS to be updated/terminated
 		List<VerticalServiceInstance> candidateVsiList = vsRecordService.getAllVsInstances(tenantId);
 		Map<String, VsAction> impactedVerticalServiceInstances = new HashMap<>();
@@ -84,7 +90,8 @@ public class BasicArbitrator extends AbstractArbitrator {
 			if (!(vsi.getStatus()==VerticalServiceStatus.INSTANTIATED)) break;
 			if(serviceConstraints.isEmpty() || serviceConstraints.get(0).getPriority() == ServicePriorityLevel.LOW){
 				//retrive NSInfo
-				NetworkSliceInstance nsi = vsRecordService.getNsInstance(vsi.getNetworkSliceId());
+				//NetworkSliceInstance nsi = vsRecordService.getNsInstance(vsi.getNetworkSliceId());
+				NetworkSliceInstance nsi = readNetworkSliceInstanceInformation(vsi.getNetworkSliceId(), vsi.getTenantId());
 				impactedVerticalServiceInstances.put(vsi.getVsiId(), new VsAction(
 						vsi.getVsiId(),
 						VsActionType.TERMINATE,
@@ -139,7 +146,7 @@ public class BasicArbitrator extends AbstractArbitrator {
 				existingNsiIds = new HashMap<>();
 				for(String nestedNsdId : nestedNsdIds) {
 					//Check existing NSI per id, tenant, IL, DF
-					List<NetworkSliceInstance> nsis = vsRecordService.getUsableSlices(tenantId, nestedNsdId, nsdVersion, deploymentFlavourID, instantiationLevelId);
+					List<NetworkSliceInstance> nsis = getUsableSlices(tenantId, nestedNsdId, nsdVersion, deploymentFlavourID, instantiationLevelId);
 
 					for (NetworkSliceInstance nsi : nsis) {
 						existingNsiIds.put(nsi.getNsiId(), false);
@@ -207,7 +214,8 @@ public class BasicArbitrator extends AbstractArbitrator {
 		log.debug("The request is for tenant " + tenantId + " and for NSD " + nsInitInfo.getNfvNsdId() + " with DF " + nsInitInfo.getDeploymentFlavourId() + " and instantiation level " + nsInitInfo.getInstantiationLevelId());
 		//Retrieving NSI for the current NS
 		try {
-			NetworkSliceInstance nsi = vsRecordService.getNsInstance(nsiId);
+			//NetworkSliceInstance nsi = vsRecordService.getNsInstance(nsiId);
+			NetworkSliceInstance nsi = readNetworkSliceInstanceInformation(nsiId, tenantId);
 
 			//Compute resource usage for nsi
 			VirtualResourceUsage currentNsRes = virtualResourceCalculatorService.computeVirtualResourceUsage(nsi, true);
@@ -253,7 +261,50 @@ public class BasicArbitrator extends AbstractArbitrator {
 
 	}
 
+	
+	private NetworkSliceInstance readNetworkSliceInstanceInformation (String nsiId, String tenantId) 
+    		throws FailedOperationException, NotExistingEntityException{
+    	log.debug("Interacting with NSMF service to get information about network slice with ID " + nsiId);
+    	Map<String, String> parameters = new HashMap<String, String>();
+    	parameters.put("NSI_ID", nsiId);
+    	Filter filter = new Filter(parameters);
+    	GeneralizedQueryRequest request = new GeneralizedQueryRequest(filter, new ArrayList<String>());
+    	try {
+    		List<NetworkSliceInstance> nsis = nsmfLcmProvider.queryNetworkSliceInstance(request, tenantId);
+    		if (nsis.isEmpty()) {
+    			log.error("Network Slice " + nsiId + " not found in NSMF service");
+    			throw new NotExistingEntityException("Network Slice " + nsiId + " not found in NSMF service");
+    		}
+    		return nsis.get(0);
+    	} catch (Exception e) {
+			log.error("Error while getting network slice instance " + nsiId + ": " + e.getMessage());
+			throw new FailedOperationException("Error while getting network slice instance " + nsiId + ": " + e.getMessage());
+		}
+    }
 
+	private List<NetworkSliceInstance> getUsableSlices(String tenantId, String nestedNsdId, 
+			String nsdVersion, String deploymentFlavourID, String instantiationLevelId) {
+		//TODO: find a better way to query this. Maybe with ad hoc filter supported on NSMF side.
+		List<NetworkSliceInstance> target = new ArrayList<NetworkSliceInstance>();
+		log.debug("Interacting with NSMF service to get information about all network slices");
+    	GeneralizedQueryRequest request = new GeneralizedQueryRequest(new Filter(new HashMap<String, String>()), 
+    			new ArrayList<String>());
+    	try {
+    		List<NetworkSliceInstance> nsis = nsmfLcmProvider.queryNetworkSliceInstance(request, tenantId);
+    		for (NetworkSliceInstance nsi : nsis) {
+    			if ((nsi.getNsdId().equals(nestedNsdId)) &&
+    					(nsi.getNsdVersion().equals(nsdVersion)) &&
+    					(nsi.getDfId().equals(deploymentFlavourID)) &&
+    					(nsi.getInstantiationLevelId().contentEquals(instantiationLevelId))) {
+    				log.debug("Found usable network slice " + nsi.getNsiId());
+    				target.add(nsi);
+    			}
+    		}
+    	} catch (Exception e) {
+			log.debug("Error while getting network slice instances. Returning empty array");
+		}
+    	return target;
+	}
 
 }
 

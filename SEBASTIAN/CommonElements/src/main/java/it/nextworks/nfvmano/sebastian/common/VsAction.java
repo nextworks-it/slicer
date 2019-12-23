@@ -16,7 +16,7 @@
 
 package it.nextworks.nfvmano.sebastian.common;
 
-import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
+import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
 
 import javax.persistence.Embeddable;
 

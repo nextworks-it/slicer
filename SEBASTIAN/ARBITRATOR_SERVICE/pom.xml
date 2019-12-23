@@ -84,61 +84,77 @@
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
 
+		<dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>NSFM_INTERFACES</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+
+        </dependency>
+
+<!--
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>VsBlueprintsCatalogue</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
+-->
 
+<!--
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>VsBlueprintsIM</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
+-->
 
+<!--
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>VsBlueprintsCatalogueInterfaces</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
+-->
 
+<!--
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>NfvoCatalogueService</artifactId>
             <version>0.0.2-SNAPSHOT</version>
-
         </dependency>
+-->
+
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>CommonElements</artifactId>
             <version>0.0.2-SNAPSHOT</version>
-
         </dependency>
+
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>SebastianMgmtCatalogue</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
+
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>TranslatorService</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-
+            <version>0.0.2-EVE-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>RecordService</artifactId>
             <version>0.0.2-SNAPSHOT</version>
-
         </dependency>
 
+<!--
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>RecordServiceIM</artifactId>
             <version>0.0.2-SNAPSHOT</version>
-
         </dependency>
+-->
+
     </dependencies>
 
 

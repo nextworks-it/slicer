@@ -51,12 +51,12 @@
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>NfvManoLibsIfa13NsLcmIf</artifactId>
             <version>0.0.2-SNAPSHOT</version>
-
         </dependency>
+
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>TranslatorService</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <artifactId>TranslatorServiceInterface</artifactId>
+            <version>0.0.2-EVE-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

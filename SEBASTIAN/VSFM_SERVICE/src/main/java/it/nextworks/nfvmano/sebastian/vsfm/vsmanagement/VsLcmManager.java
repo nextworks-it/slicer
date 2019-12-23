@@ -23,10 +23,22 @@ import java.util.Map;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
-import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
-import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
+import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiIdRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.engine.*;
+import it.nextworks.nfvmano.sebastian.vsfm.VsLcmService;
+import it.nextworks.nfvmano.sebastian.vsfm.VsmfUtils;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.VsmfEngineMessage;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.VsmfEngineMessageType;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.InstantiateVsiRequestMessage;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.ModifyVsiRequestMessage;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.NotifyNsiStatusChange;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.NotifyResourceGranted;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.TerminateVsiRequestMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +56,8 @@ import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
-import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
-import it.nextworks.nfvmano.sebastian.translator.TranslatorService;
+import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
+import it.nextworks.nfvmano.catalogue.translator.TranslatorService;
 
 /**
  * Entity in charge of managing the lifecycle
@@ -58,15 +70,17 @@ public class VsLcmManager {
 
     private static final Logger log = LoggerFactory.getLogger(VsLcmManager.class);
     private String vsiId;
+    private String vsiName;
     private VsRecordService vsRecordService;
     private TranslatorService translatorService;
     private ArbitratorService arbitratorService;
     private VsDescriptorCatalogueService vsDescriptorCatalogueService;
     private AdminService adminService;
-    private NfvoCatalogueService nfvoCatalogueService;
-    private VsLocalEngine vsLocalEngine;
+    private VsLcmService vsLcmService;
     private VirtualResourceCalculatorService virtualResourceCalculatorService;
     private VerticalServiceStatus internalStatus;
+    private NsmfLcmProviderInterface nsmfLcmProvider;
+    private VsmfUtils vsmfUtils;
 
     private List<String> nestedVsi = new ArrayList<>();
 
@@ -90,27 +104,34 @@ public class VsLcmManager {
      * @param translatorService      translator service
      * @param arbitratorService      arbitrator service
      * @param adminService           admin service
-     * @param nfvoCatalogueService            NFVO service
-     * @param vsLocalEngine                 engine
+     * @param nfvoCatalogueService            NFVO catalogue service
+     * @param vsLcmService                 engine
+     * @param virtualResourceCalculatorService virtual resource calculator service
+     * @param nsmfLcmProvider
+     * @param vsmfUtils
      */
     public VsLcmManager(String vsiId,
+    		            String vsiName,
                         VsRecordService vsRecordService,
                         VsDescriptorCatalogueService vsDescriptorCatalogueService,
                         TranslatorService translatorService,
                         ArbitratorService arbitratorService,
                         AdminService adminService,
-                        NfvoCatalogueService nfvoCatalogueService,
-                        VsLocalEngine vsLocalEngine, VirtualResourceCalculatorService virtualResourceCalculatorService) {
+                        VsLcmService vsLcmService, 
+                        VirtualResourceCalculatorService virtualResourceCalculatorService,
+                        NsmfLcmProviderInterface nsmfLcmProvider,
+                        VsmfUtils vsmfUtils) {
         this.vsiId = vsiId;
         this.vsRecordService = vsRecordService;
         this.vsDescriptorCatalogueService = vsDescriptorCatalogueService;
         this.translatorService = translatorService;
         this.arbitratorService = arbitratorService;
         this.adminService = adminService;
-        this.nfvoCatalogueService = nfvoCatalogueService;
         this.internalStatus = VerticalServiceStatus.INSTANTIATING;
-        this.vsLocalEngine = vsLocalEngine;
+        this.vsLcmService = vsLcmService;
         this.virtualResourceCalculatorService=virtualResourceCalculatorService;
+        this.nsmfLcmProvider = nsmfLcmProvider;
+        this.vsmfUtils = vsmfUtils;
     }
 
     /**
@@ -123,8 +144,8 @@ public class VsLcmManager {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            EngineMessage em = mapper.readValue(message, EngineMessage.class);
-            EngineMessageType type = em.getType();
+            VsmfEngineMessage em = mapper.readValue(message, VsmfEngineMessage.class);
+            VsmfEngineMessageType type = em.getType();
 
             switch (type) {
                 case INSTANTIATE_VSI_REQUEST: {
@@ -190,14 +211,15 @@ public class VsLcmManager {
         }
         String vsdId = msg.getRequest().getVsdId();
         log.debug("Instanting Vertical Service " + vsiId + " with VSD " + vsdId);
-        VsDescriptor vsd = vsDescriptorCatalogueService.findByVsDescriptorId(vsdId).get();
-        this.vsDescriptors.put(vsdId, vsd);
-        this.tenantId = msg.getRequest().getTenantId();
-
-        List<String> vsdIds = new ArrayList<>();
-        vsdIds.add(vsdId);
         try {
-            Map<String, NfvNsInstantiationInfo> nsInfo = translatorService.translateVsd(vsdIds);
+        	VsDescriptor vsd = vsDescriptorCatalogueService.getVsd(vsdId);
+        	this.vsDescriptors.put(vsdId, vsd);
+        	this.tenantId = msg.getRequest().getTenantId();
+
+        	List<String> vsdIds = new ArrayList<>();
+        	vsdIds.add(vsdId);
+        
+        	Map<String, NfvNsInstantiationInfo> nsInfo = translatorService.translateVsd(vsdIds);
             log.debug("The VSD has been translated in the required network slice characteristics.");
 
             List<ArbitratorRequest> arbitratorRequests = new ArrayList<>();
@@ -209,7 +231,7 @@ public class VsLcmManager {
                 if(arbitratorResponse.getImpactedVerticalServiceInstances().isEmpty()) {
                     manageVsError("Error while instantiating VS " + vsiId + ": no solution returned from the arbitrator");
 
-                }else{
+                } else {
                     setInternalStatus(VerticalServiceStatus.WAITING_FOR_RESOURCES);
                     vsRecordService.setVsStatus(vsiId, VerticalServiceStatus.WAITING_FOR_RESOURCES);
                     // store interesting info
@@ -218,7 +240,7 @@ public class VsLcmManager {
                     storedInstantiateVsiRequestMessage = msg;
 
                     //invoke engine for VsGroupCoordinator.
-                    vsLocalEngine.requestVsiCoordination(vsiId, arbitratorResponse.getImpactedVerticalServiceInstances());
+                    vsLcmService.requestVsiCoordination(vsiId, arbitratorResponse.getImpactedVerticalServiceInstances());
 
                 }
                 return;
@@ -236,8 +258,13 @@ public class VsLcmManager {
                 else
                     nsSubnetInstanceIds = new ArrayList<>(arbitratorResponse.getExistingSliceSubnets().keySet());
 
-                String nsiId = vsRecordService.createNetworkSliceForVsi(vsiId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(), nsiInfo.getDeploymentFlavourId(),
-                        nsiInfo.getInstantiationLevelId(), nsSubnetInstanceIds, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
+                CreateNsiIdRequest request = new CreateNsiIdRequest(nsiInfo.getNstId(), 
+                		"NS - " + vsiName, 
+                		"Network slice for VS " + vsiName);
+                String nsiId = nsmfLcmProvider.createNetworkSliceIdentifier(request, tenantId);
+                
+//                String nsiId = vsRecordService.createNetworkSliceForVsi(vsiId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(), nsiInfo.getDeploymentFlavourId(),
+//                        nsiInfo.getInstantiationLevelId(), nsSubnetInstanceIds, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
                 log.debug("Network Slice ID " + nsiId + " created for VSI " + vsiId);
                 setNetworkSliceId(nsiId);
                 vsRecordService.setNsiInVsi(vsiId, nsiId);
@@ -251,9 +278,20 @@ public class VsLcmManager {
 
                 }
                 log.debug("Record updated with info about NSI and VSI association.");
-                vsLocalEngine.initNewNsLcmManager(networkSliceId, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
-                vsLocalEngine.instantiateNs(nsiId, tenantId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(),
-                        nsiInfo.getDeploymentFlavourId(), nsiInfo.getInstantiationLevelId(), vsiId, nsSubnetInstanceIds);
+                InstantiateNsiRequest instantiateNsiReq = new InstantiateNsiRequest(nsiId, 
+                		nsiInfo.getNstId(),
+                		nsiInfo.getDeploymentFlavourId(),
+                		nsiInfo.getInstantiationLevelId(),
+                		nsSubnetInstanceIds,
+                		msg.getRequest().getUserData(),
+                		msg.getRequest().getLocationConstraints(),
+                		msg.getRanEndpointId());
+                log.debug("Sending request to instantiate network slice ");
+                nsmfLcmProvider.instantiateNetworkSlice(instantiateNsiReq, tenantId);
+                
+                //vsLocalEngine.initNewNsLcmManager(networkSliceId, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
+                //vsLocalEngine.instantiateNs(nsiId, tenantId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(),
+                //         nsiInfo.getDeploymentFlavourId(), nsiInfo.getInstantiationLevelId(), vsiId, nsSubnetInstanceIds);
             } else {
                 //slice to be shared, not supported at the moment
                 manageVsError("Error while instantiating VS " + vsiId + ": solution with slice sharing returned from the arbitrator. Not supported at the moment.");
@@ -291,8 +329,13 @@ public class VsLcmManager {
                 else
                     nsSubnetInstanceIds = new ArrayList<>(storedResponse.getExistingSliceSubnets().keySet());
 
-                String nsiId = vsRecordService.createNetworkSliceForVsi(vsiId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(), nsiInfo.getDeploymentFlavourId(),
-                        nsiInfo.getInstantiationLevelId(), nsSubnetInstanceIds, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
+                CreateNsiIdRequest request = new CreateNsiIdRequest(nsiInfo.getNstId(), 
+                		"NS - " + vsiName, 
+                		"Network slice for VS " + vsiName);
+                String nsiId = nsmfLcmProvider.createNetworkSliceIdentifier(request, tenantId);
+                
+                //String nsiId = vsRecordService.createNetworkSliceForVsi(vsiId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(), nsiInfo.getDeploymentFlavourId(),
+                //        nsiInfo.getInstantiationLevelId(), nsSubnetInstanceIds, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
                 log.debug("Network Slice ID " + nsiId + " created for VSI " + vsiId);
                 setNetworkSliceId(nsiId);
                 vsRecordService.setNsiInVsi(vsiId, nsiId);
@@ -306,9 +349,23 @@ public class VsLcmManager {
 
                 }
                 log.debug("Record updated with info about NSI and VSI association.");
-                vsLocalEngine.initNewNsLcmManager(networkSliceId, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
-                vsLocalEngine.instantiateNs(nsiId, tenantId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(),
-                        nsiInfo.getDeploymentFlavourId(), nsiInfo.getInstantiationLevelId(), vsiId, nsSubnetInstanceIds);
+                
+                InstantiateNsiRequest instantiateNsiReq = new InstantiateNsiRequest(nsiId, 
+                		nsiInfo.getNstId(),
+                		nsiInfo.getDeploymentFlavourId(),
+                		nsiInfo.getInstantiationLevelId(),
+                		nsSubnetInstanceIds,
+                		msg.getRequest().getUserData(),
+                		msg.getRequest().getLocationConstraints(),
+                		msg.getRanEndpointId());
+                log.debug("Sending request to instantiate network slice ");
+                nsmfLcmProvider.instantiateNetworkSlice(instantiateNsiReq, tenantId);
+                
+                //vsLocalEngine.initNewNsLcmManager(networkSliceId, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
+                //vsLocalEngine.instantiateNs(nsiId, tenantId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(),
+                //        nsiInfo.getDeploymentFlavourId(), nsiInfo.getInstantiationLevelId(), vsiId, nsSubnetInstanceIds);
+                
+                
                 // put all stored object @null
                 storedInstantiateVsiRequestMessage = null;
                 storedNfvNsInstantiationInfo = null;
@@ -334,22 +391,27 @@ public class VsLcmManager {
         this.internalStatus = VerticalServiceStatus.UNDER_MODIFICATION;
 
         String vsdId = msg.getRequest().getVsdId();
-        VsDescriptor vsd = vsDescriptorCatalogueService.findByVsDescriptorId(vsdId).get();
-
-        List<String> vsdIds = new ArrayList<>();
-        vsdIds.add(vsdId);
+        
         try {
+        	
+        	VsDescriptor vsd = vsDescriptorCatalogueService.getVsd(vsdId);
+            List<String> vsdIds = new ArrayList<>();
+            vsdIds.add(vsdId);
+        	
             //Translate VSDId into NfvNsInstantiationInfo
             Map<String, NfvNsInstantiationInfo> nsInfos = translatorService.translateVsd(vsdIds);
             log.debug("The VSD has been translated in the required network slice characteristics.");
             // assuming one
             NfvNsInstantiationInfo nsInfo = nsInfos.get(vsdId);
+            String newNstIt = nsInfo.getNstId();
             String newDfId = nsInfo.getDeploymentFlavourId();
             String newInstantiationLevelId = nsInfo.getInstantiationLevelId();
             String newNsdId = nsInfo.getNfvNsdId();
 
             // retrieve info about current NSI
-            NetworkSliceInstance nsi = vsRecordService.getNsInstance(networkSliceId);
+            //NetworkSliceInstance nsi = vsRecordService.getNsInstance(networkSliceId);
+            
+            NetworkSliceInstance nsi = vsmfUtils.readNetworkSliceInstanceInformation(networkSliceId, tenantId);
             String currentDfId = nsi.getDfId();
             String currentInstantiationLevelId = nsi.getInstantiationLevelId();
             String currentNsdId = nsi.getNsdId();
@@ -380,7 +442,14 @@ public class VsLcmManager {
                         return;
                     }
                     //TODO Addititional controls on ArbitratorResponse might be required
-                    vsLocalEngine.modifyNs(nsi.getNsiId(), tenantId, currentNsdId, nsInfo.getNsdVersion(), newDfId, newInstantiationLevelId, vsiId);
+                    
+                    ModifyNsiRequest modifyNsiRequest = new ModifyNsiRequest(nsi.getNsiId(), 
+                    		newNstIt, 
+                    		newDfId, 
+                    		newInstantiationLevelId, 
+                    		currentNsdId);
+                    nsmfLcmProvider.modifyNetworkSlice(modifyNsiRequest, tenantId);
+                    //vsLocalEngine.modifyNs(nsi.getNsiId(), tenantId, currentNsdId, nsInfo.getNsdVersion(), newDfId, newInstantiationLevelId, vsiId);
                 }
             }else{
                 // Case 3
@@ -412,7 +481,8 @@ public class VsLcmManager {
                 nsStatusChangeOperations(VerticalServiceStatus.TERMINATED);
             } else {
                 log.debug("Network slice " + networkSliceId + " must be terminated.");
-                vsLocalEngine.terminateNs(networkSliceId);
+                nsmfLcmProvider.terminateNetworkSliceInstance(new TerminateNsiRequest(networkSliceId), tenantId);
+                //vsLocalEngine.terminateNs(networkSliceId);
             }
         } catch (Exception e) {
             manageVsError("Error while terminating VS " + vsiId + ": " + e.getMessage());
@@ -429,7 +499,8 @@ public class VsLcmManager {
 
     private void nsStatusChangeOperations(VerticalServiceStatus status) throws NotExistingEntityException, Exception {
 
-        NetworkSliceInstance nsi = vsRecordService.getNsInstance(networkSliceId);
+    	NetworkSliceInstance nsi = vsmfUtils.readNetworkSliceInstanceInformation(networkSliceId, tenantId);
+        //NetworkSliceInstance nsi = vsRecordService.getNsInstance(networkSliceId);
         VirtualResourceUsage resourceUsage = virtualResourceCalculatorService.computeVirtualResourceUsage( nsi, true);
         if (status == VerticalServiceStatus.INSTANTIATED && internalStatus == VerticalServiceStatus.INSTANTIATING) {
             adminService.addUsedResourcesInTenant(tenantId, resourceUsage);
@@ -437,13 +508,18 @@ public class VsLcmManager {
         } else if (status == VerticalServiceStatus.TERMINATED && internalStatus == VerticalServiceStatus.TERMINATING) {
             adminService.removeUsedResourcesInTenant(tenantId, resourceUsage);
             log.debug("Updated resource usage for tenant " + tenantId + ". Termination procedure completed. - Notifying the engine");
-            vsLocalEngine.notifyVsiTermination(vsiId);
+            //vsLocalEngine.notifyVsiTermination(vsiId);
+            vsLcmService.notifyVsiTermination(vsiId);
 
         } else if (status == VerticalServiceStatus.MODIFIED && internalStatus == VerticalServiceStatus.UNDER_MODIFICATION) {
             VirtualResourceUsage oldResourceUsage = virtualResourceCalculatorService.computeVirtualResourceUsage( nsi, false);
             adminService.removeUsedResourcesInTenant(tenantId, oldResourceUsage);
             adminService.addUsedResourcesInTenant(tenantId, resourceUsage);
-            vsRecordService.resetOldNsInstantiationLevel(nsi.getNsiId());
+            
+            //TODO: check with Pietro what this is... 
+            //Shall we put this into the NSMF? Commented at the moment
+            //vsRecordService.resetOldNsInstantiationLevel(nsi.getNsiId());
+            
             internalStatus = VerticalServiceStatus.INSTANTIATED;
             log.debug("VS Modification procedure completed.");
 
@@ -460,24 +536,24 @@ public class VsLcmManager {
             manageVsError("Received NSI status change notification in wrong status. Skipping message.");
             return;
         }
-        NsStatusChange nsStatusChange = msg.getStatusChange();
+        NetworkSliceStatusChange nsStatusChange = msg.getStatusChange();
         try {
             switch (nsStatusChange) {
-                case NS_CREATED: {
+                case NSI_CREATED: {
 
                     nsStatusChangeOperations(VerticalServiceStatus.INSTANTIATED);
                     break;
                 }
-                case NS_MODIFIED: {
+                case NSI_MODIFIED: {
                     nsStatusChangeOperations(VerticalServiceStatus.MODIFIED);
                     break;
                 }
-                case NS_TERMINATED: {
+                case NSI_TERMINATED: {
                     nsStatusChangeOperations(VerticalServiceStatus.TERMINATED);
                     break;
                 }
 
-                case NS_FAILED: {
+                case NSI_FAILED: {
                     manageVsError("Received notification about network slice " + msg.getNsiId() + " failure");
                     break;
                 }

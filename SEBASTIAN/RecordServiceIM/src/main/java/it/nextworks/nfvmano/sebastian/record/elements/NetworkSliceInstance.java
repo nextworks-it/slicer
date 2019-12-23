@@ -24,7 +24,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import it.nextworks.nfvmano.sebastian.translator.NfvNsInstantiationInfo;
+import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -45,6 +45,8 @@ public class NetworkSliceInstance {
 	private String description;
 	
 	private String nsiId;	//ID of the network slice
+	
+	private String nstId;	//ID of the network slice template
 	
 	private String nsdId;	//ID of the descriptor of the NFV network service that implements the network slice
 	
@@ -80,6 +82,7 @@ public class NetworkSliceInstance {
 
 	/**
 	 * @param nsiId ID of the network slice
+	 * @param nstId ID of the network slice template
 	 * @param nsdId ID of the descriptor of the NFV network service that implements the network slice
 	 * @param nsdVersion Version of the descriptor of the NFV network service that implements the network slice
 	 * @param dfId ID of the deployment flavour in the NFV network service
@@ -88,9 +91,10 @@ public class NetworkSliceInstance {
 	 * @param networkSliceSubnetInstances in case of composite network slice, the ID of its network slice subnets
 	 * @param tenantId owner of the slice
 	 */
-	public NetworkSliceInstance(String nsiId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String nfvNsId,
+	public NetworkSliceInstance(String nsiId, String nstId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String nfvNsId,
 			List<String> networkSliceSubnetInstances, String tenantId, String name, String description, boolean soManaged) {
 		this.nsiId = nsiId;
+		this.nstId = nstId;
 		this.nsdId = nsdId;
 		this.nsdVersion = nsdVersion;
 		this.dfId = dfId;
@@ -110,12 +114,14 @@ public class NetworkSliceInstance {
 				nsdId,
 				nsdVersion,
 				dfId,
-				instantiationLevelId); 
+				instantiationLevelId,
+				new ArrayList<String>()); 
 		else return new NfvNsInstantiationInfo(
 				nsdId,
 				nsdVersion,
 				dfId,
-				oldInstantiationLevelId);
+				oldInstantiationLevelId,
+				new ArrayList<String>());
 	}
 	
 	
@@ -153,6 +159,20 @@ public class NetworkSliceInstance {
 	 */
 	public Long getId() {
 		return id;
+	}
+	
+	
+
+	public void setDfId(String dfId) {
+		this.dfId = dfId;
+	}
+
+	public void setNetworkSliceSubnetInstances(List<String> networkSliceSubnetInstances) {
+		this.networkSliceSubnetInstances = networkSliceSubnetInstances;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
 	}
 
 	/**
@@ -273,6 +293,12 @@ public class NetworkSliceInstance {
 		this.nfvNsUrl = nfvNsUrl;
 	}
 	
+	
+	
+	public String getNstId() {
+		return nstId;
+	}
+
 	@JsonIgnore
 	public void updateInstantiationLevelAfterScaling(String newInstantiationLevel) {
 		oldInstantiationLevelId = this.instantiationLevelId;

@@ -19,9 +19,10 @@ import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.sebastian.arbitrator.interfaces.ArbitratorInterface;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
+import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
-import it.nextworks.nfvmano.sebastian.translator.TranslatorService;
+import it.nextworks.nfvmano.catalogue.translator.TranslatorService;
 
 /**
  * This is the abstract class for the arbitrator.
@@ -44,20 +45,14 @@ public abstract class AbstractArbitrator implements ArbitratorInterface {
 	
 	NfvoCatalogueService nfvoCatalogueService;
 	
+	NsmfLcmProviderInterface nsmfLcmProvider;
+	
 	ArbitratorType type;
 
 	
-	
-
-	/**
-	 * @param adminService
-	 * @param vsRecordService
-	 * @param translatorService
-	 * @param nfvoCatalogueService
-	 * @param type
-	 */
 	public AbstractArbitrator(AdminService adminService, VsRecordService vsRecordService, VsDescriptorCatalogueService vsDescriptorCatalogueService,
-							  TranslatorService translatorService, NfvoCatalogueService nfvoCatalogueService, ArbitratorType type, VirtualResourceCalculatorService virtualResourceCalculatorService) {
+							  TranslatorService translatorService, NfvoCatalogueService nfvoCatalogueService, ArbitratorType type, 
+							  VirtualResourceCalculatorService virtualResourceCalculatorService, NsmfLcmProviderInterface nsmfLcmProvider) {
 		this.adminService = adminService;
 		this.vsRecordService = vsRecordService;
 		this.vsDescriptorCatalogueService=vsDescriptorCatalogueService;
@@ -65,7 +60,40 @@ public abstract class AbstractArbitrator implements ArbitratorInterface {
 		this.nfvoCatalogueService = nfvoCatalogueService;
 		this.type = type;
 		this.virtualResourceCalculatorService=virtualResourceCalculatorService;
+		this.nsmfLcmProvider = nsmfLcmProvider;
 	}
+
+	
+	
+	public VsDescriptorCatalogueService getVsDescriptorCatalogueService() {
+		return vsDescriptorCatalogueService;
+	}
+
+
+
+	public void setNsmfLcmProvider(NsmfLcmProviderInterface nsmfLcmProvider) {
+		this.nsmfLcmProvider = nsmfLcmProvider;
+	}
+
+
+
+	public VirtualResourceCalculatorService getVirtualResourceCalculatorService() {
+		return virtualResourceCalculatorService;
+	}
+
+
+
+	public NfvoCatalogueService getNfvoCatalogueService() {
+		return nfvoCatalogueService;
+	}
+
+
+
+	public NsmfLcmProviderInterface getNsmfLcmProvider() {
+		return nsmfLcmProvider;
+	}
+
+
 
 	/**
 	 * @return the adminService

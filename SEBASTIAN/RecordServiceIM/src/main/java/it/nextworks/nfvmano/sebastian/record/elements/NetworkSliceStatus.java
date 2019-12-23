@@ -17,6 +17,7 @@ package it.nextworks.nfvmano.sebastian.record.elements;
 
 public enum NetworkSliceStatus {
 
+	NOT_INSTANTIATED,
 	INSTANTIATING,
 	INSTANTIATED,
 	UNDER_MODIFICATION,
