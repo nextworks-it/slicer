@@ -78,7 +78,7 @@ public class InstantiateNsiRequest implements InterfaceMessage {
 	}
 
 
-
+	public InstantiateNsiRequest(){}
 	public String getNsiId() {
 		return nsiId;
 	}

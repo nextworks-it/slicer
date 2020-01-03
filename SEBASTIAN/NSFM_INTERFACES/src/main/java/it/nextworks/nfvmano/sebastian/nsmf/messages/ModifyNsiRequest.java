@@ -55,6 +55,7 @@ public class ModifyNsiRequest implements InterfaceMessage {
 	}
 
 
+	public ModifyNsiRequest(){}
 
 	public String getNsiId() {
 		return nsiId;

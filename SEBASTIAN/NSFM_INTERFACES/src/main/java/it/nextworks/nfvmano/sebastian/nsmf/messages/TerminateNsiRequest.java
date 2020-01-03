@@ -34,7 +34,7 @@ public class TerminateNsiRequest implements InterfaceMessage {
 		this.nsiId = nsiId;
 	}
 
-
+	public TerminateNsiRequest(){}
 
 	public String getNsiId() {
 		return nsiId;

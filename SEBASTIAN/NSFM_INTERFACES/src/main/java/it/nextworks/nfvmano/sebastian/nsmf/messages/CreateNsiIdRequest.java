@@ -37,6 +37,7 @@ public class CreateNsiIdRequest implements InterfaceMessage {
 		this.description = description;
 	}
 
+	public CreateNsiIdRequest(){ }
 	public String getNstId() {
 		return nstId;
 	}
