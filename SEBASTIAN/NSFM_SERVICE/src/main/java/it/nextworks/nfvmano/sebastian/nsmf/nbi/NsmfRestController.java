@@ -36,7 +36,7 @@ import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 @RequestMapping("/vs/basic/nslcm")
 public class NsmfRestController {
 
-	private static final Logger log = LoggerFactory.getLogger(NsLcmService.class);
+	private static final Logger log = LoggerFactory.getLogger(NsmfRestController.class);
 	
 	@Autowired
 	private NsLcmService nsLcmService;
@@ -77,7 +77,7 @@ public class NsmfRestController {
 	}
 	
 	@RequestMapping(value = "/ns/{nsiId}", method = RequestMethod.GET)
-	public ResponseEntity<?> getVsInstance(@PathVariable String nsiId, Authentication auth) {
+	public ResponseEntity<?> getNsInstance(@PathVariable String nsiId, Authentication auth) {
 		log.debug("Received query for network slice instance with ID " + nsiId);
 		try {
 			String tenantId = getUserFromAuth(auth);
@@ -101,8 +101,8 @@ public class NsmfRestController {
 	}
 	
 	@RequestMapping(value = "/ns", method = RequestMethod.GET)
-	public ResponseEntity<?> getVsInstance(Authentication auth) {
-		log.debug("Received request to create a new network slice instance ID.");
+	public ResponseEntity<?> getNsInstance(Authentication auth) {
+		log.debug("Received query for all network slice instances.");
 		try {
 			String tenantId = getUserFromAuth(auth);
 			Map<String, String> parameters = new HashMap<String, String>();
@@ -143,7 +143,7 @@ public class NsmfRestController {
 	
 	@RequestMapping(value = "/ns/{nsiId}/action/modify", method = RequestMethod.PUT)
 	public ResponseEntity<?> modifyNsi(@PathVariable String nsiId, @RequestBody ModifyNsiRequest request, Authentication auth) {
-		log.debug("Received request to instantiate network slice " + nsiId);
+		log.debug("Received request to modify network slice " + nsiId);
 		try {
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.modifyNetworkSlice(request, tenantId);

@@ -199,6 +199,7 @@ public class NsLcmManager {
 			
 			log.debug("Retrieving NSD");
 			NsdInfo nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0);
+			log.debug("Nsd retrieved");
 			this.nsdInfoId = nsdInfo.getNsdInfoId();
 			
 			this.nsd = nsdInfo.getNsd();
