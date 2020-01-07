@@ -14,10 +14,18 @@
  */
 package it.nextworks.nfvmano.sebastian.vsfm.sbi;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
@@ -42,54 +50,136 @@ import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 public class NsmfRestClient implements NsmfLcmProviderInterface {
 
 	private static final Logger log = LoggerFactory.getLogger(NsmfRestClient.class);
-	
+
 	private RestTemplate restTemplate;
-	
+	private String cookies;
+
 	private String nsmfUrl;
-	
+
 	public NsmfRestClient(String baseUrl) {
 		this.nsmfUrl = baseUrl + "/vs/basic/nslcm";
 		this.restTemplate = new RestTemplate();
 	}
-	
-	
+
+	public void setCookies(String cookies){
+		this.cookies=cookies;
+	}//TODO remove ?
+
+	private ResponseEntity<String> performHTTPRequest(Object request, String url, HttpMethod httpMethod, String tenantID) {
+		HttpHeaders header = new HttpHeaders();
+		header.add("Content-Type", "application/json");
+		header.add("Cookie", this.cookies);//TODO remove ?
+		HttpEntity<?> httpEntity = new HttpEntity<>(request, header);
+
+		try {
+			log.info("URL performing the request to: "+url);
+			ResponseEntity<String> httpResponse =
+					restTemplate.exchange(url, httpMethod, httpEntity, String.class);
+			HttpStatus code = httpResponse.getStatusCode();
+			log.info("Response code: " + httpResponse.getStatusCode().toString());
+			return httpResponse;
+		} catch (RestClientException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	private String manageHTTPResponse(ResponseEntity<?> httpResponse, String errMsg, String okCodeMsg) {
+		if (httpResponse == null) {
+			log.info(errMsg);
+			return null;
+		}
+
+		if (httpResponse.getStatusCode().equals(HttpStatus.OK)) log.info(okCodeMsg);
+		else log.info(errMsg);
+
+		log.info("Response code: " + httpResponse.getStatusCode().toString());
+
+		if(httpResponse.getBody()==null) return null;
+
+		log.info(("Body response: "+httpResponse.getBody().toString()));
+		return httpResponse.getBody().toString();
+
+	}
+
+
 	@Override
 	public String createNetworkSliceIdentifier(CreateNsiIdRequest request, String tenantId)
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
 			MalformattedElementException, NotPermittedOperationException {
-		// TODO Auto-generated method stub
-		return null;
+		log.info("Sending request to create network Slice Identifier");
+		String url = nsmfUrl + "/ns";
+		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.POST, tenantId);
+		return manageHTTPResponse(httpResponse, "Error while creating network slice identifier", "Network slice identifier correctly created");
 	}
+
 
 	@Override
 	public void instantiateNetworkSlice(InstantiateNsiRequest request, String tenantId)
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
 			MalformattedElementException, NotPermittedOperationException {
-		// TODO Auto-generated method stub
+		log.info("Sending request to instantiate network Slice");
 
+		String url = nsmfUrl + "/ns/"+request.getNsiId()+"/action/instantiate";
+		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.PUT, tenantId);
+		String bodyResponse = manageHTTPResponse(httpResponse, "Error while instantiating network slice", "Network slice instantiation correctly performed");
 	}
 
 	@Override
 	public void modifyNetworkSlice(ModifyNsiRequest request, String tenantId)
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
 			MalformattedElementException, NotPermittedOperationException {
-		// TODO Auto-generated method stub
-
+		log.info("Sending request to modify network slice");
+		String url = nsmfUrl + "/ns/"+request.getNsiId()+"/action/modify";
+		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.PUT, tenantId);
+		String bodyResponse = manageHTTPResponse(httpResponse, "Error while modifying network slice", "Network slice modification correctly performed");
 	}
 
 	@Override
 	public void terminateNetworkSliceInstance(TerminateNsiRequest request, String tenantId)
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
 			MalformattedElementException, NotPermittedOperationException {
-		// TODO Auto-generated method stub
-
+		log.info("Sending request to terminate network slice");
+		String url = nsmfUrl + "/ns/"+request.getNsiId()+"/action/terminate";
+		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.PUT, tenantId);
+		String bodyResponse = manageHTTPResponse(httpResponse, "Error while terminating network slice", "Network slice termination correctly performed");
 	}
 
 	@Override
 	public List<NetworkSliceInstance> queryNetworkSliceInstance(GeneralizedQueryRequest request, String tenantId)
 			throws MethodNotImplementedException, FailedOperationException, MalformattedElementException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		log.info("Sending request to query network slice instance");
+		String url = nsmfUrl + "/ns/";
+		HttpHeaders header = new HttpHeaders();
+		header.add("Content-Type", "application/json");
+		header.add("Cookie", this.cookies);//TODO remove ?
 
+		HttpEntity<?> httpEntity = new HttpEntity<>(request, header);
+
+		try {
+			//On REST server side, if the nsiID is specified a NetworkSliceInstance is sent, viceversa a List<NetworkSliceInstance> .
+			if(request.getFilter()!=null){
+            	String nsiID= request.getFilter().getParameters().getOrDefault("NSI_ID","");
+				url +=nsiID;
+				ResponseEntity <NetworkSliceInstance> httpResponseAtMostOneNSI =
+					restTemplate.exchange(url, HttpMethod.GET, httpEntity, NetworkSliceInstance.class);
+
+				List<NetworkSliceInstance> nsii=new ArrayList<NetworkSliceInstance>();
+				nsii.add(httpResponseAtMostOneNSI.getBody());
+				log.info("Response code: " + httpResponseAtMostOneNSI.getStatusCode().toString());
+				manageHTTPResponse(httpResponseAtMostOneNSI, "Error querying network slice instance", "Query to network slice instance performed correctly");
+				return nsii;
+        }
+		else{
+				ResponseEntity<List<NetworkSliceInstance>> httpResponse= restTemplate.exchange(url, HttpMethod.GET, httpEntity,  new ParameterizedTypeReference<List<NetworkSliceInstance>>() {});
+				log.info("Response code: " + httpResponse.getStatusCode().toString());
+				manageHTTPResponse(httpResponse, "Error querying network slice instance", "Query to network slice instance performed correctly");
+				return httpResponse.getBody();
+			}
+		}
+		catch (RestClientException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }
