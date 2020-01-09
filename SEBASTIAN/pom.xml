@@ -10,9 +10,6 @@
     <modules>
       
       
-<!--      <module>VS_BLUEPRINTS_IM</module>-->
-<!--      <module>VS_BLUEPRINTS_CATALOGUE_INTERFACES</module>-->
-<!--      <module>VS_BLUEPRINTS_CATALOGUE</module>-->
         <module>ARBITRATOR_INTERFACES</module>
         <module>ARBITRATOR_SERVICE</module>
         <module>CommonElements</module>
