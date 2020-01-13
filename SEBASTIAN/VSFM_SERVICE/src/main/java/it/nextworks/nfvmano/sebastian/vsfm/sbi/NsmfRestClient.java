@@ -61,22 +61,29 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 		this.restTemplate = new RestTemplate();
 	}
 
+	//In order to test the NSMF client
 	public void setCookies(String cookies){
 		this.cookies=cookies;
-	}//TODO remove ?
+	}
 
 	private ResponseEntity<String> performHTTPRequest(Object request, String url, HttpMethod httpMethod, String tenantID) {
 		HttpHeaders header = new HttpHeaders();
 		header.add("Content-Type", "application/json");
-		header.add("Cookie", this.cookies);//TODO remove ?
+		if(this.cookies!=null){
+			//From VSMF_SERVICE to NSMF_SERVICE there is not an authentication mechanism yet.
+			//For this reason, the authentication is externally performed and the cookie returned from login is inserted here
+			//TODO implement authentication system from VSMF_SERVICE to NSMF_SERVICE
+			header.add("Cookie", this.cookies);
+		}
+
 		HttpEntity<?> httpEntity = new HttpEntity<>(request, header);
 
 		try {
-			log.info("URL performing the request to: "+url);
+			//log.info("URL performing the request to: "+url);
 			ResponseEntity<String> httpResponse =
 					restTemplate.exchange(url, httpMethod, httpEntity, String.class);
 			HttpStatus code = httpResponse.getStatusCode();
-			log.info("Response code: " + httpResponse.getStatusCode().toString());
+			//log.info("Response code: " + httpResponse.getStatusCode().toString());
 			return httpResponse;
 		} catch (RestClientException e) {
 			e.printStackTrace();
