@@ -1,0 +1,17 @@
+{	"vnfPackages": [
+        {
+            "name": "vVS",
+            "provider": "SSSA-NXW",
+            "version": "SSSA-NXW",
+            "checksum": "N/A",
+            "vnfPackagePath": "http://localhost/vVS.tar"
+        },
+        {
+            "name": "vVS_algo",
+            "provider": "SSSA-NXW",
+            "version": "SSSA-NXW",
+            "checksum": "N/A",
+            "vnfPackagePath": "http://localhost/vVS_algo.tar"
+        }
+    ]
+}

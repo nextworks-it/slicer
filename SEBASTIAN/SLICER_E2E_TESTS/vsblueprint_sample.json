@@ -1,0 +1,246 @@
+{
+	"vsBlueprint": {
+		"version": "0.1",
+		"name": "VideoStreaming",
+		"description": "Automotive Video Streaming Service",
+		"parameters": [{
+			"parameterId": "MaximumNumberUsers",
+			"parameterName": "MaximumNumberUsers",
+			"parameterType": "number",
+			"parameterDescription": "Maximum number of users that should be supported by the service",
+			"applicabilityField": "automotive"
+		}],
+		"atomicComponents": [{
+				"componentId": "Video_Streamer",
+				"serversNumber": 1,
+				"endPointsIds": [
+					"vVS_data_ext"
+				]
+			},
+			{
+				"componentId": "Video_Streamer_Algorithm",
+				"serversNumber": 1,
+				"endPointsIds": [
+					"vVS_algo_data_ext"
+				]
+			},
+			{
+				"componentId": "EPC",
+				"serversNumber": 1,
+				"endPointsIds": [
+					"pEPC_data"
+				]
+			}
+		],
+		"endPoints": [{
+				"endPointId": "vs_sap_data",
+				"external": true,
+				"management": true,
+				"ranConnection": true
+			},
+			{
+				"endPointId": "vVS_data_ext",
+				"external": true,
+				"management": true,
+				"ranConnection": false
+			},
+			{
+				"endPointId": "vVS_algo_data_ext",
+				"external": true,
+				"management": true,
+				"ranConnection": false
+			},
+			{
+				"endPointId": "pEPC_data",
+				"external": true,
+				"management": true,
+				"ranConnection": false
+			}
+		],
+		"connectivityServices": [{
+			"endPointIds": [
+				"vs_sap_data",
+				"vVS_data_ext",
+				"vVS_algo_data_ext",
+				"pEPC_data"
+			],
+			"external": true
+		}]
+	},
+	"nsds": [
+
+		{
+			"nsdIdentifier": "nsVS",
+			"designer": "SSSA-NXW",
+			"version": "0.1",
+			"nsdName": "VS service @ 5GT",
+			"nsdInvariantId": "VS service @ 5GT\"",
+			"vnfdId": [
+				"vVS",
+				"vVS_Algorithm"
+			],
+			"sapd": [{
+				"cpdId": "vs_sap_data",
+				"description": "SAP for all the nsVS VNFs",
+				"layerProtocol": "IPV4",
+				"cpRole": "ROOT",
+				"addressData": [{
+					"addressType": "IP_ADDRESS",
+					"iPAddressAssignment": false,
+					"floatingIpActivated": true,
+					"iPAddressType": "IPv4",
+					"numberOfIpAddress": 1
+				}],
+				"sapAddressAssignment": false,
+				"nsVirtualLinkDescId": "vs_vl_data"
+			}],
+			"virtualLinkDesc": [{
+				"virtualLinkDescId": "vs_vl_data",
+				"virtualLinkDescProvider": "NXW",
+				"virtuaLinkDescVersion": "0.1",
+				"connectivityType": {
+					"layerProtocol": "IPV4"
+				},
+				"virtualLinkDf": [{
+					"flavourId": "vs_vl_df_data",
+					"qos": {
+						"latency": 0,
+						"packetDelayVariation": 0,
+						"packetLossRatio": 0,
+						"priority": 0
+					},
+					"serviceAvaibilityLevel": "LEVEL_1"
+				}],
+				"description": "Network to connect to the users"
+			}],
+			"nsDf": [{
+				"nsDfId": "nsVS_df",
+				"flavourKey": "nsVS_fk",
+				"vnfProfile": [{
+						"vnfProfileId": "vVS_profile",
+						"vnfdId": "vVS",
+						"flavourId": "vVS_df",
+						"instantiationLevel": "vVS_il",
+						"minNumberOfInstances": 1,
+						"maxNumberOfInstances": 1,
+						"nsVirtualLinkConnectivity": [{
+							"virtualLinkProfileId": "vs_vl_profile_data",
+							"cpdId": [
+								"vVS_data_ext"
+							]
+						}]
+					},
+					{
+						"vnfProfileId": "vVS_algo_profile",
+						"vnfdId": "vVS_Algorithm",
+						"flavourId": "vVS_algo_df",
+						"instantiationLevel": "vVS_algo_il",
+						"minNumberOfInstances": 1,
+						"maxNumberOfInstances": 1,
+						"nsVirtualLinkConnectivity": [{
+							"virtualLinkProfileId": "vs_vl_profile_data",
+							"cpdId": [
+								"vVS_algo_data_ext"
+							]
+						}]
+					}
+				],
+				"virtualLinkProfile": [{
+					"virtualLinkProfileId": "vs_vl_profile_data",
+					"virtualLinkDescId": "vs_vl_data",
+					"flavourId": "vs_vl_df_data",
+					"maxBitrateRequirements": {
+						"root": "1",
+						"leaf": "1"
+					},
+					"minBitrateRequirements": {
+						"root": "1",
+						"leaf": "1"
+					}
+				}],
+				"nsInstantiationLevel": [{
+						"nsLevelId": "nsVS_il_big",
+						"description": "Big instantiation level for the VS",
+						"vnfToLevelMapping": [{
+								"vnfProfileId": "vVS_profile",
+								"numberOfInstances": 1
+							},
+							{
+								"vnfProfileId": "vVS_algo_profile",
+								"numberOfInstances": 1
+							}
+						],
+						"virtualLinkToLevelMapping": [{
+							"virtualLinkProfileId": "vs_vl_profile_data",
+							"bitRateRequirements": {
+								"root": "1",
+								"leaf": "1"
+							}
+						}]
+					},
+					{
+						"nsLevelId": "nsVS_il_small",
+						"description": "Small instantiation level for the VS",
+						"vnfToLevelMapping": [{
+							"vnfProfileId": "vVS_profile",
+							"numberOfInstances": 1
+						}],
+						"virtualLinkToLevelMapping": [{
+							"virtualLinkProfileId": "vl_profile_data",
+							"bitRateRequirements": {
+								"root": "1",
+								"leaf": "1"
+							}
+						}]
+					}
+				],
+				"defaultNsInstantiationLevelId": "nsVS_il_small",
+				"nsProfile": [{
+						"nsProfileId": "nsVS_profile_big",
+						"nsdId": "nsVS",
+						"nsDfId": "nsVS_df",
+						"nsInstantiationLevelId": "nsVS_il_big",
+						"minNumberOfInstances": 1,
+						"maxNumberOfInstances": 1
+					},
+					{
+						"nsProfileId": "nsVS_profile_small",
+						"nsdId": "nsVS",
+						"nsDfId": "nsVS_df",
+						"nsInstantiationLevelId": "nsVS_il_small",
+						"minNumberOfInstances": 1,
+						"maxNumberOfInstances": 1
+					}
+				],
+				"dependencies": []
+			}],
+			"security": {
+				"signature": "VS_NSD_SIGNATURE",
+				"algorithm": "VS_NSD_ALGORITHM",
+				"certificate": "VS_NSD_CERTIFICATE"
+			}
+		}
+
+	],
+	"translationRules": [{
+		"nsdId": "nsVS",
+		"nsdVersion": "0.1",
+		"nsFlavourId": "nsVS_df",
+		"nsInstantiationLevelId": "nsVS_il_small",
+		"input": [{
+			"parameterId": "MaximumNumberUsers",
+			"minValue": 1,
+			"maxValue": 10
+		}]
+	}, {
+		"nsdId": "nsVS",
+		"nsdVersion": "0.1",
+		"nsFlavourId": "nsVS_df",
+		"nsInstantiationLevelId": "nsVS_il_big",
+		"input": [{
+			"parameterId": "MaximumNumberUsers",
+			"minValue": 11,
+			"maxValue": 100
+		}]
+	}]
+}

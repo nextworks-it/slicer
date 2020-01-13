@@ -1,0 +1,13 @@
+{
+    "name":"test_instance",
+    "description":"5gt service instance",
+    "vsdId":"vsdId",
+    "tenantId":"tenantId",
+    "userData": {
+    },
+    "locationConstraints":{
+        "latitude":"43.68",
+        "longitude": "10.35",
+        "range": "200"
+    }
+}
