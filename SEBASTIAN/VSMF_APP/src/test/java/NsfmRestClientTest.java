@@ -43,7 +43,7 @@ public class NsfmRestClientTest {
     private static final Logger log = LoggerFactory.getLogger(NsfmRestClientTest.class);
     private String nsiID;
     private static String cookies;
-    private final String nfvoLcmPolling="10";
+    private final String nfvoLcmPolling="20";
 
     public NsfmRestClientTest(){
         log.info("In case of error in the tests, please consider to check: ");

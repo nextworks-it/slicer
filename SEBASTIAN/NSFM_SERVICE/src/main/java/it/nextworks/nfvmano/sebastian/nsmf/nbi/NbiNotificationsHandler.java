@@ -14,6 +14,8 @@
  */
 package it.nextworks.nfvmano.sebastian.nsmf.nbi;
 
+import it.nextworks.nfvmano.sebastian.admin.AdminService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
@@ -32,7 +34,10 @@ import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNoti
 public class NbiNotificationsHandler implements NsmfLcmConsumerInterface {
 
 	private VsmfRestClient vsmfRestClient;
-	
+
+	@Autowired
+	private AdminService adminService;
+
 	@Override
 	public void notifyNetworkSliceStatusChange(NetworkSliceStatusChangeNotification notification) {
 		vsmfRestClient.notifyNetworkSliceStatusChange(notification);
@@ -44,7 +49,7 @@ public class NbiNotificationsHandler implements NsmfLcmConsumerInterface {
 	}
 
 	public void setNotifDestinationUrl(String notifDestinationUrl) {
-		this.vsmfRestClient = new VsmfRestClient(notifDestinationUrl);
+		this.vsmfRestClient = new VsmfRestClient(notifDestinationUrl,adminService);
 	}
 	
 	

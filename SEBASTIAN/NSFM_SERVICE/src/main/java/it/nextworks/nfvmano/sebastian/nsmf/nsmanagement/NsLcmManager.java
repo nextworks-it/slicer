@@ -351,7 +351,8 @@ public class NsLcmManager {
 
 						nsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
 						log.debug("Sending notification to engine.");
-						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceId, NetworkSliceStatusChange.NSI_CREATED, true));
+
+						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceId, NetworkSliceStatusChange.NSI_CREATED, true,tenantId));
 						break;
 					}
 					case UNDER_MODIFICATION: {
@@ -360,7 +361,7 @@ public class NsLcmManager {
 						//TODO check on requestedInstantiationLevelId
 						nsRecordService.updateNsInstantiationLevelAfterScaling(networkSliceInstanceId, requestedInstantiationLevelId);
 						nsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
-						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceId, NetworkSliceStatusChange.NSI_MODIFIED, true));
+						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceId, NetworkSliceStatusChange.NSI_MODIFIED, true,tenantId));
 						break;
 					}
 
@@ -375,7 +376,7 @@ public class NsLcmManager {
 						log.debug("Removing NSLCM Manager from engine for network slice " + networkSliceInstanceId);
 						nsLcmService.removeNsLcmManager(networkSliceInstanceId);
 						log.debug("Sending notification about network slice termination.");
-						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceId, NetworkSliceStatusChange.NSI_TERMINATED, true));
+						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceId, NetworkSliceStatusChange.NSI_TERMINATED, true,tenantId));
 						break;
 					}
 

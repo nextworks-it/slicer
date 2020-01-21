@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import it.nextworks.nfvmano.sebastian.admin.AdminService;
+import it.nextworks.nfvmano.sebastian.common.Authenticator;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +57,20 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 	private String cookies;
 
 	private String nsmfUrl;
+	private Authenticator authenticator;
 
-	public NsmfRestClient(String baseUrl) {
+
+	public NsmfRestClient(String baseUrl, AdminService adminService) {
 		this.nsmfUrl = baseUrl + "/vs/basic/nslcm";
 		this.restTemplate = new RestTemplate();
+		this.authenticator = new Authenticator(baseUrl, adminService);
+	}
+
+	private void performAuth(String tenantId){
+		authenticator.authenticate(tenantId);
+		if(authenticator.isAuthenticated()){
+			cookies=authenticator.getCookie();
+		}
 	}
 
 	//In order to test the NSMF client
@@ -69,10 +81,8 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 	private ResponseEntity<String> performHTTPRequest(Object request, String url, HttpMethod httpMethod, String tenantID) {
 		HttpHeaders header = new HttpHeaders();
 		header.add("Content-Type", "application/json");
+		performAuth(tenantID);
 		if(this.cookies!=null){
-			//From VSMF_SERVICE to NSMF_SERVICE there is not an authentication mechanism yet.
-			//For this reason, the authentication is externally performed and the cookie returned from login is inserted here
-			//TODO implement authentication system from VSMF_SERVICE to NSMF_SERVICE
 			header.add("Cookie", this.cookies);
 		}
 
@@ -86,18 +96,18 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 			//log.info("Response code: " + httpResponse.getStatusCode().toString());
 			return httpResponse;
 		} catch (RestClientException e) {
-			e.printStackTrace();
+			log.info("Message received: "+e.getMessage());
 			return null;
 		}
 	}
 
-	private String manageHTTPResponse(ResponseEntity<?> httpResponse, String errMsg, String okCodeMsg) {
+	private String manageHTTPResponse(ResponseEntity<?> httpResponse, String errMsg, String okCodeMsg, HttpStatus httpStatusExpected) {
 		if (httpResponse == null) {
 			log.info(errMsg);
 			return null;
 		}
 
-		if (httpResponse.getStatusCode().equals(HttpStatus.OK)) log.info(okCodeMsg);
+		if (httpResponse.getStatusCode().equals(httpStatusExpected)) log.info(okCodeMsg);
 		else log.info(errMsg);
 
 		log.info("Response code: " + httpResponse.getStatusCode().toString());
@@ -114,10 +124,9 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 	public String createNetworkSliceIdentifier(CreateNsiIdRequest request, String tenantId)
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
 			MalformattedElementException, NotPermittedOperationException {
-		log.info("Sending request to create network Slice Identifier");
 		String url = nsmfUrl + "/ns";
 		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.POST, tenantId);
-		return manageHTTPResponse(httpResponse, "Error while creating network slice identifier", "Network slice identifier correctly created");
+		return manageHTTPResponse(httpResponse, "Error while creating network slice identifier", "Network slice identifier correctly created",HttpStatus.CREATED);
 	}
 
 
@@ -126,10 +135,9 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
 			MalformattedElementException, NotPermittedOperationException {
 		log.info("Sending request to instantiate network Slice");
-
 		String url = nsmfUrl + "/ns/"+request.getNsiId()+"/action/instantiate";
 		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.PUT, tenantId);
-		String bodyResponse = manageHTTPResponse(httpResponse, "Error while instantiating network slice", "Network slice instantiation correctly performed");
+		String bodyResponse = manageHTTPResponse(httpResponse, "Error while instantiating network slice", "Network slice instantiation correctly performed",HttpStatus.ACCEPTED);
 	}
 
 	@Override
@@ -139,7 +147,7 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 		log.info("Sending request to modify network slice");
 		String url = nsmfUrl + "/ns/"+request.getNsiId()+"/action/modify";
 		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.PUT, tenantId);
-		String bodyResponse = manageHTTPResponse(httpResponse, "Error while modifying network slice", "Network slice modification correctly performed");
+		String bodyResponse = manageHTTPResponse(httpResponse, "Error while modifying network slice", "Network slice modification correctly performed",HttpStatus.ACCEPTED);
 	}
 
 	@Override
@@ -149,7 +157,7 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 		log.info("Sending request to terminate network slice");
 		String url = nsmfUrl + "/ns/"+request.getNsiId()+"/action/terminate";
 		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.PUT, tenantId);
-		String bodyResponse = manageHTTPResponse(httpResponse, "Error while terminating network slice", "Network slice termination correctly performed");
+		String bodyResponse = manageHTTPResponse(httpResponse, "Error while terminating network slice", "Network slice termination correctly performed",HttpStatus.ACCEPTED);
 	}
 
 	@Override
@@ -159,12 +167,15 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 		String url = nsmfUrl + "/ns/";
 		HttpHeaders header = new HttpHeaders();
 		header.add("Content-Type", "application/json");
-		header.add("Cookie", this.cookies);//TODO remove ?
+		performAuth(tenantId);
+		if(this.cookies!=null){
+			header.add("Cookie", this.cookies);
+		}
 
 		HttpEntity<?> httpEntity = new HttpEntity<>(request, header);
 
 		try {
-			//On REST server side, if the nsiID is specified a NetworkSliceInstance is sent, viceversa a List<NetworkSliceInstance> .
+			//If the nsiID is specified a NetworkSliceInstance is sent, viceversa a List<NetworkSliceInstance> .
 			if(request.getFilter()!=null){
             	String nsiID= request.getFilter().getParameters().getOrDefault("NSI_ID","");
 				url +=nsiID;
@@ -174,13 +185,13 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 				List<NetworkSliceInstance> nsii=new ArrayList<NetworkSliceInstance>();
 				nsii.add(httpResponseAtMostOneNSI.getBody());
 				log.info("Response code: " + httpResponseAtMostOneNSI.getStatusCode().toString());
-				manageHTTPResponse(httpResponseAtMostOneNSI, "Error querying network slice instance", "Query to network slice instance performed correctly");
+				manageHTTPResponse(httpResponseAtMostOneNSI, "Error querying network slice instance", "Query to network slice instance performed correctly",HttpStatus.OK);
 				return nsii;
         }
 		else{
 				ResponseEntity<List<NetworkSliceInstance>> httpResponse= restTemplate.exchange(url, HttpMethod.GET, httpEntity,  new ParameterizedTypeReference<List<NetworkSliceInstance>>() {});
 				log.info("Response code: " + httpResponse.getStatusCode().toString());
-				manageHTTPResponse(httpResponse, "Error querying network slice instance", "Query to network slice instance performed correctly");
+				manageHTTPResponse(httpResponse, "Error querying network slice instance", "Query to network slice instance performed correctly",HttpStatus.OK);
 				return httpResponse.getBody();
 			}
 		}

@@ -23,7 +23,7 @@ public class NetworkSliceStatusChangeNotification implements InterfaceMessage {
 	private String nsiId;
 	private NetworkSliceStatusChange statusChange;
 	private boolean successful;
-	
+	private String tenantId;
 	
 	
 	/**
@@ -40,7 +40,15 @@ public class NetworkSliceStatusChangeNotification implements InterfaceMessage {
 		this.successful = successful;
 	}
 
+	public NetworkSliceStatusChangeNotification(String nsiId, NetworkSliceStatusChange statusChange,
+												boolean successful, String tenantId) {
+		this.nsiId = nsiId;
+		this.statusChange = statusChange;
+		this.successful = successful;
+		this.tenantId = tenantId;
+	}
 
+	public NetworkSliceStatusChangeNotification(){}
 
 	public String getNsiId() {
 		return nsiId;
@@ -65,4 +73,11 @@ public class NetworkSliceStatusChangeNotification implements InterfaceMessage {
 		if (nsiId == null) throw new MalformattedElementException("Network Slice status change notification without slice ID");
 	}
 
+	public void setTenantId(String tenantId) {
+		this.tenantId = tenantId;
+	}
+
+	public String getTenantId() {
+		return tenantId;
+	}
 }

@@ -122,6 +122,7 @@ public class VsLcmManager {
                         NsmfLcmProviderInterface nsmfLcmProvider,
                         VsmfUtils vsmfUtils) {
         this.vsiId = vsiId;
+        this.vsiName=vsiName;
         this.vsRecordService = vsRecordService;
         this.vsDescriptorCatalogueService = vsDescriptorCatalogueService;
         this.translatorService = translatorService;
@@ -210,7 +211,7 @@ public class VsLcmManager {
             return;
         }
         String vsdId = msg.getRequest().getVsdId();
-        log.debug("Instanting Vertical Service " + vsiId + " with VSD " + vsdId);
+        log.debug("Instantiating Vertical Service " + vsiId + " with VSD " + vsdId);
         try {
         	VsDescriptor vsd = vsDescriptorCatalogueService.getVsd(vsdId);
         	this.vsDescriptors.put(vsdId, vsd);
@@ -258,11 +259,13 @@ public class VsLcmManager {
                 else
                     nsSubnetInstanceIds = new ArrayList<>(arbitratorResponse.getExistingSliceSubnets().keySet());
 
+
                 CreateNsiIdRequest request = new CreateNsiIdRequest(nsiInfo.getNstId(), 
                 		"NS - " + vsiName, 
                 		"Network slice for VS " + vsiName);
                 String nsiId = nsmfLcmProvider.createNetworkSliceIdentifier(request, tenantId);
-                
+
+
 //                String nsiId = vsRecordService.createNetworkSliceForVsi(vsiId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(), nsiInfo.getDeploymentFlavourId(),
 //                        nsiInfo.getInstantiationLevelId(), nsSubnetInstanceIds, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());
                 log.debug("Network Slice ID " + nsiId + " created for VSI " + vsiId);

@@ -1,0 +1,62 @@
+
+spring.datasource.url= jdbc:postgresql://localhost:5432/sebastian2
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+
+##BINDING TOMCAT ON MANAGEMENT IP ADDRESS
+#server.address=
+server.port=8081
+
+spring.rabbitmq.host=localhost
+
+spring.jpa.hibernate.ddl-auto=create-drop
+#spring.jpa.hibernate.ddl-auto = update
+
+# Available: BCRYPT - NOOP
+security.passwordEncoder=BCRYPT
+
+sebastian.localTmpDir=/tmp
+
+sebastian.admin=admin
+
+nfvo.catalogue.type=TIMEO
+#nfvo.catalogue.type=OSM
+#nfvo.catalogue.type=DUMMY
+#nfvo.catalogue.type=LOGGING
+
+#nfvo.lcm.type=TIMEO
+#nfvo.lcm.type=OSM
+nfvo.lcm.type=DUMMY
+#nfvo.lcm.type=LOGGING
+
+#not used here
+nfvo.lcm.notification.url=
+
+nfvo.lcm.polling=10
+
+
+nfvo.catalogue.address=10.20.8.25
+nfvo.lcm.address=10.20.8.25
+
+#nfvogui.type=TIMEO
+nfvogui.type=NONE
+
+nfvogui.address=localhost
+nfvogui.port=80
+
+translator.type=BASIC
+
+arbitrator.type=BASIC
+
+vertical.network.communication=LOCAL
+
+#polling period for TIMEO NFVO operations in seconds
+sebastian.nfvo.timeo.polling=20
+#nfvo.catalogue.username=test
+#nfvo.catalogue.password=test
+#nfvo.catalogue.project=test
+catalogue.admin=admin
+
+authentication.enable=yes
+nsmf.restnbi.url=http://10.30.8.64:8082
+logging.level.it.nextworks.nfvmano=DEBUG

@@ -195,7 +195,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 			else log.warn("No RAN endpoint available. Unable to specify the location constraints for the service.");
 		}
 		
-		log.debug("The VS instantion request is valid.");
+		log.debug("The VS instantiation request is valid.");
 		
 		String vsiId = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData, locationConstraints, ranEndPointId);
 		initNewVsLcmManager(vsiId, request.getName());

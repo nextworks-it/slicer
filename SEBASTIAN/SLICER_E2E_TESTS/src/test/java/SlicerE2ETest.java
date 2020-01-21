@@ -2,16 +2,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.*;
 import it.nextworks.nfvmano.catalogue.blueprint.messages.OnBoardVsBlueprintRequest;
 import it.nextworks.nfvmano.catalogue.blueprint.messages.OnboardVsDescriptorRequest;
-import it.nextworks.nfvmano.catalogue.template.messages.OnBoardNsTemplateRequest;
-import it.nextworks.nfvmano.sebastian.admin.elements.Sla;
-import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
+import it.nextworks.nfvmano.sebastian.admin.AdminService;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceFailureNotification;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.nbi.VsmfRestClient;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.*;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,35 +27,18 @@ import java.util.List;
 import static org.junit.Assert.assertTrue;
 
 public class SlicerE2ETest {
-    private final String NFV_LCM_POLLING_TIME = "10"; //Expressed in seconds
-
-    private final String VSMF_ADDRESS = "http://localhost:8081";
-    private final String NFVO_CATALOGUE_ADDRESS="http://10.20.8.25/nfvo/vnfdManagement/vnfPackage";
-    private final String NSMF_ADDRESS = "http://localhost:8082";
-
-
-    private String groupName;
-    private Tenant tenant;
-
-    private String cookiesAdmin;
-    private String cookiesTenant;
 
     private String nstId;
     private String vsbId;
     private String vsdId;
     private String vsiId;
 
+    private final String NSMF_HOST= "http://10.30.8.64:8082";
+    private final String VSMF_HOST = "http://10.30.8.64:8081";
+    EndPointInteraction nspInteraction = new EndPointInteraction(NSMF_HOST, "NSP");
+    EndPointInteraction dspInteraction = new EndPointInteraction(VSMF_HOST, "DSP");
+
     private static final Logger log = LoggerFactory.getLogger(SlicerE2ETest.class);
-
-    public SlicerE2ETest() {
-        //TODO add log info and check availability services
-
-    }
-
-    private int getRandom() {
-        double x = Math.random() * 100 + 1;
-        return (int) x;
-    }
 
     private Object getObjectFromFile(Class classObjects, String fileName) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -87,81 +70,19 @@ public class SlicerE2ETest {
             return httpResponse;
         } catch (RestClientException e) {
             e.printStackTrace();
+            log.info(e.getLocalizedMessage());
             return null;
         }
     }
 
-    private void createGroup(String groupName) {
-        log.info("Creating group with name: " + groupName);
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, null, VSMF_ADDRESS + "/vs/admin/group/" + groupName, HttpMethod.POST, cookiesAdmin);
-        this.groupName = groupName;
+
+
+/*
+    private void deleteLocalTenantWithRemoteTenantAssociation(){
+        log.info("Going to delete association between local tenant and a remote one");
+        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, remoteTenantInfoIdOnDSP, VSMF_HOST + "/vs/admin/group/"+ groupNameDSP +"/tenant/"+ tenantDSP.getUsername()+"/remotetenant", HttpMethod.DELETE, cookiesAdminDSP);
     }
-
-    private void createTenant() {
-        tenant = (Tenant) getObjectFromFile(Tenant.class, "tenant_sample.json");
-        log.info("Creating tenant with username: " + tenant.getUsername());
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, tenant, VSMF_ADDRESS + "/vs/admin/group/" + groupName + "/tenant", HttpMethod.POST, cookiesAdmin);
-    }
-
-    private void createSLA() {
-        Sla sla = (Sla) getObjectFromFile(Sla.class, "sla_sample.json");
-        log.info("Creating SLA");
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, sla, VSMF_ADDRESS + "/vs/admin/group/" + groupName + "/tenant/" + tenant.getUsername() + "/sla", HttpMethod.POST, cookiesAdmin);
-    }
-
-    private void loginAdmin() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-        map.add("username", "admin");
-        map.add("password", "admin");
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> httpResponse = restTemplate.exchange(VSMF_ADDRESS + "/login", HttpMethod.POST, request, String.class);
-        HttpHeaders headersResp = httpResponse.getHeaders();
-        cookiesAdmin = headersResp.getFirst(HttpHeaders.SET_COOKIE);
-        log.info("Admin authentication performed. Cookie returned:  " + cookiesAdmin);
-    }
-
-    private void loginTenant() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-        map.add("username", tenant.getUsername());
-        map.add("password", tenant.getPassword());
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> httpResponse = restTemplate.exchange(VSMF_ADDRESS + "/login", HttpMethod.POST, request, String.class);
-        HttpHeaders headersResp = httpResponse.getHeaders();
-        cookiesTenant = headersResp.getFirst(HttpHeaders.SET_COOKIE);
-        log.info("Tenant authentication performed. Cookie returned:  " + cookiesTenant);
-    }
-
-    private void onBoardNST() {
-        //Not going to test NST onboarding because already done in NST CATALOGUE APP, in blue-print repo
-        final String ONBOARD_NST_URL = "/ns/catalogue/nstemplate";
-        OnBoardNsTemplateRequest onBoardNsTemplateRequest = (OnBoardNsTemplateRequest) getObjectFromFile(OnBoardNsTemplateRequest.class, "nst_sample.json");
-
-
-        log.info("Going to perform on board request of NST with name " + onBoardNsTemplateRequest.getNst().getNstName() + " and version " + onBoardNsTemplateRequest.getNst().getNstName());
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, onBoardNsTemplateRequest, VSMF_ADDRESS + ONBOARD_NST_URL, HttpMethod.POST, cookiesAdmin);
-        nstId = (String) responseEntity.getBody();
-        log.info(nstId);
-    }
-
-
-    private void waitPollingTime() {
-        log.info("The nfvo lcm polling time is supposed to be " + NFV_LCM_POLLING_TIME + " seconds. Going to wait  " + NFV_LCM_POLLING_TIME + " plus other 5 seconds");
-        try {
-            Thread.sleep(Long.valueOf(NFV_LCM_POLLING_TIME) * 1000 + 5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-    }
-
+*/
 
     /*Given two objects of the same class expressed in classObjects,
     it compares all the fields (except those from fieldsToExcludeFromCompare) through all the available getters method of the same class.
@@ -226,6 +147,14 @@ public class SlicerE2ETest {
     }
 
 
+    private void getVSBbyId(){
+        final String ONBOARD_VSB_URL = "/portal/catalogue/vsblueprint";
+        ResponseEntity<?> responseEntity = performHTTPRequest(VsBlueprintInfo.class, null, VSMF_HOST + ONBOARD_VSB_URL + "/" + vsbId, HttpMethod.GET, dspInteraction.getCookiesAdmin());
+        VsBlueprintInfo vsBlueprintInfo = (VsBlueprintInfo) responseEntity.getBody();
+    }
+
+
+
     public void testVSBOnBoarding() {
         final String ONBOARD_VSB_URL = "/portal/catalogue/vsblueprint";
         OnBoardVsBlueprintRequest onBoardVsBlueprintRequestFromJSON = (OnBoardVsBlueprintRequest) getObjectFromFile(OnBoardVsBlueprintRequest.class, "vsblueprint_sample.json");
@@ -251,7 +180,7 @@ public class SlicerE2ETest {
                 onBoardVsBlueprintRequestFromJSON.getNsds(),
                 vsdNsdTranslationRuleList);
 
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, onBoardVsBlueprintRequest, VSMF_ADDRESS + ONBOARD_VSB_URL, HttpMethod.POST, cookiesAdmin);
+        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, onBoardVsBlueprintRequest, VSMF_HOST + ONBOARD_VSB_URL, HttpMethod.POST, dspInteraction.getCookiesAdmin());
 
         vsbId = (String) responseEntity.getBody();
         log.info(vsbId);
@@ -259,10 +188,9 @@ public class SlicerE2ETest {
         assertTrue(vsbId != null);
         assertTrue(responseEntity.getStatusCode() == HttpStatus.CREATED);
 
-        ResponseEntity<?> responseEntity2 = performHTTPRequest(VsBlueprintInfo.class, null, VSMF_ADDRESS + ONBOARD_VSB_URL + "/" + vsbId, HttpMethod.GET, cookiesAdmin);
+        ResponseEntity<?> responseEntity2 = performHTTPRequest(VsBlueprintInfo.class, null, VSMF_HOST + ONBOARD_VSB_URL + "/" + vsbId, HttpMethod.GET, dspInteraction.getCookiesAdmin());
         VsBlueprintInfo vsBlueprintInfo = (VsBlueprintInfo) responseEntity2.getBody();
         log.info("ID: " + vsBlueprintInfo.getVsBlueprintId());
-        //assertTrue(responseEntity.getBody()!=null);
 
 
         VsBlueprint vsBlueprintFromJSON = onBoardVsBlueprintRequestFromJSON.getVsBlueprint();
@@ -340,18 +268,18 @@ public class SlicerE2ETest {
 
         OnboardVsDescriptorRequest onboardVsDescriptorRequestFromJSON = (OnboardVsDescriptorRequest) getObjectFromFile(OnboardVsDescriptorRequest.class, "vsd_sample.json");
 
-        //field isPublic missing in the JSON, but if added JACKSON gives error. Added hardcoded TODO fix
+        //field isPublic missing in the JSON, but if added JACKSON gives error.
         onboardVsDescriptorRequestFromJSON.getVsd().setVsBlueprintId(vsbId);
 
-        OnboardVsDescriptorRequest onboardVsDescriptorRequest = new OnboardVsDescriptorRequest(onboardVsDescriptorRequestFromJSON.getVsd(), tenant.getUsername(), true);
+        OnboardVsDescriptorRequest onboardVsDescriptorRequest = new OnboardVsDescriptorRequest(onboardVsDescriptorRequestFromJSON.getVsd(), dspInteraction.getTenant().getUsername(), true);
         log.info("Going to request VSD on boarding with tenantID: " + onboardVsDescriptorRequest.getTenantId()+ " and VSB ID "+onboardVsDescriptorRequest.getVsd().getVsBlueprintId());
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, onboardVsDescriptorRequest, VSMF_ADDRESS + ONBOARD_VSD_URL, HttpMethod.POST, cookiesTenant);
+        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, onboardVsDescriptorRequest, VSMF_HOST + ONBOARD_VSD_URL, HttpMethod.POST, dspInteraction.getCookiesTenant());
         vsdId = (String) responseEntity.getBody();
         assertTrue(vsbId != null);
         assertTrue(responseEntity.getStatusCode() == HttpStatus.CREATED);
 
 
-        ResponseEntity<?> responseEntityQuery = performHTTPRequest(VsDescriptor.class, null, VSMF_ADDRESS + ONBOARD_VSD_URL + "/" + vsdId, HttpMethod.GET, cookiesTenant);
+        ResponseEntity<?> responseEntityQuery = performHTTPRequest(VsDescriptor.class, null, VSMF_HOST + ONBOARD_VSD_URL + "/" + vsdId, HttpMethod.GET, dspInteraction.getCookiesTenant());
 
         VsDescriptor vsDescriptorActual = (VsDescriptor) responseEntityQuery.getBody();
         VsDescriptor vsDescriptorExpected = onboardVsDescriptorRequest.getVsd();
@@ -365,9 +293,6 @@ public class SlicerE2ETest {
         parsToExclude.add("Sla");
 
         haveTwoObjsSameFields(VsDescriptor.class, vsDescriptorActual, vsDescriptorExpected, parsToExclude);
-        //TODO check VSBlueprint ID
-        log.info("VSBID actual : " + vsDescriptorActual.getVsBlueprintId());
-        log.info("VSBID expected: " + vsDescriptorExpected.getVsBlueprintId());
         log.info("{}",vsDescriptorExpected.getVsBlueprintId()==vsDescriptorActual.getVsBlueprintId());
 
         log.info("Comparing ServiceConstraints lists");
@@ -394,83 +319,99 @@ public class SlicerE2ETest {
                 vsifromJSON.getName(),
                 vsifromJSON.getDescription(),
                 vsdId,
-                tenant.getUsername(),
+                dspInteraction.getTenant().getUsername(),
                 vsifromJSON.getNotificationUrl(),
                 vsifromJSON.getUserData(),
                 vsifromJSON.getLocationConstraints());
-        log.info("Going to request VSI instantiation with VSD ID equal to: "+vsdId+" with tenant username: "+tenant.getUsername());
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, instantiateVsRequest, VSMF_ADDRESS + VSI_INSTANTIATION_URL, HttpMethod.POST, cookiesTenant);
+        log.info("Going to request VSI instantiation with VSD ID equal to: "+vsdId+" with tenant username: "+ dspInteraction.getTenant().getUsername());
+        log.info("VSI name is : "+instantiateVsRequest.getName());
+        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, instantiateVsRequest, VSMF_HOST + VSI_INSTANTIATION_URL, HttpMethod.POST, dspInteraction.getCookiesTenant());
         vsiId = (String) responseEntity.getBody();
         log.info("VSI ID:" +vsiId);
-        ResponseEntity<?> responseEntityQuery = performHTTPRequest(QueryVsResponse.class, null, VSMF_ADDRESS + VSI_INSTANTIATION_URL + "/" + vsiId, HttpMethod.GET, cookiesTenant);
+        ResponseEntity<?> responseEntityQuery = performHTTPRequest(QueryVsResponse.class, null, VSMF_HOST + VSI_INSTANTIATION_URL + "/" + vsiId, HttpMethod.GET, dspInteraction.getCookiesTenant());
         QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
 
         assertTrue(queryVsResponse.getVsiId().equals(vsiId));
         assertTrue(queryVsResponse.getName().equals(instantiateVsRequest.getName()));
         assertTrue(queryVsResponse.getDescription().equals(instantiateVsRequest.getDescription()));
-        //log.info("{}",queryVsResponse.getMonitoringUrl().equals(instantiateVsRequest.getNotificationUrl()));
         assertTrue(queryVsResponse.getVsdId().equals(vsdId));
 
 
     }
 
 
-    public void VSmodificationTest() {
-        final String VSI_MODIFICATION_URL = "";
-        //ModifyVsRequest vsimodReqfromJSON = (ModifyVsRequest) getObjectFromFile(ModifyVsRequest.class, "vsi_mod_req_sample.json");
-        ModifyVsRequest vsimodReqfromJSON = new ModifyVsRequest();
-        //String vsdID = "";
-        /*
-        InstantiateVsRequest instantiateVsRequest = new InstantiateVsRequest(
-                vsifromJSON.getName(),
-                vsifromJSON.getDescription(),
-                vsdId,
-                tenant.getUsername(),
-                vsifromJSON.getNotificationUrl(),
-                vsifromJSON.getUserData(),
-                vsifromJSON.getLocationConstraints());
-        log.info("Going to request VSI instantiation with VSD ID equal to: "+vsdId+" with tenant username: "+tenant.getUsername());
-
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, instantiateVsRequest, VSMF_ADDRESS + VSI_INSTANTIATION_URL, HttpMethod.POST, cookiesTenant);
-        String vsiId = (String) responseEntity.getBody();
-        log.info(vsiId);
-    */
-    }
-
     public void VsiTerminationTest() {
-        final String VSI_TERMINATION_URL="/vs/"+vsiId+"/terminate";
-        TerminateVsRequest terminateVsRequest = new TerminateVsRequest(vsdId, tenant.getUsername());
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, terminateVsRequest, VSMF_ADDRESS + VSI_TERMINATION_URL, HttpMethod.POST, cookiesTenant);
+        final String VSI_TERMINATION_URL="/vs/basic/vslcm/vs/"+vsiId+"/terminate";
+        TerminateVsRequest terminateVsRequest = new TerminateVsRequest(vsdId, dspInteraction.getTenant().getUsername());
+        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, terminateVsRequest, VSMF_HOST + VSI_TERMINATION_URL, HttpMethod.POST, dspInteraction.getCookiesTenant());
         String terminationResponse = (String) responseEntity.getBody();
         log.info("Termination response body response: "+terminationResponse);
         log.info("Termination response code: "+responseEntity.getStatusCode());
-        log.info("{}",responseEntity.getStatusCode()==HttpStatus.OK);
+        assertTrue(responseEntity.getStatusCode()==HttpStatus.OK);
     }
 
+
     public void VsiPurgeTest() {
-        final String VSI_PURGE_URL="/vs/"+vsiId+"/purge";
-        PurgeVsRequest purgeVsRequest= new PurgeVsRequest(vsdId, tenant.getUsername());
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, purgeVsRequest, VSMF_ADDRESS + VSI_PURGE_URL, HttpMethod.POST, cookiesTenant);
+        final String VSI_PURGE_URL="/vs/basic/vslcm/vs/"+vsiId;
+        PurgeVsRequest purgeVsRequest= new PurgeVsRequest(vsdId, dspInteraction.getTenant().getUsername());
+        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, purgeVsRequest, VSMF_HOST + VSI_PURGE_URL, HttpMethod.DELETE, dspInteraction.getCookiesAdmin());
         String purgeResponse = (String) responseEntity.getBody();
         log.info("Termination response body response: "+purgeResponse);
         log.info("Termination response code: "+responseEntity.getStatusCode());
-        log.info("{}",responseEntity.getStatusCode()==HttpStatus.OK);
+        assertTrue(responseEntity.getStatusCode()==HttpStatus.OK);
 
     }
 
 
     @Test
-    public void test() {
-        loginAdmin();
-        onBoardNST();
-        testVSBOnBoarding();
-        createGroup("group" + getRandom());
-        createTenant();
-        createSLA();
-        loginTenant();
-        testVSDOnBoarding();
+    public void testVSLifecycle() {
+
+
+        init();
+        //Vertical service instantiation
         VSIinstantionTest();
-        //VSIModifyingTest();
-        //VsiTerminationTest();
+        log.info("Pretending to wait net slice to be instantiated");
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        VsiTerminationTest();
+        log.info("Pretending to wait net slice to be terminated");
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        VsiPurgeTest();
+    }
+
+    private void init(){
+        //NSP SIDE
+        nspInteraction.loginAdmin();
+        nspInteraction.createGroup("NSP_group");
+        nspInteraction.createTenant("tenant_nsp_sample.json");
+        nspInteraction.loginTenant();
+
+
+        //DSP SIDE
+        dspInteraction.loginAdmin();
+        dspInteraction.createGroup("DSP_group");
+        dspInteraction.createTenant("tenant_sample.json");
+        dspInteraction.createTenantNotif("tenant_notif_sample.json");
+        dspInteraction.createSLA();
+        dspInteraction.loginTenant();
+        dspInteraction.createRemoteTenantInfo(nspInteraction.getTenant(),NSMF_HOST);
+        dspInteraction.associateLocalTenantWithRemoteTenant();
+
+        //On NSP
+        nspInteraction.createRemoteTenantInfo(dspInteraction.getTenantNot(),VSMF_HOST);
+        nspInteraction.associateLocalTenantWithRemoteTenant();
+        nstId=nspInteraction.onBoardNST("nst_sample.json");
+
+        //DSP SIDE
+        testVSBOnBoarding();
+        testVSDOnBoarding();
     }
 }

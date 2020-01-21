@@ -48,7 +48,7 @@ public class NsmfNotificationsRestController {
 	private VsLcmService vsLcmService;
 	
 	public NsmfNotificationsRestController() { }
-	
+
 	@RequestMapping(value = "/nsilcmchange", method = RequestMethod.POST)
 	public ResponseEntity<?> notifyNsiLcmChange(@RequestBody NetworkSliceStatusChangeNotification notification) {
 		log.debug("Received notification about network slice instance LCM change");

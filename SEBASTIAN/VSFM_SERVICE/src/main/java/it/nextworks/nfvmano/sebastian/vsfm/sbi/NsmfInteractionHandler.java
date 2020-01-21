@@ -16,6 +16,8 @@ package it.nextworks.nfvmano.sebastian.vsfm.sbi;
 
 import java.util.List;
 
+import it.nextworks.nfvmano.sebastian.admin.AdminService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
@@ -43,9 +45,12 @@ import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 public class NsmfInteractionHandler implements NsmfLcmProviderInterface {
 
 	private NsmfRestClient nsmfRestClient;
-	
+
+	@Autowired
+	private AdminService adminService;
+
 	public void setNsmfClientConfiguration(String nsmfRestServerUrl) {
-		this.nsmfRestClient = new NsmfRestClient(nsmfRestServerUrl);
+		this.nsmfRestClient = new NsmfRestClient(nsmfRestServerUrl, adminService);
 	}
 	
 	@Override

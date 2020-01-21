@@ -34,6 +34,8 @@ public class NetworkSliceFailureNotification implements InterfaceMessage {
 		this.failureMessage = failureMessage;
 	}
 
+	public NetworkSliceFailureNotification(){}
+
 	public String getNsiId() {
 		return nsiId;
 	}
