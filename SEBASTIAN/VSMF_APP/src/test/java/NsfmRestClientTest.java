@@ -54,7 +54,7 @@ public class NsfmRestClientTest {
     @BeforeClass
       public static void preliminarOps(){
         log.info("Performing preliminary : login and NS Template on boarding.");
-        nsmfRestClient=new NsmfRestClient(vsmfNotificationsUrl);
+        nsmfRestClient=new NsmfRestClient(vsmfNotificationsUrl,null);
         performAuthentication();
         onBoardNsTemplate();
         nsmfRestClient.setCookies(cookies);
