@@ -21,27 +21,27 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-public class NsmfSbRestClient {
+class NsmfSbRestClient {
     private static final Logger log = LoggerFactory.getLogger(NsmfSbRestClient.class);
 
     private RestTemplate restTemplate;
     private String targetUrl;
 
 
-    public NsmfSbRestClient() {
+    NsmfSbRestClient() {
         this.restTemplate = new RestTemplate();
 
     }
 
-    public String getTargetUrl() {
+    String getTargetUrl() {
         return targetUrl;
     }
 
-    public void setTargetUrl(String targetUrl) {
+    void setTargetUrl(String targetUrl) {
         this.targetUrl = targetUrl;
     }
 
-    public ResponseEntity<String> performHTTPRequest(Object request, String url, HttpMethod httpMethod) {
+    ResponseEntity<String> performHTTPRequest(Object request, String url, HttpMethod httpMethod) {
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");  //TODO: put header values as parameters
         HttpEntity<?> httpEntity = new HttpEntity<>(request, header);
@@ -58,7 +58,7 @@ public class NsmfSbRestClient {
         }
     }
 
-    public String manageHTTPResponse(ResponseEntity<?> httpResponse, String errMsg, String okCodeMsg, HttpStatus httpStatusExpected) {
+    String manageHTTPResponse(ResponseEntity<?> httpResponse, String errMsg, String okCodeMsg, HttpStatus httpStatusExpected) {
         if (httpResponse == null) {
             log.info(errMsg);
             return null;
@@ -75,4 +75,5 @@ public class NsmfSbRestClient {
         return httpResponse.getBody().toString();
 
     }
+
 }
