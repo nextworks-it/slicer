@@ -18,9 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueDriverType;
+import it.nextworks.nfvmano.nfvodriver.NfvoLcmDriverType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import it.nextworks.nfvmano.catalogue.template.elements.NsTemplateInfo;
@@ -42,32 +45,36 @@ import it.nextworks.nfvmano.sebastian.record.NsRecordService;
 public class NsmfUtils {
 
 	private static final Logger log = LoggerFactory.getLogger(NsmfUtils.class);
-	
+
 	@Autowired
-    private NsTemplateCatalogueService nsTemplateCatalogueService;
-	
+	private NsTemplateCatalogueService nsTemplateCatalogueService;
+
 	@Autowired
-    private NsRecordService nsRecordService;
-	
+	private NsRecordService nsRecordService;
+
 	private NsmfLcmConsumerInterface notificationDispatcher;
-	
-	public NsTemplateInfo getNsTemplateInfoFromCatalogue(String nstId) 
-		throws NotExistingEntityException {
-	
+
+	@Value("${ssoNmroIntegration}")
+	private boolean isSsoNmroIntegrationScenario;
+
+	public NsTemplateInfo getNsTemplateInfoFromCatalogue(String nstId)
+			throws NotExistingEntityException {
+
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("NST_ID", nstId);
-    	Filter filter = new Filter(parameters);
-    	GeneralizedQueryRequest query = new GeneralizedQueryRequest(filter, null);
-    	try {
-    		List<NsTemplateInfo> nstInfos = nsTemplateCatalogueService.queryNsTemplate(query).getNsTemplateInfos();
-    		if (nstInfos.size() != 1) throw new NotExistingEntityException("Unable to find unique NST with ID " + nstId + " in catalogue");
-    		return nstInfos.get(0);
-    	} catch (Exception e) {
-    		log.error("Unable to retrieve Network Slice Template from Catalogue: " + e.getMessage());
-    		throw new NotExistingEntityException("Unable to retrieve Network Slice Template from Catalogue: " + e.getMessage());
-		}	
+		Filter filter = new Filter(parameters);
+		GeneralizedQueryRequest query = new GeneralizedQueryRequest(filter, null);
+		try {
+			List<NsTemplateInfo> nstInfos = nsTemplateCatalogueService.queryNsTemplate(query).getNsTemplateInfos();
+			if (nstInfos.size() != 1)
+				throw new NotExistingEntityException("Unable to find unique NST with ID " + nstId + " in catalogue");
+			return nstInfos.get(0);
+		} catch (Exception e) {
+			log.error("Unable to retrieve Network Slice Template from Catalogue: " + e.getMessage());
+			throw new NotExistingEntityException("Unable to retrieve Network Slice Template from Catalogue: " + e.getMessage());
+		}
 	}
-	
+
 	public void manageNsError(String nsiId, String error) {
 		log.error(error);
 		nsRecordService.setNsFailureInfo(nsiId, error);
@@ -77,6 +84,7 @@ public class NsmfUtils {
 	public void setNotificationDispatcher(NsmfLcmConsumerInterface notificationDispatcher) {
 		this.notificationDispatcher = notificationDispatcher;
 	}
-	
-	
+	public boolean isSsoNmroIntegrationScenario(){
+		return isSsoNmroIntegrationScenario;
+	}
 }

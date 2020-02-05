@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.nextworks.nfvmano.libs.ifa.templates.NST;
+import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +39,13 @@ import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 public class NsmfRestController {
 
 	private static final Logger log = LoggerFactory.getLogger(NsmfRestController.class);
-	
+
 	@Autowired
 	private NsLcmService nsLcmService;
-	
+
 	@Value("${sebastian.admin}")
 	private String adminTenant;
-	
+
 	private static String getUserFromAuth(Authentication auth) {
 		Object principal = auth.getPrincipal();
 		if (!UserDetails.class.isAssignableFrom(principal.getClass())) {
@@ -51,16 +53,17 @@ public class NsmfRestController {
 		}
 		return ((UserDetails) principal).getUsername();
 	}
-	
-	public NsmfRestController() { }
-	
+
+	public NsmfRestController() {
+	}
+
 	@RequestMapping(value = "/ns", method = RequestMethod.POST)
 	public ResponseEntity<?> createNsId(@RequestBody CreateNsiIdRequest request, Authentication auth) {
 		log.debug("Received request to create a new network slice instance ID.");
 		try {
 			String tenantId = getUserFromAuth(auth);
 			String nsiId = nsLcmService.createNetworkSliceIdentifier(request, tenantId);
-			return new ResponseEntity<>(nsiId, HttpStatus.CREATED);	
+			return new ResponseEntity<>(nsiId, HttpStatus.CREATED);
 		} catch (NotExistingEntityException e) {
 			log.error("NS ID creation failed due to missing elements in DB.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -75,7 +78,7 @@ public class NsmfRestController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@RequestMapping(value = "/ns/{nsiId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getNsInstance(@PathVariable String nsiId, Authentication auth) {
 		log.debug("Received query for network slice instance with ID " + nsiId);
@@ -90,7 +93,7 @@ public class NsmfRestController {
 				log.error("Network slice instance with ID " + nsiId + " not found");
 				return new ResponseEntity<>("Network slice instance with ID " + nsiId + " not found", HttpStatus.BAD_REQUEST);
 			}
-			return new ResponseEntity<NetworkSliceInstance>(nsis.get(0), HttpStatus.OK);	
+			return new ResponseEntity<NetworkSliceInstance>(nsis.get(0), HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("NS ID creation failed due to bad-formatted request.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -99,7 +102,7 @@ public class NsmfRestController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@RequestMapping(value = "/ns", method = RequestMethod.GET)
 	public ResponseEntity<?> getNsInstance(Authentication auth) {
 		log.debug("Received query for all network slice instances.");
@@ -109,7 +112,7 @@ public class NsmfRestController {
 			Filter filter = new Filter(parameters);
 			GeneralizedQueryRequest query = new GeneralizedQueryRequest(filter, null);
 			List<NetworkSliceInstance> nsis = nsLcmService.queryNetworkSliceInstance(query, tenantId);
-			return new ResponseEntity<List<NetworkSliceInstance>>(nsis, HttpStatus.OK);	
+			return new ResponseEntity<List<NetworkSliceInstance>>(nsis, HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("NS ID creation failed due to bad-formatted request.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -118,14 +121,14 @@ public class NsmfRestController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@RequestMapping(value = "/ns/{nsiId}/action/instantiate", method = RequestMethod.PUT)
 	public ResponseEntity<?> instantiateNsi(@PathVariable String nsiId, @RequestBody InstantiateNsiRequest request, Authentication auth) {
 		log.debug("Received request to instantiate network slice " + nsiId);
 		try {
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.instantiateNetworkSlice(request, tenantId);
-			return new ResponseEntity<>(HttpStatus.ACCEPTED);	
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
 		} catch (NotExistingEntityException e) {
 			log.error("NS instantiation failed due to missing elements in DB.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -140,14 +143,14 @@ public class NsmfRestController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@RequestMapping(value = "/ns/{nsiId}/action/modify", method = RequestMethod.PUT)
 	public ResponseEntity<?> modifyNsi(@PathVariable String nsiId, @RequestBody ModifyNsiRequest request, Authentication auth) {
 		log.debug("Received request to modify network slice " + nsiId);
 		try {
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.modifyNetworkSlice(request, tenantId);
-			return new ResponseEntity<>(HttpStatus.ACCEPTED);	
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
 		} catch (NotExistingEntityException e) {
 			log.error("NS modification failed due to missing elements in DB.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -162,14 +165,14 @@ public class NsmfRestController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@RequestMapping(value = "/ns/{nsiId}/action/terminate", method = RequestMethod.PUT)
 	public ResponseEntity<?> terminateNsi(@PathVariable String nsiId, @RequestBody TerminateNsiRequest request, Authentication auth) {
 		log.debug("Received request to terminate network slice " + nsiId);
 		try {
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.terminateNetworkSliceInstance(request, tenantId);
-			return new ResponseEntity<>(HttpStatus.ACCEPTED);	
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
 		} catch (NotExistingEntityException e) {
 			log.error("NS termination failed due to missing elements in DB.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

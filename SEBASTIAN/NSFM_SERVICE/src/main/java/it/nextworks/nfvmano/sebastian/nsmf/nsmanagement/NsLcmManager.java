@@ -14,49 +14,43 @@
  */
 package it.nextworks.nfvmano.sebastian.nsmf.nsmanagement;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import it.nextworks.nfvmano.libs.ifa.common.enums.NsScaleType;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.messages.*;
-import it.nextworks.nfvmano.libs.ifa.records.nsinfo.NsInfo;
-import it.nextworks.nfvmano.libs.ifa.templates.NST;
-import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
-import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
-import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
-import it.nextworks.nfvmano.sebastian.nsmf.NsLcmService;
-import it.nextworks.nfvmano.sebastian.nsmf.NsmfUtils;
-import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.InstantiateNsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.ModifyNsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.NotifyNfvNsiStatusChange;
-import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.NsmfEngineMessage;
-import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.NsmfEngineMessageType;
-import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.TerminateNsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
-import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
 import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.elements.NsdInfo;
+import it.nextworks.nfvmano.libs.ifa.common.enums.NsScaleType;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.ifa.descriptors.nsd.Nsd;
 import it.nextworks.nfvmano.libs.ifa.descriptors.nsd.Sapd;
 import it.nextworks.nfvmano.libs.ifa.descriptors.nsd.ScaleNsToLevelData;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.NsLcmProviderInterface;
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.SapData;
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.ScaleNsData;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.messages.*;
+import it.nextworks.nfvmano.libs.ifa.records.nsinfo.NsInfo;
+import it.nextworks.nfvmano.libs.ifa.templates.NST;
+import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
+import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
+import it.nextworks.nfvmano.sebastian.nsmf.NsLcmService;
+import it.nextworks.nfvmano.sebastian.nsmf.NsmfUtils;
+import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.*;
+import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
+import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Entity in charge of managing the lifecycle
@@ -76,6 +70,7 @@ public class NsLcmManager {
 	private String tenantId;
 	private NfvoCatalogueService nfvoCatalogueService;
 	private NfvoLcmService nfvoLcmService;
+	private NsLcmProviderInterface nsLcmProviderInterface;
 	private NsRecordService nsRecordService;
 	private String nfvNsiInstanceId;
 	private Nsd nsd;
@@ -199,12 +194,25 @@ public class NsLcmManager {
 			
 			log.debug("Retrieving NSD");
 			NsdInfo nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0);
-			log.debug("Nsd retrieved");
+			log.debug("NSD retrieved");
+
 			this.nsdInfoId = nsdInfo.getNsdInfoId();
-			
 			this.nsd = nsdInfo.getNsd();
-			
-			String nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-"+ name, description, tenantId));
+			String nfvNsId;
+
+			if(nsmfUtils.isSsoNmroIntegrationScenario()) {
+				this.nsdInfoId = "09f0f070-11a8-4fc3-8a47-253508673a99";
+				tenantId = "admin";
+				nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(
+						this.nsdInfoId,
+						"ns Name",
+						" ns Desc", tenantId));
+			}
+			else {
+				nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-" + name, description, tenantId));
+			}
+
+			log.info("nsdInfoId is: "+nsdInfoId);
 			log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
 			this.nfvNsiInstanceId = nfvNsId;
 			nsRecordService.setNfvNsiInNsi(networkSliceInstanceId, nfvNsId);
@@ -254,7 +262,7 @@ public class NsLcmManager {
 
 			//Read configuration parameters
 			Map<String, String> additionalParamForNs = msg.getRequest().getUserData();
-			
+			log.info("Nfv Ns id is: "+nfvNsId);
 			String operationId = nfvoLcmService.instantiateNs(new InstantiateNsRequest(nfvNsId,
 					dfId, 					//flavourId 
 					sapData, 				//sapData
@@ -269,7 +277,7 @@ public class NsLcmManager {
 					null));					//additionalAffinityOrAntiAffinityRule
 			
 			log.debug("Sent request to NFVO service for instantiating NFV NS " + nfvNsId + ": operation ID " + operationId);
-			
+
 		} catch (Exception e) {
 			manageNsError(e.getMessage());
 		}
@@ -302,6 +310,7 @@ public class NsLcmManager {
 					scaleNsData, 
 					null, 
 					null);
+
 			String operationId = nfvoLcmService.scaleNs(scaleReq);
 			log.debug("Sent request to NFVO service for modifying NFV NS " + nfvNsiInstanceId + ": operation ID " + operationId);
 			//Save the requested instantiation level id in an auxiliary attribute
@@ -314,6 +323,7 @@ public class NsLcmManager {
 
 	private void processNfvNsChangeNotification(NotifyNfvNsiStatusChange msg) {
 		if (! ((internalStatus == NetworkSliceStatus.INSTANTIATING) || (internalStatus == NetworkSliceStatus.TERMINATING) || (internalStatus == NetworkSliceStatus.UNDER_MODIFICATION))) {
+			log.info("Internal status is "+internalStatus);
 			manageNsError("Received notification about NFV NS status change in wrong status.");
 			return;
 		}
@@ -331,8 +341,8 @@ public class NsLcmManager {
 						//If the network slice includes slice subnets, update or create the related entries
 						//Note that some subnets can be explicit (i.e. VS-managed, so already available in db) or implicit (i.e. SO-managed, so you need to create a new entry in this phase if not yet present)
 						//You need to read the NS info from the NFVO
-
 						QueryNsResponse queryNs = nfvoLcmService.queryNs(new GeneralizedQueryRequest(Utilities.buildNfvNsiFilter(msg.getNfvNsiId()), null));
+
 						NsInfo nsInfo = queryNs.getQueryNsResult().get(0);
 						List<String> nfvNsIds = nsInfo.getNestedNsInfoId();
 						for (String nfvNsId : nfvNsIds){
@@ -351,7 +361,6 @@ public class NsLcmManager {
 
 						nsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
 						log.debug("Sending notification to engine.");
-
 						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceId, NetworkSliceStatusChange.NSI_CREATED, true,tenantId));
 						break;
 					}

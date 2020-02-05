@@ -110,7 +110,8 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     @Override
     public String createNetworkSliceIdentifier(CreateNsiIdRequest request, String tenantId)
     		throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException, MalformattedElementException, NotPermittedOperationException {
-    	
+
+
     	log.debug("Processing request to create a new network slicer identifier");
     	request.isValid();
     	String nstId = request.getNstId();
@@ -256,7 +257,7 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
      *
      * @param nfvNsId ID of the NFV Network service this notification refers to
      * @param changeType type of LCM change
-     * @param successful if the change has been successfull
+     * @param successful if the change has been successful
      */
     @Override
     public void notifyNfvNsStatusChange(String nfvNsId, NsStatusChange changeType, boolean successful) {
@@ -295,7 +296,7 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
         nsLcmManagers.put(nsiId, nsLcmManager);
         log.debug("NS LCM manager for Network Slice Instance ID " + nsiId + " initialized and added to the engine.");
     }
-    
+
     private void sendMessageToQueue(NsmfEngineMessage msg, String topic) throws JsonProcessingException {
         ObjectMapper mapper = Utilities.buildObjectMapper();
         String json = mapper.writeValueAsString(msg);
