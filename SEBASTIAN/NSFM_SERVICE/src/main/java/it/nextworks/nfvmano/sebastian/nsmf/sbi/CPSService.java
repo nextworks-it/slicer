@@ -15,20 +15,27 @@
 
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
-import it.nextworks.nfvmano.libs.ifa.templates.NST;
+
+import it.nextworks.nfvmano.sebastian.nsmf.ppinteraction.PpRestClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.UUID;
 
 public class CPSService extends NsmfSbRestClient {
-
+    private static final Logger log = LoggerFactory.getLogger(CPSService.class);
     private CSPTypes cspType;
 
 
     public CPSService() {
-        this.setTargetUrl("CPSRTargetURL");
+
     }
 
     public CSPTypes getCspType() {
@@ -39,12 +46,21 @@ public class CPSService extends NsmfSbRestClient {
         this.cspType = cspType;
     }
 
-    public String retrieveCpsUri(UUID sliceUuid){
+    public String retrieveCpsUri(UUID sliceUuid) throws RestClientResponseException {
         //http://10.8.202.11:8080/slicenet/ctrlplane/cpsr_cps/v1/cps-instances?cpsType=QOS_CP&slicenetId=f5b01594-520e-11e9-8647-d663bd873d93
         String url = String.format("%s/slicenet/ctrlplane/cpsr_cps/v1/cps-instances?cpsType=%s&slicenetId=%s",
                 this.getTargetUrl(), this.cspType.name(), sliceUuid.toString());
         ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.GET);
-        return manageHTTPResponse(httpResponse, "Error - Per-Slice Components creation request NOT SUCCEEDED",
-                "Per-Slice Components creation request succeeded", HttpStatus.OK);
+        try {
+            JSONArray json = new JSONArray(httpResponse.getBody());
+            if (json.length() == 0) {
+                return null;
+            }
+            JSONObject jobj = (JSONObject) json.get(0);
+            return jobj.getString("uri");
+        }catch (JSONException e){
+            log.info("Error in JSON manipulation: "+e.getMessage());
+            return "";
+        }
     }
 }

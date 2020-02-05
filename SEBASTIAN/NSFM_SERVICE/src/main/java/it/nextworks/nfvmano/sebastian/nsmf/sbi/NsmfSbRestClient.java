@@ -19,9 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
-class NsmfSbRestClient {
+public class NsmfSbRestClient {
     private static final Logger log = LoggerFactory.getLogger(NsmfSbRestClient.class);
 
     private RestTemplate restTemplate;
@@ -33,15 +34,15 @@ class NsmfSbRestClient {
 
     }
 
-    String getTargetUrl() {
+    public String getTargetUrl() {
         return targetUrl;
     }
 
-    void setTargetUrl(String targetUrl) {
+    public void setTargetUrl(String targetUrl) {
         this.targetUrl = targetUrl;
     }
 
-    ResponseEntity<String> performHTTPRequest(Object request, String url, HttpMethod httpMethod) {
+    public ResponseEntity<String> performHTTPRequest(Object request, String url, HttpMethod httpMethod){
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");  //TODO: put header values as parameters
         HttpEntity<?> httpEntity = new HttpEntity<>(request, header);
@@ -52,13 +53,13 @@ class NsmfSbRestClient {
             HttpStatus code = httpResponse.getStatusCode();
             log.info("Response code: " + httpResponse.getStatusCode().toString());
             return httpResponse;
-        } catch (RestClientException e) {
-            log.info("Message received: "+e.getMessage());
-            return null;
+        } catch (RestClientResponseException e) {
+            log.info("Message received: "+e.getResponseBodyAsString());
+            throw e;
         }
     }
 
-    String manageHTTPResponse(ResponseEntity<?> httpResponse, String errMsg, String okCodeMsg, HttpStatus httpStatusExpected) {
+    public String manageHTTPResponse(ResponseEntity<?> httpResponse, String errMsg, String okCodeMsg, HttpStatus httpStatusExpected) {
         if (httpResponse == null) {
             log.info(errMsg);
             return null;

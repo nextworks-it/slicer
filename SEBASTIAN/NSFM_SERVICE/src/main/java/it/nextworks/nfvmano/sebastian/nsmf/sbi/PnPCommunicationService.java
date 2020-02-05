@@ -19,16 +19,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.UUID;
 
 @Service
 public class PnPCommunicationService extends NsmfSbRestClient {
-
+    private static final Logger log = LoggerFactory.getLogger(PnPCommunicationService.class);
     public PnPCommunicationService() {
 
     }
@@ -60,10 +63,6 @@ public class PnPCommunicationService extends NsmfSbRestClient {
         return reqComponentFeature;
     }
 
-    public PnPCommunicationService(String targetUrl) {
-        this.setTargetUrl(targetUrl);
-    }
-
     private Object generateRequestPayload(NST nst, UUID sliceId) {
         ObjectNode sliceInfoHeader = buildNetworkSliceInfo(nst, sliceId);
         ObjectNode sliceInfoFeatures = buildRequiredComponentFeature(nst);
@@ -71,19 +70,29 @@ public class PnPCommunicationService extends NsmfSbRestClient {
 
     }
 
-    public String deploySliceComponents(UUID sliceUuid, NST nst){
-        String url = this.getTargetUrl() + "/plug-and-play/slice/" + sliceUuid;
-        Object requestPayload = generateRequestPayload(nst, sliceUuid);
-        ResponseEntity<String> httpResponse = this.performHTTPRequest(requestPayload, url, HttpMethod.POST);
-        return manageHTTPResponse(httpResponse, "Error - Per-Slice Components creation request NOT SUCCEEDED",
-                "Per-Slice Components creation request succeeded", HttpStatus.OK);
+    public HttpStatus deploySliceComponents(UUID sliceUuid, NST nst){
+        try{
+            String url = this.getTargetUrl() + "/plug-and-play/slice/" + sliceUuid;
+            Object requestPayload = generateRequestPayload(nst, sliceUuid);
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(requestPayload, url, HttpMethod.POST);
+            return httpResponse.getStatusCode();
+        } catch (RestClientResponseException e) {
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
     }
 
-    public String terminateSliceComponents(String sliceUuid){
-        String url = this.getTargetUrl() + "/plug-and-play/slice/" + sliceUuid;
-        ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.DELETE);
-        return manageHTTPResponse(httpResponse, "Error - Per-Slice Components termination request NOT SUCCEEDED",
-                "Per-Slice Components termination request succeeded", HttpStatus.OK);
+    public HttpStatus terminateSliceComponents(String sliceUuid){
+        try{
+            String url = this.getTargetUrl() + "/plug-and-play/slice/" + sliceUuid;
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.DELETE);
+            return httpResponse.getStatusCode();
+        } catch (
+            RestClientResponseException e) {
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
+
     }
 
 }

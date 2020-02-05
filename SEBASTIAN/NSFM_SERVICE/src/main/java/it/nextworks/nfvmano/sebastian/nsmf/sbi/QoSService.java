@@ -15,29 +15,54 @@
 
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.UUID;
 
 @Service
 public class QoSService extends CPSService{
-
+    private static final Logger log = LoggerFactory.getLogger(QoSService.class);
     private String qosCpBaseURl;
 
     public QoSService() {
         this.setCspType(CSPTypes.QOS_CP);
     }
 
-
-    public void getQoSInfo(UUID sliceId){
+    public void getQoSInfo(UUID sliceId) {
         this.qosCpBaseURl = this.retrieveCpsUri(sliceId);
     }
 
-    public void setQoS(UUID sliceId){
-
+    public HttpStatus setQoS(UUID sliceId, JSONObject qosConstraints) throws Exception{
+        try {
+            this.getQoSInfo(sliceId);
+            String url = String.format("%s/qos-instance/%s/qos_constraints", this.qosCpBaseURl, sliceId.toString());
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(qosConstraints.toString(), url, HttpMethod.POST);
+            System.out.println(httpResponse.getBody());
+            return httpResponse.getStatusCode();
+        } catch (RestClientResponseException e){
+            log.info("Message received: "+e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
     }
 
-    public void updateQoS(UUID sliceId){
-
+    public HttpStatus updateQoS(UUID sliceId, JSONObject qosConstraints){
+        try {
+            this.getQoSInfo(sliceId);
+            String url = String.format("%s/qos-instance/%s/qos_constraints", this.qosCpBaseURl, sliceId.toString());
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(qosConstraints.toString(), url, HttpMethod.PUT);
+            System.out.println(httpResponse.getBody());
+            return httpResponse.getStatusCode();
+        } catch (RestClientResponseException e){
+            log.info("Message received: "+e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
     }
+
 }
