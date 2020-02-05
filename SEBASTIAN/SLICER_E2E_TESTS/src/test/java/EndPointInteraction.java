@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
@@ -32,26 +31,6 @@ public class EndPointInteraction {
         this.hostDescriptionToInteractWith=hostDescriptionToInteractWith;
     }
 
-    private ResponseEntity<?> performHTTPRequest(Class classObjectsRetrieved, Object request, String url, HttpMethod httpMethod, String cookies) {
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
-        header.add("Cookie", cookies);
-        HttpEntity<?> httpEntity = new HttpEntity<>(request, header);
-
-        try {
-            log.info("URL performing the request to: " + url);
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<?> httpResponse =
-                    restTemplate.exchange(url, httpMethod, httpEntity, classObjectsRetrieved);
-            HttpStatus code = httpResponse.getStatusCode();
-            log.info("Response code: " + httpResponse.getStatusCode().toString());
-            return httpResponse;
-        } catch (RestClientException e) {
-            e.printStackTrace();
-            log.info(e.getLocalizedMessage());
-            return null;
-        }
-    }
 
     private Object getObjectFromFile(Class classObjects, String fileName) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -69,26 +48,26 @@ public class EndPointInteraction {
     public void createGroup(String groupName) {
         this.groupName=groupName;
         log.info("Creating group with name: " + groupName+ " on "+hostDescriptionToInteractWith + " side");
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, null, hostname + "/vs/admin/group/" + groupName, HttpMethod.POST, cookiesAdmin);
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, null, hostname + "/vs/admin/group/" + groupName, HttpMethod.POST, cookiesAdmin);
     }
 
     public void createTenant(String filename) {
         tenant = (Tenant) getObjectFromFile(Tenant.class, filename);
         log.info("Creating tenant on "+hostDescriptionToInteractWith+" with username: " + tenant.getUsername());
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, tenant, hostname + "/vs/admin/group/" + groupName + "/tenant", HttpMethod.POST, cookiesAdmin);
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, tenant, hostname + "/vs/admin/group/" + groupName + "/tenant", HttpMethod.POST, cookiesAdmin);
     }
 
     public void createTenantNotif(String filename) {
         tenantNotif = (Tenant) getObjectFromFile(Tenant.class, filename);
         log.info("Creating tenantNotif on "+hostDescriptionToInteractWith+" with username: " + tenantNotif.getUsername());
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, tenantNotif, hostname + "/vs/admin/group/" + groupName + "/tenant", HttpMethod.POST, cookiesAdmin);
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, tenantNotif, hostname + "/vs/admin/group/" + groupName + "/tenant", HttpMethod.POST, cookiesAdmin);
     }
 
 
     public void createSLA() {
         Sla sla = (Sla) getObjectFromFile(Sla.class, "sla_sample.json");
         log.info("Creating SLA");
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, sla, hostname + "/vs/admin/group/" + groupName + "/tenant/" + tenant.getUsername() + "/sla", HttpMethod.POST, cookiesAdmin);
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, sla, hostname + "/vs/admin/group/" + groupName + "/tenant/" + tenant.getUsername() + "/sla", HttpMethod.POST, cookiesAdmin);
     }
 
     public void loginAdmin() {
@@ -113,7 +92,7 @@ public class EndPointInteraction {
     public void createRemoteTenantInfo(Tenant remoteTenant, String remoteHostname){
         remoteTenantInfo = new RemoteTenantInfo(remoteTenant.getUsername(),remoteTenant.getPassword(),remoteHostname);
         log.info("Creating new remote tenant info on "+hostDescriptionToInteractWith);
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, remoteTenantInfo, hostname + "/vs/admin/remotetenant", HttpMethod.POST, cookiesAdmin);
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, remoteTenantInfo, hostname + "/vs/admin/remotetenant", HttpMethod.POST, cookiesAdmin);
         remoteTenantInfoId = (String)responseEntity.getBody();
     }
 
@@ -142,7 +121,7 @@ public class EndPointInteraction {
         OnBoardNsTemplateRequest onBoardNsTemplateRequest = (OnBoardNsTemplateRequest) getObjectFromFile(OnBoardNsTemplateRequest.class, filename);
 
         log.info("Going to perform on board request of NST with name " + onBoardNsTemplateRequest.getNst().getNstName() + " and version " + onBoardNsTemplateRequest.getNst().getNstName());
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, onBoardNsTemplateRequest, hostname + ONBOARD_NST_URL, HttpMethod.POST, cookiesAdmin);
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, onBoardNsTemplateRequest, hostname + ONBOARD_NST_URL, HttpMethod.POST, cookiesAdmin);
         if(responseEntity!=null)
              return (String) responseEntity.getBody();
        return null;
@@ -150,7 +129,7 @@ public class EndPointInteraction {
 
     public void associateLocalTenantWithRemoteTenant(){
         log.info("Going to associate local tenant with a remote one on "+this.hostDescriptionToInteractWith);
-        ResponseEntity<?> responseEntity = performHTTPRequest(String.class, remoteTenantInfoId, hostname + "/vs/admin/group/"+ groupName +"/tenant/"+ tenant.getUsername(), HttpMethod.PUT, cookiesAdmin);
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, remoteTenantInfoId, hostname + "/vs/admin/group/"+ groupName +"/tenant/"+ tenant.getUsername(), HttpMethod.PUT, cookiesAdmin);
     }
 
     public String getGroupName() {
