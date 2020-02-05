@@ -38,7 +38,7 @@ public class NsmfConfigurator {
 	
 	@Autowired
 	private NbiNotificationsHandler nbiNotificationsHandler;
-	
+
 	@Value("${vsmf.notifications.url}")
 	private String vsmfNotificationsUrl;
 	

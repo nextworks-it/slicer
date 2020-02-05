@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(scanBasePackages = {
@@ -34,10 +35,11 @@ public class NsmfApplication {
 	@Value("${crossorigin.origin}")
 	public static String crossOrigin;
 
-
-	
 	public static void main(String[] args) {
-		SpringApplication.run(NsmfApplication.class, args);
+
+		ConfigurableApplicationContext context = SpringApplication.run(NsmfApplication.class, args);
+		context.getBean(NsdOnboarder.class).onBoardCustomNsd();
+
 	}
 	
 }

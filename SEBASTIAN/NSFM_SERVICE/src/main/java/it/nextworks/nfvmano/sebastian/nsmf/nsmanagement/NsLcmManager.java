@@ -201,44 +201,38 @@ public class NsLcmManager {
 			String nfvNsId;
 
 			if(nsmfUtils.isSsoNmroIntegrationScenario()) {
-				this.nsdInfoId = "09f0f070-11a8-4fc3-8a47-253508673a99";
-				tenantId = "admin";
-				nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(
-						this.nsdInfoId,
-						"ns Name",
-						" ns Desc", tenantId));
+				tenantId = "admin";//TODO the mapping between the tenant on NSP and tenant on NMRO (and thus OSM) is missing. So for now is hardcoded
+				this.nsdInfoId = nsdInfo.getNsdId();// The NSD cannot be on boarded specifying its own ID, so the custom one is get from NSD
 			}
-			else {
-				nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-" + name, description, tenantId));
-			}
+			nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-" + name, description, tenantId));
 
 			log.info("nsdInfoId is: "+nsdInfoId);
 			log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
 			this.nfvNsiInstanceId = nfvNsId;
 			nsRecordService.setNfvNsiInNsi(networkSliceInstanceId, nfvNsId);
-			
+
 			log.debug("Building NFV NS instantiation request");
-			
+
 			String ranEndPointId = null;
 			LocationInfo locationInfo = msg.getRequest().getLocationConstraints();
 			if (locationInfo.isMeaningful()) {
 				ranEndPointId = msg.getRequest().getRanEndPointId();
 			}
-			
+
 			List<Sapd> saps = nsd.getSapd();
 			List<SapData> sapData = new ArrayList<>();
 			for (Sapd sap : saps) {
 				SapData sData = null;
 				if (sap.getCpdId().equals(ranEndPointId)) {
 					sData = new SapData(sap.getCpdId(), 								//SAPD ID
-							"SAP-" + name + "-" + sap.getCpdId(),						//name 
+							"SAP-" + name + "-" + sap.getCpdId(),						//name
 							"SAP " + sap.getCpdId() + " for Network Slice " + name, 	//description
 							null,														//address
 							locationInfo);												//locationInfo
 					log.debug("Set location constraints for SAP " + sap.getCpdId());
 				} else {
 					sData = new SapData(sap.getCpdId(), 							//SAPD ID
-						"SAP-" + name + "-" + sap.getCpdId(),						//name 
+						"SAP-" + name + "-" + sap.getCpdId(),						//name
 						"SAP " + sap.getCpdId() + " for Network Slice " + name, 	//description
 						null,														//address
 						null);														//locationInfo
@@ -247,7 +241,7 @@ public class NsLcmManager {
 			}
 			log.debug("Completed SAP Data");
 			//TODO: here manage service profile info
-			
+
 			//Read NFV_NS_IDs from nsSubnetIds and put in nestedNsInstanceId list
 			List<String> nestedNfvNsId = new ArrayList<>();
 			for(String nsiId : msg.getRequest().getNsSubnetIds()){
@@ -264,18 +258,18 @@ public class NsLcmManager {
 			Map<String, String> additionalParamForNs = msg.getRequest().getUserData();
 			log.info("Nfv Ns id is: "+nfvNsId);
 			String operationId = nfvoLcmService.instantiateNs(new InstantiateNsRequest(nfvNsId,
-					dfId, 					//flavourId 
+					dfId, 					//flavourId
 					sapData, 				//sapData
 					null,					//pnfInfo
 					null,					//vnfInstanceData
-					nestedNfvNsId,			//nestedNsInstanceId 
-					null,					//locationConstraints 
-					additionalParamForNs,	//additionalParamForNs 
-					null,					//additionalParamForVnf 
+					nestedNfvNsId,			//nestedNsInstanceId
+					null,					//locationConstraints
+					additionalParamForNs,	//additionalParamForNs
+					null,					//additionalParamForVnf
 					null,					//startTime
 					ilId,					//nsInstantiationLevelId
 					null));					//additionalAffinityOrAntiAffinityRule
-			
+
 			log.debug("Sent request to NFVO service for instantiating NFV NS " + nfvNsId + ": operation ID " + operationId);
 
 		} catch (Exception e) {
