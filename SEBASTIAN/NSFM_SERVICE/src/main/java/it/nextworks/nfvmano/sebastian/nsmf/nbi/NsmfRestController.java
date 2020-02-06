@@ -126,6 +126,7 @@ public class NsmfRestController {
 	public ResponseEntity<?> instantiateNsi(@PathVariable String nsiId, @RequestBody InstantiateNsiRequest request, Authentication auth) {
 		log.debug("Received request to instantiate network slice " + nsiId);
 		try {
+
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.instantiateNetworkSlice(request, tenantId);
 			return new ResponseEntity<>(HttpStatus.ACCEPTED);

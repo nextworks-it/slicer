@@ -2,12 +2,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.*;
 import it.nextworks.nfvmano.catalogue.blueprint.messages.OnBoardVsBlueprintRequest;
 import it.nextworks.nfvmano.catalogue.blueprint.messages.OnboardVsDescriptorRequest;
-import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.messages.OnboardNsdRequest;
-import it.nextworks.nfvmano.libs.ifa.descriptors.nsd.Nsd;
-import it.nextworks.nfvmano.libs.ifa.descriptors.nsd.SecurityParameters;
-import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiIdRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.InstantiateVsRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.PurgeVsRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.QueryVsResponse;
@@ -26,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
@@ -138,20 +131,48 @@ public class SlicerE2ETest {
 
 
 
-    public void testVSBOnBoarding(String vsblueprintFilename) {
+
+    public void onBoardVsbWithNstTransRules(String dspHost, String vsblueprintFilename,String nstId) {
+        final String ONBOARD_VSB_URL = "/portal/catalogue/vsblueprint";
+        log.info("The NST id on NSP side is "+nstId);
+        OnBoardVsBlueprintRequest onBoardVsBlueprintRequestFromJSON = (OnBoardVsBlueprintRequest) getObjectFromFile(OnBoardVsBlueprintRequest.class, vsblueprintFilename);
+
+        List<VsdNstTranslationRule> vsdNstTranslationRuleList = new ArrayList<>();
+        log.info("Translation rule found: count  "+onBoardVsBlueprintRequestFromJSON.getNstTranslationRules().size());
+        for(int i=0; i<onBoardVsBlueprintRequestFromJSON.getNstTranslationRules().size(); i++){
+
+            VsdNstTranslationRule vsdNstTranslationRuleFromJSON = onBoardVsBlueprintRequestFromJSON.getNstTranslationRules().get(i);
+            VsdNstTranslationRule vsdNstTranslationRuleTmp = new VsdNstTranslationRule(
+                    vsdNstTranslationRuleFromJSON.getInput(),
+                    nstId,null,null,null,
+                    vsdNstTranslationRuleFromJSON.getNsInstantiationLevelId()
+            );
+            vsdNstTranslationRuleList.add(vsdNstTranslationRuleTmp);
+        }
+
+
+        OnBoardVsBlueprintRequest onBoardVsBlueprintRequest = new OnBoardVsBlueprintRequest(
+                onBoardVsBlueprintRequestFromJSON.getVsBlueprint(),
+                vsdNstTranslationRuleList);
+
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, onBoardVsBlueprintRequest, dspHost + ONBOARD_VSB_URL, HttpMethod.POST, dspInteraction.getCookiesAdmin());
+        vsbId = (String) responseEntity.getBody();
+        log.info(vsbId);
+        log.info("{}", responseEntity.getStatusCodeValue());
+    }
+
+    /* TODO to be changed because there is no more VSD to NSD translation rule
+    public void testVSBOnBoardingWithVsdNSDTranslRules(String dspHost, String vsblueprintFilename) {
         final String ONBOARD_VSB_URL = "/portal/catalogue/vsblueprint";
         OnBoardVsBlueprintRequest onBoardVsBlueprintRequestFromJSON = (OnBoardVsBlueprintRequest) getObjectFromFile(OnBoardVsBlueprintRequest.class, vsblueprintFilename);
-        List<VsdNsdTranslationRule> vsdNsdTranslationRuleList = new ArrayList<VsdNsdTranslationRule>();
+        List<VsdNstTranslationRule> vsdNsdTranslationRuleList = new ArrayList<VsdNstTranslationRule>();
 
         for(int i=0; i<onBoardVsBlueprintRequestFromJSON.getTranslationRules().size(); i++){
-            VsdNsdTranslationRule vsdNsdTranslationRuleFromJSON = onBoardVsBlueprintRequestFromJSON.getTranslationRules().get(i);
+            VsdNstTranslationRule vsdNsdTranslationRuleFromJSON = onBoardVsBlueprintRequestFromJSON.getTranslationRules().get(i);
 
-            VsdNsdTranslationRule vsdNsdTranslationRuleTmp = new VsdNsdTranslationRule(
+            VsdNstTranslationRule vsdNsdTranslationRuleTmp = new VsdNstTranslationRule(
                     vsdNsdTranslationRuleFromJSON.getInput(),
                     nstId,
-                    vsdNsdTranslationRuleFromJSON.getNsdId(),
-                    vsdNsdTranslationRuleFromJSON.getNsdVersion(),
-                    vsdNsdTranslationRuleFromJSON.getNsFlavourId(),
                     vsdNsdTranslationRuleFromJSON.getNsInstantiationLevelId()
                     );
             vsdNsdTranslationRuleList.add(vsdNsdTranslationRuleTmp);
@@ -160,10 +181,10 @@ public class SlicerE2ETest {
 
         OnBoardVsBlueprintRequest onBoardVsBlueprintRequest = new OnBoardVsBlueprintRequest(
                 onBoardVsBlueprintRequestFromJSON.getVsBlueprint(),
-                onBoardVsBlueprintRequestFromJSON.getNsds(),
+                onBoardVsBlueprintRequestFromJSON.getTranslationRules(),
                 vsdNsdTranslationRuleList);
 
-        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, onBoardVsBlueprintRequest, VSMF_HOST + ONBOARD_VSB_URL, HttpMethod.POST, dspInteraction.getCookiesAdmin());
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, onBoardVsBlueprintRequest, dspHost + ONBOARD_VSB_URL, HttpMethod.POST, dspInteraction.getCookiesAdmin());
 
         vsbId = (String) responseEntity.getBody();
         log.info(vsbId);
@@ -171,7 +192,7 @@ public class SlicerE2ETest {
         assertTrue(vsbId != null);
         assertTrue(responseEntity.getStatusCode() == HttpStatus.CREATED);
 
-        ResponseEntity<?> responseEntity2 = Util.performHttpRequest(VsBlueprintInfo.class, null, VSMF_HOST + ONBOARD_VSB_URL + "/" + vsbId, HttpMethod.GET, dspInteraction.getCookiesAdmin());
+        ResponseEntity<?> responseEntity2 = Util.performHttpRequest(VsBlueprintInfo.class, null, dspHost + ONBOARD_VSB_URL + "/" + vsbId, HttpMethod.GET, dspInteraction.getCookiesAdmin());
         VsBlueprintInfo vsBlueprintInfo = (VsBlueprintInfo) responseEntity2.getBody();
         log.info("ID: " + vsBlueprintInfo.getVsBlueprintId());
 
@@ -243,7 +264,7 @@ public class SlicerE2ETest {
         }
         log.info("The VSB has been on boarded as expected. All the internal fields have ben set properly");
     }
-
+*/
 
     public void testVSDOnBoarding() {
 
@@ -311,13 +332,13 @@ public class SlicerE2ETest {
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, instantiateVsRequest, VSMF_HOST + VSI_INSTANTIATION_URL, HttpMethod.POST, dspInteraction.getCookiesTenant());
         vsiId = (String) responseEntity.getBody();
         log.info("VSI ID:" +vsiId);
-        ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + VSI_INSTANTIATION_URL + "/" + vsiId, HttpMethod.GET, dspInteraction.getCookiesTenant());
-        QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
+        //ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + VSI_INSTANTIATION_URL + "/" + vsiId, HttpMethod.GET, dspInteraction.getCookiesTenant());
+        //QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
 
-        assertTrue(queryVsResponse.getVsiId().equals(vsiId));
-        assertTrue(queryVsResponse.getName().equals(instantiateVsRequest.getName()));
-        assertTrue(queryVsResponse.getDescription().equals(instantiateVsRequest.getDescription()));
-        assertTrue(queryVsResponse.getVsdId().equals(vsdId));
+        //assertTrue(queryVsResponse.getVsiId().equals(vsiId));
+        //assertTrue(queryVsResponse.getName().equals(instantiateVsRequest.getName()));
+        //assertTrue(queryVsResponse.getDescription().equals(instantiateVsRequest.getDescription()));
+        //assertTrue(queryVsResponse.getVsdId().equals(vsdId));
 
 
     }
@@ -371,8 +392,40 @@ public class SlicerE2ETest {
         VsiPurgeTest();
     }
 
-    //Configuration needed (nfvo.catalogue is DUMMY, nfvo.lcm is NMRO)
     @Test
+    public void onBoardVSBWithNstID(){
+        //NSP SIDE
+        nspInteraction.loginAdmin();
+        nspInteraction.createGroup("NSP_group");
+        nspInteraction.createTenant("tenant_nsp_sample.json");
+        nspInteraction.loginTenant();
+        nstId=nspInteraction.onBoardNST("nst_sample.json");
+
+        //DSP SIDE
+        dspInteraction.loginAdmin();
+        dspInteraction.createGroup("DSP_group");
+        dspInteraction.createTenant("tenant_sample.json");
+        dspInteraction.createTenantNotif("tenant_notif_sample.json");
+        dspInteraction.createSLA();
+        dspInteraction.loginTenant();
+        dspInteraction.createRemoteTenantInfo(nspInteraction.getTenant(),NSMF_HOST);
+        dspInteraction.associateLocalTenantWithRemoteTenant();
+
+        //On NSP
+        nspInteraction.createRemoteTenantInfo(dspInteraction.getTenantNot(),VSMF_HOST);
+        nspInteraction.associateLocalTenantWithRemoteTenant();
+
+        //DSP side
+        onBoardVsbWithNstTransRules(VSMF_HOST, "vsblueprint_osm_sample.json",nstId);
+        log.info("VSB on boarded");
+        testVSDOnBoarding();
+        log.info("VSD on boarded");
+        VSIinstantionTest();
+        log.info("VSI on boarded");
+    }
+
+    //Configuration needed (nfvo.catalogue is DUMMY, nfvo.lcm is NMRO)
+    //@Test
     public void testNmroAndOsm(){
         //NSP SIDE
         nspInteraction.loginAdmin();
@@ -397,7 +450,7 @@ public class SlicerE2ETest {
         nstId=nspInteraction.onBoardNST("nst_sample.json");
 
         //DSP SIDE
-        testVSBOnBoarding("vsblueprint_osm_sample.json");
+        //testVSBOnBoardingWithVsdNSDTranslRules(VSMF_HOST,"vsblueprint_osm_sample.json");
         testVSDOnBoarding();
         VSIinstantionTest();
     }
@@ -428,7 +481,7 @@ public class SlicerE2ETest {
         nstId=nspInteraction.onBoardNST("nst_sample.json");
 
         //DSP SIDE
-        testVSBOnBoarding("vsblueprint_sample.json");
-        testVSDOnBoarding();
+        //testVSBOnBoardingWithVsdNSDTranslRules(VSMF_HOST,"vsblueprint_sample.json");
+        //testVSDOnBoarding();
     }
 }

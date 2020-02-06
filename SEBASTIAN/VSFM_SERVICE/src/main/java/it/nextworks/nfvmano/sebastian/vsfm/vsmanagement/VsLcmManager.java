@@ -251,6 +251,7 @@ public class VsLcmManager {
 
 
                 NfvNsInstantiationInfo nsiInfo = nsInfo.get(vsdId);
+                nsiInfo.setDeploymentFlavourId("DF test");
                 //TODO: to be extended for composite VSDs
 
                 List<String> nsSubnetInstanceIds;
@@ -264,7 +265,6 @@ public class VsLcmManager {
                 		"NS - " + vsiName, 
                 		"Network slice for VS " + vsiName);
                 String nsiId = nsmfLcmProvider.createNetworkSliceIdentifier(request, tenantId);
-
 
 //                String nsiId = vsRecordService.createNetworkSliceForVsi(vsiId, nsiInfo.getNfvNsdId(), nsiInfo.getNsdVersion(), nsiInfo.getDeploymentFlavourId(),
 //                        nsiInfo.getInstantiationLevelId(), nsSubnetInstanceIds, tenantId, msg.getRequest().getName(), msg.getRequest().getDescription());

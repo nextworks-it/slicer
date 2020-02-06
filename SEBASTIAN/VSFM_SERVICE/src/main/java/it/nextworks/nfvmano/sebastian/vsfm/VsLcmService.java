@@ -237,6 +237,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 				String tenantId = fp.get("TENANT_ID");
 				log.debug("Received a query about VS instance with ID " + vsiId + " for tenant ID " + tenantId);
 				VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiId);
+
 				if (tenantId.equals(adminTenant) || tenantId.equals(vsi.getTenantId())) {
 					List<SapInfo> externalInterconnections = new ArrayList<>();
 					Map<String, List<VnfExtCpInfo>> internalInterconnections = new HashMap<>();

@@ -36,6 +36,10 @@ public class VsmfApplication {
 	public static String crossOrigin;
 
 	public static void main(String[] args) {
-		SpringApplication.run(VsmfApplication.class, args);
+		try {
+			SpringApplication.run(VsmfApplication.class, args);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

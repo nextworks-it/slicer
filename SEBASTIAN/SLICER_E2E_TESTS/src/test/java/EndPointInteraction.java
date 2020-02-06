@@ -132,6 +132,9 @@ public class EndPointInteraction {
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, remoteTenantInfoId, hostname + "/vs/admin/group/"+ groupName +"/tenant/"+ tenant.getUsername(), HttpMethod.PUT, cookiesAdmin);
     }
 
+    public void setHostname(String hostname){
+        this.hostname=hostname;
+    }
     public String getGroupName() {
         return groupName;
     }

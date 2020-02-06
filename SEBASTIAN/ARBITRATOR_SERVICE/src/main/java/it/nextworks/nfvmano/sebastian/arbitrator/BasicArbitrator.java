@@ -125,19 +125,19 @@ public class BasicArbitrator extends AbstractArbitrator {
 			nsInitInfo = e.getValue();
 		}
 
-		log.debug("The request is for tenant " + tenantId + " and for NSD " + nsInitInfo.getNfvNsdId() + " with DF " + nsInitInfo.getDeploymentFlavourId() + " and instantiation level " + nsInitInfo.getInstantiationLevelId());
+		log.debug("The request is for tenant " + tenantId +" and nst ID "+nsInitInfo.getNstId());
 		
 		try {
 
 			//Retrieve NSD info
-			String nfvNsId = nsInitInfo.getNfvNsdId();
-			String nsdVersion = nsInitInfo.getNsdVersion();
+			//String nfvNsId = nsInitInfo.getNfvNsdId();
+			//String nsdVersion = nsInitInfo.getNsdVersion();
 
 			//Nsd nsd = nfvoCatalogueService.queryNsdAssumingOne(nfvNsId, nsdVersion);
-			Nsd nsd = nfvoCatalogueService.queryNsdAssumingOne(BlueprintCatalogueUtilities.buildNsdFilter(nfvNsId,nsdVersion));
-			List<String> nestedNsdIds = nsd.getNestedNsdId();
-			Map<String, Boolean> existingNsiIds = null;
-			if (!nestedNsdIds.isEmpty()){
+			//Nsd nsd = nfvoCatalogueService.queryNsdAssumingOne(BlueprintCatalogueUtilities.buildNsdFilter(nfvNsId,nsdVersion));
+			//List<String> nestedNsdIds = nsd.getNestedNsdId();
+			Map<String, Boolean> existingNsiIds = new HashMap<>();
+			/*if (!nestedNsdIds.isEmpty()){
 
 				//Retrieve <DF, IL> from nsInitInfo
 				String instantiationLevelId = nsInitInfo.getInstantiationLevelId();
@@ -154,9 +154,10 @@ public class BasicArbitrator extends AbstractArbitrator {
 					}
 				}
 			}
-
-			VirtualResourceUsage requiredRes = virtualResourceCalculatorService.computeVirtualResourceUsage(nsInitInfo);
-			log.debug("The total amount of required resources for the service is the following: " + requiredRes.toString());
+			*/
+			//VirtualResourceUsage requiredRes = virtualResourceCalculatorService.computeVirtualResourceUsage(nsInitInfo);
+			VirtualResourceUsage requiredRes = new VirtualResourceUsage(0, 0, 0);//TODO figure out how to compute virtual resources using only NST
+			log.debug("The total amount of required resources for the service is the following : " + requiredRes.toString());
 			
 			log.debug("Reading info about active SLA and used resources for the given tenant.");
 			
