@@ -33,7 +33,6 @@ public class CPSService extends NsmfSbRestClient {
     private static final Logger log = LoggerFactory.getLogger(CPSService.class);
     private CSPTypes cspType;
 
-
     public CPSService() {
 
     }
@@ -46,8 +45,9 @@ public class CPSService extends NsmfSbRestClient {
         this.cspType = cspType;
     }
 
+    //http://10.8.202.11:8080/slicenet/ctrlplane/cpsr_cps/v1/cps-instances?cpsType=QOS_CP&slicenetId=f5b01594-520e-11e9-8647-d663bd873d93
     public String retrieveCpsUri(UUID sliceUuid) throws RestClientResponseException {
-        //http://10.8.202.11:8080/slicenet/ctrlplane/cpsr_cps/v1/cps-instances?cpsType=QOS_CP&slicenetId=f5b01594-520e-11e9-8647-d663bd873d93
+
         String url = String.format("%s/slicenet/ctrlplane/cpsr_cps/v1/cps-instances?cpsType=%s&slicenetId=%s",
                 this.getTargetUrl(), this.cspType.name(), sliceUuid.toString());
         ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.GET);

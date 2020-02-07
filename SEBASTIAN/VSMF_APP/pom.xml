@@ -26,6 +26,7 @@
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-test</artifactId>
           <scope>test</scope>
+          <!-- NOTE: the following exclusion is very important. DON'T REMOVE IT if you want keeping logging!!!-->
           <exclusions>
               <exclusion>
                   <groupId>ch.qos.logback</groupId>

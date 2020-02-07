@@ -40,6 +40,9 @@
     </properties>
 
 
+
+
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -114,7 +117,7 @@
             <artifactId>EveBlueprintsIM</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
-    </dependencies>
 
+    </dependencies>
 
 </project>
