@@ -75,8 +75,8 @@ public class VsLcmBasicRestController {
 			if (!request.getTenantId().equals(username)) {
 				return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
 			}
-			String vsId = vsLcmService.instantiateVs(request);
-			return new ResponseEntity<>(vsId, HttpStatus.CREATED);
+			String vsUuid = vsLcmService.instantiateVs(request);
+			return new ResponseEntity<>(vsUuid, HttpStatus.CREATED);
 		} catch (NotExistingEntityException e) {
 			log.error("VS instantiation failed due to missing elements in DB.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -92,12 +92,12 @@ public class VsLcmBasicRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/vs/{vsiId}", method = RequestMethod.GET)
-	public ResponseEntity<?> getVsInstance(@PathVariable String vsiId, Authentication auth) {
-		log.debug("Received request to retrieve VS instance with ID " + vsiId);
+	@RequestMapping(value = "/vs/{vsiUuid}", method = RequestMethod.GET)
+	public ResponseEntity<?> getVsInstance(@PathVariable String vsiUuid, Authentication auth) {
+		log.debug("Received request to retrieve VS instance with UUID " + vsiUuid);
 		try {
 			String user = getUserFromAuth(auth);
-			QueryVsResponse response = vsLcmService.queryVs(new GeneralizedQueryRequest(VSICatalogueUtilities.buildVsInstanceFilter(vsiId, user), null));
+			QueryVsResponse response = vsLcmService.queryVs(new GeneralizedQueryRequest(VSICatalogueUtilities.buildVsInstanceFilter(vsiUuid, user), null));
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
@@ -115,9 +115,9 @@ public class VsLcmBasicRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/vsId", method = RequestMethod.GET)
+	@RequestMapping(value = "/vsiUuid", method = RequestMethod.GET)
 	public ResponseEntity<?> getAllVsInstancesId(Authentication auth) {
-		log.debug("Received request to retrieve all the VS instances ID.");
+		log.debug("Received request to retrieve all the VS instances UUID.");
 		try {
 			String user = getUserFromAuth(auth);
 			List<String> response = vsLcmService.queryAllVsIds(new GeneralizedQueryRequest(MgmtCatalogueUtilities.buildTenantFilter(user), null));
@@ -135,12 +135,12 @@ public class VsLcmBasicRestController {
 	}
 	
 	
-	@RequestMapping(value = "/vs/{vsiId}/terminate", method = RequestMethod.POST)
-	public ResponseEntity<?> terminateVsInstance(@PathVariable String vsiId, Authentication auth) {
-		log.debug("Received request to terminate VS instance with ID " + vsiId);
+	@RequestMapping(value = "/vs/{vsiUuid}/terminate", method = RequestMethod.POST)
+	public ResponseEntity<?> terminateVsInstance(@PathVariable String vsiUuid, Authentication auth) {
+		log.debug("Received request to terminate VS instance with ID " + vsiUuid);
 		try {
 			String user = getUserFromAuth(auth);
-			vsLcmService.terminateVs(new TerminateVsRequest(vsiId, user));
+			vsLcmService.terminateVs(new TerminateVsRequest(vsiUuid, user));
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
@@ -157,12 +157,12 @@ public class VsLcmBasicRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/vs/{vsiId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> purgeVsInstance(@PathVariable String vsiId, Authentication auth) {
-		log.debug("Received request to purge VS instance with ID " + vsiId);
+	@RequestMapping(value = "/vs/{vsiUuid}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> purgeVsInstance(@PathVariable String vsiUuid, Authentication auth) {
+		log.debug("Received request to purge VS instance with ID " + vsiUuid);
 		try {
 			String user = getUserFromAuth(auth);
-			vsLcmService.purgeVs(new PurgeVsRequest(vsiId, user));
+			vsLcmService.purgeVs(new PurgeVsRequest(vsiUuid, user));
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (MalformattedElementException e) {
 			log.error("Malformatted request");
@@ -179,9 +179,9 @@ public class VsLcmBasicRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/vs/{vsiId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> modifyVsInstance(@PathVariable String vsiId, @RequestBody ModifyVsRequest request, Authentication auth) {
-		log.debug("Received request to modify VS instance with ID " + vsiId);
+	@RequestMapping(value = "/vs/{vsiUuid}", method = RequestMethod.PUT)
+	public ResponseEntity<?> modifyVsInstance(@PathVariable String vsiUuid, @RequestBody ModifyVsRequest request, Authentication auth) {
+		log.debug("Received request to modify VS instance with UUID " + vsiUuid);
 		try {
 			String user = getUserFromAuth(auth);
 			if (!request.getTenantId().equals(user)) {

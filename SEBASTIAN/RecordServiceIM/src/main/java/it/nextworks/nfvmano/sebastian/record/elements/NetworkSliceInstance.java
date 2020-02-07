@@ -17,6 +17,7 @@ package it.nextworks.nfvmano.sebastian.record.elements;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -38,7 +39,7 @@ public class NetworkSliceInstance {
 	@Id
     @GeneratedValue
     @JsonIgnore
-    private Long id;
+    private UUID uuid;
 	
 	private String name;
 	
@@ -152,13 +153,6 @@ public class NetworkSliceInstance {
 	 */
 	public void setNsiId(String nsiId) {
 		this.nsiId = nsiId;
-	}
-
-	/**
-	 * @return the id
-	 */
-	public Long getId() {
-		return id;
 	}
 	
 	
@@ -332,5 +326,8 @@ public class NetworkSliceInstance {
 		this.status = NetworkSliceStatus.FAILED;
 		this.errorMessage = errorMessage;
 	}
-	
+
+	public UUID getUuid() {
+		return uuid;
+	}
 }

@@ -62,11 +62,11 @@ import java.util.Map;
 public class NsLcmManager {
 
 	private static final Logger log = LoggerFactory.getLogger(NsLcmManager.class);
-	private String networkSliceInstanceId;
+	private String networkSliceInstanceUuid;
 	private String name;
 	private String description;
-	private List<String> nestedNsiIds = new ArrayList<>();			//network slice subnets explicitly handled by the VS
-	private List<String> soNestedNsiIds = new ArrayList<>();        //network slice subnets implicitly created by the SO, and so controlled by the SO only
+	private List<String> nestedNsiUuids = new ArrayList<>();			//network slice subnets explicitly handled by the VS
+	private List<String> soNestedNsiUuids = new ArrayList<>();        //network slice subnets implicitly created by the SO, and so controlled by the SO only
 	private String tenantId;
 	private NfvoCatalogueService nfvoCatalogueService;
 	private NfvoLcmService nfvoLcmService;
@@ -86,7 +86,7 @@ public class NsLcmManager {
 	
 	private NsmfUtils nsmfUtils;
 	
-	public NsLcmManager(String networkSliceInstanceId,
+	public NsLcmManager(String networkSliceInstanceUuid,
 						String name,
 						String description,
 						String tenantId,
@@ -97,7 +97,7 @@ public class NsLcmManager {
 						NsLcmService nsLcmService,
 						NST networkSliceTemplate, 
 						NsmfUtils nsmfUtils) {
-		this.networkSliceInstanceId = networkSliceInstanceId;
+		this.networkSliceInstanceUuid = networkSliceInstanceUuid;
 		this.name = name;
 		this.description = description;
 		this.tenantId = tenantId;
@@ -125,7 +125,7 @@ public class NsLcmManager {
 	 * @param message received message
 	 */
 	public void receiveMessage(String message) {
-		log.debug("Received message for NSI " + networkSliceInstanceId + "\n" + message);
+		log.debug("Received message for NSI " + networkSliceInstanceUuid + "\n" + message);
 		
 		try {
 			ObjectMapper mapper = new ObjectMapper();
@@ -189,8 +189,8 @@ public class NsLcmManager {
 		
 		try {
 			log.debug("Updating internal network slice record");
-			nsRecordService.setNsiInstantiationInfo(networkSliceInstanceId, dfId, ilId, msg.getRequest().getNsSubnetIds());
-			nsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATING);
+			nsRecordService.setNsiInstantiationInfo(networkSliceInstanceUuid, dfId, ilId, msg.getRequest().getNsSubnetIds());
+			nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.INSTANTIATING);
 			
 			log.debug("Retrieving NSD");
 			NsdInfo nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0);
@@ -201,6 +201,9 @@ public class NsLcmManager {
 			String nfvNsId;
 
 			if(nsmfUtils.isSsoNmroIntegrationScenario()) {
+				log.debug("Debug info: networkSliceTemplate.getUuid "+networkSliceTemplate.getUuid());
+				log.debug("Debug info #2: networkSliceInstanceUuid "+ networkSliceInstanceUuid);
+
 				tenantId = "admin";//TODO the mapping between the tenant on NSP and tenant on NMRO (and thus OSM) is missing. So for now is hardcoded
 				this.nsdInfoId = nsdInfo.getNsdId();// The NSD cannot be on boarded specifying its own ID, so the custom one is get from NSD
 			}
@@ -209,7 +212,7 @@ public class NsLcmManager {
 			log.info("nsdInfoId is: "+nsdInfoId);
 			log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
 			this.nfvNsiInstanceId = nfvNsId;
-			nsRecordService.setNfvNsiInNsi(networkSliceInstanceId, nfvNsId);
+			nsRecordService.setNfvNsiInNsi(networkSliceInstanceUuid, nfvNsId);
 
 			log.debug("Building NFV NS instantiation request");
 
@@ -244,10 +247,10 @@ public class NsLcmManager {
 
 			//Read NFV_NS_IDs from nsSubnetIds and put in nestedNsInstanceId list
 			List<String> nestedNfvNsId = new ArrayList<>();
-			for(String nsiId : msg.getRequest().getNsSubnetIds()){
-				NetworkSliceInstance nsi = nsRecordService.getNsInstance(nsiId);
+			for(String nsiUuid : msg.getRequest().getNsSubnetIds()){
+				NetworkSliceInstance nsi = nsRecordService.getNsInstance(nsiUuid);
 				nestedNfvNsId.add(nsi.getNfvNsId());
-				this.nestedNsiIds.add(nsi.getNsiId());
+				this.nestedNsiUuids.add(nsi.getNsiId());
 			}
 			/*
 			 * DON'T STORE this.nestedNsiIds on DB:
@@ -282,13 +285,13 @@ public class NsLcmManager {
 			manageNsError("Received modification request in wrong status. Skipping message.");
 			return;
 		}
-		else if (!msg.getRequest().getNsiId().equals(networkSliceInstanceId)){
-			manageNsError("Received modification request with wrong nsiId " + msg.getRequest().getNsiId());
+		else if (!msg.getRequest().getNsiId().equals(networkSliceInstanceUuid)){
+			manageNsError("Received modification request with wrong nsiUuid " + msg.getRequest().getNsiId());
 			return;
 		}
-		log.debug("Modifying network slice " + networkSliceInstanceId);
+		log.debug("Modifying network slice " + networkSliceInstanceUuid);
 		this.internalStatus = NetworkSliceStatus.UNDER_MODIFICATION;
-		nsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.UNDER_MODIFICATION);
+		nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.UNDER_MODIFICATION);
 		log.debug("Sending request to modify NFV network service " + nfvNsiInstanceId);
 		try {
 			ScaleNsToLevelData scaleNsToLevelData = new ScaleNsToLevelData(msg.getRequest().getIlId(), null);
@@ -329,7 +332,7 @@ public class NsLcmManager {
 			if (msg.isSuccessful()) {
 				switch (internalStatus) {
 					case INSTANTIATING: {
-						log.debug("Successful instantiation of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
+						log.debug("Successful instantiation of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceUuid);
 						this.internalStatus=NetworkSliceStatus.INSTANTIATED;
 
 						//If the network slice includes slice subnets, update or create the related entries
@@ -346,40 +349,40 @@ public class NsLcmManager {
 								String nestedNsiId = nsRecordService.createNetworkSliceInstanceEntry(null,
 										null, null, null, null, nfvNsId, null,
 										null, null, null, true);
-								soNestedNsiIds.add(nestedNsiId);
+								soNestedNsiUuids.add(nestedNsiId);
 								nsRecordService.setNsStatus(nestedNsiId, NetworkSliceStatus.INSTANTIATED);
 							}
 						}
-						if (soNestedNsiIds.size() >0 )
-							nsRecordService.addNsSubnetsInNetworkSliceInstance(networkSliceInstanceId, soNestedNsiIds);
+						if (soNestedNsiUuids.size() >0 )
+							nsRecordService.addNsSubnetsInNetworkSliceInstance(networkSliceInstanceUuid, soNestedNsiUuids);
 
-						nsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
+						nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.INSTANTIATED);
 						log.debug("Sending notification to engine.");
-						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceId, NetworkSliceStatusChange.NSI_CREATED, true,tenantId));
+						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_CREATED, true,tenantId));
 						break;
 					}
 					case UNDER_MODIFICATION: {
-						log.debug("Successful modification of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
+						log.debug("Successful modification of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceUuid);
 						this.internalStatus=NetworkSliceStatus.INSTANTIATED;
 						//TODO check on requestedInstantiationLevelId
-						nsRecordService.updateNsInstantiationLevelAfterScaling(networkSliceInstanceId, requestedInstantiationLevelId);
-						nsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATED);
-						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceId, NetworkSliceStatusChange.NSI_MODIFIED, true,tenantId));
+						nsRecordService.updateNsInstantiationLevelAfterScaling(networkSliceInstanceUuid, requestedInstantiationLevelId);
+						nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.INSTANTIATED);
+						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_MODIFIED, true,tenantId));
 						break;
 					}
 
 					case TERMINATING: {
-						log.debug("Successful termination of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
+						log.debug("Successful termination of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceUuid);
 						//TODO: should we also remove the NS instance ID from the NFVO?
-						for (String soManagedNsiId : soNestedNsiIds){
-							nsRecordService.setNsStatus(soManagedNsiId, NetworkSliceStatus.TERMINATED);
+						for (String soManagedNsiUuid : soNestedNsiUuids){
+							nsRecordService.setNsStatus(soManagedNsiUuid, NetworkSliceStatus.TERMINATED);
 						}
 						this.internalStatus=NetworkSliceStatus.TERMINATED;
-						nsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.TERMINATED);
-						log.debug("Removing NSLCM Manager from engine for network slice " + networkSliceInstanceId);
-						nsLcmService.removeNsLcmManager(networkSliceInstanceId);
+						nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.TERMINATED);
+						log.debug("Removing NSLCM Manager from engine for network slice " + networkSliceInstanceUuid);
+						nsLcmService.removeNsLcmManager(networkSliceInstanceUuid);
 						log.debug("Sending notification about network slice termination.");
-						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceId, NetworkSliceStatusChange.NSI_TERMINATED, true,tenantId));
+						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_TERMINATED, true,tenantId));
 						break;
 					}
 
@@ -399,14 +402,14 @@ public class NsLcmManager {
 		if (internalStatus != NetworkSliceStatus.INSTANTIATED) {
 			manageNsError("Received termination request in wrong status. Skipping message.");
 			return;
-		} else if (!msg.getRequest().getNsiId().equals(networkSliceInstanceId)){
-            manageNsError("Received termination request with wrong nsiId " + msg.getRequest().getNsiId());
+		} else if (!msg.getRequest().getNsiId().equals(networkSliceInstanceUuid)){
+            manageNsError("Received termination request with wrong nsiUuid " + msg.getRequest().getNsiId());
             return;
         }
 
-		log.debug("Terminating network slice " + networkSliceInstanceId);
+		log.debug("Terminating network slice " + networkSliceInstanceUuid);
 		this.internalStatus = NetworkSliceStatus.TERMINATING;
-		nsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.TERMINATING);
+		nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.TERMINATING);
 		log.debug("Sending request to terminate NFV network service " + nfvNsiInstanceId);
 		try {
 			String operationId = nfvoLcmService.terminateNs(new TerminateNsRequest(nfvNsiInstanceId, null));

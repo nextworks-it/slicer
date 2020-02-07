@@ -1,26 +1,5 @@
 package it.nextworks.nfvmano.sebastian.nsmf.nbi;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import it.nextworks.nfvmano.libs.ifa.templates.NST;
-import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
 import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
@@ -32,6 +11,19 @@ import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -62,8 +54,8 @@ public class NsmfRestController {
 		log.debug("Received request to create a new network slice instance ID.");
 		try {
 			String tenantId = getUserFromAuth(auth);
-			String nsiId = nsLcmService.createNetworkSliceIdentifier(request, tenantId);
-			return new ResponseEntity<>(nsiId, HttpStatus.CREATED);
+			String nsiUuid = nsLcmService.createNetworkSliceIdentifier(request, tenantId);
+			return new ResponseEntity<>(nsiUuid, HttpStatus.CREATED);
 		} catch (NotExistingEntityException e) {
 			log.error("NS ID creation failed due to missing elements in DB.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -79,19 +71,19 @@ public class NsmfRestController {
 		}
 	}
 
-	@RequestMapping(value = "/ns/{nsiId}", method = RequestMethod.GET)
-	public ResponseEntity<?> getNsInstance(@PathVariable String nsiId, Authentication auth) {
-		log.debug("Received query for network slice instance with ID " + nsiId);
+	@RequestMapping(value = "/ns/{nsiUuid}", method = RequestMethod.GET)
+	public ResponseEntity<?> getNsInstance(@PathVariable String nsiUuid, Authentication auth) {
+		log.debug("Received query for network slice instance with UUID " + nsiUuid);
 		try {
 			String tenantId = getUserFromAuth(auth);
 			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put("NSI_ID", nsiId);
+			parameters.put("NSI_ID", nsiUuid);
 			Filter filter = new Filter(parameters);
 			GeneralizedQueryRequest query = new GeneralizedQueryRequest(filter, null);
 			List<NetworkSliceInstance> nsis = nsLcmService.queryNetworkSliceInstance(query, tenantId);
 			if (nsis.isEmpty()) {
-				log.error("Network slice instance with ID " + nsiId + " not found");
-				return new ResponseEntity<>("Network slice instance with ID " + nsiId + " not found", HttpStatus.BAD_REQUEST);
+				log.error("Network slice instance with UUID " + nsiUuid + " not found");
+				return new ResponseEntity<>("Network slice instance with UUID " + nsiUuid + " not found", HttpStatus.BAD_REQUEST);
 			}
 			return new ResponseEntity<NetworkSliceInstance>(nsis.get(0), HttpStatus.OK);
 		} catch (MalformattedElementException e) {
@@ -122,9 +114,9 @@ public class NsmfRestController {
 		}
 	}
 
-	@RequestMapping(value = "/ns/{nsiId}/action/instantiate", method = RequestMethod.PUT)
-	public ResponseEntity<?> instantiateNsi(@PathVariable String nsiId, @RequestBody InstantiateNsiRequest request, Authentication auth) {
-		log.debug("Received request to instantiate network slice " + nsiId);
+	@RequestMapping(value = "/ns/{nsiUuid}/action/instantiate", method = RequestMethod.PUT)
+	public ResponseEntity<?> instantiateNsi(@PathVariable String nsiUuid, @RequestBody InstantiateNsiRequest request, Authentication auth) {
+		log.debug("Received request to instantiate network slice " + nsiUuid);
 		try {
 
 			String tenantId = getUserFromAuth(auth);
@@ -145,9 +137,9 @@ public class NsmfRestController {
 		}
 	}
 
-	@RequestMapping(value = "/ns/{nsiId}/action/modify", method = RequestMethod.PUT)
-	public ResponseEntity<?> modifyNsi(@PathVariable String nsiId, @RequestBody ModifyNsiRequest request, Authentication auth) {
-		log.debug("Received request to modify network slice " + nsiId);
+	@RequestMapping(value = "/ns/{nsiUuid}/action/modify", method = RequestMethod.PUT)
+	public ResponseEntity<?> modifyNsi(@PathVariable String nsiUuid, @RequestBody ModifyNsiRequest request, Authentication auth) {
+		log.debug("Received request to modify network slice " + nsiUuid);
 		try {
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.modifyNetworkSlice(request, tenantId);
@@ -167,9 +159,9 @@ public class NsmfRestController {
 		}
 	}
 
-	@RequestMapping(value = "/ns/{nsiId}/action/terminate", method = RequestMethod.PUT)
-	public ResponseEntity<?> terminateNsi(@PathVariable String nsiId, @RequestBody TerminateNsiRequest request, Authentication auth) {
-		log.debug("Received request to terminate network slice " + nsiId);
+	@RequestMapping(value = "/ns/{nsiUuid}/action/terminate", method = RequestMethod.PUT)
+	public ResponseEntity<?> terminateNsi(@PathVariable String nsiUuid, @RequestBody TerminateNsiRequest request, Authentication auth) {
+		log.debug("Received request to terminate network slice " + nsiUuid);
 		try {
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.terminateNetworkSliceInstance(request, tenantId);

@@ -57,7 +57,7 @@ public class VsRecordService {
 	//Methods about vertical services
 
 	/**
-	 * This methods creates a new Vertical Service instance, assigning it an ID, and it stores it in the DB.
+	 * This methods creates a new Vertical Service instance, assigning it an UUID, and it stores it in the DB.
 	 *
 	 * @param name        name of the VSI
 	 * @param description description of the VSI
@@ -66,63 +66,63 @@ public class VsRecordService {
 	 * @param userData	  configuration parameters provided by the vertical
 	 * @param locationConstraints constraints on the geographical placement of the service
 	 * @param ranEndPointId ID of the connection point attached to the RAN
-	 * @return the ID assigned to the Vertical Service instance
+	 * @return the UUID assigned to the Vertical Service instance
 	 */
 	public synchronized String createVsInstance(String name, String description, String vsdId, String tenantId, Map<String, String> userData, LocationInfo locationConstraints, String ranEndPointId) {
 		log.debug("Creating a new VS instance in DB.");
 		VerticalServiceInstance vsi = new VerticalServiceInstance(null, vsdId, tenantId, name, description, null, userData, locationConstraints, ranEndPointId);
 		vsInstanceRepository.saveAndFlush(vsi);
-		String vsiId = vsi.getId().toString();
-		log.debug("Created Vertical Service instance with ID " + vsiId);
-		vsi.setVsiId(vsiId);
+		String vsiUuid = vsi.getUuid().toString();
+		log.debug("Created Vertical Service instance with UUID " + vsiUuid);
+		vsi.setVsiId(vsiUuid);
 		vsInstanceRepository.saveAndFlush(vsi);
-		return vsiId;
+		return vsiUuid;
 	}
 
 	/**
 	 * This method removes a terminated VS instance from the DB.
 	 *
-	 * @param vsiId ID of the VS instance to be removed
+	 * @param vsiUuid UUID of the VS instance to be removed
 	 * @throws NotExistingEntityException     if the VS instance is not present in the DB
 	 * @throws NotPermittedOperationException if the VS instance is not in terminated status
 	 */
-	public synchronized void removeVsInstance(String vsiId) throws NotExistingEntityException, NotPermittedOperationException {
-		log.debug("Removing VS instance " + vsiId + " from DB.");
-		VerticalServiceInstance vsi = getVsInstance(vsiId);
+	public synchronized void removeVsInstance(String vsiUuid) throws NotExistingEntityException, NotPermittedOperationException {
+		log.debug("Removing VS instance " + vsiUuid + " from DB.");
+		VerticalServiceInstance vsi = getVsInstance(vsiUuid);
 		if (!vsi.getStatus().equals(VerticalServiceStatus.TERMINATED))
-			throw new NotPermittedOperationException("VS instance " + vsiId + " not in terminated status. Impossible to remove it from DB.");
+			throw new NotPermittedOperationException("VS instance " + vsiUuid + " not in terminated status. Impossible to remove it from DB.");
 		vsInstanceRepository.delete(vsi);
-		log.debug("VS instance " + vsiId + " removed from DB.");
+		log.debug("VS instance " + vsiUuid + " removed from DB.");
 	}
 
 	/**
 	 * This method updates the VSI in DB, setting it in failure state and filling its error message.
 	 *
-	 * @param vsiId        ID of the VSI to be modified in the DB
+	 * @param vsiId        Uuid of the VSI to be modified in the DB
 	 * @param errorMessage error message to be set for the VSI
 	 */
-	public synchronized void setVsFailureInfo(String vsiId, String errorMessage) {
-		log.debug("Adding failure info to VS instance " + vsiId + " in DB.");
+	public synchronized void setVsFailureInfo(String vsiUuid, String errorMessage) {
+		log.debug("Adding failure info to VS instance " + vsiUuid + " in DB.");
 		try {
-			VerticalServiceInstance vsi = getVsInstance(vsiId);
+			VerticalServiceInstance vsi = getVsInstance(vsiUuid);
 			vsi.setFailureState(errorMessage);
 			vsInstanceRepository.saveAndFlush(vsi);
 			log.debug("Set failure info in DB.");
 		} catch (NotExistingEntityException e) {
-			log.error("VSI with ID " + vsiId + " not present in DB. Impossible to set VSI failure info.");
+			log.error("VSI with UUID " + vsiUuid + " not present in DB. Impossible to set VSI failure info.");
 		}
 	}
 
 	/**
 	 * This method updates the VSI in DB, setting its status
 	 *
-	 * @param vsiId  ID of the VSI to be modified in the DB
+	 * @param vsiId  UUID of the VSI to be modified in the DB
 	 * @param status new status of the VSI
 	 * @throws NotExistingEntityException if the VSI does not exist in DB.
 	 */
-	public synchronized void setVsStatus(String vsiId, VerticalServiceStatus status) throws NotExistingEntityException {
-		log.debug("Setting status in VS instance " + vsiId + " in DB.");
-		VerticalServiceInstance vsi = getVsInstance(vsiId);
+	public synchronized void setVsStatus(String vsiUuid, VerticalServiceStatus status) throws NotExistingEntityException {
+		log.debug("Setting status in VS instance " + vsiUuid + " in DB.");
+		VerticalServiceInstance vsi = getVsInstance(vsiUuid);
 		vsi.setStatus(status);
 		vsInstanceRepository.saveAndFlush(vsi);
 		log.debug("Set VS status in DB.");
@@ -131,30 +131,30 @@ public class VsRecordService {
 	/**
 	 * This method update the VSI in DB, setting the associated network slice instance
 	 *
-	 * @param vsiId ID of the VSI to be updated
+	 * @param vsiUuid ID of the VSI to be updated
 	 * @param nsiId ID of the NSI to be associated to the VSI
 	 * @throws NotExistingEntityException if the VSI does not exist
 	 */
-	public synchronized void setNsiInVsi(String vsiId, String nsiId) throws NotExistingEntityException {
-		log.debug("Adding Network Slice instance " + nsiId + " to Vertical Service instance " + vsiId + " in VSI DB record.");
-		VerticalServiceInstance vsi = getVsInstance(vsiId);
-		vsi.setNetworkSliceId(nsiId);
+	public synchronized void setNsiInVsi(String vsiUuid, String nsiUuid) throws NotExistingEntityException {
+		log.debug("Adding Network Slice instance " + nsiUuid + " to Vertical Service instance " + vsiUuid + " in VSI DB record.");
+		VerticalServiceInstance vsi = getVsInstance(vsiUuid);
+		vsi.setNetworkSliceId(nsiUuid);
 		vsInstanceRepository.saveAndFlush(vsi);
-		log.debug("VSI with ID " + vsiId + " updated with NSI " + nsiId);
+		log.debug("VSI with UUID " + vsiUuid + " updated with NSI " + nsiUuid);
 	}
 
 	/**
 	 * This method returns the VSI stored in DB.
 	 *
-	 * @param vsiId ID of the VSI to be returned
+	 * @param vsiUuid UUID of the VSI to be returned
 	 * @return VSI stored in DB
 	 * @throws NotExistingEntityException if the VSI is not present in DB
 	 */
-	public VerticalServiceInstance getVsInstance(String vsiId) throws NotExistingEntityException {
-		log.debug("Retrieving VSI with ID " + vsiId + " from DB.");
-		Optional<VerticalServiceInstance> vsi = vsInstanceRepository.findByVsiId(vsiId);
+	public VerticalServiceInstance getVsInstance(String vsiUuid) throws NotExistingEntityException {
+		log.debug("Retrieving VSI with UUID " + vsiUuid + " from DB.");
+		Optional<VerticalServiceInstance> vsi = vsInstanceRepository.findByVsiId(vsiUuid);
 		if (vsi.isPresent()) return vsi.get();
-		else throw new NotExistingEntityException("VSI with ID " + vsiId + " not present in DB.");
+		else throw new NotExistingEntityException("VSI with UUID " + vsiUuid + " not present in DB.");
 	}
 
 	/**
@@ -176,36 +176,36 @@ public class VsRecordService {
 	}
 
 	/**
-	 * This method returns all the VS instances associated to a slice with a given ID.
+	 * This method returns all the VS instances associated to a slice with a given UUID.
 	 *
-	 * @param sliceId ID of the slice where the vertical services are mapped
+	 * @param sliceUuid UUID of the slice where the vertical services are mapped
 	 * @return the vertical services associated to the slice
 	 */
-	public List<VerticalServiceInstance> getVsInstancesFromNetworkSlice(String sliceId) {
-		return vsInstanceRepository.findByNetworkSliceId(sliceId);
+	public List<VerticalServiceInstance> getVsInstancesFromNetworkSlice(String sliceUuid) {
+		return vsInstanceRepository.findByNetworkSliceId(sliceUuid);
 	}
 
 	/**
 	 * This method adds nested VSI into parent VSI
 	 *
-	 * @param parentVsiId ID of the parent VSI
-	 * @param nestedVsi   VS instance to be addedd
+	 * @param parentVsiUuid Uuid of the parent VSI
+	 * @param nestedVsi   VS instance to be added
 	 */
-	public synchronized void addNestedVsInVerticalServiceInstance(String parentVsiId, VerticalServiceInstance nestedVsi) {
-		log.debug("Adding nested VSI into parent slice " + parentVsiId + " in DB.");
+	public synchronized void addNestedVsInVerticalServiceInstance(String parentVsiUuid, VerticalServiceInstance nestedVsi) {
+		log.debug("Adding nested VSI into parent slice " + parentVsiUuid + " in DB.");
 		try {
-			VerticalServiceInstance vsi = getVsInstance(parentVsiId);
+			VerticalServiceInstance vsi = getVsInstance(parentVsiUuid);
 			vsi.addNestedVsi(nestedVsi);
-			log.debug("Nested VSI added. Id: {}", nestedVsi.getId());
+			log.debug("Nested VSI added. UUID: {}", nestedVsi.getUuid());
 			vsInstanceRepository.saveAndFlush(vsi);
-			log.debug("Nestded VSI for VSI {} added.", parentVsiId);
+			log.debug("Nested VSI for VSI {} added.", parentVsiUuid);
 		} catch (NotExistingEntityException e) {
 			log.error("NSI not present in DB. Impossible to complete the subnets updates.");
 		}
 	}
 
-	public synchronized void setNsFailureInfoInVsInstances(String nsiId, String errorMessage) {
-		List<VerticalServiceInstance> vsis = vsInstanceRepository.findByNetworkSliceId(nsiId);
+	public synchronized void setNsFailureInfoInVsInstances(String nsiUuid, String errorMessage) {
+		List<VerticalServiceInstance> vsis = vsInstanceRepository.findByNetworkSliceId(nsiUuid);
 		for (VerticalServiceInstance vsi : vsis) {
 			vsi.setFailureState(errorMessage);
 			vsInstanceRepository.saveAndFlush(vsi);

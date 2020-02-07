@@ -99,8 +99,8 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     @Autowired
     private NfvoLcmService nfvoLcmService;
 
-    //internal map of VS LCM Managers
-    //each VS LCM Manager is created when a new VSI ID is created and removed when the VSI ID is removed
+    //internal map of NS LCM Managers
+    //each NS LCM Manager is created when a new NSI ID is created and removed when the NSI ID is removed
     private Map<String, NsLcmManager> nsLcmManagers = new HashMap<>();
     
     private NsmfLcmConsumerInterface notificationDispatcher;
@@ -149,24 +149,24 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     		throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException, MalformattedElementException, NotPermittedOperationException {
     	log.debug("Processing request to instantiate a network slice instance");
     	request.isValid();
-    	String nsiId = request.getNsiId();
-    	log.debug("Processing NSI instantiation request for NSI ID " + nsiId);
-        if (nsLcmManagers.containsKey(nsiId)) {
-        	NetworkSliceStatus sliceStatus = nsLcmManagers.get(nsiId).getInternalStatus();
+    	String nsiUuid = request.getNsiId();
+    	log.debug("Processing NSI instantiation request for NSI UUID " + nsiUuid);
+        if (nsLcmManagers.containsKey(nsiUuid)) {
+        	NetworkSliceStatus sliceStatus = nsLcmManagers.get(nsiUuid).getInternalStatus();
         	if (sliceStatus != NetworkSliceStatus.NOT_INSTANTIATED) {
-        		log.error("Network slice " + nsiId + " not in NOT INSTANTIATED state. Cannot instantiate it. Skipping message.");
-        		throw new NotPermittedOperationException("Network slice " + nsiId + " not in NOT INSTANTIATED state.");
+        		log.error("Network slice " + nsiUuid + " not in NOT INSTANTIATED state. Cannot instantiate it. Skipping message.");
+        		throw new NotPermittedOperationException("Network slice " + nsiUuid + " not in NOT INSTANTIATED state.");
         	}
-            String topic = "nslifecycle.instantiatens." + nsiId;
+            String topic = "nslifecycle.instantiatens." + nsiUuid;
             InstantiateNsiRequestMessage internalMessage = new InstantiateNsiRequestMessage(request, tenantId);
             try {
                 sendMessageToQueue(internalMessage, topic);
             } catch (JsonProcessingException e) {
-            	nsmfUtils.manageNsError(nsiId, "Error while translating internal NS instantiation message in Json format.");
+            	nsmfUtils.manageNsError(nsiUuid, "Error while translating internal NS instantiation message in Json format.");
             }
         } else {
-            log.error("Unable to find Network Slice LCM Manager for NSI ID " + nsiId + ". Unable to instantiate the NSI.");
-            throw new NotExistingEntityException("Unable to find NS LCM Manager for NSI ID " + nsiId + ". Unable to instantiate the NSI.");
+            log.error("Unable to find Network Slice LCM Manager for NSI ID " + nsiUuid + ". Unable to instantiate the NSI.");
+            throw new NotExistingEntityException("Unable to find NS LCM Manager for NSI ID " + nsiUuid + ". Unable to instantiate the NSI.");
         }
     }
 
@@ -175,24 +175,24 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     		throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException, MalformattedElementException, NotPermittedOperationException {
     	log.debug("Processing request to modify a network slice instance");
     	request.isValid();
-    	String nsiId = request.getNsiId();
-    	log.debug("Processing new NSI modification request for NSI ID " + nsiId);
-        if (nsLcmManagers.containsKey(nsiId)) {
-        	NetworkSliceStatus sliceStatus = nsLcmManagers.get(nsiId).getInternalStatus();
+    	String nsiUuid = request.getNsiId();
+    	log.debug("Processing new NSI modification request for NSI UUID " + nsiUuid);
+        if (nsLcmManagers.containsKey(nsiUuid)) {
+        	NetworkSliceStatus sliceStatus = nsLcmManagers.get(nsiUuid).getInternalStatus();
         	if (sliceStatus != NetworkSliceStatus.INSTANTIATED) {
-        		log.error("Network slice " + nsiId + " not in INSTANTIATED state. Cannot modify it. Skipping message.");
-        		throw new NotPermittedOperationException("Network slice " + nsiId + " not in INSTANTIATED state.");
+        		log.error("Network slice " + nsiUuid + " not in INSTANTIATED state. Cannot modify it. Skipping message.");
+        		throw new NotPermittedOperationException("Network slice " + nsiUuid + " not in INSTANTIATED state.");
         	}
-            String topic = "nslifecycle.modifyns." + nsiId;
+            String topic = "nslifecycle.modifyns." + nsiUuid;
             ModifyNsiRequestMessage internalMessage = new ModifyNsiRequestMessage(request, tenantId);
             try {
                 sendMessageToQueue(internalMessage, topic);
             } catch (JsonProcessingException e) {
-            	nsmfUtils.manageNsError(nsiId, "Error while translating internal NS modification message in Json format.");
+            	nsmfUtils.manageNsError(nsiUuid, "Error while translating internal NS modification message in Json format.");
             }
         } else {
-            log.error("Unable to find Network Slice LCM Manager for NSI ID " + nsiId + ". Unable to modify the NSI.");
-            throw new NotExistingEntityException("Unable to find NS LCM Manager for NSI ID " + nsiId + ". Unable to modify the NSI.");
+            log.error("Unable to find Network Slice LCM Manager for NSI UUID " + nsiUuid + ". Unable to modify the NSI.");
+            throw new NotExistingEntityException("Unable to find NS LCM Manager for NSI UUID " + nsiUuid + ". Unable to modify the NSI.");
         }
     }
 
@@ -201,24 +201,24 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     		throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException, MalformattedElementException, NotPermittedOperationException {
     	log.debug("Processing request to terminate a network slice instance");
     	request.isValid();
-    	String nsiId = request.getNsiId();
-    	log.debug("Processing NSI termination request for NSI ID " + nsiId);
-        if (nsLcmManagers.containsKey(nsiId)) {
-        	NetworkSliceStatus sliceStatus = nsLcmManagers.get(nsiId).getInternalStatus();
+    	String nsiUuid = request.getNsiId();
+    	log.debug("Processing NSI termination request for NSI ID " + nsiUuid);
+        if (nsLcmManagers.containsKey(nsiUuid)) {
+        	NetworkSliceStatus sliceStatus = nsLcmManagers.get(nsiUuid).getInternalStatus();
         	if (sliceStatus != NetworkSliceStatus.INSTANTIATED) {
-        		log.error("Network slice " + nsiId + " not in INSTANTIATED state. Cannot terminate it. Skipping message.");
-        		throw new NotPermittedOperationException("Network slice " + nsiId + " not in INSTANTIATED state.");
+        		log.error("Network slice " + nsiUuid + " not in INSTANTIATED state. Cannot terminate it. Skipping message.");
+        		throw new NotPermittedOperationException("Network slice " + nsiUuid + " not in INSTANTIATED state.");
         	}
-            String topic = "nslifecycle.terminatens." + nsiId;
+            String topic = "nslifecycle.terminatens." + nsiUuid;
             TerminateNsiRequestMessage internalMessage = new TerminateNsiRequestMessage(request, tenantId);
             try {
                 sendMessageToQueue(internalMessage, topic);
             } catch (JsonProcessingException e) {
-            	nsmfUtils.manageNsError(nsiId, "Error while translating internal NS termination message in Json format.");
+            	nsmfUtils.manageNsError(nsiUuid, "Error while translating internal NS termination message in Json format.");
             }
         } else {
-            log.error("Unable to find Network Slice LCM Manager for NSI ID " + nsiId + ". Unable to terminate the NSI.");
-            throw new NotExistingEntityException("Unable to find NS LCM Manager for NSI ID " + nsiId + ". Unable to terminate the NSI.");
+            log.error("Unable to find Network Slice LCM Manager for NSI UUID " + nsiUuid + ". Unable to terminate the NSI.");
+            throw new NotExistingEntityException("Unable to find NS LCM Manager for NSI UUID " + nsiUuid + ". Unable to terminate the NSI.");
         }
     }
 
@@ -237,9 +237,9 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     		log.debug("Query all the network slices");
     		nsis.addAll(nsRecordService.getAllNetworkSliceInstance());
     	} else if ( (fParams.size()==1) && (fParams.containsKey("NSI_ID"))) {
-    		String nsiId = fParams.get("NSI_ID");
+    		String nsiUuid = fParams.get("NSI_ID");
     		try {
-    			NetworkSliceInstance nsi = nsRecordService.getNsInstance(nsiId);
+    			NetworkSliceInstance nsi = nsRecordService.getNsInstance(nsiUuid);
     			nsis.add(nsi);
     		} catch (NotExistingEntityException e) {
     			log.error("Network slice instance not found. Returning empty list.");
@@ -264,9 +264,9 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
         log.debug("Processing notification about status change for NFV NS " + nfvNsId);
         try {
             NetworkSliceInstance nsi = nsRecordService.getNsInstanceFromNfvNsi(nfvNsId);
-            String nsiId = nsi.getNsiId();
-            log.debug("NFV NS " + nfvNsId + " is associated to network slice " + nsiId);
-            String topic = "nslifecycle.notifynfvns." + nsiId;
+            String NsiUuid = nsi.getNsiId();
+            log.debug("NFV NS " + nfvNsId + " is associated to network slice " + NsiUuid);
+            String topic = "nslifecycle.notifynfvns." + NsiUuid;
             NotifyNfvNsiStatusChange internalMessage = new NotifyNfvNsiStatusChange(nfvNsId, changeType, successful);
             sendMessageToQueue(internalMessage, topic);
         } catch (NotExistingEntityException e) {
@@ -278,8 +278,8 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 
     
     
-    public void removeNsLcmManager(String nsiId) {
-    	this.nsLcmManagers.remove(nsiId);
+    public void removeNsLcmManager(String nsiUiid){
+    	this.nsLcmManagers.remove(nsiUiid);
         log.debug("NS LCM removed from engine.");
     }
     
@@ -287,14 +287,14 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
      * This method initializes a new NS LCM manager that will be in charge
      * of processing all the requests and events for that NSI.
      *
-     * @param nsiId ID of the network slice instance for which the NS LCM Manager must be initialized
+     * @param nsiUuid UUID of the network slice instance for which the NS LCM Manager must be initialized
      */
-    private void initNewNsLcmManager(String nsiId, String tenantId, String sliceName, String sliceDescription, NST networkSliceTemplate) {
-        log.debug("Initializing new NSMF for NSI ID " + nsiId);
-        NsLcmManager nsLcmManager = new NsLcmManager(nsiId, sliceName, sliceDescription, tenantId, nfvoCatalogueService, nfvoLcmService, nsRecordService, notificationDispatcher, this, networkSliceTemplate, nsmfUtils);
-        createQueue(nsiId, nsLcmManager);
-        nsLcmManagers.put(nsiId, nsLcmManager);
-        log.debug("NS LCM manager for Network Slice Instance ID " + nsiId + " initialized and added to the engine.");
+    private void initNewNsLcmManager(String nsiUuid, String tenantId, String sliceName, String sliceDescription, NST networkSliceTemplate) {
+        log.debug("Initializing new NSMF for NSI UUID " + nsiUuid);
+        NsLcmManager nsLcmManager = new NsLcmManager(nsiUuid, sliceName, sliceDescription, tenantId, nfvoCatalogueService, nfvoLcmService, nsRecordService, notificationDispatcher, this, networkSliceTemplate, nsmfUtils);
+        createQueue(nsiUuid, nsLcmManager);
+        nsLcmManagers.put(nsiUuid, nsLcmManager);
+        log.debug("NS LCM manager for Network Slice Instance UUID " + nsiUuid + " initialized and added to the engine.");
     }
 
     private void sendMessageToQueue(NsmfEngineMessage msg, String topic) throws JsonProcessingException {
@@ -307,11 +307,11 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
      * This internal method creates a queue for the exchange of asynchronous messages
      * related to a given NSI.
      *
-     * @param nsiId ID of the NSI for which the queue is created
+     * @param nsiUuid UUID of the NSI for which the queue is created
      * @param nsiManager NSMF in charge of processing the queue messages
      */
-    private void createQueue(String nsiId, NsLcmManager nsiManager) {
-        String queueName = ConfigurationParameters.engineQueueNamePrefix + nsiId;
+    private void createQueue(String nsiUuid, NsLcmManager nsiManager) {
+        String queueName = ConfigurationParameters.engineQueueNamePrefix + nsiUuid;
         log.debug("Creating new Queue " + queueName + " in rabbit host " + rabbitHost);
         CachingConnectionFactory cf = new CachingConnectionFactory();
         cf.setAddresses(rabbitHost);
@@ -320,7 +320,7 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
         Queue queue = new Queue(queueName, false, false, true);
         rabbitAdmin.declareQueue(queue);
         rabbitAdmin.declareExchange(messageExchange);
-        rabbitAdmin.declareBinding(BindingBuilder.bind(queue).to(messageExchange).with("nslifecycle.*." + nsiId));
+        rabbitAdmin.declareBinding(BindingBuilder.bind(queue).to(messageExchange).with("nslifecycle.*." + nsiUuid));
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(cf);
         MessageListenerAdapter adapter = new MessageListenerAdapter(nsiManager, "receiveMessage");
         container.setMessageListener(adapter);
