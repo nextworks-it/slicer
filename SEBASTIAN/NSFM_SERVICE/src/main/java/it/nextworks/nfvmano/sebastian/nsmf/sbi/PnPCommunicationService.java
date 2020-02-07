@@ -36,6 +36,7 @@ public class PnPCommunicationService extends NsmfSbRestClient {
 
     }
 
+
     private ObjectNode buildNetworkSliceInfo(NST nst, UUID sliceId) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objectNode = mapper.createObjectNode();
