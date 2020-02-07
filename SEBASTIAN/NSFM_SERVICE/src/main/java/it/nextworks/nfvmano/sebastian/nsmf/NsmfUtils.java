@@ -57,6 +57,9 @@ public class NsmfUtils {
 	@Value("${ssoNmroIntegration}")
 	private boolean isSsoNmroIntegrationScenario;
 
+	@Value("${nfvo.catalogue.username}")
+	private String nfvoCatalogueUsername;
+
 	public NsTemplateInfo getNsTemplateInfoFromCatalogue(String nstUuid)
 			throws NotExistingEntityException {
 
@@ -86,5 +89,9 @@ public class NsmfUtils {
 	}
 	public boolean isSsoNmroIntegrationScenario(){
 		return isSsoNmroIntegrationScenario;
+	}
+
+	public String getNfvoCatalogueUsername(){
+		return nfvoCatalogueUsername;
 	}
 }

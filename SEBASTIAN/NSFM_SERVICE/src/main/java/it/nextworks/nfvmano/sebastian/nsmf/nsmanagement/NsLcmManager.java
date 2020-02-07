@@ -201,11 +201,9 @@ public class NsLcmManager {
 			String nfvNsId;
 
 			if(nsmfUtils.isSsoNmroIntegrationScenario()) {
-				log.debug("Debug info: networkSliceTemplate.getUuid "+networkSliceTemplate.getUuid());
-				log.debug("Debug info #2: networkSliceInstanceUuid "+ networkSliceInstanceUuid);
-
-				tenantId = "admin";//TODO the mapping between the tenant on NSP and tenant on NMRO (and thus OSM) is missing. So for now is hardcoded
+				tenantId = nsmfUtils.getNfvoCatalogueUsername();//TODO the mapping between the tenant on NSP and tenant on NFVO is missing. Get from config variable
 				this.nsdInfoId = nsdInfo.getNsdId();// The NSD cannot be on boarded specifying its own ID, so the custom one is get from NSD
+
 			}
 			nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-" + name, description, tenantId));
 
