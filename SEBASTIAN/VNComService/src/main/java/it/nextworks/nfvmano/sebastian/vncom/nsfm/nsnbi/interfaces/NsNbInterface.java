@@ -24,7 +24,7 @@ import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.TerminateNsReque
 
 public interface NsNbInterface {
 
-    void instantiateNs(InstantiateNsRequest request) throws NotExistingEntityException, MalformattedElementException;
+    void instantiateNs(InstantiateNsRequest request) throws NotExistingEntityException, MalformattedElementException, NotExistingEntityException, MalformattedElementException, MalformattedElementException;
 
     void modifyNs(ModifyNsRequest request) throws NotExistingEntityException;
 

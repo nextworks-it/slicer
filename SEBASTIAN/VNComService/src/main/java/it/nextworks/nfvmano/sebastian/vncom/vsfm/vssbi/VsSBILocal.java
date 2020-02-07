@@ -22,8 +22,6 @@ import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.InstantiateNsReq
 import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.ModifyNsRequest;
 import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.TerminateNsRequest;
 
-import java.util.List;
-
 public class VsSBILocal extends VsAbstractSBI {
 
 

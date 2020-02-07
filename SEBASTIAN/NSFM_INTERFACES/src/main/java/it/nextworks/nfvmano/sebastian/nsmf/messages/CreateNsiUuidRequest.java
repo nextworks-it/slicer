@@ -18,28 +18,28 @@ package it.nextworks.nfvmano.sebastian.nsmf.messages;
 import it.nextworks.nfvmano.libs.ifa.common.InterfaceMessage;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 
-public class CreateNsiIdRequest implements InterfaceMessage {
+public class CreateNsiUuidRequest implements InterfaceMessage {
 
-	private String nstId;
+	private String nstUuid;
 	private String name;
 	private String description;
 	
 	/**
 	 * Constructor
 	 * 
-	 * @param nstId ID of the network slice template
+	 * @param nstUuid ID of the network slice template
 	 * @param name name of the network slice instance
 	 * @param description description of the network slice instance
 	 */
-	public CreateNsiIdRequest(String nstId, String name, String description) {
-		this.nstId = nstId;
+	public CreateNsiUuidRequest(String nstUuid, String name, String description) {
+		this.nstUuid = nstUuid;
 		this.name = name;
 		this.description = description;
 	}
 
-	public CreateNsiIdRequest(){ }
-	public String getNstId() {
-		return nstId;
+	public CreateNsiUuidRequest(){ }
+	public String getNstUuid() {
+		return nstUuid;
 	}
 
 	public String getName() {
@@ -52,8 +52,8 @@ public class CreateNsiIdRequest implements InterfaceMessage {
 	
 	@Override
 	public void isValid() throws MalformattedElementException {
-		if (nstId == null) throw new MalformattedElementException("Create network slice ID request without NST ID");
-		if (name == null) throw new MalformattedElementException("Create network slice ID request without name");
+		if (nstUuid == null) throw new MalformattedElementException("Create network slice ID request without NST UUID");
+		if (name == null) throw new MalformattedElementException("Create network slice UUID request without name");
 	}
 	
 }

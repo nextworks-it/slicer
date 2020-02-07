@@ -15,35 +15,36 @@
 
 package it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages;
 
+
 import it.nextworks.nfvmano.libs.ifa.common.InterfaceMessage;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 
 public class ModifyNsRequest implements InterfaceMessage {
 
-    private String nsiId;
-    private String nstId;
+    private String nsiUuid;
+    private String nstUuid;
     private String tenantId;
 
     /**
      *
-     * @param nsiId
-     * @param nstId
+     * @param nsiUuid
+     * @param nstUuid
      * @param tenantId
      */
-    public ModifyNsRequest(String nsiId, String nstId, String tenantId) {
-        this.nsiId = nsiId;
-        this.nstId = nstId;
+    public ModifyNsRequest(String nsiUuid, String nstUuid, String tenantId) {
+        this.nsiUuid = nsiUuid;
+        this.nstUuid = nstUuid;
         this.tenantId = tenantId;
     }
 
     public ModifyNsRequest() { }
 
-    public String getNsiId() {
-        return nsiId;
+    public String getNsiUuid() {
+        return nsiUuid;
     }
 
-    public void setNsiId(String nsiId) {
-        this.nsiId = nsiId;
+    public void setNsiUuid(String nsiUuid) {
+        this.nsiUuid = nsiUuid;
     }
 
     @Override

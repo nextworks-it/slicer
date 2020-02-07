@@ -16,6 +16,7 @@
 package it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.interfaces;
 
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
+
 import java.util.List;
 
 
@@ -35,7 +36,7 @@ public interface NsManagementInterface {
      * This method starts the procedures to instantiate a NSI, sending a message to
      * the related NS LCM Manager
      *
-     * @param nsiId ID of the NS instance to be instantiated
+     * @param nsiUuid ID of the NS instance to be instantiated
      * @param tenantId tenant owning the NS instance
      * @param nsdId NSD ID of the NFV NS that implements the NS instance
      * @param nsdVersion NSD version of the NFV NS that implements the NS instance
@@ -44,7 +45,7 @@ public interface NsManagementInterface {
      * @param vsiId ID of the Vertical Service instance associated to the network slice, if available
      * @throws NotExistingEntityException if the NS LCM manager is not found
      */
-    void instantiateNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId,
+    void instantiateNs(String nsiUuid, String tenantId, String nsdId, String nsdVersion, String dfId,
                        String instantiationLevelId, String vsiId, List<String> nsSubnetIds)
             throws NotExistingEntityException;
 
@@ -52,7 +53,7 @@ public interface NsManagementInterface {
      * This method starts the procedures to modify a NSI, sending a message to
      * the related NS LCM Manager
      *
-     * @param nsiId ID of the NS instance to be instantiated
+     * @param nsUuid ID of the NS instance to be instantiated
      * @param tenantId tenant owning the NS instance
      * @param nsdId NSD ID of the NFV NS that implements the NS instance
      * @param nsdVersion NSD version of the NFV NS that implements the NS instance
@@ -61,15 +62,15 @@ public interface NsManagementInterface {
      * @param vsiId ID of the Vertical Service instance associated to the network slice, if available
      * @throws NotExistingEntityException if the NS LCM manager is not found
      */
-    void modifyNs(String nsiId, String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String vsiId)
+    void modifyNs(String nsUuid, String tenantId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String vsiId)
             throws NotExistingEntityException;
 
     /**
      * This method starts the procedures to terminate a NSI, sending a message to
      * the related NS LCM Manager
      *
-     * @param nsiId ID of the NS instance to be terminated
+     * @param nsiUuid ID of the NS instance to be terminated
      * @throws Exception
      */
-    void terminateNs(String nsiId) throws Exception;
+    void terminateNs(String nsiUuid) throws Exception;
 }

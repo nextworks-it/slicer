@@ -6,7 +6,7 @@ import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityExceptio
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotPermittedOperationException;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.NsLcmService;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiIdRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiUuidRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
@@ -50,7 +50,7 @@ public class NsmfRestController {
 	}
 
 	@RequestMapping(value = "/ns", method = RequestMethod.POST)
-	public ResponseEntity<?> createNsId(@RequestBody CreateNsiIdRequest request, Authentication auth) {
+	public ResponseEntity<?> createNsId(@RequestBody CreateNsiUuidRequest request, Authentication auth) {
 		log.debug("Received request to create a new network slice instance ID.");
 		try {
 			String tenantId = getUserFromAuth(auth);

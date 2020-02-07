@@ -14,24 +14,19 @@
  */
 package it.nextworks.nfvmano.sebastian.vsfm.sbi;
 
-import java.util.List;
-
-import it.nextworks.nfvmano.sebastian.admin.AdminService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.MethodNotImplementedException;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotPermittedOperationException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
+import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiIdRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiUuidRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Class used to manage the interaction with external NSMF when this is exposed via REST.
@@ -54,7 +49,7 @@ public class NsmfInteractionHandler implements NsmfLcmProviderInterface {
 	}
 	
 	@Override
-	public String createNetworkSliceIdentifier(CreateNsiIdRequest request, String tenantId)
+	public String createNetworkSliceIdentifier(CreateNsiUuidRequest request, String tenantId)
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
 			MalformattedElementException, NotPermittedOperationException {
 		return nsmfRestClient.createNetworkSliceIdentifier(request, tenantId);

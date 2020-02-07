@@ -24,11 +24,7 @@ import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityExceptio
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiIdRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import it.nextworks.nfvmano.sebastian.vsfm.VsLcmService;
 import it.nextworks.nfvmano.sebastian.vsfm.VsmfUtils;
@@ -261,7 +257,7 @@ public class VsLcmManager {
                     nsSubnetInstanceIds = new ArrayList<>(arbitratorResponse.getExistingSliceSubnets().keySet());
 
 
-                CreateNsiIdRequest request = new CreateNsiIdRequest(nsiInfo.getNstId(), 
+                CreateNsiUuidRequest request = new CreateNsiUuidRequest(nsiInfo.getNstId(),
                 		"NS - " + vsiName, 
                 		"Network slice for VS " + vsiName);
                 String nsiUuid = nsmfLcmProvider.createNetworkSliceIdentifier(request, tenantId);
@@ -332,7 +328,7 @@ public class VsLcmManager {
                 else
                     nsSubnetInstanceUuids = new ArrayList<>(storedResponse.getExistingSliceSubnets().keySet());
 
-                CreateNsiIdRequest request = new CreateNsiIdRequest(nsiInfo.getNstId(), 
+                CreateNsiUuidRequest request = new CreateNsiUuidRequest(nsiInfo.getNstId(),
                 		"NS - " + vsiName, 
                 		"Network slice for VS " + vsiName);
                 String nsiUuid = nsmfLcmProvider.createNetworkSliceIdentifier(request, tenantId);

@@ -23,40 +23,40 @@ import java.util.List;
 public class InstantiateNsRequest implements InterfaceMessage {
 
 
-    private String nstId;
+    private String nstUuid;
     private String tenantId;
     private String nstDescription;
     private String nstVersion;
-    private List<String> nsstIds;
+    private List<String> nsstUuids;
     private String vsiId;
 
     public InstantiateNsRequest() { }
 
     /**
      *
-     * @param nstId
+     * @param nstUuid
      * @param tenantId
      * @param nstDescription
      * @param nstVersion
-     * @param nsstIds
+     * @param nsstUuids
      * @param vsiId
      */
-    public InstantiateNsRequest(String nstId, String tenantId, String nstDescription, String nstVersion,
-                                List<String> nsstIds, String vsiId) {
-        this.nstId = nstId;
+    public InstantiateNsRequest(String nstUuid, String tenantId, String nstDescription, String nstVersion,
+                                List<String> nsstUuids, String vsiId) {
+        this.nstUuid = nstUuid;
         this.tenantId = tenantId;
         this.nstDescription = nstDescription;
         this.nstVersion = nstVersion;
-        this.nsstIds = nsstIds;
+        this.nsstUuids = nsstUuids;
         this.vsiId = vsiId;
     }
 
-    public String getNstId() {
-        return nstId;
+    public String getNstUuid() {
+        return nstUuid;
     }
 
-    public void setNstId(String nstId) {
-        this.nstId = nstId;
+    public void setNstUuid(String nstUuid) {
+        this.nstUuid = nstUuid;
     }
 
     public String getTenantId() {
@@ -83,12 +83,12 @@ public class InstantiateNsRequest implements InterfaceMessage {
         this.nstVersion = nstVersion;
     }
 
-    public List<String> getNsstIds() {
-        return nsstIds;
+    public List<String> getNsstUuids() {
+        return nsstUuids;
     }
 
-    public void setNsstIds(List<String> nsstIds) {
-        this.nsstIds = nsstIds;
+    public void setNsstUuids(List<String> nsstUuids) {
+        this.nsstUuids = nsstUuids;
     }
 
     /**

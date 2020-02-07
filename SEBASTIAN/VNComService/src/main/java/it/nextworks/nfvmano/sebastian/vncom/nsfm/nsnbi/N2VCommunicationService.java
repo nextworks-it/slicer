@@ -52,7 +52,7 @@ public class N2VCommunicationService implements N2VCommunicationInterface {
     }
 
     @Override
-    public void notifyNetworkSliceStatusChange(String networkSliceId, NsStatusChange changeType, boolean successful) {
-        n2VComm.notifyNetworkSliceStatusChange(networkSliceId, changeType, successful);
+    public void notifyNetworkSliceStatusChange(String networkSliceUuid, NsStatusChange changeType, boolean successful) {
+        n2VComm.notifyNetworkSliceStatusChange(networkSliceUuid, changeType, successful);
     }
 }

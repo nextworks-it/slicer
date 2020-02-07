@@ -17,7 +17,6 @@ package it.nextworks.nfvmano.sebastian.vncom.vsfm.vssbi;
 
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.interfaces.NsManagementInterface;
 import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.interfaces.NsNbInterface;
 import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.InstantiateNsRequest;
 import it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages.ModifyNsRequest;
@@ -28,7 +27,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
 
 @Service
 public class VsSBIService implements NsNbInterface {

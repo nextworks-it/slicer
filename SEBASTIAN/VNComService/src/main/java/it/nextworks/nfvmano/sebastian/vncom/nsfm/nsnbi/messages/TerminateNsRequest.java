@@ -15,32 +15,33 @@
 
 package it.nextworks.nfvmano.sebastian.vncom.nsfm.nsnbi.messages;
 
+
 import it.nextworks.nfvmano.libs.ifa.common.InterfaceMessage;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 
 public class TerminateNsRequest implements InterfaceMessage {
 
-    private String nstId;
+    private String nstUuid;
     private String tenantId;
 
     public TerminateNsRequest() { }
 
     /**
      *
-     * @param nstId
+     * @param nstUuid
      * @param tenantId
      */
-    public TerminateNsRequest(String nstId, String tenantId) {
-        this.nstId = nstId;
+    public TerminateNsRequest(String nstUuid, String tenantId) {
+        this.nstUuid = nstUuid;
         this.tenantId = tenantId;
     }
 
-    public String getNstId() {
-        return nstId;
+    public String getNstUuid() {
+        return nstUuid;
     }
 
-    public void setNstId(String nstId) {
-        this.nstId = nstId;
+    public void setNstUuid(String nstUuid) {
+        this.nstUuid = nstUuid;
     }
 
     public String getTenantId() {

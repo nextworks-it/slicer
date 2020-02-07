@@ -29,7 +29,7 @@ public class N2VCommunicationLocal extends N2VAbstractCommunication{
     }
 
     @Override
-    public void notifyNetworkSliceStatusChange(String networkSliceId, NsStatusChange changeType, boolean successful) {
-        vsLocalEngine.notifyNetworkSliceStatusChange(networkSliceId, changeType, successful);
+    public void notifyNetworkSliceStatusChange(String networkSliceUuid, NsStatusChange changeType, boolean successful) {
+        vsLocalEngine.notifyNetworkSliceStatusChange(networkSliceUuid, changeType, successful);
     }
 }

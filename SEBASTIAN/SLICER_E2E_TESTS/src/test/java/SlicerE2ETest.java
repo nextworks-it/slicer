@@ -4,7 +4,6 @@ import it.nextworks.nfvmano.catalogue.blueprint.messages.OnBoardVsBlueprintReque
 import it.nextworks.nfvmano.catalogue.blueprint.messages.OnboardVsDescriptorRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.InstantiateVsRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.PurgeVsRequest;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.QueryVsResponse;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.TerminateVsRequest;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -26,10 +25,10 @@ import static org.junit.Assert.assertTrue;
 
 public class SlicerE2ETest {
 
-    private String nstId;
+    private String nstUuid;
     private String vsbId;
     private String vsdId;
-    private String vsiId;
+    private String vsiUuid;
 
     private final String NSMF_HOST= "http://10.30.8.76:8082";
     private final String VSMF_HOST = "http://10.30.8.54:8081";
@@ -132,9 +131,9 @@ public class SlicerE2ETest {
 
 
 
-    public void onBoardVsbWithNstTransRules(String dspHost, String vsblueprintFilename,String nstId) {
+    public void onBoardVsbWithNstTransRules(String dspHost, String vsblueprintFilename,String nstUuid) {
         final String ONBOARD_VSB_URL = "/portal/catalogue/vsblueprint";
-        log.info("The NST id on NSP side is "+nstId);
+        log.info("The NST id on NSP side is "+nstUuid);
         OnBoardVsBlueprintRequest onBoardVsBlueprintRequestFromJSON = (OnBoardVsBlueprintRequest) getObjectFromFile(OnBoardVsBlueprintRequest.class, vsblueprintFilename);
 
         List<VsdNstTranslationRule> vsdNstTranslationRuleList = new ArrayList<>();
@@ -144,7 +143,7 @@ public class SlicerE2ETest {
             VsdNstTranslationRule vsdNstTranslationRuleFromJSON = onBoardVsBlueprintRequestFromJSON.getNstTranslationRules().get(i);
             VsdNstTranslationRule vsdNstTranslationRuleTmp = new VsdNstTranslationRule(
                     vsdNstTranslationRuleFromJSON.getInput(),
-                    nstId,null,null,null,
+                    nstUuid,null,null,null,
                     vsdNstTranslationRuleFromJSON.getNsInstantiationLevelId()
             );
             vsdNstTranslationRuleList.add(vsdNstTranslationRuleTmp);
@@ -172,7 +171,7 @@ public class SlicerE2ETest {
 
             VsdNstTranslationRule vsdNsdTranslationRuleTmp = new VsdNstTranslationRule(
                     vsdNsdTranslationRuleFromJSON.getInput(),
-                    nstId,
+                    nstUuid,
                     vsdNsdTranslationRuleFromJSON.getNsInstantiationLevelId()
                     );
             vsdNsdTranslationRuleList.add(vsdNsdTranslationRuleTmp);
@@ -330,12 +329,12 @@ public class SlicerE2ETest {
         log.info("Going to request VSI instantiation with VSD ID equal to: "+vsdId+" with tenant username: "+ dspInteraction.getTenant().getUsername());
         log.info("VSI name is : "+instantiateVsRequest.getName());
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, instantiateVsRequest, VSMF_HOST + VSI_INSTANTIATION_URL, HttpMethod.POST, dspInteraction.getCookiesTenant());
-        vsiId = (String) responseEntity.getBody();
-        log.info("VSI ID:" +vsiId);
-        //ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + VSI_INSTANTIATION_URL + "/" + vsiId, HttpMethod.GET, dspInteraction.getCookiesTenant());
+        vsiUuid = (String) responseEntity.getBody();
+        log.info("VSI ID:" + vsiUuid);
+        //ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + VSI_INSTANTIATION_URL + "/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
         //QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
 
-        //assertTrue(queryVsResponse.getVsiId().equals(vsiId));
+        //assertTrue(queryVsResponse.getVsiId().equals(vsiUuid));
         //assertTrue(queryVsResponse.getName().equals(instantiateVsRequest.getName()));
         //assertTrue(queryVsResponse.getDescription().equals(instantiateVsRequest.getDescription()));
         //assertTrue(queryVsResponse.getVsdId().equals(vsdId));
@@ -345,7 +344,7 @@ public class SlicerE2ETest {
 
 
     public void VsiTerminationTest() {
-        final String VSI_TERMINATION_URL="/vs/basic/vslcm/vs/"+vsiId+"/terminate";
+        final String VSI_TERMINATION_URL="/vs/basic/vslcm/vs/"+ vsiUuid +"/terminate";
         TerminateVsRequest terminateVsRequest = new TerminateVsRequest(vsdId, dspInteraction.getTenant().getUsername());
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, terminateVsRequest, VSMF_HOST + VSI_TERMINATION_URL, HttpMethod.POST, dspInteraction.getCookiesTenant());
         String terminationResponse = (String) responseEntity.getBody();
@@ -356,7 +355,7 @@ public class SlicerE2ETest {
 
 
     public void VsiPurgeTest() {
-        final String VSI_PURGE_URL="/vs/basic/vslcm/vs/"+vsiId;
+        final String VSI_PURGE_URL="/vs/basic/vslcm/vs/"+ vsiUuid;
         PurgeVsRequest purgeVsRequest= new PurgeVsRequest(vsdId, dspInteraction.getTenant().getUsername());
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, purgeVsRequest, VSMF_HOST + VSI_PURGE_URL, HttpMethod.DELETE, dspInteraction.getCookiesAdmin());
         String purgeResponse = (String) responseEntity.getBody();
@@ -399,7 +398,7 @@ public class SlicerE2ETest {
         nspInteraction.createGroup("NSP_group");
         nspInteraction.createTenant("tenant_nsp_sample.json");
         nspInteraction.loginTenant();
-        nstId=nspInteraction.onBoardNST("nst_sample.json");
+        nstUuid =nspInteraction.onBoardNST("nst_sample.json");
 
         //DSP SIDE
         dspInteraction.loginAdmin();
@@ -416,7 +415,7 @@ public class SlicerE2ETest {
         nspInteraction.associateLocalTenantWithRemoteTenant();
 
         //DSP side
-        onBoardVsbWithNstTransRules(VSMF_HOST, "vsblueprint_osm_sample.json",nstId);
+        onBoardVsbWithNstTransRules(VSMF_HOST, "vsblueprint_osm_sample.json", nstUuid);
         log.info("VSB on boarded");
         testVSDOnBoarding();
         log.info("VSD on boarded");
@@ -447,7 +446,7 @@ public class SlicerE2ETest {
         //On NSP
         nspInteraction.createRemoteTenantInfo(dspInteraction.getTenantNot(),VSMF_HOST);
         nspInteraction.associateLocalTenantWithRemoteTenant();
-        nstId=nspInteraction.onBoardNST("nst_sample.json");
+        nstUuid =nspInteraction.onBoardNST("nst_sample.json");
 
         //DSP SIDE
         //testVSBOnBoardingWithVsdNSDTranslRules(VSMF_HOST,"vsblueprint_osm_sample.json");
@@ -478,7 +477,7 @@ public class SlicerE2ETest {
         //On NSP
         nspInteraction.createRemoteTenantInfo(dspInteraction.getTenantNot(),VSMF_HOST);
         nspInteraction.associateLocalTenantWithRemoteTenant();
-        nstId=nspInteraction.onBoardNST("nst_sample.json");
+        nstUuid =nspInteraction.onBoardNST("nst_sample.json");
 
         //DSP SIDE
         //testVSBOnBoardingWithVsdNSDTranslRules(VSMF_HOST,"vsblueprint_sample.json");

@@ -20,5 +20,5 @@ import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
 public interface N2VCommunicationInterface {
     void setVsLocalEngine(N2VCommunicationInterface vsLocalEngine);
 
-    void notifyNetworkSliceStatusChange(String networkSliceId, NsStatusChange changeType, boolean successful);
+    void notifyNetworkSliceStatusChange(String networkSliceUuid, NsStatusChange changeType, boolean successful);
 }

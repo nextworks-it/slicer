@@ -22,7 +22,7 @@ import it.nextworks.nfvmano.libs.ifa.common.exceptions.MethodNotImplementedExcep
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotPermittedOperationException;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiIdRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiUuidRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
@@ -57,7 +57,7 @@ public interface NsmfLcmProviderInterface {
 	 * @throws MalformattedElementException if the request is malformed
 	 * @throws NotPermittedOperationException if the operation is not permitted for the given tenant
 	 */
-	public String createNetworkSliceIdentifier(CreateNsiIdRequest request, String tenantId)
+	public String createNetworkSliceIdentifier(CreateNsiUuidRequest request, String tenantId)
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException, MalformattedElementException, NotPermittedOperationException;
 	
 	/**
