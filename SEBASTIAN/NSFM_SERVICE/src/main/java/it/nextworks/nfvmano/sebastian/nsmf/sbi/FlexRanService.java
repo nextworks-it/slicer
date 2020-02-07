@@ -15,10 +15,13 @@
 
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -26,6 +29,7 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 public class FlexRanService extends CPSService{
+    private static final Logger log = LoggerFactory.getLogger(FlexRanService.class);
 
     private Map<UUID, Integer> flxIdSliceId;
     private List<Integer> availableRanId = new ArrayList<>();
@@ -61,37 +65,46 @@ public class FlexRanService extends CPSService{
     public HttpStatus createRanSlice(UUID sliceId){
         Integer ranId  = getFirstAvailableRanId();
         String url = ""; //TODO FlexRan Url
-        ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.POST);
-        if (httpResponse.getStatusCode() != HttpStatus.OK){
+        try{
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.POST);
+            this.setIdsMap(sliceId, ranId);
             return httpResponse.getStatusCode();
+        }catch (RestClientResponseException e){
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
         }
-        this.setIdsMap(sliceId, ranId);
-        return HttpStatus.OK;
+
     }
 
     public HttpStatus mapIdsRemotely(UUID sliceId){
         Integer ranId = getRanId(sliceId);
         String url= "";
-        /*slicenetid: "f5b01594-520e-11e9-8647-d663bd873d93"
+        try{
+            /*slicenetid: "f5b01594-520e-11e9-8647-d663bd873d93"
              sid: "1"*/
-        ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.POST);
-        return httpResponse.getStatusCode();
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.POST);
+            return httpResponse.getStatusCode();
+        }catch (RestClientResponseException e){
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
+
     }
 
     public HttpStatus terminateRanSlice(UUID sliceId){
 
         Integer ranId = getRanId(sliceId);
         String ranAdapterUrl =  "";
-        ResponseEntity<String> httpResponse = this.performHTTPRequest(null, ranAdapterUrl, HttpMethod.DELETE);
-        if (httpResponse.getStatusCode() != HttpStatus.CREATED){
-            return httpResponse.getStatusCode();
-        }
         String flexRanUrl = "";
-        httpResponse = this.performHTTPRequest(null, ranAdapterUrl, HttpMethod.DELETE);
-        if (httpResponse.getStatusCode() != HttpStatus.OK){
+        try{
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(null, ranAdapterUrl, HttpMethod.DELETE);
+            log.info("Slice"+ sliceId.toString()+ "removed from RanAdapter - HTTP Code: " + httpResponse.getStatusCode());
+            httpResponse = this.performHTTPRequest(null, flexRanUrl, HttpMethod.DELETE);
             return httpResponse.getStatusCode();
+        }catch (RestClientResponseException e){
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
         }
-        removeIdMapping(sliceId);
-        return HttpStatus.OK;
+
     }
 }

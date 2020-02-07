@@ -46,7 +46,7 @@ public class PnPCommunicationService extends NsmfSbRestClient {
         return objectNode;
     }
 
-    private ObjectNode buildRequiredComponentFeature(NST nst) {
+    private ArrayNode buildRequiredComponentFeature(NST nst) {
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode reqComponentFeatureArray = mapper.createArrayNode();
 
@@ -58,21 +58,20 @@ public class PnPCommunicationService extends NsmfSbRestClient {
             objectNode.put("feature_level", nst.getPpFunctionList().get(i).getPpFeatureLevel().toString().toLowerCase());
             reqComponentFeatureArray.add(objectNode);
         }
-        ObjectNode reqComponentFeature = mapper.createObjectNode();
-        reqComponentFeature.putPOJO("required_feature", reqComponentFeatureArray);
-        return reqComponentFeature;
+
+        return reqComponentFeatureArray;
     }
 
-    private Object generateRequestPayload(NST nst, UUID sliceId) {
+    private ObjectNode generateRequestPayload(NST nst, UUID sliceId) {
         ObjectNode sliceInfoHeader = buildNetworkSliceInfo(nst, sliceId);
-        ObjectNode sliceInfoFeatures = buildRequiredComponentFeature(nst);
-        return new Object();
-
+        ArrayNode sliceInfoFeatures = buildRequiredComponentFeature(nst);
+        sliceInfoHeader.putPOJO("required_feature", sliceInfoFeatures);
+        return sliceInfoHeader;
     }
 
     public HttpStatus deploySliceComponents(UUID sliceUuid, NST nst){
         try{
-            String url = this.getTargetUrl() + "/plug-and-play/slice/" + sliceUuid;
+            String url = this.getTargetUrl() + "/plug-and-play-manager/slice/" + sliceUuid +"/";
             Object requestPayload = generateRequestPayload(nst, sliceUuid);
             ResponseEntity<String> httpResponse = this.performHTTPRequest(requestPayload, url, HttpMethod.POST);
             return httpResponse.getStatusCode();
@@ -82,9 +81,9 @@ public class PnPCommunicationService extends NsmfSbRestClient {
         }
     }
 
-    public HttpStatus terminateSliceComponents(String sliceUuid){
+    public HttpStatus terminateSliceComponents(UUID sliceUuid){
         try{
-            String url = this.getTargetUrl() + "/plug-and-play/slice/" + sliceUuid;
+            String url = this.getTargetUrl() + "/plug-and-play-manager/slice/" + sliceUuid + "/";
             ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.DELETE);
             return httpResponse.getStatusCode();
         } catch (

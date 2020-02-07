@@ -56,6 +56,9 @@ public class NsmfSbRestClient {
         } catch (RestClientResponseException e) {
             log.info("Message received: "+e.getResponseBodyAsString());
             throw e;
+        } catch (RestClientException e){
+            log.info("Message received: "+e.getMessage());
+            throw e;
         }
     }
 
