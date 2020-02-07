@@ -57,17 +57,17 @@ public class NsmfUtils {
 	@Value("${ssoNmroIntegration}")
 	private boolean isSsoNmroIntegrationScenario;
 
-	public NsTemplateInfo getNsTemplateInfoFromCatalogue(String nstId)
+	public NsTemplateInfo getNsTemplateInfoFromCatalogue(String nstUuid)
 			throws NotExistingEntityException {
 
 		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("NST_ID", nstId);
+		parameters.put("NST_ID", nstUuid);
 		Filter filter = new Filter(parameters);
 		GeneralizedQueryRequest query = new GeneralizedQueryRequest(filter, null);
 		try {
 			List<NsTemplateInfo> nstInfos = nsTemplateCatalogueService.queryNsTemplate(query).getNsTemplateInfos();
 			if (nstInfos.size() != 1)
-				throw new NotExistingEntityException("Unable to find unique NST with ID " + nstId + " in catalogue");
+				throw new NotExistingEntityException("Unable to find unique NST with UUID " + nstUuid + " in catalogue");
 			return nstInfos.get(0);
 		} catch (Exception e) {
 			log.error("Unable to retrieve Network Slice Template from Catalogue: " + e.getMessage());
@@ -75,10 +75,10 @@ public class NsmfUtils {
 		}
 	}
 
-	public void manageNsError(String nsiId, String error) {
+	public void manageNsError(String nsiUuid, String error) {
 		log.error(error);
-		nsRecordService.setNsFailureInfo(nsiId, error);
-		notificationDispatcher.notifyNetworkSliceFailure(new NetworkSliceFailureNotification(nsiId, error));
+		nsRecordService.setNsFailureInfo(nsiUuid, error);
+		notificationDispatcher.notifyNetworkSliceFailure(new NetworkSliceFailureNotification(nsiUuid, error));
 	}
 
 	public void setNotificationDispatcher(NsmfLcmConsumerInterface notificationDispatcher) {

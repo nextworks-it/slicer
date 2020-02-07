@@ -76,7 +76,7 @@ public class NsRecordService {
 	}
 	
 	public synchronized String createNetworkSliceInstanceEntry(
-			String nstId,
+			String nstUuid,
 			String nsdId,
 			String nsdVersion,
 			String dfId,
@@ -89,44 +89,44 @@ public class NsRecordService {
 			boolean soManaged
 	) {
 		log.debug("Creating a new Network Slice instance");
-		NetworkSliceInstance nsi = new NetworkSliceInstance(null, nstId, nsdId, nsdVersion, dfId, ilId, nfvNsId, networkSliceSubnetInstances, tenantId, name, description, soManaged);
+		NetworkSliceInstance nsi = new NetworkSliceInstance(null, nstUuid, nsdId, nsdVersion, dfId, ilId, nfvNsId, networkSliceSubnetInstances, tenantId, name, description, soManaged);
 		nsInstanceRepository.saveAndFlush(nsi);
-		String nsiId = nsi.getId().toString();
-		log.debug("Created Network Slice instance with ID " + nsiId);
-		nsi.setNsiId(nsiId);
+		String nsiUuid = nsi.getUuid().toString();
+		log.debug("Created Network Slice instance with UUID " + nsiUuid);
+		nsi.setNsiId(nsiUuid);
 		nsInstanceRepository.saveAndFlush(nsi);
-		return nsiId;
+		return nsiUuid;
 	}
 	
 	/**
 	 * This method updated a network slice instance in DB setting the information associated to its instantiation
 	 * 
-	 * @param nsiId ID of the network slice instance to be updated
+	 * @param nsiUuid UUID of the network slice instance to be updated
 	 * @param dfId ID of the flavour of associated NFV Network Service
 	 * @param ilId ID of the instantiation level of associated NFV Network Service
-	 * @param networkSliceSubnetInstances ID of the network slice instances nested in the slice
+	 * @param networkSliceSubnetInstances UUID of the network slice instances nested in the slice
 	 * @throws NotExistingEntityException if the network slice is not present in DB
 	 */
-	public synchronized void setNsiInstantiationInfo(String nsiId, String dfId, String ilId, List<String> networkSliceSubnetInstances) throws NotExistingEntityException {
-		log.debug("Setting instantiation info for Network Slice instance " + nsiId + " in NSI DB record.");
-		NetworkSliceInstance nsi = getNsInstance(nsiId);
+	public synchronized void setNsiInstantiationInfo(String nsiUuid, String dfId, String ilId, List<String> networkSliceSubnetInstances) throws NotExistingEntityException {
+		log.debug("Setting instantiation info for Network Slice instance " + nsiUuid + " in NSI DB record.");
+		NetworkSliceInstance nsi = getNsInstance(nsiUuid);
 		nsi.setDfId(dfId);
 		nsi.setInstantiationLevelId(ilId);
 		nsi.setNetworkSliceSubnetInstances(networkSliceSubnetInstances);
 		nsInstanceRepository.saveAndFlush(nsi);
-		log.debug("Updated Network Slice instance " + nsiId + " in NSI DB record.");
+		log.debug("Updated Network Slice instance " + nsiUuid + " in NSI DB record.");
 	}
 
 	/**
 	 * This method update the Network Slice Instance in DB, setting the associated NFV Network Service instance
 	 *
-	 * @param nsiId    Network Slice instance to be updated
+	 * @param nsiUuid    Network Slice instance to be updated
 	 * @param nfvNsiId NFV Network Service instance ID to be associated to the network slice instance
 	 * @throws NotExistingEntityException if the network slice instance is not present in DB.
 	 */
-	public synchronized void setNfvNsiInNsi(String nsiId, String nfvNsiId) throws NotExistingEntityException {
-		log.debug("Adding NFV Network Service instance " + nfvNsiId + " to Network Slice instance " + nsiId + " in NSI DB record.");
-		NetworkSliceInstance nsi = getNsInstance(nsiId);
+	public synchronized void setNfvNsiInNsi(String nsiUuid, String nfvNsiId) throws NotExistingEntityException {
+		log.debug("Adding NFV Network Service instance " + nfvNsiId + " to Network Slice instance " + nsiUuid + " in NSI DB record.");
+		NetworkSliceInstance nsi = getNsInstance(nsiUuid);
 		nsi.setNfvNsId(nfvNsiId);
 		Optional<String> guiUrl = Optional.empty();
 		if (nfvoGuiConnector != null) {
@@ -134,9 +134,9 @@ public class NsRecordService {
 		}
 		guiUrl.ifPresent(nsi::setNfvNsUrl);
 		nsInstanceRepository.saveAndFlush(nsi);
-		log.debug("NSI with ID {} updated with NFV NSI {}", nsiId, nfvNsiId);
+		log.debug("NSI with ID {} updated with NFV NSI {}", nsiUuid, nfvNsiId);
 		guiUrl.ifPresent(
-				(url) -> log.debug("NSI with ID {} updated with NFV NSI GUI URL {}", nsiId, url)
+				(url) -> log.debug("NSI with ID {} updated with NFV NSI GUI URL {}", nsiUuid, url)
 		);
 	}
 
@@ -147,13 +147,13 @@ public class NsRecordService {
 	 * @param nsiId        ID of the NSI to be modified in the DB
 	 * @param errorMessage error message to be set for the NSI
 	 */
-	public synchronized void setNsFailureInfo(String nsiId, String errorMessage) {
-		log.debug("Adding failure info to NS instance " + nsiId + " in DB.");
+	public synchronized void setNsFailureInfo(String nsiUuid, String errorMessage) {
+		log.debug("Adding failure info to NS instance " + nsiUuid + " in DB.");
 		try {
-			NetworkSliceInstance nsi = getNsInstance(nsiId);
+			NetworkSliceInstance nsi = getNsInstance(nsiUuid);
 			nsi.setFailureState(errorMessage);
 			nsInstanceRepository.saveAndFlush(nsi);
-			log.debug("Set failure info in DB for NSI " + nsiId);
+			log.debug("Set failure info in DB for NSI " + nsiUuid);
 			
 		} catch (NotExistingEntityException e) {
 			log.error("NSI or VSI not present in DB. Impossible to complete the failure info setting.");
@@ -163,54 +163,54 @@ public class NsRecordService {
 	/**
 	 * This method updates the NSI in DB, setting its status.
 	 *
-	 * @param nsiId  ID of the NSI to be modified in the DB
+	 * @param nsiUuid  UUID of the NSI to be modified in the DB
 	 * @param status new status to be set
 	 */
-	public synchronized void setNsStatus(String nsiId, NetworkSliceStatus status) {
-		log.debug("Setting status " + status + " for network slice " + nsiId + " in DB.");
+	public synchronized void setNsStatus(String nsiUuid, NetworkSliceStatus status) {
+		log.debug("Setting status " + status + " for network slice " + nsiUuid + " in DB.");
 		try {
-			NetworkSliceInstance nsi = getNsInstance(nsiId);
+			NetworkSliceInstance nsi = getNsInstance(nsiUuid);
 			nsi.setStatus(status);
 			nsInstanceRepository.saveAndFlush(nsi);
-			log.debug("Status set for network slice " + nsiId);
+			log.debug("Status set for network slice " + nsiUuid);
 		} catch (NotExistingEntityException e) {
 			log.error("NSI not present in DB. Impossible to complete the state setting.");
 		}
 	}
 
-	public synchronized void setNsInstantiationLevel(String nsiId, String instantiationLevelId){
-		log.debug("Setting new Instantiation Level Id " + instantiationLevelId + " for network slice " + nsiId + " in DB.");
+	public synchronized void setNsInstantiationLevel(String nsiUuid, String instantiationLevelId){
+		log.debug("Setting new Instantiation Level Id " + instantiationLevelId + " for network slice " + nsiUuid + " in DB.");
 		try {
-			NetworkSliceInstance nsi = getNsInstance(nsiId);
+			NetworkSliceInstance nsi = getNsInstance(nsiUuid);
 			nsi.setInstantiationLevelId(instantiationLevelId);
 			nsInstanceRepository.saveAndFlush(nsi);
-			log.debug("NS IL set for network slice " + nsiId);
+			log.debug("NS IL set for network slice " + nsiUuid);
 
 		} catch (NotExistingEntityException e) {
 			log.error("NSI not present in DB. Impossible to complete the IL setting.");
 		}
 	}
 	
-	public synchronized void updateNsInstantiationLevelAfterScaling(String nsiId, String newInstantiationLevel) {
-		log.debug("Updating instantiation level after scaling: new Instantiation Level Id " + newInstantiationLevel + " for network slice " + nsiId + " in DB.");
+	public synchronized void updateNsInstantiationLevelAfterScaling(String nsiUuid, String newInstantiationLevel) {
+		log.debug("Updating instantiation level after scaling: new Instantiation Level Id " + newInstantiationLevel + " for network slice " + nsiUuid + " in DB.");
 		try {
-			NetworkSliceInstance nsi = getNsInstance(nsiId);
+			NetworkSliceInstance nsi = getNsInstance(nsiUuid);
 			nsi.updateInstantiationLevelAfterScaling(newInstantiationLevel);
 			nsInstanceRepository.saveAndFlush(nsi);
-			log.debug("NS IL and old NS IL set for network slice " + nsiId);
+			log.debug("NS IL and old NS IL set for network slice " + nsiUuid);
 
 		} catch (NotExistingEntityException e) {
 			log.error("NSI not present in DB. Impossible to complete the IL setting.");
 		}
 	}
 	
-	public synchronized void resetOldNsInstantiationLevel(String nsiId) {
-		log.debug("Resetting old instantiation level after scaling for network slice " + nsiId + " in DB.");
+	public synchronized void resetOldNsInstantiationLevel(String nsiUuid) {
+		log.debug("Resetting old instantiation level after scaling for network slice " + nsiUuid + " in DB.");
 		try {
-			NetworkSliceInstance nsi = getNsInstance(nsiId);
+			NetworkSliceInstance nsi = getNsInstance(nsiUuid);
 			nsi.setOldInstantiationLevelId(null);
 			nsInstanceRepository.saveAndFlush(nsi);
-			log.debug("Reset old IL for network slice " + nsiId);
+			log.debug("Reset old IL for network slice " + nsiUuid);
 
 		} catch (NotExistingEntityException e) {
 			log.error("NSI not present in DB. Impossible to complete the old IL setting.");
@@ -220,19 +220,19 @@ public class NsRecordService {
 	/**
 	 * This method adds slice subnets into a network slice
 	 *
-	 * @param parentNsiId    ID of the parent network slice
-	 * @param sliceSubnetIds IDs of the slice subnets to be added
+	 * @param parentNsiUuid    UUID of the parent network slice
+	 * @param sliceSubnetUuids IDs of the slice subnets to be added
 	 */
-	public synchronized void addNsSubnetsInNetworkSliceInstance(String parentNsiId, List<String> sliceSubnetIds) {
-		log.debug("Adding slice subnets into parent slice " + parentNsiId + " in DB.");
+	public synchronized void addNsSubnetsInNetworkSliceInstance(String parentNsiUuid, List<String> sliceSubnetUuids) {
+		log.debug("Adding slice subnets into parent slice " + parentNsiUuid + " in DB.");
 		try {
-			NetworkSliceInstance nsi = getNsInstance(parentNsiId);
-			for (String s : sliceSubnetIds) {
+			NetworkSliceInstance nsi = getNsInstance(parentNsiUuid);
+			for (String s : sliceSubnetUuids) {
 				nsi.addSubnet(s);
 				log.debug("Slice subnet {} added.", s);
 			}
 			nsInstanceRepository.saveAndFlush(nsi);
-			log.debug("Subnets for network slice {} added.", parentNsiId);
+			log.debug("Subnets for network slice {} added.", parentNsiUuid);
 		} catch (NotExistingEntityException e) {
 			log.error("NSI not present in DB. Impossible to complete the subnets updates.");
 		}
@@ -241,15 +241,15 @@ public class NsRecordService {
 	/**
 	 * This method returns the NSI stored in DB that matches a given ID.
 	 *
-	 * @param nsiId ID of the Network Slice instance to be returned
+	 * @param nsiUuid ID of the Network Slice instance to be returned
 	 * @return the Network Slice instance
 	 * @throws NotExistingEntityException if the network slice instance with the given ID is not present in DB.
 	 */
-	public NetworkSliceInstance getNsInstance(String nsiId) throws NotExistingEntityException {
-		log.debug("Retrieving NSI with ID " + nsiId + " from DB.");
-		Optional<NetworkSliceInstance> nsi = nsInstanceRepository.findByNsiId(nsiId);
+	public NetworkSliceInstance getNsInstance(String nsiUuid) throws NotExistingEntityException {
+		log.debug("Retrieving NSI with ID " + nsiUuid + " from DB.");
+		Optional<NetworkSliceInstance> nsi = nsInstanceRepository.findByNsiId(nsiUuid);
 		if (nsi.isPresent()) return nsi.get();
-		else throw new NotExistingEntityException("NSI with ID " + nsiId + " not present in DB.");
+		else throw new NotExistingEntityException("NSI with UUID " + nsiUuid + " not present in DB.");
 	}
 
 	/**
@@ -269,26 +269,26 @@ public class NsRecordService {
 	}
 
 	/**
-	 * This method deletes an NSI stored in DB given its ID.
+	 * This method deletes an NSI stored in DB given its UUID.
 	 *
-	 * @param nsiId ID of the network slice to be removed
+	 * @param nsiUuid UUID of the network slice to be removed
 	 * @throws NotExistingEntityException     if the NSI does not exist
 	 * @throws NotPermittedOperationException if the operation is not permitted
 	 */
-	public synchronized void deleteNsInstance(String nsiId) throws NotExistingEntityException, NotPermittedOperationException {
-		log.debug("Removing NSI with ID " + nsiId + " from DB.");
-		NetworkSliceInstance nsi = getNsInstance(nsiId);
+	public synchronized void deleteNsInstance(String nsiUuid) throws NotExistingEntityException, NotPermittedOperationException {
+		log.debug("Removing NSI with ID " + nsiUuid + " from DB.");
+		NetworkSliceInstance nsi = getNsInstance(nsiUuid);
 		if (
 				!nsi.getStatus().equals(NetworkSliceStatus.TERMINATED)
 						&& !nsi.getStatus().equals(NetworkSliceStatus.FAILED)
 		) {
 			throw new NotPermittedOperationException(String.format(
 					"NS instance %s not in terminated status. Impossible to remove it from DB.",
-					nsiId
+					nsiUuid
 			));
 		}
 		nsInstanceRepository.delete(nsi);
-		log.debug("NS instance " + nsiId + " removed from DB.");
+		log.debug("NS instance " + nsiUuid + " removed from DB.");
 	}
 
 	/**

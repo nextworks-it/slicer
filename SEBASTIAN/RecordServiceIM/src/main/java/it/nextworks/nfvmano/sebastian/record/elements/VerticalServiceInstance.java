@@ -37,6 +37,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
 public class VerticalServiceInstance {
@@ -44,7 +45,7 @@ public class VerticalServiceInstance {
 	@Id
     @GeneratedValue
     @JsonIgnore
-    private Long id;
+    private UUID uuid;
 	
 	private String vsiId;
 	private String vsdId;
@@ -138,15 +139,6 @@ public class VerticalServiceInstance {
 	public List<VerticalServiceInstance> getNestedVsi() {
 		return nestedVsi;
 	}
-
-
-	/**
-	 * @return the id
-	 */
-	public Long getId() {
-		return id;
-	}
-
 
 
 	/**
@@ -256,5 +248,8 @@ public class VerticalServiceInstance {
 		this.status = VerticalServiceStatus.FAILED;
 		this.errorMessage = errorMessage;
 	}
-	
+
+	public UUID getUuid() {
+		return uuid;
+	}
 }

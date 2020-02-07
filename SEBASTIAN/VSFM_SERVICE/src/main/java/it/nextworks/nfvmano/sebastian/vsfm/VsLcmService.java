@@ -146,7 +146,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
     private VsmfUtils vsmfUtils;
 
     //internal map of VS LCM Managers
-    //each VS LCM Manager is created when a new VSI ID is created and removed when the VSI ID is removed
+    //each VS LCM Manager is created when a new VSI UUID is created and removed when the VSI UUID is removed
     private Map<String, VsLcmManager> vsLcmManagers = new HashMap<>();
 
     //internal map of VS Coordinators
@@ -197,22 +197,22 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		
 		log.debug("The VS instantiation request is valid.");
 		
-		String vsiId = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData, locationConstraints, ranEndPointId);
-		initNewVsLcmManager(vsiId, request.getName());
-		if (!(tenantId.equals(adminTenant))) adminService.addVsiInTenant(vsiId, tenantId);
+		String vsiUuid = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData, locationConstraints, ranEndPointId);
+		initNewVsLcmManager(vsiUuid, request.getName());
+		if (!(tenantId.equals(adminTenant))) adminService.addVsiInTenant(vsiUuid, tenantId);
 		try {
-			String topic = "lifecycle.instantiatevs." + vsiId;
-            InstantiateVsiRequestMessage internalMessage = new InstantiateVsiRequestMessage(vsiId, request, ranEndPointId);
+			String topic = "lifecycle.instantiatevs." + vsiUuid;
+            InstantiateVsiRequestMessage internalMessage = new InstantiateVsiRequestMessage(vsiUuid, request, ranEndPointId);
             try {
                 sendMessageToQueue(internalMessage, topic);
             } catch (JsonProcessingException e) {
                 log.error("Error while translating internal VS instantiation message in Json format.");
-                vsRecordService.setVsFailureInfo(vsiId, "Error while translating internal VS instantiation message in Json format.");
+                vsRecordService.setVsFailureInfo(vsiUuid, "Error while translating internal VS instantiation message in Json format.");
             }
-			log.debug("Synchronous processing for VSI instantiation request completed for VSI ID " + vsiId);
-			return vsiId;
+			log.debug("Synchronous processing for VSI instantiation request completed for VSI UUID " + vsiUuid);
+			return vsiUuid;
 		} catch (Exception e) {
-			vsRecordService.setVsFailureInfo(vsiId, e.getMessage());
+			vsRecordService.setVsFailureInfo(vsiUuid, e.getMessage());
 			throw new FailedOperationException(e.getMessage());
 		}
 	}
@@ -224,7 +224,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		request.isValid();
 		
 		//At the moment the only filter accepted are:
-		//1. VSI ID && TENANT ID
+		//1. VSI UUID && TENANT ID
 		//No attribute selector is supported at the moment
 		
 		Filter filter = request.getFilter();
@@ -233,10 +233,10 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		if ((attributeSelector == null) || (attributeSelector.isEmpty())) {
 			Map<String,String> fp = filter.getParameters();
 			if (fp.size()==2 && fp.containsKey("VSI_ID") && fp.containsKey("TENANT_ID")) {
-				String vsiId = fp.get("VSI_ID");
+				String vsiUuid = fp.get("VSI_ID");
 				String tenantId = fp.get("TENANT_ID");
-				log.debug("Received a query about VS instance with ID " + vsiId + " for tenant ID " + tenantId);
-				VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiId);
+				log.debug("Received a query about VS instance with UUID " + vsiUuid + " for tenant ID " + tenantId);
+				VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiUuid);
 
 				if (tenantId.equals(adminTenant) || tenantId.equals(vsi.getTenantId())) {
 					List<SapInfo> externalInterconnections = new ArrayList<>();
@@ -263,7 +263,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 						} else log.debug("The Network Slice is not associated to any NFV Network Service. No interconnection info available.");
 					} else log.debug("The VS is not associated to any Network Slice. No interconnection info available.");
 					return new QueryVsResponse(
-							vsiId,
+							vsiUuid,
 							vsi.getName(),
 							vsi.getDescription(),
 							vsi.getVsdId(),
@@ -275,7 +275,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 					);
 				} else {
 					log.error("The tenant has not access to the given VSI");
-					throw new NotPermittedOperationException("Tenant " + tenantId + " has not access to VSI with ID " + vsiId);
+					throw new NotPermittedOperationException("Tenant " + tenantId + " has not access to VSI with ID " + vsiUuid);
 				}
 			} else {
 				log.error("Received VSI query with not supported filter.");
@@ -298,7 +298,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
         if ((attributeSelector == null) || (attributeSelector.isEmpty())) {
         	Map<String, String> fp = filter.getParameters();
             if (fp.size() == 1 && fp.containsKey("TENANT_ID")) {
-            	List<String> vsIds = new ArrayList<>();
+            	List<String> vsUuid = new ArrayList<>();
             	String tenantId = fp.get("TENANT_ID");
             	List<VerticalServiceInstance> vsInstances = new ArrayList<>();
             	if (tenantId.equals(adminTenant)) {
@@ -308,8 +308,8 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
             		log.debug("VSI ID query for tenant " + tenantId);
             		vsInstances = vsRecordService.getAllVsInstances(tenantId);
             	}
-            	for (VerticalServiceInstance vsi : vsInstances) vsIds.add(vsi.getVsiId());
-            	return vsIds;
+            	for (VerticalServiceInstance vsi : vsInstances) vsUuid.add(vsi.getVsiId());
+            	return vsUuid;
             } else {
 				log.error("Received all VSI ID query with not supported filter.");
 				throw new MalformattedElementException("Received VSI query with not supported filter.");
@@ -328,16 +328,16 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		request.isValid();
 		
 		String tenantId = request.getTenantId();
-		String vsiId = request.getVsiId();
+		String vsiUuid = request.getVsiId();
 		
-		VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiId);
+		VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiUuid);
 		if (tenantId.equals(adminTenant) || vsi.getTenantId().equals(tenantId)) {
 			log.debug("The termination request is valid.");
-			terminateVs(vsiId, request);
-			log.debug("Synchronous processing for VSI termination request completed for VSI ID " + vsiId);
+			terminateVs(vsiUuid, request);
+			log.debug("Synchronous processing for VSI termination request completed for VSI UUID " + vsiUuid);
 		} else {
-			log.debug("Tenant " + tenantId + " is not allowed to terminate VS instance " + vsiId);
-			throw new NotPermittedOperationException("Tenant " + tenantId + " is not allowed to terminate VS instance " + vsiId);
+			log.debug("Tenant " + tenantId + " is not allowed to terminate VS instance " + vsiUuid);
+			throw new NotPermittedOperationException("Tenant " + tenantId + " is not allowed to terminate VS instance " + vsiUuid);
 		}
 	}
 	
@@ -348,19 +348,19 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		request.isValid();
 		
 		String tenantId = request.getTenantId();
-		String vsiId = request.getVsiId();
+		String vsiUuid = request.getVsiId();
 		
-		VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiId);
+		VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiUuid);
 		if (tenantId.equals(adminTenant) || vsi.getTenantId().equals(tenantId)) {
 			//TODO: at the moment the network slices are not purged, since assuming they are handled 
 			//through another system
 			
-			vsRecordService.removeVsInstance(vsiId);
-			removeVerticalServiceLcmManager(vsiId);
-			log.debug("VSI purge action completed for VSI ID " + vsiId);
+			vsRecordService.removeVsInstance(vsiUuid);
+			removeVerticalServiceLcmManager(vsiUuid);
+			log.debug("VSI purge action completed for VSI UUID " + vsiUuid);
 		} else {
-			log.debug("Tenant " + tenantId + " is not allowed to purge VS instance " + vsiId);
-			throw new NotPermittedOperationException("Tenant " + tenantId + " is not allowed to purge VS instance " + vsiId);
+			log.debug("Tenant " + tenantId + " is not allowed to purge VS instance " + vsiUuid);
+			throw new NotPermittedOperationException("Tenant " + tenantId + " is not allowed to purge VS instance " + vsiUuid);
 		}
 	}
 
@@ -371,7 +371,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		request.isValid();
 
 		String tenantId = request.getTenantId();
-		String vsiId = request.getVsiId();
+		String vsiUuid = request.getVsiId();
 		String vsdId = request.getVsdId();
 
 		VsDescriptor vsd = vsDescriptorCatalogueService.getVsd(vsdId);
@@ -379,61 +379,61 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 			log.debug("Tenant " + tenantId + " is not allowed to modify VS instance with VSD " + vsdId);
 			throw new NotPermittedOperationException("Tenant " + tenantId + " is not allowed to modify VS instance with VSD " + vsdId);
 		}
-		modifyVs(vsiId, request);
-		log.debug("Synchronous processing for VSI modification request completed for VSI ID " + vsiId);
+		modifyVs(vsiUuid, request);
+		log.debug("Synchronous processing for VSI modification request completed for VSI UUID " + vsiUuid);
 	}
 	
 
     /**
      *
-     * @param invokerVsiId Is the id of the Vsi invoking the coordination. VsCoordinator uses it as Coordinator ID
+     * @param invokerVsiUuid Is the UUID of the Vsi invoking the coordination. VsCoordinator uses it as Coordinator ID
      * @param candidateVsis List of VSIs candidate for being terminated or updated
      */
-    public void requestVsiCoordination(String invokerVsiId, Map<String, VsAction> candidateVsis){
-        log.debug("Processing new VSI coordination request from VSI " + invokerVsiId);
-        if (!vsCoordinators.containsKey(invokerVsiId))
-            initNewVsCoordinator(invokerVsiId);
-        String topic = "coordlifecycle.coordinatevs." + invokerVsiId;
-        CoordinateVsiRequest internalMessage = new CoordinateVsiRequest(invokerVsiId, candidateVsis);
+    public void requestVsiCoordination(String invokerVsiUuid, Map<String, VsAction> candidateVsis){
+        log.debug("Processing new VSI coordination request from VSI " + invokerVsiUuid);
+        if (!vsCoordinators.containsKey(invokerVsiUuid))
+            initNewVsCoordinator(invokerVsiUuid);
+        String topic = "coordlifecycle.coordinatevs." + invokerVsiUuid;
+        CoordinateVsiRequest internalMessage = new CoordinateVsiRequest(invokerVsiUuid, candidateVsis);
         try {
             sendMessageToQueue(internalMessage, topic);
         } catch (JsonProcessingException e) {
             log.error("Error while translating internal VS coordination message in Json format.");
-            vsRecordService.setVsFailureInfo(invokerVsiId, "Error while translating internal VS coordination message in Json format.");
+            vsRecordService.setVsFailureInfo(invokerVsiUuid, "Error while translating internal VS coordination message in Json format.");
         }
     }
 
-    private void modifyVs(String vsiId, ModifyVsRequest request) throws NotExistingEntityException{
-        log.debug("Processing new VSI modification request for VSI ID " + vsiId);
-        if (vsLcmManagers.containsKey(vsiId)) {
-            String topic = "lifecycle.modifyvs." + vsiId;
-            ModifyVsiRequestMessage internalMessage = new ModifyVsiRequestMessage(vsiId, request);
+    private void modifyVs(String vsiUuid, ModifyVsRequest request) throws NotExistingEntityException{
+        log.debug("Processing new VSI modification request for VSI UUID " + vsiUuid);
+        if (vsLcmManagers.containsKey(vsiUuid)) {
+            String topic = "lifecycle.modifyvs." + vsiUuid;
+            ModifyVsiRequestMessage internalMessage = new ModifyVsiRequestMessage(vsiUuid, request);
             try {
                 sendMessageToQueue(internalMessage, topic);
             } catch (JsonProcessingException e) {
                 log.error("Error while translating internal VS modification message in Json format.");
-                vsRecordService.setVsFailureInfo(vsiId, "Error while translating internal VS modification message in Json format.");
+                vsRecordService.setVsFailureInfo(vsiUuid, "Error while translating internal VS modification message in Json format.");
             }
         } else {
-            log.error("Unable to find VS LCM Manager for VSI ID " + vsiId + ". Unable to modify the VSI.");
-            throw new NotExistingEntityException("Unable to find VS LCM Manager for VSI ID " + vsiId + ". Unable to modify the VSI.");
+            log.error("Unable to find VS LCM Manager for VSI UUID " + vsiUuid + ". Unable to modify the VSI.");
+            throw new NotExistingEntityException("Unable to find VS LCM Manager for VSI UUID " + vsiUuid + ". Unable to modify the VSI.");
         }
     }
     
-    public void terminateVs(String vsiId, TerminateVsRequest request) throws NotExistingEntityException {
-        log.debug("Processing VSI termination request for VSI ID " + vsiId);
-        if (vsLcmManagers.containsKey(vsiId)) {
-            String topic = "lifecycle.terminatevs." + vsiId;
-            TerminateVsiRequestMessage internalMessage = new TerminateVsiRequestMessage(vsiId);
+    public void terminateVs(String vsiUuid, TerminateVsRequest request) throws NotExistingEntityException {
+        log.debug("Processing VSI termination request for VSI UUID " + vsiUuid);
+        if (vsLcmManagers.containsKey(vsiUuid)) {
+            String topic = "lifecycle.terminatevs." + vsiUuid;
+            TerminateVsiRequestMessage internalMessage = new TerminateVsiRequestMessage(vsiUuid);
             try {
                 sendMessageToQueue(internalMessage, topic);
             } catch (JsonProcessingException e) {
                 log.error("Error while translating internal VS termination message in Json format.");
-                vsRecordService.setVsFailureInfo(vsiId, "Error while translating internal VS termination message in Json format.");
+                vsRecordService.setVsFailureInfo(vsiUuid, "Error while translating internal VS termination message in Json format.");
             }
         } else {
-            log.error("Unable to find VS LCM Manager for VSI ID " + vsiId + ". Unable to terminate the VSI.");
-            throw new NotExistingEntityException("Unable to find VS LCM Manager for VSI ID " + vsiId + ". Unable to terminate the VSI.");
+            log.error("Unable to find VS LCM Manager for VSI UUID " + vsiUuid + ". Unable to terminate the VSI.");
+            throw new NotExistingEntityException("Unable to find VS LCM Manager for VSI UUID " + vsiUuid + ". Unable to terminate the VSI.");
         }
     }
 
@@ -441,87 +441,87 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
      * This method is called by the VS Coordinator once it is notified for the termination of the last VSI in the
      * termination candidate list
      *
-     * @param vsiId both Coordinator and VSI invoker ID
+     * @param vsiUuid both Coordinator and VSI invoker UUID
      * @throws NotExistingEntityException
      */
-    public void notifyVsCoordinationEnd(String vsiId) throws NotExistingEntityException {
-        log.debug("Processing end of Vs Coordination notification from Vs Coordinator ID " + vsiId);
-        if(vsCoordinators.containsKey(vsiId)){
+    public void notifyVsCoordinationEnd(String vsiUuid) throws NotExistingEntityException {
+        log.debug("Processing end of Vs Coordination notification from Vs Coordinator UUID " + vsiUuid);
+        if(vsCoordinators.containsKey(vsiUuid)){
             // 1st step: destroy the coordinator
-            vsCoordinators.remove(vsiId);
+            vsCoordinators.remove(vsiUuid);
             // 2nd step: unlock the invoker VSI frozen in waiting_for_resource status
-            String topic = "lifecycle.resourcesgranted." + vsiId;
-            NotifyResourceGranted internalMessage = new NotifyResourceGranted(vsiId);
+            String topic = "lifecycle.resourcesgranted." + vsiUuid;
+            NotifyResourceGranted internalMessage = new NotifyResourceGranted(vsiUuid);
             try {
                 sendMessageToQueue(internalMessage, topic);
             } catch (JsonProcessingException e) {
                 log.error("Error while translating internal RESOURCES GRANTED message in Json format.");
-                vsRecordService.setVsFailureInfo(vsiId, "Error while translating internal RESOURCES GRANTED message in Json format.");
+                vsRecordService.setVsFailureInfo(vsiUuid, "Error while translating internal RESOURCES GRANTED message in Json format.");
             }
         } else {
-            log.error("Unable to find VS Coordinator for VSI ID " + vsiId + ". Unable to instantiate the invoker VSI");
-            throw new NotExistingEntityException("Unable to find VS Coordinator for VSI ID " + vsiId + ". Unable to instantiate the invoker VSI");
+            log.error("Unable to find VS Coordinator for VSI UUID " + vsiUuid + ". Unable to instantiate the invoker VSI");
+            throw new NotExistingEntityException("Unable to find VS Coordinator for VSI UUID " + vsiUuid + ". Unable to instantiate the invoker VSI");
         }
     }
 
     /**
      * This methd is invoked by VsLcmManager as soon as its own termination process succeeded
      *
-     * @param vsiId Id of terminated VSI
+     * @param vsiUuid Id of terminated VSI
      * @throws NotExistingEntityException
      */
-    public void notifyVsiTermination(String vsiId) throws NotExistingEntityException {
-        log.debug("Processing VSI termination request for VSI ID " + vsiId);
-        if (vsLcmManagers.containsKey(vsiId)) {
-            log.debug("VSI " + vsiId + " TERMINATED");
+    public void notifyVsiTermination(String vsiUuid) throws NotExistingEntityException {
+        log.debug("Processing VSI termination request for VSI UUID " + vsiUuid);
+        if (vsLcmManagers.containsKey(vsiUuid)) {
+            log.debug("VSI " + vsiUuid + " TERMINATED");
             for (Map.Entry<String, VsCoordinator> coordEntry: vsCoordinators.entrySet()){
                 VsCoordinator coordinator = coordEntry.getValue();
-                if(coordinator.getCandidateVsis().containsKey(vsiId)){
+                if(coordinator.getCandidateVsis().containsKey(vsiUuid)){
                     String topic = "coordlifecycle.notifyterm." + coordEntry.getKey();
-                    VsiTerminationNotificationMessage internalMessage = new VsiTerminationNotificationMessage(vsiId);
+                    VsiTerminationNotificationMessage internalMessage = new VsiTerminationNotificationMessage(vsiUuid);
                     try {
                         sendMessageToQueue(internalMessage, topic);
                     } catch (JsonProcessingException e) {
                         log.error("Error while translating internal VSI TERMINATION notification message in Json format.");
-                        vsRecordService.setVsFailureInfo(vsiId, "Error while translating internal VSI TERMINATION notification message in Json format.");
+                        vsRecordService.setVsFailureInfo(vsiUuid, "Error while translating internal VSI TERMINATION notification message in Json format.");
                     }
                 }
             }
         } else {
-            log.error("Unable to find VS LCM Manager for VSI ID " + vsiId + ". Invalid Termination notification.");
-            throw new NotExistingEntityException("Unable to find VS LCM Manager for VSI ID " + vsiId + ". Invalid Termination notification.");
+            log.error("Unable to find VS LCM Manager for VSI UUID " + vsiUuid + ". Invalid Termination notification.");
+            throw new NotExistingEntityException("Unable to find VS LCM Manager for VSI UUID " + vsiUuid + ". Invalid Termination notification.");
         }
     }
 
     /**
      * This method removes a VS LC manager from the engine map
      *
-     * @param vsiId ID of the VS whose VS LCM must be removed
+     * @param vsiUuid ID of the VS whose VS LCM must be removed
      */
-    public void removeVerticalServiceLcmManager(String vsiId) {
-        log.debug("Vertical service " + vsiId + " has been terminated. Removing VS LCM from engine");
-        this.vsLcmManagers.remove(vsiId);
+    public void removeVerticalServiceLcmManager(String vsiUuid) {
+        log.debug("Vertical service " + vsiUuid + " has been terminated. Removing VS LCM from engine");
+        this.vsLcmManagers.remove(vsiUuid);
         log.debug("VS LCM manager removed from engine.");
     }
 
 	@Override
 	public void notifyNetworkSliceStatusChange(NetworkSliceStatusChangeNotification notification) {
-		String networkSliceId = notification.getNsiId();
-		log.debug("Processing notification about status change for network slice " + networkSliceId);
-        List<VerticalServiceInstance> vsis = vsRecordService.getVsInstancesFromNetworkSlice(networkSliceId);
+		String networkSliceUuid = notification.getNsiId();
+		log.debug("Processing notification about status change for network slice " + networkSliceUuid);
+        List<VerticalServiceInstance> vsis = vsRecordService.getVsInstancesFromNetworkSlice(networkSliceUuid);
         for (VerticalServiceInstance vsi : vsis) {
-            String vsiId = vsi.getVsiId();
-            log.debug("Network Slice " + networkSliceId + " is associated to vertical service " + vsiId);
-            if (vsLcmManagers.containsKey(vsiId)) {
-                String topic = "lifecycle.notifyns." + vsiId;
-                NotifyNsiStatusChange internalMessage = new NotifyNsiStatusChange(networkSliceId, notification.getStatusChange());
+            String vsiUuid = vsi.getVsiId();
+            log.debug("Network Slice " + networkSliceUuid + " is associated to vertical service " + vsiUuid);
+            if (vsLcmManagers.containsKey(vsiUuid)) {
+                String topic = "lifecycle.notifyns." + vsiUuid;
+                NotifyNsiStatusChange internalMessage = new NotifyNsiStatusChange(networkSliceUuid, notification.getStatusChange());
                 try {
                     sendMessageToQueue(internalMessage, topic);
                 } catch (Exception e) {
                     log.error("General exception while sending message to queue.");
                 }
             } else {
-                log.error("Unable to find Vertical Service LCM Manager for VSI ID " + vsiId + ". Unable to notify associated NS status change.");
+                log.error("Unable to find Vertical Service LCM Manager for VSI UUID " + vsiUuid + ". Unable to notify associated NS status change.");
             }
         }
 		
@@ -570,11 +570,11 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
      * This method initializes a new VS LCM manager that will be in charge
      * of processing all the requests and events for that VSI.
      *
-     * @param vsiId ID of the VS instance for which the VS LCM Manager must be initialized
+     * @param vsiUuid ID of the VS instance for which the VS LCM Manager must be initialized
      */
-    private void initNewVsLcmManager(String vsiId, String vsiName) {
-        log.debug("Initializing new VS LCM manager for VSI ID " + vsiId);
-        VsLcmManager vsLcmManager = new VsLcmManager(vsiId,
+    private void initNewVsLcmManager(String vsiUuid, String vsiName) {
+        log.debug("Initializing new VS LCM manager for VSI UUID " + vsiUuid);
+        VsLcmManager vsLcmManager = new VsLcmManager(vsiUuid,
         		vsiName,
         		vsRecordService, 
         		vsDescriptorCatalogueService, 
@@ -585,9 +585,9 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
         		virtualResourceCalculatorService, 
         		nsmfLcmProvider,
         		vsmfUtils);
-        createQueue(vsiId, vsLcmManager);
-        vsLcmManagers.put(vsiId, vsLcmManager);
-        log.debug("VS LCM manager for VSI ID " + vsiId + " initialized and added to the engine.");
+        createQueue(vsiUuid, vsLcmManager);
+        vsLcmManagers.put(vsiUuid, vsLcmManager);
+        log.debug("VS LCM manager for VSI UUID " + vsiUuid + " initialized and added to the engine.");
     }
     
     /**
@@ -631,11 +631,11 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
      * This internal method creates a queue for the exchange of asynchronous messages
      * related to a given VSI.
      *
-     * @param vsiId ID of the VSI for which the queue is created
+     * @param vsiUuid ID of the VSI for which the queue is created
      * @param vsiManager VSI Manager in charge of processing the queue messages
      */
-    private void createQueue(String vsiId, VsLcmManager vsiManager) {
-        String queueName = ConfigurationParameters.engineQueueNamePrefix + vsiId;
+    private void createQueue(String vsiUuid, VsLcmManager vsiManager) {
+        String queueName = ConfigurationParameters.engineQueueNamePrefix + vsiUuid;
         log.debug("Creating new Queue " + queueName + " in rabbit host " + rabbitHost);
         CachingConnectionFactory cf = new CachingConnectionFactory();
         cf.setAddresses(rabbitHost);
@@ -644,7 +644,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
         Queue queue = new Queue(queueName, false, false, true);
         rabbitAdmin.declareQueue(queue);
         rabbitAdmin.declareExchange(messageExchange);
-        rabbitAdmin.declareBinding(BindingBuilder.bind(queue).to(messageExchange).with("lifecycle.*." + vsiId));
+        rabbitAdmin.declareBinding(BindingBuilder.bind(queue).to(messageExchange).with("lifecycle.*." + vsiUuid));
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(cf);
         MessageListenerAdapter adapter = new MessageListenerAdapter(vsiManager, "receiveMessage");
         container.setMessageListener(adapter);

@@ -78,10 +78,10 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 		this.cookies=cookies;
 	}
 
-	private ResponseEntity<String> performHTTPRequest(Object request, String url, HttpMethod httpMethod, String tenantID) {
+	private ResponseEntity<String> performHTTPRequest(Object request, String url, HttpMethod httpMethod, String tenantId) {
 		HttpHeaders header = new HttpHeaders();
 		header.add("Content-Type", "application/json");
-		performAuth(tenantID);
+		performAuth(tenantId);
 		if(this.cookies!=null){
 			header.add("Cookie", this.cookies);
 		}
@@ -175,10 +175,10 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 		HttpEntity<?> httpEntity = new HttpEntity<>(request, header);
 
 		try {
-			//If the nsiID is specified a NetworkSliceInstance is sent, viceversa a List<NetworkSliceInstance> .
+			//If the nsiID is specified in the filter a NetworkSliceInstance is sent, viceversa a List<NetworkSliceInstance> .
 			if(request.getFilter()!=null){
-            	String nsiID= request.getFilter().getParameters().getOrDefault("NSI_ID","");
-				url +=nsiID;
+            	String nsiUuid= request.getFilter().getParameters().getOrDefault("NSI_ID","");
+				url +=nsiUuid;
 				ResponseEntity <NetworkSliceInstance> httpResponseAtMostOneNSI =
 					restTemplate.exchange(url, HttpMethod.GET, httpEntity, NetworkSliceInstance.class);
 
