@@ -213,8 +213,10 @@ public class NsLcmManager {
 			
 			String ranEndPointId = null;
 			LocationInfo locationInfo = msg.getRequest().getLocationConstraints();
-			if (locationInfo.isMeaningful()) {
+			if (locationInfo!=null&&locationInfo.isMeaningful()) {
 				ranEndPointId = msg.getRequest().getRanEndPointId();
+			}else{
+				log.info("No location constraints received. Continuing");
 			}
 			
 			List<Sapd> saps = nsd.getSapd();
@@ -271,6 +273,7 @@ public class NsLcmManager {
 			log.debug("Sent request to NFVO service for instantiating NFV NS " + nfvNsId + ": operation ID " + operationId);
 			
 		} catch (Exception e) {
+			log.error("An exception has occurred!", e);
 			manageNsError(e.getMessage());
 		}
 	}
