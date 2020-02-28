@@ -388,6 +388,7 @@ public class NsLcmManager {
 				manageNsError("The operation associated to NFV network service " + msg.getNfvNsiId() + " has failed.");
 			}
 		}catch (Exception e){
+			log.error("An exception occurred!", e);
 			manageNsError(e.getMessage());
 		}
 	}
