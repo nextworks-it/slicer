@@ -319,7 +319,7 @@ function uploadTRFromForm(formId, formIds, paramNum) {
     jsonObj.nsdVersion = document.getElementById(formIds[1]).value;
     jsonObj.nsFlavourId = document.getElementById(formIds[2]).value;
     jsonObj.nsInstantiationLevelId = document.getElementById(formIds[3]).value;
-	
+	jsonObj.nstId = document.getElementById(formIds[4]).value;
 	var params = [];
 		
 	var pnum = document.getElementById(paramNum).innerHTML;
@@ -327,9 +327,9 @@ function uploadTRFromForm(formId, formIds, paramNum) {
 	for (var i = 0; i < pnum; i++) {		
 		var tempParam = JSON.parse('{}');
 				
-		var tempId = document.getElementById(formIds[4] + i).value;
-		var tempMinVal = document.getElementById(formIds[5] + i).value;
-		var tempMaxVal = document.getElementById(formIds[6] + i).value;
+		var tempId = document.getElementById(formIds[5] + i).value;
+		var tempMinVal = document.getElementById(formIds[6] + i).value;
+		var tempMaxVal = document.getElementById(formIds[7] + i).value;
 		tempParam.parameterId = tempId;
 		tempParam.minValue = tempMinVal;
 		tempParam.maxValue = tempMaxVal;
