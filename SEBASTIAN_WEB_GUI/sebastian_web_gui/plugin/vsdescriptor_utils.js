@@ -34,7 +34,7 @@ function readVSDescriptors(tableId) {
 
 function getAllVSDescriptors(params, callback) {
   getJsonFromURLWithAuth(
-    'http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsdescriptor',
+    'http://' + vsAddr + ':' + vsPort + '/portal/catalogue/vsdescriptor',
     callback,
     params
   );
@@ -47,7 +47,7 @@ function readVSDescriptor(tableId) {
 function getVSDescriptor(elemId, callback) {
   var id = getURLParameter('Id');
   getJsonFromURLWithAuth(
-    'http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsdescriptor/' + id,
+    'http://' + vsAddr + ':' + vsPort + '/portal/catalogue/vsdescriptor/' + id,
     callback,
     elemId
   );
@@ -59,7 +59,7 @@ function deleteVSDescriptor(vsDescriptorId) {
       vsAddr +
       ':' +
       vsPort +
-      '/vs/catalogue/vsdescriptor/' +
+      '/portal/catalogue/vsdescriptor/' +
       vsDescriptorId,
     showResultMessage,
     ['VS descriptor successfully deleted', 'Unable to delete VS descriptor']

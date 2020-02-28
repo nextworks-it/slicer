@@ -57,7 +57,7 @@ function submitBlueprintCreationRequest(blueprintId) {
     
     console.log(json);
     
-    postJsonToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint', json, showResultMessage, ['VS Blueprint successfully onboarded', 'Error while onboarding VS Blueprint']);   
+    postJsonToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/portal/catalogue/vsblueprint', json, showResultMessage, ['VS Blueprint successfully onboarded', 'Error while onboarding VS Blueprint']);
 }
 
 function createVSDFromForm(formIds, qosNum) {
@@ -152,7 +152,7 @@ function createVSDFromForm(formIds, qosNum) {
     
     console.log(json);
     
-    postJsonToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsdescriptor', json, showResultMessage, ['VS descriptor successfully created', 'Error while creating VS descriptor']);
+    postJsonToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/portal/catalogue/vsdescriptor', json, showResultMessage, ['VS descriptor successfully created', 'Error while creating VS descriptor']);
 }
 
 function readVSBlueprints(tableId) {
@@ -160,7 +160,7 @@ function readVSBlueprints(tableId) {
 }
 
 function getVSBlueprints(params, callback) {
-    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint', callback, params);
+    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/portal/catalogue/vsblueprint', callback, params);
 }
 
 function readVSBlueprint(params) {
@@ -169,11 +169,11 @@ function readVSBlueprint(params) {
 }
 
 function getVSBlueprint(id, params, callback) {
-    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint/' + id, callback, params);
+    getJsonFromURLWithAuth('http://' + vsAddr + ':' + vsPort + '/portal/catalogue/vsblueprint/' + id, callback, params);
 }
 
 function deleteVSBlueprint(blueprintId) {
-    deleteRequestToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/vs/catalogue/vsblueprint/' + blueprintId, showResultMessage, ['VS Blueprint successfully deleted', 'Unable to delete VS Blueprint']);
+    deleteRequestToURLWithAuth('http://' + vsAddr + ':' + vsPort + '/portal/catalogue/vsblueprint/' + blueprintId, showResultMessage, ['VS Blueprint successfully deleted', 'Unable to delete VS Blueprint']);
 }
 
 function progressBlueprintWizard() {
