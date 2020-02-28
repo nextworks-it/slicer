@@ -105,12 +105,15 @@
             <version>0.0.2-SNAPSHOT</version>
 
         </dependency>
+
+        <!-- 
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>VNComService</artifactId>
             <version>0.0.2-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+        -->
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>ARBITRATOR_SERVICE</artifactId>

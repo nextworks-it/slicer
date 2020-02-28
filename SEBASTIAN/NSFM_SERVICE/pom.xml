@@ -110,11 +110,14 @@
             <version>0.0.2-SNAPSHOT</version>
 
         </dependency>
+
+        <!--
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>VNComService</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
+        -->
     </dependencies>
 
 
