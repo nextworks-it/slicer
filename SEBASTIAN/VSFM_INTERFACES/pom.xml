@@ -109,11 +109,13 @@
             <artifactId>VsBlueprintsIM</artifactId>
             <version>0.0.2-EVE-SNAPSHOT</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>EveBlueprintsIM</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
+        -->
     </dependencies>
 
 
