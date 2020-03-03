@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
-
+@Api(tags = "Network Slice Management API")
 @RestController
 @CrossOrigin
 @RequestMapping("/vs/basic/nslcm")

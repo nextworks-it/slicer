@@ -16,6 +16,7 @@ package it.nextworks.nfvmano.sebastian.vsfm.nbi;
 
 import java.util.List;
 
+import io.swagger.annotations.Api;
 import it.nextworks.nfvmano.sebastian.admin.MgmtCatalogueUtilities;
 import it.nextworks.nfvmano.sebastian.record.repo.VSICatalogueUtilities;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ import it.nextworks.nfvmano.sebastian.vsfm.messages.ModifyVsRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.PurgeVsRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.QueryVsResponse;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.TerminateVsRequest;
-
+@Api(tags = "Vertical Service LCM Management API")
 @RestController
 @CrossOrigin
 @RequestMapping("/vs/basic/vslcm")
