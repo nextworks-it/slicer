@@ -16,6 +16,7 @@
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
 import com.google.gson.JsonObject;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,11 +51,19 @@ public class FlexRanService extends CPSService{
                 .collect(toList());
     }
 
+    public void setFlexRanURL(String flexRanURL) {
+        this.flexRanURL = flexRanURL;
+    }
+
+    public void setRanAdapterUrl(String ranAdapterUrl) {
+        this.ranAdapterUrl = ranAdapterUrl;
+    }
+
     private Integer getFirstAvailableRanId(){
         return this.availableRanId.remove(0);
     }
 
-    public Map<UUID, Integer> getFlxIdSliceId() {
+    public Map<UUID, Integer> getFlxIdSliceIds() {
         return flxIdSliceId;
     }
 
@@ -72,7 +81,7 @@ public class FlexRanService extends CPSService{
 
     public HttpStatus createRanSlice(UUID sliceId){
         Integer ranId  = getFirstAvailableRanId();
-        String url = String.format("%s/slice/enb/-1/slice/%d", flexRanURL, ranId);
+        String url = String.format("http://%s/slice/enb/-1/slice/%d", flexRanURL, ranId);
         try{
             ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.POST);
             this.setIdsMap(sliceId, ranId);
@@ -88,34 +97,47 @@ public class FlexRanService extends CPSService{
              sid: "1"*/
     public HttpStatus mapIdsRemotely(UUID sliceId){
         Integer ranId = getRanId(sliceId);
-        String url = String.format("%s/ranadapter/all/v1/set_slice_mapping", ranAdapterUrl);
+        String url = String.format("http://%s/ranadapter/all/v1/set_slice_mapping", ranAdapterUrl);
         Map<String, String> slicePair = new HashMap<>();
         slicePair.put("slicenetid", sliceId.toString());
         slicePair.put("sid", ranId.toString());
         try{
             JSONObject payload = new JSONObject(slicePair);
-            ResponseEntity<String> httpResponse = this.performHTTPRequest(payload.toString(), url, HttpMethod.POST);
+            JSONArray payloadArray = new JSONArray();
+            payloadArray.put(payload);
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(payloadArray.toString(), url, HttpMethod.POST);
             return httpResponse.getStatusCode();
         }catch (RestClientResponseException e){
             log.info("Message received: " + e.getMessage());
             return HttpStatus.valueOf(e.getRawStatusCode());
-        }
 
+        }
     }
 
     public HttpStatus terminateRanSlice(UUID sliceId){
 
         Integer ranId = getRanId(sliceId);
+
+        String flexRanUrl = String.format("http://%s/slice/enb/-1/slice/%d", flexRanURL, ranId);
+        try{
+
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(null, flexRanUrl, HttpMethod.DELETE);
+            removeIdMapping(sliceId);
+            return httpResponse.getStatusCode();
+        }catch (RestClientResponseException e){
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
+    }
+
+    public HttpStatus removeRemoteMapping(UUID sliceId){
         Map<String, String> slicePair = new HashMap<>();
         slicePair.put("slicenetid", sliceId.toString());
         JSONObject request = new JSONObject(slicePair);
-        String ranAdapterUrl = String.format( "%s/ranadapter/all/v1/set_slice_mapping", this.ranAdapterUrl);
-        String flexRanUrl = String.format("%s/slice/enb/-1/slice/%d", flexRanURL, ranId);
+        String ranAdapterUrl = String.format( "http://%s/ranadapter/all/v1/remove_slice_mapping/%s", this.ranAdapterUrl, sliceId.toString());
         try{
-            ResponseEntity<String> httpResponse = this.performHTTPRequest(request, ranAdapterUrl, HttpMethod.DELETE);
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(request.toString(), ranAdapterUrl, HttpMethod.DELETE);
             log.info("Slice"+ sliceId.toString()+ "removed from RanAdapter - HTTP Code: " + httpResponse.getStatusCode());
-            removeIdMapping(sliceId);
-            httpResponse = this.performHTTPRequest(null, flexRanUrl, HttpMethod.DELETE);
             return httpResponse.getStatusCode();
         }catch (RestClientResponseException e){
             log.info("Message received: " + e.getMessage());

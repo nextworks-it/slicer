@@ -46,7 +46,8 @@ public class PnpCommunicationTest {
     public void deployQos(){
         PpFunction ppf = new PpFunction("qos_ctrl_feature", PpFeatureLevel.SLICE, PpFeatureType.CONTROL);
         ppf.setSeqId(0);
-
+        //String url = "http://10.8.202.4:50001";
+        String url = "http://127.0.0.1:50001";
         List<PpFunction> ppfl = new ArrayList<>();
         ppfl.add(ppf);
 
@@ -54,7 +55,7 @@ public class PnpCommunicationTest {
         nst.setNstName("test_slice");
         nst.setNstProvider("NXW");
         nst.setPpFunctionList(ppfl);
-        pnp.setTargetUrl("http://127.0.0.1:50001");
+        pnp.setTargetUrl(url);
         HttpStatus httpStatus = pnp.deploySliceComponents(sliceId, nst);
         System.out.println(httpStatus);
 
@@ -62,7 +63,9 @@ public class PnpCommunicationTest {
 
     @Test
     public void terminateQos(){
-        pnp.setTargetUrl("http://127.0.0.1:50001");
+        String url = "http://127.0.0.1:50001";
+        //String url = "http://10.8.202.4:50001";
+        pnp.setTargetUrl(url);
         HttpStatus httpStatus = pnp.terminateSliceComponents(sliceId);
         System.out.println(httpStatus);
     }

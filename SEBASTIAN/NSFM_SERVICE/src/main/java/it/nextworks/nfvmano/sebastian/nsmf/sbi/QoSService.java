@@ -32,7 +32,7 @@ public class QoSService extends CPSService{
     private String qosCpBaseURl;
 
     public QoSService() {
-        this.setCspType(CSPTypes.QOS_CP);
+        this.setCspType(CPSTypes.QOS_CP);
     }
 
     public void getQoSInfo(UUID sliceId) {
@@ -42,7 +42,7 @@ public class QoSService extends CPSService{
     public HttpStatus setQoS(UUID sliceId, JSONObject qosConstraints) throws Exception{
         try {
             this.getQoSInfo(sliceId);
-            String url = String.format("%s/qos-instance/%s/qos_constraints", this.qosCpBaseURl, sliceId.toString());
+            String url = String.format("http://%s/slicenet/ctrlplane/qos/v1/qos-instance/%s/qos_constraints?segment_id=ACCESS", /*this.qosCpBaseURl*/"10.8.202.4:30001", sliceId.toString());
             ResponseEntity<String> httpResponse = this.performHTTPRequest(qosConstraints.toString(), url, HttpMethod.POST);
             System.out.println(httpResponse.getBody());
             return httpResponse.getStatusCode();
@@ -55,7 +55,7 @@ public class QoSService extends CPSService{
     public HttpStatus updateQoS(UUID sliceId, JSONObject qosConstraints){
         try {
             this.getQoSInfo(sliceId);
-            String url = String.format("%s/qos-instance/%s/qos_constraints", this.qosCpBaseURl, sliceId.toString());
+            String url = String.format("http://%s/qos-instance/%s/qos_constraints", this.qosCpBaseURl, sliceId.toString());
             ResponseEntity<String> httpResponse = this.performHTTPRequest(qosConstraints.toString(), url, HttpMethod.PUT);
             System.out.println(httpResponse.getBody());
             return httpResponse.getStatusCode();

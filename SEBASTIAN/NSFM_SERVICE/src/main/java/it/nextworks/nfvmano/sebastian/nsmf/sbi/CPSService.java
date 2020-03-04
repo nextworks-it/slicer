@@ -16,14 +16,12 @@
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
 
-import it.nextworks.nfvmano.sebastian.nsmf.ppinteraction.PpRestClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -31,17 +29,17 @@ import java.util.UUID;
 
 public class CPSService extends NsmfSbRestClient {
     private static final Logger log = LoggerFactory.getLogger(CPSService.class);
-    private CSPTypes cspType;
+    private CPSTypes cspType;
 
     public CPSService() {
 
     }
 
-    public CSPTypes getCspType() {
+    public CPSTypes getCspType() {
         return cspType;
     }
 
-    public void setCspType(CSPTypes cspType) {
+    public void setCspType(CPSTypes cspType) {
         this.cspType = cspType;
     }
 

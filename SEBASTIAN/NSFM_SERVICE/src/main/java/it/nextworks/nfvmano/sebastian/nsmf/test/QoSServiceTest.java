@@ -26,15 +26,23 @@ public class QoSServiceTest {
     public void setQos() throws Exception{
         Map<String, Object> qosContraint = new HashMap<>();
         Map<String, Object> ranCoreContraint = new HashMap<>();
+        Map<String, Object> ranCoreContraint2 = new HashMap<>();
         ranCoreContraint.put("bandIncDir",  "DL");
-        ranCoreContraint.put("bandIncVal:",  10);
+        ranCoreContraint.put("bandIncVal",  "10");
         ranCoreContraint.put("bandUnitScale",  "MB");
+
+        ranCoreContraint2.put("bandIncDir",  "UL");
+        ranCoreContraint2.put("bandIncVal",  "10");
+        ranCoreContraint2.put("bandUnitScale",  "MB");
         List<Map<String, Object>> ranArray = new ArrayList<>();
         ranArray.add(ranCoreContraint);
+
+        ranArray.add(ranCoreContraint2);
         qosContraint.put("ran_core_constraints", ranArray);
         JSONObject json = new JSONObject(qosContraint);
         System.out.println(json);
-        qos.setTargetUrl("http://10.30.8.76:8080");
+        String url = "http://10.8.202.11:8080";
+        qos.setTargetUrl(url);
         System.out.println(qos.setQoS(UUID.fromString("bf5cbb04-345c-479f-8511-f6f01b2b822d"), json));
 
     }

@@ -32,6 +32,9 @@ import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.ScaleNsD
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.messages.*;
 import it.nextworks.nfvmano.libs.ifa.records.nsinfo.NsInfo;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
+import it.nextworks.nfvmano.libs.ifa.templates.SliceType;
+import it.nextworks.nfvmano.libs.ifa.templates.nsst.NSST;
+import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
@@ -41,16 +44,17 @@ import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.FlexRanService;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Entity in charge of managing the lifecycle
@@ -85,6 +89,9 @@ public class NsLcmManager {
 	private NST networkSliceTemplate;
 	
 	private NsmfUtils nsmfUtils;
+
+	private FlexRanService flexRanService;
+	private PnPCommunicationService pnPCommunicationService;
 	
 	public NsLcmManager(String networkSliceInstanceUuid,
 						String name,
@@ -95,7 +102,9 @@ public class NsLcmManager {
 						NsRecordService nsRecordService,
 						NsmfLcmConsumerInterface notificationDispatcher,
 						NsLcmService nsLcmService,
-						NST networkSliceTemplate, 
+						NST networkSliceTemplate,
+						FlexRanService flexRanService,
+						PnPCommunicationService pnPCommunicationService,
 						NsmfUtils nsmfUtils) {
 		this.networkSliceInstanceUuid = networkSliceInstanceUuid;
 		this.name = name;
@@ -108,6 +117,8 @@ public class NsLcmManager {
 		this.notificationDispatcher = notificationDispatcher;
 		this.nsLcmService = nsLcmService;
 		this.networkSliceTemplate = networkSliceTemplate;
+		this.flexRanService = flexRanService;
+		this.pnPCommunicationService = pnPCommunicationService;
 		this.nsmfUtils = nsmfUtils;
 	}
 	
@@ -117,7 +128,22 @@ public class NsLcmManager {
 		return internalStatus;
 	}
 
+	private void instantiationRollback(){
+		UUID sliceID = UUID.fromString(this.networkSliceInstanceUuid);
+		// Check RAN Service
+		Integer ranSliceId = this.flexRanService.getRanId(sliceID);
 
+		/* RAN and RAN Adapter Rollback */
+		//NOTE: Evaluate if try/catch should ber put here.
+		if (ranSliceId != null) {
+			this.flexRanService.terminateRanSlice(sliceID);
+			//NOTE here we're assuming that both FlexRAN and RANAdapter are configured
+			this.flexRanService.removeRemoteMapping(sliceID);
+		}
+
+		/* PnP Rollback */
+		pnPCommunicationService.terminateSliceComponents(sliceID);
+	}
 
 	/**
 	 * Method used to receive messages about NSI lifecycle from the Rabbit MQ
@@ -133,37 +159,37 @@ public class NsLcmManager {
 			NsmfEngineMessageType type = em.getType();
 			
 			switch (type) {
-			case INSTANTIATE_NSI_REQUEST: {
-				log.debug("Processing NSI instantiation request.");
-				InstantiateNsiRequestMessage instantiateVsRequestMsg = (InstantiateNsiRequestMessage)em;
-				processInstantiateRequest(instantiateVsRequestMsg);
-				break;
-			}
+				case INSTANTIATE_NSI_REQUEST: {
+					log.debug("Processing NSI instantiation request.");
+					InstantiateNsiRequestMessage instantiateVsRequestMsg = (InstantiateNsiRequestMessage)em;
+					processInstantiateRequest(instantiateVsRequestMsg);
+					break;
+				}
 
-			case MODIFY_NSI_REQUEST: {
-				log.debug("Processing NSI modification request.");
-				ModifyNsiRequestMessage modifyNsiRequestMessage = (ModifyNsiRequestMessage)em;
-                processModifyRequest(modifyNsiRequestMessage);
-				break;
-			}
-			case TERMINATE_NSI_REQUEST: {
-				log.debug("Processing NSI termination request.");
-				TerminateNsiRequestMessage terminateVsRequestMsg = (TerminateNsiRequestMessage)em;
-				processTerminateRequest(terminateVsRequestMsg);
-				break;
-			}
-			
-			case NOTIFY_NFV_NSI_STATUS_CHANGE: {
-				log.debug("Processing NFV NSI status change notification.");
-				NotifyNfvNsiStatusChange nfvNotificationMsg = (NotifyNfvNsiStatusChange)em;
-				processNfvNsChangeNotification(nfvNotificationMsg);
-				break;
-			}
-			
-			default: {
-				log.error("Received message with not supported type. Skipping.");
-				break;
-			}
+				case MODIFY_NSI_REQUEST: {
+					log.debug("Processing NSI modification request.");
+					ModifyNsiRequestMessage modifyNsiRequestMessage = (ModifyNsiRequestMessage)em;
+					processModifyRequest(modifyNsiRequestMessage);
+					break;
+				}
+				case TERMINATE_NSI_REQUEST: {
+					log.debug("Processing NSI termination request.");
+					TerminateNsiRequestMessage terminateVsRequestMsg = (TerminateNsiRequestMessage)em;
+					processTerminateRequest(terminateVsRequestMsg);
+					break;
+				}
+
+				case NOTIFY_NFV_NSI_STATUS_CHANGE: {
+					log.debug("Processing NFV NSI status change notification.");
+					NotifyNfvNsiStatusChange nfvNotificationMsg = (NotifyNfvNsiStatusChange)em;
+					processNfvNsChangeNotification(nfvNotificationMsg);
+					break;
+				}
+
+				default: {
+					log.error("Received message with not supported type. Skipping.");
+					break;
+				}
 			}
 			
 		} catch(JsonParseException e) {
@@ -181,11 +207,65 @@ public class NsLcmManager {
 			return;
 		}
 		internalStatus = NetworkSliceStatus.INSTANTIATING;
-		String nsdId = networkSliceTemplate.getNsdId();
-		String nsdVersion = networkSliceTemplate.getNsdVersion();
-		String dfId = msg.getRequest().getDfId();
-		String ilId = msg.getRequest().getIlId();
-		log.debug("Creating NFV NSI ID for NFV NS with NSD ID " + nsdId);
+		Map<String, String> nsdToInstantiate = null;
+
+		/* NST Analysis */
+		SliceType sliceType = networkSliceTemplate.getSliceType();
+		// Step 1: Check NSSTs list
+		List<NSST> nsstList = networkSliceTemplate.getNsstList();
+		for(NSST nsst: nsstList){
+			// Step 1.1: given the sliceType, check for proper RAN Profile
+			if (nsst.getNstServiceProfile() != null) { // RAN request!
+				switch (sliceType) {
+					case URLLC:
+						break;
+
+					case EMBB:
+						break;
+
+					case MMTC:
+						break;
+
+					default:
+						break;
+				}
+
+				// Do RAN stuff
+			}
+			// Step 1.2: check for nsdId presence
+			if (nsst.getNsdId() != null){
+				if(nsdToInstantiate == null) nsdToInstantiate = new HashMap<>();
+				nsdToInstantiate.put(nsst.getNsdId(), nsst.getNsdVersion());
+			}
+		}
+
+		// Step 2: check for PnP functions
+		List<PpFunction> ppFunctions = networkSliceTemplate.getPpFunctionList();
+		if (ppFunctions != null) {
+			// Do PnP stuff
+		}
+
+		// Step 3: proceed in instantiating nsds, if any
+		for(String nsdId: nsdToInstantiate.keySet()){
+			//Step 3.1 put the logic here
+			log.debug("Creating NFV NSI ID for NFV NS with NSD ID " + nsdId);
+
+			/* Da verificare */
+			String dfId = msg.getRequest().getDfId();
+			String ilId = msg.getRequest().getIlId();
+			/* ---------------------------------- */
+		}
+
+
+//		String nsdId = networkSliceTemplate.getNsdId();
+//		String nsdVersion = networkSliceTemplate.getNsdVersion();
+
+		/* Da verificare */
+//		String dfId = msg.getRequest().getDfId();
+//		String ilId = msg.getRequest().getIlId();
+		/* ---------------------------------- */
+
+//		log.debug("Creating NFV NSI ID for NFV NS with NSD ID " + nsdId);
 		
 		try {
 			log.debug("Updating internal network slice record");

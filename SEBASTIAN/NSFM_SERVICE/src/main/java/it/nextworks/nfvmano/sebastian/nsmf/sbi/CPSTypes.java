@@ -15,7 +15,7 @@
 
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
-public enum CSPTypes {
+public enum CPSTypes {
     QOS_CP,
     RAN_ADAPTER
 }

@@ -1,6 +1,5 @@
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
-import com.google.gson.JsonObject;
 import it.nextworks.nfvmano.libs.ifa.templates.EMBBPerfReq;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.libs.ifa.templates.NstServiceProfile;
@@ -8,12 +7,11 @@ import it.nextworks.nfvmano.libs.ifa.templates.URLLCPerfReq;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 public class RanQoSTranslator {
     private static final Logger log = LoggerFactory.getLogger(RanQoSTranslator.class);
@@ -21,7 +19,6 @@ public class RanQoSTranslator {
     public RanQoSTranslator() {
 
     }
-
 
     private List<JSONObject> embbToQos(NstServiceProfile nstServiceProfile){
         int dl, ul;
