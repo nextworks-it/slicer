@@ -134,7 +134,18 @@
         <version>2.1</version>
         <scope>provided</scope>
 </dependency>
-
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>ARBITRATOR_SERVICE</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>it.nextworks.nfvmano</groupId>
+            <artifactId>TranslatorService</artifactId>
+            <version>0.0.2-EVE-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-test</artifactId>

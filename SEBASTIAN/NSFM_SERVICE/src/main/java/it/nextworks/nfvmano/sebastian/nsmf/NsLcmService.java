@@ -19,6 +19,7 @@ package it.nextworks.nfvmano.sebastian.nsmf;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.catalogue.template.elements.NsTemplateInfo;
+import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
 import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
@@ -27,6 +28,9 @@ import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmNotificationConsumerInterface;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
 import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
+import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
+import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorRequest;
+import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorResponse;
 import it.nextworks.nfvmano.sebastian.common.ConfigurationParameters;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.*;
@@ -40,6 +44,7 @@ import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.NsLcmManager;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
+import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.BindingBuilder;
@@ -89,6 +94,8 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     @Autowired
     private NfvoLcmService nfvoLcmService;
 
+    @Autowired
+    private ArbitratorService arbitratorService;
     //internal map of NS LCM Managers
     //each NS LCM Manager is created when a new NSI ID is created and removed when the NSI ID is removed
     private Map<String, NsLcmManager> nsLcmManagers = new HashMap<>();
@@ -97,21 +104,54 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 
     /********************************************************************************/
 
+    private boolean performArbitrationRequest(CreateNsiUuidRequest request, String deploymentFlavour, String tenantId) throws NotExistingEntityException, FailedOperationException {
+        log.info("Performing arbitration request");
+        List<ArbitratorRequest> arbitratorRequests = new ArrayList<>();
+        //only a single request is supported at the moment
+        NsTemplateInfo nstInfo = nsmfUtils.getNsTemplateInfoFromCatalogue(request.getNstUuid());
+        NST nsTemplate = nstInfo.getNST();
+
+        NfvNsInstantiationInfo nfvNsInstantiationInfo = new NfvNsInstantiationInfo(
+                nsTemplate.getNsdId(),
+                nsTemplate.getNsdVersion(),
+                deploymentFlavour, null,new ArrayList<String>());
+        ArbitratorRequest arbitratorRequest = new ArbitratorRequest("requestId", tenantId, nfvNsInstantiationInfo);
+
+        arbitratorRequests.add(arbitratorRequest);
+        ArbitratorResponse arbitratorResponse = arbitratorService.computeArbitratorSolution(arbitratorRequests).get(0);
+
+        boolean isAcceptableRequest=arbitratorResponse.isAcceptableRequest();
+        if (!(arbitratorResponse.isAcceptableRequest())) {
+           log.info("Arbitration request is NOT acceptable.");
+        }else{
+            log.info("Arbitration request is acceptable.");
+        }
+        return isAcceptableRequest;
+    }
+
     @Override
     public String createNetworkSliceIdentifier(CreateNsiUuidRequest request, String tenantId)
-    		throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException, MalformattedElementException, NotPermittedOperationException {
-
+    		throws NotExistingEntityException,  FailedOperationException, MalformattedElementException {
 
     	log.debug("Processing request to create a new network slicer identifier");
     	request.isValid();
+
     	String nstId = request.getNstUuid();
     	
     	NsTemplateInfo nstInfo = nsmfUtils.getNsTemplateInfoFromCatalogue(nstId);
     	NST nsTemplate = nstInfo.getNST();
-    	if (nsTemplate == null) {
-    		log.error("Null NS template retrieved from the catalogue");
-    		throw new NotExistingEntityException("Null NS template retrieved from the catalogue");
-    	}
+        if (nsTemplate == null) {
+            log.error("Null NS template retrieved from the catalogue");
+            throw new NotExistingEntityException("Null NS template retrieved from the catalogue");
+        }
+        //TODO. The below one is hard coded into NSMF APP. It is known at priori. Find a generic way to get them
+        String nsdDFid="nsdDfId";
+        String instantiationLevelId="vVS_il";
+
+       if(!performArbitrationRequest(request, nsdDFid, tenantId)){
+           return null;
+       }
+
     	log.debug("Network Slice Template retrieved from catalogue");
     	
     	String nsdId = nsTemplate.getNsdId(); 
@@ -121,8 +161,8 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     			nstId,
     			nsdId,
     			nsdVersion,
-    			null,							//DF ID
-    			null,							//IL ID
+                nsdDFid,							//DF ID
+                instantiationLevelId,							//IL ID
     			null, 							//nfvNsId,
     			new ArrayList<String>(),		// networkSliceSubnetInstances,
     			tenantId,
@@ -130,24 +170,27 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     			request.getDescription(),
     			false							//SO managed
     	);
-    	initNewNsLcmManager(networkSliceId, tenantId, request.getName(), request.getDescription(), nsTemplate);
+    	initNewNsLcmManager(networkSliceId, tenantId, request.getName(), request.getDescription(), nsTemplate, nsdDFid,instantiationLevelId);
     	return networkSliceId;
     }
 
     @Override
     public void instantiateNetworkSlice(InstantiateNsiRequest request, String tenantId)
-    		throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException, MalformattedElementException, NotPermittedOperationException {
+    		throws NotExistingEntityException, MalformattedElementException, NotPermittedOperationException {
     	log.debug("Processing request to instantiate a network slice instance");
     	request.isValid();
     	String nsiUuid = request.getNsiId();
     	log.debug("Processing NSI instantiation request for NSI UUID " + nsiUuid);
         if (nsLcmManagers.containsKey(nsiUuid)) {
         	NetworkSliceStatus sliceStatus = nsLcmManagers.get(nsiUuid).getInternalStatus();
+
         	if (sliceStatus != NetworkSliceStatus.NOT_INSTANTIATED) {
         		log.error("Network slice " + nsiUuid + " not in NOT INSTANTIATED state. Cannot instantiate it. Skipping message.");
         		throw new NotPermittedOperationException("Network slice " + nsiUuid + " not in NOT INSTANTIATED state.");
         	}
             String topic = "nslifecycle.instantiatens." + nsiUuid;
+            nsLcmManagers.get(nsiUuid).getNsDfId();
+            //request.
             InstantiateNsiRequestMessage internalMessage = new InstantiateNsiRequestMessage(request, tenantId);
             try {
                 sendMessageToQueue(internalMessage, topic);
@@ -279,9 +322,11 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
      *
      * @param nsiUuid UUID of the network slice instance for which the NS LCM Manager must be initialized
      */
-    private void initNewNsLcmManager(String nsiUuid, String tenantId, String sliceName, String sliceDescription, NST networkSliceTemplate) {
+    private void initNewNsLcmManager(String nsiUuid, String tenantId, String sliceName, String sliceDescription, NST networkSliceTemplate, String nsDfId, String instantiationLevel) {
         log.debug("Initializing new NSMF for NSI UUID " + nsiUuid);
         NsLcmManager nsLcmManager = new NsLcmManager(nsiUuid, sliceName, sliceDescription, tenantId, nfvoCatalogueService, nfvoLcmService, nsRecordService, notificationDispatcher, this, networkSliceTemplate, nsmfUtils);
+        nsLcmManager.setNsDfId(nsDfId);
+        nsLcmManager.setInstantationLevel(instantiationLevel);
         createQueue(nsiUuid, nsLcmManager);
         nsLcmManagers.put(nsiUuid, nsLcmManager);
         log.debug("NS LCM manager for Network Slice Instance UUID " + nsiUuid + " initialized and added to the engine.");

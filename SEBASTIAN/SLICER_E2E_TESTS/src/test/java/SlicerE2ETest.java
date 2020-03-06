@@ -30,7 +30,7 @@ public class SlicerE2ETest {
     private String vsdId;
     private String vsiUuid;
 
-    private final String NSMF_HOST= "http://10.30.8.76:8082";
+    private final String NSMF_HOST= "http://10.30.8.54:8082";
     private final String VSMF_HOST = "http://10.30.8.54:8081";
     EndPointInteraction nspInteraction = new EndPointInteraction(NSMF_HOST, "NSP");
     EndPointInteraction dspInteraction = new EndPointInteraction(VSMF_HOST, "DSP");
@@ -317,6 +317,7 @@ public class SlicerE2ETest {
     public void VSIinstantionTest() {
         final String VSI_INSTANTIATION_URL = "/vs/basic/vslcm/vs";
 
+
         InstantiateVsRequest vsifromJSON = (InstantiateVsRequest) getObjectFromFile(InstantiateVsRequest.class, "vsi_sample.json");
         InstantiateVsRequest instantiateVsRequest = new InstantiateVsRequest(
                 vsifromJSON.getName(),
@@ -397,6 +398,8 @@ public class SlicerE2ETest {
         nspInteraction.loginAdmin();
         nspInteraction.createGroup("NSP_group");
         nspInteraction.createTenant("tenant_nsp_sample.json");
+        //nspInteraction.createSLA();
+        nspInteraction.createSLANoResource();
         nspInteraction.loginTenant();
         nstUuid =nspInteraction.onBoardNST("nst_sample.json");
 
@@ -405,7 +408,6 @@ public class SlicerE2ETest {
         dspInteraction.createGroup("DSP_group");
         dspInteraction.createTenant("tenant_sample.json");
         dspInteraction.createTenantNotif("tenant_notif_sample.json");
-        dspInteraction.createSLA();
         dspInteraction.loginTenant();
         dspInteraction.createRemoteTenantInfo(nspInteraction.getTenant(),NSMF_HOST);
         dspInteraction.associateLocalTenantWithRemoteTenant();
@@ -461,6 +463,7 @@ public class SlicerE2ETest {
         nspInteraction.loginAdmin();
         nspInteraction.createGroup("NSP_group");
         nspInteraction.createTenant("tenant_nsp_sample.json");
+        nspInteraction.createSLA();
         nspInteraction.loginTenant();
 
 

@@ -36,22 +36,33 @@ public class ArbitratorRequest {
 	private String requestId;
 	private String tenantId;
 	private VsDescriptor vsd;
-	private Map<String, NfvNsInstantiationInfo> instantiationNsd = new HashMap<>();
-	
+	private Map<String, NfvNsInstantiationInfo> instantiationNsd = new HashMap<>();//TODO to be deleted ??
+	private NfvNsInstantiationInfo nfvNsInstantiationInfo;//TODO to be deleted ??
+	private String nstId;//Arbitrator NSMF side
 	/**
 	 * @param tenantId
 	 * @param vsd
 	 * @param instantiationNsd
 	 */
-	public ArbitratorRequest(String requestId, String tenantId, VsDescriptor vsd, Map<String, NfvNsInstantiationInfo> instantiationNsd) {
+	public ArbitratorRequest(String requestId, String tenantId, VsDescriptor vsd, Map<String, NfvNsInstantiationInfo> instantiationNsd) {//TODO to be deleted ??
 		this.requestId = requestId;
 		this.tenantId = tenantId;
 		this.vsd = vsd;
 		if (instantiationNsd != null) this.instantiationNsd = instantiationNsd;
 	}
 
-	
-	
+
+	public ArbitratorRequest(String requestId, String tenantId,  NfvNsInstantiationInfo nfvNsInstantiationInfo) {//TODO to be deleted ??
+		this.requestId = requestId;
+		this.tenantId = tenantId;
+		this.nfvNsInstantiationInfo= nfvNsInstantiationInfo;
+	}
+
+	public ArbitratorRequest(String requestId, String tenantId,  String nstId) {//Arbitrator NSMF side
+		this.requestId = requestId;
+		this.tenantId = tenantId;
+		this.nstId= nstId;
+	}
 	/**
 	 * @return the requestId
 	 */
@@ -81,5 +92,20 @@ public class ArbitratorRequest {
 	public Map<String, NfvNsInstantiationInfo> getInstantiationNsd() {
 		return instantiationNsd;
 	}
-	
+
+	public NfvNsInstantiationInfo getNfvNsInstantiationInfo() {
+		return nfvNsInstantiationInfo;
+	}
+
+	public void setNfvNsInstantiationInfo(NfvNsInstantiationInfo nfvNsInstantiationInfo) {
+		this.nfvNsInstantiationInfo = nfvNsInstantiationInfo;
+	}
+
+	public String getNstId() {
+		return nstId;
+	}
+
+	public void setNstId(String nstId) {
+		this.nstId = nstId;
+	}
 }

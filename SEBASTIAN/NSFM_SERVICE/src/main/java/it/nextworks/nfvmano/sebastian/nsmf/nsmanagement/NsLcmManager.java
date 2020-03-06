@@ -85,7 +85,11 @@ public class NsLcmManager {
 	private NST networkSliceTemplate;
 	
 	private NsmfUtils nsmfUtils;
-	
+
+	private String nsDfId;
+
+	private String instantationLevel;
+
 	public NsLcmManager(String networkSliceInstanceUuid,
 						String name,
 						String description,
@@ -183,18 +187,18 @@ public class NsLcmManager {
 		internalStatus = NetworkSliceStatus.INSTANTIATING;
 		String nsdId = networkSliceTemplate.getNsdId();
 		String nsdVersion = networkSliceTemplate.getNsdVersion();
-		String dfId = msg.getRequest().getDfId();
-		String ilId = msg.getRequest().getIlId();
+		//Assumption: supposing having only one NsDfId and ILid for NsLcmManager
+		String dfId = this.getNsDfId();
+		String ilId = this.getInstantationLevel();
+
 		log.debug("Creating NFV NSI ID for NFV NS with NSD ID " + nsdId);
 		
 		try {
 			log.debug("Updating internal network slice record");
 			nsRecordService.setNsiInstantiationInfo(networkSliceInstanceUuid, dfId, ilId, msg.getRequest().getNsSubnetIds());
 			nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.INSTANTIATING);
-			
-			log.debug("Retrieving NSD");
+
 			NsdInfo nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0);
-			log.debug("NSD retrieved");
 
 			this.nsdInfoId = nsdInfo.getNsdInfoId();
 			this.nsd = nsdInfo.getNsd();
@@ -417,7 +421,23 @@ public class NsLcmManager {
 		}
 		
 	}
-	
+
+	public String getNsDfId() {
+		return nsDfId;
+	}
+
+	public void setNsDfId(String nsDfId) {
+		this.nsDfId = nsDfId;
+	}
+
+	public String getInstantationLevel() {
+		return instantationLevel;
+	}
+
+	public void setInstantationLevel(String instantationLevel) {
+		this.instantationLevel = instantationLevel;
+	}
+
 	private void manageNsError(String error) {
 		nsmfUtils.manageNsError(nfvNsiInstanceId, error);
 	}

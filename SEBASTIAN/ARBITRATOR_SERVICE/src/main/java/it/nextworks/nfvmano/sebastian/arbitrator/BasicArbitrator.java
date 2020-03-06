@@ -110,11 +110,69 @@ public class BasicArbitrator extends AbstractArbitrator {
 		return impactedVerticalServiceInstances;
 	}
 
-	@Override
-	public List<ArbitratorResponse> computeArbitratorSolution(List<ArbitratorRequest> requests)
+
+
+	public List<ArbitratorResponse> computeArbitratorSolutionNew(List<ArbitratorRequest> requests)
 			throws FailedOperationException, NotExistingEntityException {
 		log.debug("Received request at the arbitrator.");
-		
+
+		//TODO: At the moment we process only the first request and the first ns init info
+		ArbitratorRequest req = requests.get(0);
+		String tenantId = req.getTenantId();
+		NfvNsInstantiationInfo nsInitInfo=req.getNfvNsInstantiationInfo();
+
+		Map<String, VsAction> impactedVerticalServiceInstances = null;
+		log.debug("The request is for tenant " + tenantId +" and nst ID "+nsInitInfo.getNstId());
+
+		try {
+			Map<String, Boolean> existingNsiIds = new HashMap<>();
+
+			log.info("Going to compute resource usage");
+			VirtualResourceUsage requiredRes = virtualResourceCalculatorService.computeVirtualResourceUsageNew(nsInitInfo);
+			log.debug("The total amount of required resources for the service is the following : " + requiredRes.toString());
+
+			log.debug("Reading info about active SLA and used resources for the given tenant.");
+			Tenant tenant = adminService.getTenant(tenantId);
+			Sla tenantSla = tenant.getActiveSla();
+			//TODO: At the moment we are considering only the SLA about global resource usage. MEC versus cloud still to be managed.
+			SlaVirtualResourceConstraint sc = tenantSla.getGlobalConstraint();
+			VirtualResourceUsage maxRes = sc.getMaxResourceLimit();
+			log.debug("The maximum amount of global virtual resources allowed for the tenant is the following: " + maxRes.toString());
+
+			VirtualResourceUsage usedRes = tenant.getAllocatedResources();
+			log.debug("The current resource usage for the tenant is the following: " + usedRes.toString());
+
+			boolean acceptableRequest = true;
+			if ((requiredRes.getDiskStorage() + usedRes.getDiskStorage()) > maxRes.getDiskStorage()) acceptableRequest = false;
+			if ((requiredRes.getMemoryRAM() + usedRes.getMemoryRAM()) > maxRes.getMemoryRAM()) acceptableRequest = false;
+			if ((requiredRes.getvCPU() + usedRes.getvCPU()) > maxRes.getvCPU()) acceptableRequest = false;
+
+			if (!acceptableRequest) impactedVerticalServiceInstances = generateImpactedVsList(tenantId);
+
+			ArbitratorResponse response = new ArbitratorResponse(requests.get(0).getRequestId(),
+					acceptableRequest,					//acceptableRequest
+					true, 								//newSliceRequired,
+					null, 								//existingCompositeSlice,
+					false, 								//existingCompositeSliceToUpdate,
+					existingNsiIds,
+					impactedVerticalServiceInstances);
+			List<ArbitratorResponse> responses = new ArrayList<>();
+			responses.add(response);
+			return responses;
+		} catch (NotExistingEntityException e) {
+			log.error("Info not found from NFVO or DB: " + e.getMessage());
+			throw new NotExistingEntityException("Error retrieving info at the arbitrator: " + e.getMessage());
+		} catch (Exception e) {
+			log.error("Failure at the arbitrator: " + e.getMessage());
+			throw new FailedOperationException(e.getMessage());
+		}
+	}
+
+
+	public List<ArbitratorResponse> computeArbitratorSolutionOld(List<ArbitratorRequest> requests)
+			throws FailedOperationException, NotExistingEntityException {
+		log.debug("Received request at the arbitrator.");
+
 		//TODO: At the moment we process only the first request and the first ns init info
 		ArbitratorRequest req = requests.get(0);
 		String tenantId = req.getTenantId();
@@ -126,18 +184,18 @@ public class BasicArbitrator extends AbstractArbitrator {
 		}
 
 		log.debug("The request is for tenant " + tenantId +" and nst ID "+nsInitInfo.getNstId());
-		
+
 		try {
 
 			//Retrieve NSD info
-			//String nfvNsId = nsInitInfo.getNfvNsdId();
-			//String nsdVersion = nsInitInfo.getNsdVersion();
+			String nfvNsId = nsInitInfo.getNfvNsdId();
+			String nsdVersion = nsInitInfo.getNsdVersion();
 
 			//Nsd nsd = nfvoCatalogueService.queryNsdAssumingOne(nfvNsId, nsdVersion);
-			//Nsd nsd = nfvoCatalogueService.queryNsdAssumingOne(BlueprintCatalogueUtilities.buildNsdFilter(nfvNsId,nsdVersion));
-			//List<String> nestedNsdIds = nsd.getNestedNsdId();
+			Nsd nsd = nfvoCatalogueService.queryNsdAssumingOne(BlueprintCatalogueUtilities.buildNsdFilter(nfvNsId,nsdVersion));
+			List<String> nestedNsdIds = nsd.getNestedNsdId();
 			Map<String, Boolean> existingNsiIds = new HashMap<>();
-			/*if (!nestedNsdIds.isEmpty()){
+			if (!nestedNsdIds.isEmpty()){
 
 				//Retrieve <DF, IL> from nsInitInfo
 				String instantiationLevelId = nsInitInfo.getInstantiationLevelId();
@@ -154,23 +212,23 @@ public class BasicArbitrator extends AbstractArbitrator {
 					}
 				}
 			}
-			*/
-			//VirtualResourceUsage requiredRes = virtualResourceCalculatorService.computeVirtualResourceUsage(nsInitInfo);
-			VirtualResourceUsage requiredRes = new VirtualResourceUsage(0, 0, 0);//TODO figure out how to compute virtual resources using only NST
+
+			VirtualResourceUsage requiredRes = virtualResourceCalculatorService.computeVirtualResourceUsage(nsInitInfo);
+			//VirtualResourceUsage requiredRes = new VirtualResourceUsage(0, 0, 0);//TODO figure out how to compute virtual resources using only NST
 			log.debug("The total amount of required resources for the service is the following : " + requiredRes.toString());
-			
+
 			log.debug("Reading info about active SLA and used resources for the given tenant.");
-			
+
 			Tenant tenant = adminService.getTenant(tenantId);
 			Sla tenantSla = tenant.getActiveSla();
 			//TODO: At the moment we are considering only the SLA about global resource usage. MEC versus cloud still to be managed.
 			SlaVirtualResourceConstraint sc = tenantSla.getGlobalConstraint();
 			VirtualResourceUsage maxRes = sc.getMaxResourceLimit();
 			log.debug("The maximum amount of global virtual resources allowed for the tenant is the following: " + maxRes.toString());
-			
+
 			VirtualResourceUsage usedRes = tenant.getAllocatedResources();
 			log.debug("The current resource usage for the tenant is the following: " + usedRes.toString());
-			
+
 			boolean acceptableRequest = true;
 			if ((requiredRes.getDiskStorage() + usedRes.getDiskStorage()) > maxRes.getDiskStorage()) acceptableRequest = false;
 			if ((requiredRes.getMemoryRAM() + usedRes.getMemoryRAM()) > maxRes.getMemoryRAM()) acceptableRequest = false;
@@ -178,11 +236,11 @@ public class BasicArbitrator extends AbstractArbitrator {
 
 			if (!acceptableRequest) impactedVerticalServiceInstances = generateImpactedVsList(tenantId);
 
-			ArbitratorResponse response = new ArbitratorResponse(requests.get(0).getRequestId(), 
-					acceptableRequest,					//acceptableRequest 
-					true, 								//newSliceRequired, 
-					null, 								//existingCompositeSlice, 
-					false, 								//existingCompositeSliceToUpdate, 
+			ArbitratorResponse response = new ArbitratorResponse(requests.get(0).getRequestId(),
+					acceptableRequest,					//acceptableRequest
+					true, 								//newSliceRequired,
+					null, 								//existingCompositeSlice,
+					false, 								//existingCompositeSliceToUpdate,
 					existingNsiIds,
 					impactedVerticalServiceInstances);
 			List<ArbitratorResponse> responses = new ArrayList<>();
@@ -190,11 +248,19 @@ public class BasicArbitrator extends AbstractArbitrator {
 			return responses;
 		} catch (NotExistingEntityException e) {
 			log.error("Info not found from NFVO or DB: " + e.getMessage());
-			throw new NotExistingEntityException("Error retrieving info at the arbitrator: " + e.getMessage()); 
+			throw new NotExistingEntityException("Error retrieving info at the arbitrator: " + e.getMessage());
 		} catch (Exception e) {
 			log.error("Failure at the arbitrator: " + e.getMessage());
 			throw new FailedOperationException(e.getMessage());
 		}
+	}
+
+
+
+	@Override
+	public List<ArbitratorResponse> computeArbitratorSolution(List<ArbitratorRequest> requests)
+			throws FailedOperationException, NotExistingEntityException {
+			return computeArbitratorSolutionNew(requests);
 	}
 
 	@Override
