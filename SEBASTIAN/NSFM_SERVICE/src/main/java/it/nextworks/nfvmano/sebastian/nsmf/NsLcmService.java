@@ -41,6 +41,7 @@ import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.NsLcmManager;
+import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.UsageResourceUpdate;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
@@ -96,6 +97,9 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 
     @Autowired
     private ArbitratorService arbitratorService;
+
+    @Autowired
+    UsageResourceUpdate usageResourceUpdate;
     //internal map of NS LCM Managers
     //each NS LCM Manager is created when a new NSI ID is created and removed when the NSI ID is removed
     private Map<String, NsLcmManager> nsLcmManagers = new HashMap<>();
@@ -210,12 +214,16 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     	request.isValid();
     	String nsiUuid = request.getNsiId();
     	log.debug("Processing new NSI modification request for NSI UUID " + nsiUuid);
+
         if (nsLcmManagers.containsKey(nsiUuid)) {
-        	NetworkSliceStatus sliceStatus = nsLcmManagers.get(nsiUuid).getInternalStatus();
-        	if (sliceStatus != NetworkSliceStatus.INSTANTIATED) {
+
+            NetworkSliceStatus sliceStatus = nsLcmManagers.get(nsiUuid).getInternalStatus();
+
+            if (sliceStatus != NetworkSliceStatus.INSTANTIATED) {
         		log.error("Network slice " + nsiUuid + " not in INSTANTIATED state. Cannot modify it. Skipping message.");
         		throw new NotPermittedOperationException("Network slice " + nsiUuid + " not in INSTANTIATED state.");
         	}
+
             String topic = "nslifecycle.modifyns." + nsiUuid;
             ModifyNsiRequestMessage internalMessage = new ModifyNsiRequestMessage(request, tenantId);
             try {
@@ -324,7 +332,16 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
      */
     private void initNewNsLcmManager(String nsiUuid, String tenantId, String sliceName, String sliceDescription, NST networkSliceTemplate, String nsDfId, String instantiationLevel) {
         log.debug("Initializing new NSMF for NSI UUID " + nsiUuid);
-        NsLcmManager nsLcmManager = new NsLcmManager(nsiUuid, sliceName, sliceDescription, tenantId, nfvoCatalogueService, nfvoLcmService, nsRecordService, notificationDispatcher, this, networkSliceTemplate, nsmfUtils);
+        NsLcmManager nsLcmManager = new NsLcmManager(nsiUuid,
+                sliceName,
+                sliceDescription,
+                tenantId,
+                nfvoCatalogueService,
+                nfvoLcmService,
+                nsRecordService,
+                notificationDispatcher,
+                this, networkSliceTemplate, nsmfUtils, usageResourceUpdate);
+
         nsLcmManager.setNsDfId(nsDfId);
         nsLcmManager.setInstantationLevel(instantiationLevel);
         createQueue(nsiUuid, nsLcmManager);

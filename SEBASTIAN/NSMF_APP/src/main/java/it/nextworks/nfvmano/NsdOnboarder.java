@@ -41,7 +41,7 @@ public class NsdOnboarder {
                 new OnBoardVnfPackageRequest("vnfPackageName",
                 "vnfPackageVersion", "vnfPackageProvider",
                         "vnfPackageCheckSum", new HashMap<>(),
-                        "http://10.0.2.180/vnfd/vnfd_vVS.tar");
+                        "http://localhost/vnfd/vnfd_vVS.tar");
 
         try {
             OnBoardVnfPackageResponse onBoardVnfPackageResponse=nfvoCatalogueService.onBoardVnfPackage(request);
