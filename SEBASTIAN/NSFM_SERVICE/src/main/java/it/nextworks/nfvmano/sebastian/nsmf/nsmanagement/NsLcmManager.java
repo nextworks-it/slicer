@@ -32,8 +32,8 @@ import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.ScaleNsD
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.messages.*;
 import it.nextworks.nfvmano.libs.ifa.records.nsinfo.NsInfo;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
+import it.nextworks.nfvmano.libs.ifa.templates.NstServiceProfile;
 import it.nextworks.nfvmano.libs.ifa.templates.SliceType;
-import it.nextworks.nfvmano.libs.ifa.templates.nsst.NSST;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
@@ -210,55 +210,39 @@ public class NsLcmManager {
 		Map<String, String> nsdToInstantiate = null;
 
 		/* NST Analysis */
-		SliceType sliceType = networkSliceTemplate.getSliceType();
+		//SliceType sliceType = networkSliceTemplate.getSliceType();
 		// Step 1: Check NSSTs list
-		List<NSST> nsstList = networkSliceTemplate.getNsstList();
-		for(NSST nsst: nsstList){
+		List<String> nsstList = networkSliceTemplate.getNsstIds();
+		for(String nsst_id: nsstList){
 			// Step 1.1: given the sliceType, check for proper RAN Profile
-			if (nsst.getNstServiceProfile() != null) { // RAN request!
-				switch (sliceType) {
-					case URLLC:
-						break;
-
-					case EMBB:
-						break;
-
-					case MMTC:
-						break;
-
-					default:
-						break;
-				}
-
-				// Do RAN stuff
-			}
+//			if (nsst.getNstServiceProfile() != null) { // RAN request!
+//				switch (sliceType) {
+//					case URLLC:
+//						break;
+//
+//					case EMBB:
+//						break;
+//
+//					case MMTC:
+//						break;
+//
+//					default:
+//						break;
+//				}
+//
+//				// Do RAN stuff
+//			}
 			// Step 1.2: check for nsdId presence
-			if (nsst.getNsdId() != null){
-				if(nsdToInstantiate == null) nsdToInstantiate = new HashMap<>();
-				nsdToInstantiate.put(nsst.getNsdId(), nsst.getNsdVersion());
-			}
-		}
-
-		// Step 2: check for PnP functions
-		List<PpFunction> ppFunctions = networkSliceTemplate.getPpFunctionList();
-		if (ppFunctions != null) {
-			// Do PnP stuff
-		}
-
-		// Step 3: proceed in instantiating nsds, if any
-		for(String nsdId: nsdToInstantiate.keySet()){
-			//Step 3.1 put the logic here
-			log.debug("Creating NFV NSI ID for NFV NS with NSD ID " + nsdId);
-
-			/* Da verificare */
-			String dfId = msg.getRequest().getDfId();
-			String ilId = msg.getRequest().getIlId();
-			/* ---------------------------------- */
+//			if (nsst.getNsdId() != null){
+//				if(nsdToInstantiate == null) nsdToInstantiate = new HashMap<>();
+//				nsdToInstantiate.put(nsst.getNsdId(), nsst.getNsdVersion());
+//			}
 		}
 
 
-//		String nsdId = networkSliceTemplate.getNsdId();
-//		String nsdVersion = networkSliceTemplate.getNsdVersion();
+
+
+//
 
 		/* Da verificare */
 //		String dfId = msg.getRequest().getDfId();
@@ -268,90 +252,122 @@ public class NsLcmManager {
 //		log.debug("Creating NFV NSI ID for NFV NS with NSD ID " + nsdId);
 		
 		try {
-			log.debug("Updating internal network slice record");
-			nsRecordService.setNsiInstantiationInfo(networkSliceInstanceUuid, dfId, ilId, msg.getRequest().getNsSubnetIds());
-			nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.INSTANTIATING);
-			
-			log.debug("Retrieving NSD");
-			NsdInfo nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0);
-			log.debug("NSD retrieved");
+			// Step 1: check for RAN
+			NstServiceProfile nstServiceProfile = networkSliceTemplate.getNstServiceProfile();
+			if(nstServiceProfile != null) {
+				SliceType sliceType = nstServiceProfile.getsST();
+				switch (sliceType) {
+					case URLLC:
+						break;
 
-			this.nsdInfoId = nsdInfo.getNsdInfoId();
-			this.nsd = nsdInfo.getNsd();
-			String nfvNsId;
+					case EMBB:
+						break;
 
-			if(nsmfUtils.isSsoNmroIntegrationScenario()) {
-				tenantId = nsmfUtils.getNfvoCatalogueUsername();//TODO the mapping between the tenant on NSP and tenant on NFVO is missing. Get from config variable
-				this.nsdInfoId = nsdInfo.getNsdId();// The NSD cannot be on boarded specifying its own ID, so the custom one is get from NSD
-
-			}
-			nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-" + name, description, tenantId));
-
-			log.info("nsdInfoId is: "+nsdInfoId);
-			log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
-			this.nfvNsiInstanceId = nfvNsId;
-			nsRecordService.setNfvNsiInNsi(networkSliceInstanceUuid, nfvNsId);
-
-			log.debug("Building NFV NS instantiation request");
-
-			String ranEndPointId = null;
-			LocationInfo locationInfo = msg.getRequest().getLocationConstraints();
-			if (locationInfo.isMeaningful()) {
-				ranEndPointId = msg.getRequest().getRanEndPointId();
-			}
-
-			List<Sapd> saps = nsd.getSapd();
-			List<SapData> sapData = new ArrayList<>();
-			for (Sapd sap : saps) {
-				SapData sData = null;
-				if (sap.getCpdId().equals(ranEndPointId)) {
-					sData = new SapData(sap.getCpdId(), 								//SAPD ID
-							"SAP-" + name + "-" + sap.getCpdId(),						//name
-							"SAP " + sap.getCpdId() + " for Network Slice " + name, 	//description
-							null,														//address
-							locationInfo);												//locationInfo
-					log.debug("Set location constraints for SAP " + sap.getCpdId());
-				} else {
-					sData = new SapData(sap.getCpdId(), 							//SAPD ID
-						"SAP-" + name + "-" + sap.getCpdId(),						//name
-						"SAP " + sap.getCpdId() + " for Network Slice " + name, 	//description
-						null,														//address
-						null);														//locationInfo
+					default:
+						break;
 				}
-				sapData.add(sData);
+				// Do RAN stuff
 			}
-			log.debug("Completed SAP Data");
-			//TODO: here manage service profile info
 
-			//Read NFV_NS_IDs from nsSubnetIds and put in nestedNsInstanceId list
-			List<String> nestedNfvNsId = new ArrayList<>();
-			for(String nsiUuid : msg.getRequest().getNsSubnetIds()){
-				NetworkSliceInstance nsi = nsRecordService.getNsInstance(nsiUuid);
-				nestedNfvNsId.add(nsi.getNfvNsId());
-				this.nestedNsiUuids.add(nsi.getNsiId());
+			// Step 2: check for PnP functions
+			List<PpFunction> ppFunctions = networkSliceTemplate.getPpFunctionList();
+			if (ppFunctions != null) {
+				// Do PnP stuff
 			}
-			/*
-			 * DON'T STORE this.nestedNsiIds on DB:
-			 * The nested Nsi are found by the Arbitrator -> they are ALREADY on DB
-			 */
 
-			//Read configuration parameters
-			Map<String, String> additionalParamForNs = msg.getRequest().getUserData();
-			log.info("Nfv Ns id is: "+nfvNsId);
-			String operationId = nfvoLcmService.instantiateNs(new InstantiateNsRequest(nfvNsId,
-					dfId, 					//flavourId
-					sapData, 				//sapData
-					null,					//pnfInfo
-					null,					//vnfInstanceData
-					nestedNfvNsId,			//nestedNsInstanceId
-					null,					//locationConstraints
-					additionalParamForNs,	//additionalParamForNs
-					null,					//additionalParamForVnf
-					null,					//startTime
-					ilId,					//nsInstantiationLevelId
-					null));					//additionalAffinityOrAntiAffinityRule
+			// Step 3: proceed in instantiating nsds, if any
+			if (networkSliceTemplate.getNsdId() != null) {
+				String nsdId = networkSliceTemplate.getNsdId();
+				String nsdVersion = networkSliceTemplate.getNsdVersion();
+				log.debug("Creating NFV NSI ID for NFV NS with NSD ID " + nsdId);
+				log.debug("Updating internal network slice record");
+				nsRecordService.setNsiInstantiationInfo(networkSliceInstanceUuid, null, null, msg.getRequest().getNsSubnetIds());
+				nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.INSTANTIATING);
 
-			log.debug("Sent request to NFVO service for instantiating NFV NS " + nfvNsId + ": operation ID " + operationId);
+				log.debug("Retrieving NSD");
+				NsdInfo nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0);
+				log.debug("NSD retrieved");
+				this.nsdInfoId = nsdInfo.getNsdInfoId();
+				this.nsd = nsdInfo.getNsd();
+				String nfvNsId;
+
+				if(nsmfUtils.isSsoNmroIntegrationScenario()) {
+					tenantId = nsmfUtils.getNfvoCatalogueUsername();//TODO the mapping between the tenant on NSP and tenant on NFVO is missing. Get from config variable
+					this.nsdInfoId = nsdInfo.getNsdId();// The NSD cannot be on boarded specifying its own ID, so the custom one is get from NSD
+
+				}
+				nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-" + name, description, tenantId));
+
+				log.info("nsdInfoId is: "+nsdInfoId);
+				log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
+				this.nfvNsiInstanceId = nfvNsId;
+				nsRecordService.setNfvNsiInNsi(networkSliceInstanceUuid, nfvNsId);
+
+				log.debug("Building NFV NS instantiation request");
+
+				String ranEndPointId = null;
+				LocationInfo locationInfo = msg.getRequest().getLocationConstraints();
+				if (locationInfo.isMeaningful()) {
+					ranEndPointId = msg.getRequest().getRanEndPointId();
+				}
+
+				List<Sapd> saps = nsd.getSapd();
+				List<SapData> sapData = new ArrayList<>();
+				for (Sapd sap : saps) {
+					SapData sData = null;
+					if (sap.getCpdId().equals(ranEndPointId)) {
+						sData = new SapData(sap.getCpdId(), 								//SAPD ID
+								"SAP-" + name + "-" + sap.getCpdId(),						//name
+								"SAP " + sap.getCpdId() + " for Network Slice " + name, 	//description
+								null,														//address
+								locationInfo);												//locationInfo
+						log.debug("Set location constraints for SAP " + sap.getCpdId());
+					} else {
+						sData = new SapData(sap.getCpdId(), 							//SAPD ID
+								"SAP-" + name + "-" + sap.getCpdId(),						//name
+								"SAP " + sap.getCpdId() + " for Network Slice " + name, 	//description
+								null,														//address
+								null);														//locationInfo
+					}
+					sapData.add(sData);
+				}
+				log.debug("Completed SAP Data");
+				//TODO: here manage service profile info
+
+				//Read NFV_NS_IDs from nsSubnetIds and put in nestedNsInstanceId list
+				//TODO: candidate for removal
+				List<String> nestedNfvNsId = new ArrayList<>();
+				for(String nsiUuid : msg.getRequest().getNsSubnetIds()){
+					NetworkSliceInstance nsi = nsRecordService.getNsInstance(nsiUuid);
+					nestedNfvNsId.add(nsi.getNfvNsId());
+					this.nestedNsiUuids.add(nsi.getNsiId());
+				}
+				/*
+				 * DON'T STORE this.nestedNsiIds on DB:
+				 * The nested Nsi are found by the Arbitrator -> they are ALREADY on DB
+				 */
+
+				//Read configuration parameters
+				Map<String, String> additionalParamForNs = msg.getRequest().getUserData();
+				log.info("Nfv Ns id is: "+nfvNsId);
+				String operationId = nfvoLcmService.instantiateNs(new InstantiateNsRequest(nfvNsId,
+						null, 					//flavourId
+						sapData, 				//sapData
+						null,					//pnfInfo
+						null,					//vnfInstanceData
+						nestedNfvNsId,			//nestedNsInstanceId
+						null,					//locationConstraints
+						additionalParamForNs,	//additionalParamForNs
+						null,					//additionalParamForVnf
+						null,					//startTime
+						null,					//nsInstantiationLevelId
+						null));					//additionalAffinityOrAntiAffinityRule
+
+				log.debug("Sent request to NFVO service for instantiating NFV NS " + nfvNsId + ": operation ID " + operationId);
+
+
+			}
+
 
 		} catch (Exception e) {
 			manageNsError(e.getMessage());
