@@ -27,12 +27,13 @@ public class ModifyNsiRequest implements InterfaceMessage {
     @JsonProperty("nstId")
     private String nstId;
 
+    /*OLD
     @JsonProperty("dfId")
     private String dfId;
 
     @JsonProperty("ilId")
     private String ilId;
-
+*/
     @JsonProperty("vsiId")
     private String vsiId;
 	
@@ -46,14 +47,21 @@ public class ModifyNsiRequest implements InterfaceMessage {
      * @param ilId ID of the target instantiation level of the NFV NS associated to the NST
      * @param vsiId ID of the vertical service instance associated to the network slice
      */
-	public ModifyNsiRequest(String nsiId, String nstId, String dfId, String ilId, String vsiId) {
+	public ModifyNsiRequest(String nsiId, String nstId, String dfId, String ilId, String vsiId) {//OLD
 		this.nsiId = nsiId;
 		this.nstId = nstId;
-		this.dfId = dfId;
-		this.ilId = ilId;
+		//this.dfId = dfId;
+		//this.ilId = ilId;
 		this.vsiId = vsiId;
 	}
 
+	public ModifyNsiRequest(String nsiId, String nstId, String vsiId) {
+		this.nsiId = nsiId;
+		this.nstId = nstId;
+		//this.dfId = dfId;
+		//this.ilId = ilId;
+		this.vsiId = vsiId;
+	}
 
 	public ModifyNsiRequest(){}
 
@@ -68,7 +76,7 @@ public class ModifyNsiRequest implements InterfaceMessage {
 	}
 
 
-
+/* OLD
 	public String getDfId() {
 		return dfId;
 	}
@@ -78,7 +86,7 @@ public class ModifyNsiRequest implements InterfaceMessage {
 	public String getIlId() {
 		return ilId;
 	}
-
+*/
 
 
 	public String getVsiId() {
@@ -91,8 +99,8 @@ public class ModifyNsiRequest implements InterfaceMessage {
 	public void isValid() throws MalformattedElementException {
 		if (nsiId == null) throw new MalformattedElementException("Modify NSI request without NS instance ID");
 		if (nstId == null) throw new MalformattedElementException("Modify NSI request without NS template ID");
-		if (dfId == null) throw new MalformattedElementException("Modify NSI request without NFV NS DF ID");
-		if (ilId == null) throw new MalformattedElementException("Modify NSI request without NFV NS IL ID");
+		//if (dfId == null) throw new MalformattedElementException("Modify NSI request without NFV NS DF ID"); OLD
+		//if (ilId == null) throw new MalformattedElementException("Modify NSI request without NFV NS IL ID");
 	}
 
 }

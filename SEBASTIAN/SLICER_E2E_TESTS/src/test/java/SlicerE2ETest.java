@@ -3,6 +3,7 @@ import it.nextworks.nfvmano.catalogue.blueprint.elements.*;
 import it.nextworks.nfvmano.catalogue.blueprint.messages.OnBoardVsBlueprintRequest;
 import it.nextworks.nfvmano.catalogue.blueprint.messages.OnboardVsDescriptorRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.InstantiateVsRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.ModifyVsRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.PurgeVsRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.TerminateVsRequest;
 import org.junit.Test;
@@ -30,7 +31,7 @@ public class SlicerE2ETest {
     private String vsdId;
     private String vsiUuid;
 
-    private final String NSMF_HOST= "http://10.30.8.76:8082";
+    private final String NSMF_HOST= "http://10.30.8.54:8082";
     private final String VSMF_HOST = "http://10.30.8.54:8081";
     EndPointInteraction nspInteraction = new EndPointInteraction(NSMF_HOST, "NSP");
     EndPointInteraction dspInteraction = new EndPointInteraction(VSMF_HOST, "DSP");
@@ -317,6 +318,7 @@ public class SlicerE2ETest {
     public void VSIinstantionTest() {
         final String VSI_INSTANTIATION_URL = "/vs/basic/vslcm/vs";
 
+
         InstantiateVsRequest vsifromJSON = (InstantiateVsRequest) getObjectFromFile(InstantiateVsRequest.class, "vsi_sample.json");
         InstantiateVsRequest instantiateVsRequest = new InstantiateVsRequest(
                 vsifromJSON.getName(),
@@ -338,9 +340,22 @@ public class SlicerE2ETest {
         //assertTrue(queryVsResponse.getName().equals(instantiateVsRequest.getName()));
         //assertTrue(queryVsResponse.getDescription().equals(instantiateVsRequest.getDescription()));
         //assertTrue(queryVsResponse.getVsdId().equals(vsdId));
-
-
     }
+
+
+
+    public void VSImodificationTest() {
+        final String VSI_INSTANTIATION_URL = "/vs/basic/vslcm/vs/"+vsiUuid;
+
+        ModifyVsRequest modifyVsRequest = new ModifyVsRequest(vsiUuid,dspInteraction.getTenant().getUsername(),vsdId);
+
+        log.info("Going to request VSI modification with VSI ID equal to: "+vsiUuid+" with tenant username: "+ dspInteraction.getTenant().getUsername()+" and vsdId equal to "+vsdId);
+
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, modifyVsRequest, VSMF_HOST + VSI_INSTANTIATION_URL, HttpMethod.PUT, dspInteraction.getCookiesTenant());
+        String statusCode= responseEntity.getStatusCode().toString();
+        log.info("Status code modification"+statusCode);
+    }
+
 
 
     public void VsiTerminationTest() {
@@ -397,6 +412,8 @@ public class SlicerE2ETest {
         nspInteraction.loginAdmin();
         nspInteraction.createGroup("NSP_group");
         nspInteraction.createTenant("tenant_nsp_sample.json");
+        nspInteraction.createSLA();
+        //nspInteraction.createSLANoResource();
         nspInteraction.loginTenant();
         nstUuid =nspInteraction.onBoardNST("nst_sample.json");
 
@@ -405,7 +422,6 @@ public class SlicerE2ETest {
         dspInteraction.createGroup("DSP_group");
         dspInteraction.createTenant("tenant_sample.json");
         dspInteraction.createTenantNotif("tenant_notif_sample.json");
-        dspInteraction.createSLA();
         dspInteraction.loginTenant();
         dspInteraction.createRemoteTenantInfo(nspInteraction.getTenant(),NSMF_HOST);
         dspInteraction.associateLocalTenantWithRemoteTenant();
@@ -421,6 +437,17 @@ public class SlicerE2ETest {
         log.info("VSD on boarded");
         VSIinstantionTest();
         log.info("VSI on boarded");
+
+       try {
+           log.info("Waiting vertical service to be instanciated");
+            Thread.sleep(30000);
+            //VSImodificationTest();
+            VsiTerminationTest();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     //Configuration needed (nfvo.catalogue is DUMMY, nfvo.lcm is NMRO)
@@ -452,6 +479,7 @@ public class SlicerE2ETest {
         //testVSBOnBoardingWithVsdNSDTranslRules(VSMF_HOST,"vsblueprint_osm_sample.json");
         testVSDOnBoarding();
         VSIinstantionTest();
+
     }
 
 
@@ -461,6 +489,7 @@ public class SlicerE2ETest {
         nspInteraction.loginAdmin();
         nspInteraction.createGroup("NSP_group");
         nspInteraction.createTenant("tenant_nsp_sample.json");
+        nspInteraction.createSLA();
         nspInteraction.loginTenant();
 
 

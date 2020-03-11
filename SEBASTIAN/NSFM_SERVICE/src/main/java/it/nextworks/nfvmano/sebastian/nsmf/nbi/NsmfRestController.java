@@ -55,6 +55,9 @@ public class NsmfRestController {
 		try {
 			String tenantId = getUserFromAuth(auth);
 			String nsiUuid = nsLcmService.createNetworkSliceIdentifier(request, tenantId);
+			if(nsiUuid==null){
+				return new ResponseEntity<>("The nst with UUID "+request.getNstUuid()+" does not satisfies the arbitration request.", HttpStatus.BAD_REQUEST);
+			}
 			return new ResponseEntity<>(nsiUuid, HttpStatus.CREATED);
 		} catch (NotExistingEntityException e) {
 			log.error("NS ID creation failed due to missing elements in DB.");
@@ -62,9 +65,6 @@ public class NsmfRestController {
 		} catch (MalformattedElementException e) {
 			log.error("NS ID creation failed due to bad-formatted request.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-		} catch (NotPermittedOperationException e) {
-			log.error("NS ID creation failed due to missing permission.");
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
 		} catch (Exception e) {
 			log.error("NS ID creation failed due to internal errors.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
