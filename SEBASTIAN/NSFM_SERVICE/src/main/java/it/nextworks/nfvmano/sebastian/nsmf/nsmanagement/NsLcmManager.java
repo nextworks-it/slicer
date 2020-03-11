@@ -266,8 +266,8 @@ public class NsLcmManager {
 				String nsdId = networkSliceTemplate.getNsdId();
 				String nsdVersion = networkSliceTemplate.getNsdVersion();
 				//Assumption: supposing having only one NsDfId and ILid for NsLcmManager
-//				String dfId = this.getNsDfId();
-//				String ilId = this.getInstantationLevel();
+				String dfId = this.getNsDfId();
+				String ilId = this.getInstantationLevel();
 				log.debug("Creating NFV NSI ID for NFV NS with NSD ID " + nsdId);
 				log.debug("Updating internal network slice record");
 				nsRecordService.setNsiInstantiationInfo(networkSliceInstanceUuid, null, null, msg.getRequest().getNsSubnetIds());
@@ -281,17 +281,17 @@ public class NsLcmManager {
 				this.nsd = nsdInfo.getNsd();
 				String nfvNsId;
 
-//				if(nsmfUtils.isSsoNmroIntegrationScenario()) {
-//					tenantId = nsmfUtils.getNfvoCatalogueUsername();//TODO the mapping between the tenant on NSP and tenant on NFVO is missing. Get from config variable
-//					this.nsdInfoId = nsdInfo.getNsdId();// The NSD cannot be on boarded specifying its own ID, so the custom one is get from NSD
-//
-//				}
-//				nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-" + name, description, tenantId));
-//
-//				log.info("nsdInfoId is: "+nsdInfoId);
-//				log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
-//				this.nfvNsiInstanceId = nfvNsId;
-//				nsRecordService.setNfvNsiInNsi(networkSliceInstanceUuid, nfvNsId);
+				if(nsmfUtils.isSsoNmroIntegrationScenario()) {
+					tenantId = nsmfUtils.getNfvoCatalogueUsername();//TODO the mapping between the tenant on NSP and tenant on NFVO is missing. Get from config variable
+					this.nsdInfoId = nsdInfo.getNsdId();// The NSD cannot be on boarded specifying its own ID, so the custom one is get from NSD
+
+				}
+				nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-" + name, description, tenantId));
+
+				log.info("nsdInfoId is: "+nsdInfoId);
+				log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
+				this.nfvNsiInstanceId = nfvNsId;
+				nsRecordService.setNfvNsiInNsi(networkSliceInstanceUuid, nfvNsId);
 				String tenantIdOsm="";
 				if(nsmfUtils.isSsoNmroIntegrationScenario()) {
 					tenantIdOsm=nsmfUtils.getNfvoCatalogueUsername();//TODO the mapping between the tenant on NSP and tenant on NFVO is missing. Get from config variable
