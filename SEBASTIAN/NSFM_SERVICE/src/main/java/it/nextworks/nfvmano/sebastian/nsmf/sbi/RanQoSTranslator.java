@@ -4,6 +4,7 @@ import it.nextworks.nfvmano.libs.ifa.templates.EMBBPerfReq;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.libs.ifa.templates.NstServiceProfile;
 import it.nextworks.nfvmano.libs.ifa.templates.URLLCPerfReq;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ public class RanQoSTranslator {
         Map<String, String> rateParams =  new HashMap<>();
         List<JSONObject> jlist = new ArrayList<>();
         List<EMBBPerfReq> embbPerfReqs = nstServiceProfile.geteMBBPerfReq();
+        JSONArray payloadArray = new JSONArray();
         for(EMBBPerfReq req: embbPerfReqs){
 
             dl = req.getExpDataRateDL();
@@ -32,10 +34,10 @@ public class RanQoSTranslator {
             rateParams.put("bandIncDir", "DL");
             rateParams.put("bandIncVal", Integer.toString(dl));
             rateParams.put("bandUnitScale", "MB");
-            jlist.add(new JSONObject(rateParams));
+            payloadArray.put(new JSONObject(rateParams));
             rateParams.replace("bandIncDir", "UL");
             rateParams.put("bandIncVal", Integer.toString(ul));
-            jlist.add(new JSONObject(rateParams));
+            payloadArray.put(new JSONObject(rateParams));
         }
         return jlist;
     }

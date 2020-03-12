@@ -47,9 +47,12 @@ import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.FlexRanService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.RanQoSTranslator;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
+import jdk.nashorn.api.scripting.JSObject;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientResponseException;
@@ -235,23 +238,27 @@ public class NsLcmManager {
 			NstServiceProfile nstServiceProfile = networkSliceTemplate.getNstServiceProfile();
 			if(nstServiceProfile != null) {
 				this.sliceType = nstServiceProfile.getsST();
-				switch (sliceType) {
-					case URLLC:
-						//TODO: translate stype info of the NST in Flexran attributes
-						break;
-
-					case EMBB:
-						//TODO: translate stype info of the NST in Flexran attributes
-						break;
-
-					default:
-						//TODO invoke rollback!
-						break;
-				}
+				RanQoSTranslator ranQoSTranslator = new RanQoSTranslator();
+				List<JSONObject> qosConstraints = ranQoSTranslator.ranProfileToQoSConstraints(networkSliceTemplate);
+//				switch (sliceType) {
+//					case URLLC:
+//						//TODO: translate stype info of the NST in Flexran attributes
+//						break;
+//
+//					case EMBB:
+//						//TODO: translate stype info of the NST in Flexran attributes
+//						break;
+//
+//					default:
+//						//TODO invoke rollback!
+//						break;
+//				}
 				// RAN-1 -> Slice creation on flexran
 				this.flexRanService.createRanSlice(UUID.fromString(networkSliceInstanceUuid));
-				// RAN-2 -> Map Slice UUID to FelxranID into the RANAdpater (it's crazy, I know)
+				// RAN-2 -> Map Slice UUID to FlexranID into the RANAdapter (it's crazy, I know)
 				this.flexRanService.mapIdsRemotely(UUID.fromString(networkSliceInstanceUuid));
+				// RAN-3 -> Apply QoS Constraints
+				this.flexRanService.applyInitialQosConstraints(UUID.fromString(networkSliceInstanceUuid),qosConstraints);
 			}
 
 			// Step 2: check for PnP functions
@@ -259,6 +266,7 @@ public class NsLcmManager {
 			if (ppFunctions != null) {
 				// Do PnP stuff
 				this.pnPCommunicationService.deploySliceComponents(UUID.fromString(networkSliceInstanceUuid), this.networkSliceTemplate);
+
 			}
 
 			// Step 3: proceed in instantiating nsds, if any
@@ -371,6 +379,7 @@ public class NsLcmManager {
 
 
 		} catch (Exception e) {
+			instantiationRollback();
 			manageNsError(e.getMessage());
 		}
 	}
@@ -515,6 +524,16 @@ public class NsLcmManager {
         }
 
 		log.debug("Terminating network slice " + networkSliceInstanceUuid);
+
+		if (pnPCommunicationService.isPnP(UUID.fromString(networkSliceInstanceUuid))) {
+			log.debug("Terminating P&P Functions for " + networkSliceInstanceUuid);
+			pnPCommunicationService.terminateSliceComponents(UUID.fromString(networkSliceInstanceUuid));
+		}
+		if (flexRanService.isRan(UUID.fromString(networkSliceInstanceUuid))){
+			log.debug("Terminating RAN Slice for  " + networkSliceInstanceUuid);
+			flexRanService.terminateRanSlice(UUID.fromString(networkSliceInstanceUuid));
+		}
+
 		this.internalStatus = NetworkSliceStatus.TERMINATING;
 		nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.TERMINATING);
 		log.debug("Sending request to terminate NFV network service " + nfvNsiInstanceId);

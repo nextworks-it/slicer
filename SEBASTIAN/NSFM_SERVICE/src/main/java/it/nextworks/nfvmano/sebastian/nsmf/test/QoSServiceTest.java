@@ -43,7 +43,7 @@ public class QoSServiceTest {
         System.out.println(json);
         String url = "http://10.8.202.11:8080";
         qos.setTargetUrl(url);
+        //System.out.println(qos.setQoS(UUID.fromString("bf5cbb04-345c-479f-8511-f6f01b2b822d"), json));
         System.out.println(qos.setQoS(UUID.fromString("bf5cbb04-345c-479f-8511-f6f01b2b822d"), json));
-
     }
 }

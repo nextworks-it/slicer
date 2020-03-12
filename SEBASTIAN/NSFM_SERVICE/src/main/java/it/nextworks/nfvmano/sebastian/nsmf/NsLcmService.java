@@ -42,6 +42,8 @@ import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.NsLcmManager;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.UsageResourceUpdate;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.FlexRanService;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
@@ -97,6 +99,12 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 
     @Autowired
     private ArbitratorService arbitratorService;
+
+    @Autowired
+    private PnPCommunicationService pnPCommunicationService;
+
+    @Autowired
+    private FlexRanService flexRanService;
 
     @Autowired
     UsageResourceUpdate usageResourceUpdate;
@@ -340,7 +348,10 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
                 nfvoLcmService,
                 nsRecordService,
                 notificationDispatcher,
-                this, networkSliceTemplate, nsmfUtils, usageResourceUpdate);
+                this, networkSliceTemplate,
+                flexRanService,
+                pnPCommunicationService,
+                nsmfUtils, usageResourceUpdate);
 
         nsLcmManager.setNsDfId(nsDfId);
         nsLcmManager.setInstantationLevel(instantiationLevel);
