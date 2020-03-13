@@ -78,7 +78,7 @@
 
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>NSTe2eComposer</artifactId>
+            <artifactId>NST_E2E_COMPOSER_IM</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
     </dependencies>

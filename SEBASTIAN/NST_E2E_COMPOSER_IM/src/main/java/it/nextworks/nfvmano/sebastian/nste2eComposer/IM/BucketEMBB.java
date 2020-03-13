@@ -2,12 +2,21 @@ package it.nextworks.nfvmano.sebastian.nste2eComposer.IM;
 
 import it.nextworks.nfvmano.libs.ifa.templates.EMBBPerfReq;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
+
+@Entity
 public class BucketEMBB extends Bucket{
 
+    @OneToOne(cascade= CascadeType.ALL)
     private EMBBPerfReq embbPerfReq;
 
-    public BucketEMBB(BucketType bucketType, EMBBPerfReq embbPerfReq) {
-        super(bucketType);
+    public BucketEMBB(){
+        //FOR JPA Only
+    }
+    public BucketEMBB(BucketScenario bucketScenario, EMBBPerfReq embbPerfReq) {
+        super(BucketType.EMBB, bucketScenario);
         this.embbPerfReq=embbPerfReq;
     }
 
