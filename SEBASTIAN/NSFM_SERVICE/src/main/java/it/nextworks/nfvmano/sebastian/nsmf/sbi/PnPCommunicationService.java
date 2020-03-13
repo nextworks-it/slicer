@@ -27,15 +27,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class PnPCommunicationService extends NsmfSbRestClient {
     private static final Logger log = LoggerFactory.getLogger(PnPCommunicationService.class);
-    public PnPCommunicationService() {
 
+    private List<UUID> sliceIDs;
+    public PnPCommunicationService() {
+        sliceIDs = new ArrayList<>();
     }
 
+    public boolean isPnP(UUID sliceId){
+        return sliceIDs.contains(sliceId);
+    }
 
     private ObjectNode buildNetworkSliceInfo(NST nst, UUID sliceId) {
         ObjectMapper mapper = new ObjectMapper();
@@ -75,6 +82,7 @@ public class PnPCommunicationService extends NsmfSbRestClient {
             String url = this.getTargetUrl() + "/plug-and-play-manager/slice/" + sliceUuid +"/";
             Object requestPayload = generateRequestPayload(nst, sliceUuid);
             ResponseEntity<String> httpResponse = this.performHTTPRequest(requestPayload, url, HttpMethod.POST);
+            sliceIDs.add(sliceUuid);
             return httpResponse.getStatusCode();
         } catch (RestClientResponseException e) {
             log.info("Message received: " + e.getMessage());
@@ -86,6 +94,7 @@ public class PnPCommunicationService extends NsmfSbRestClient {
         try{
             String url = this.getTargetUrl() + "/plug-and-play-manager/slice/" + sliceUuid + "/";
             ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.DELETE);
+            sliceIDs.remove(sliceUuid);
             return httpResponse.getStatusCode();
         } catch (
             RestClientResponseException e) {

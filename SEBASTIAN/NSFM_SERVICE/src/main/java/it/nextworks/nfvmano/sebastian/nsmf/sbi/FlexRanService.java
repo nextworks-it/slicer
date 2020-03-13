@@ -16,6 +16,7 @@
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
 import com.google.gson.JsonObject;
+import it.nextworks.nfvmano.libs.ifa.templates.SliceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -57,6 +58,10 @@ public class FlexRanService extends CPSService{
 
     public void setRanAdapterUrl(String ranAdapterUrl) {
         this.ranAdapterUrl = ranAdapterUrl;
+    }
+
+    public boolean isRan(UUID sliceId) {
+        return flxIdSliceId.get(sliceId) != null;
     }
 
     private Integer getFirstAvailableRanId(){
@@ -111,6 +116,20 @@ public class FlexRanService extends CPSService{
             log.info("Message received: " + e.getMessage());
             return HttpStatus.valueOf(e.getRawStatusCode());
 
+        }
+    }
+
+    public HttpStatus applyRanSliceConfiguration(){ return null; }
+
+    public HttpStatus applyInitialQosConstraints(UUID sliceId, List<JSONObject> qosConstraints){
+        String url = String.format("http://%s/ranadapter/all/v1/%s/set_qos_on_ran", ranAdapterUrl, sliceId.toString());
+        JSONArray payloadArray = new JSONArray(qosConstraints);
+        try{
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(payloadArray.toString(), url, HttpMethod.POST);
+            return httpResponse.getStatusCode();
+        }catch (RestClientResponseException e){
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
         }
     }
 
