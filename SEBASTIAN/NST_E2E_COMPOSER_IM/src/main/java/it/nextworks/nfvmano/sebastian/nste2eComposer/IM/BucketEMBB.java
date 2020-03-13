@@ -1,4 +1,4 @@
-package it.nextworks.nfvmano.sebastian.vsfm.runtimetranslator;
+package it.nextworks.nfvmano.sebastian.nste2eComposer.IM;
 
 import it.nextworks.nfvmano.libs.ifa.templates.EMBBPerfReq;
 
@@ -11,7 +11,7 @@ public class BucketEMBB extends Bucket{
         this.embbPerfReq=embbPerfReq;
     }
 
-    boolean areRequirementsSatisfied(EMBBPerfReq externalEmbbPerfReq){
+    public boolean areRequirementsSatisfied(EMBBPerfReq externalEmbbPerfReq){
         if(externalEmbbPerfReq.getActivityFactor()<embbPerfReq.getActivityFactor())
             return false;
 

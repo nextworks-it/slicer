@@ -1,13 +1,14 @@
-package it.nextworks.nfvmano.sebastian.vsfm.runtimetranslator;
+package it.nextworks.nfvmano.sebastian.nstE2eComposer;
 
 import it.nextworks.nfvmano.libs.ifa.templates.*;
-import it.nextworks.nfvmano.sebastian.vsfm.sbi.NsmfRestClient;
+import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketEMBB;
+import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketType;
+import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketURLLC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.EmptyStackException;
 import java.util.List;
 
 @Service

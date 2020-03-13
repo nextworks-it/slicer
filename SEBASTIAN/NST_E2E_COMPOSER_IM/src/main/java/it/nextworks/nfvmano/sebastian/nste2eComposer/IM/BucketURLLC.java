@@ -1,4 +1,4 @@
-package it.nextworks.nfvmano.sebastian.vsfm.runtimetranslator;
+package it.nextworks.nfvmano.sebastian.nste2eComposer.IM;
 
 import it.nextworks.nfvmano.libs.ifa.templates.URLLCPerfReq;
 
@@ -12,7 +12,7 @@ public class BucketURLLC extends Bucket{
 
     }
 
-    boolean areRequirementsSatisfied(URLLCPerfReq externalUrllcPerfReq){
+    public boolean areRequirementsSatisfied(URLLCPerfReq externalUrllcPerfReq){
         if(externalUrllcPerfReq.getConnDensity()<urllcPerfReq.getConnDensity())
             return false;
         if(externalUrllcPerfReq.getcSAvailability()<urllcPerfReq.getcSAvailability())

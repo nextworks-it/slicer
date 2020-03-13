@@ -1,12 +1,7 @@
-package it.nextworks.nfvmano.sebastian.vsfm.runtimetranslator;
-
-import it.nextworks.nfvmano.libs.ifa.templates.EMBBPerfReq;
-import it.nextworks.nfvmano.libs.ifa.templates.NST;
-import it.nextworks.nfvmano.libs.ifa.templates.URLLCPerfReq;
+package it.nextworks.nfvmano.sebastian.nste2eComposer.IM;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 
 public class Bucket {

@@ -1,4 +1,4 @@
-package it.nextworks.nfvmano.sebastian.vsfm.runtimetranslator;
+package it.nextworks.nfvmano.sebastian.nste2eComposer.IM;
 
 public enum BucketType {
     URBAN_MACRO(Keyword.URBAN),
