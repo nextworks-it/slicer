@@ -16,6 +16,7 @@ package it.nextworks.nfvmano;
 
 import javax.annotation.PostConstruct;
 
+import it.nextworks.nfvmano.sebastian.nsmf.nstadvertiser.NstOnboardingInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,10 @@ public class NsmfConfigurator {
 	@Autowired
 	private NbiNotificationsHandler nbiNotificationsHandler;
 
+
+	@Autowired
+	private NstOnboardingInterceptor nstOnboardingInterceptor;
+
 	@Value("${vsmf.notifications.url}")
 	private String vsmfNotificationsUrl;
 	
@@ -47,5 +52,6 @@ public class NsmfConfigurator {
 		nbiNotificationsHandler.setNotifDestinationUrl(vsmfNotificationsUrl);
 		//in the stand-alone NSMF version the consumer of the NSMF notification is a dispatcher of REST msg
 		nsLcmService.setNotificationDispatcher(nbiNotificationsHandler);
+		nstOnboardingInterceptor.setVsmfHostname(vsmfNotificationsUrl);
 	}
 }

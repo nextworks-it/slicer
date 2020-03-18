@@ -415,7 +415,7 @@ public class SlicerE2ETest {
         nspInteraction.createSLA();
         //nspInteraction.createSLANoResource();
         nspInteraction.loginTenant();
-        nstUuid =nspInteraction.onBoardNST("nst_sample.json");
+
 
         //DSP SIDE
         dspInteraction.loginAdmin();
@@ -430,6 +430,15 @@ public class SlicerE2ETest {
         nspInteraction.createRemoteTenantInfo(dspInteraction.getTenantNot(),VSMF_HOST);
         nspInteraction.associateLocalTenantWithRemoteTenant();
 
+        nstUuid =nspInteraction.onBoardNST("nst_sample.json");
+
+        //below block of line of codes to test advertisement. Optional for Vertical service instantiation
+        String nstUuid2 =nspInteraction.onBoardNST("nst_sample2.json");
+        nspInteraction.removeNST(nstUuid2);
+        String nstUuid3 =nspInteraction.onBoardNST("nst_sample3.json");
+        nspInteraction.removeNST(nstUuid2);
+        nspInteraction.removeNST(nstUuid3);
+
         //DSP side
         onBoardVsbWithNstTransRules(VSMF_HOST, "vsblueprint_osm_sample.json", nstUuid);
         log.info("VSB on boarded");
@@ -438,14 +447,14 @@ public class SlicerE2ETest {
         VSIinstantionTest();
         log.info("VSI on boarded");
 
-       try {
-           log.info("Waiting vertical service to be instanciated");
-            Thread.sleep(30000);
-            //VSImodificationTest();
-            VsiTerminationTest();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+     //  try {
+      //     log.info("Waiting vertical service to be instanciated");
+        //    Thread.sleep(30000);
+         //   //VSImodificationTest();
+          //  VsiTerminationTest();
+        //} catch (InterruptedException e) {
+          //  e.printStackTrace();
+        //}
 
 
     }

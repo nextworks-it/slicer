@@ -135,6 +135,12 @@ public class EndPointInteraction {
        return null;
     }
 
+    public void removeNST(String nstId){
+        final String DELETE_NST_URL = "/ns/catalogue/nstemplate/"+nstId;
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, null, hostname + DELETE_NST_URL, HttpMethod.DELETE, cookiesAdmin);
+
+    }
+
     public void associateLocalTenantWithRemoteTenant(){
         log.info("Going to associate local tenant with a remote one on "+this.hostDescriptionToInteractWith);
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, remoteTenantInfoId, hostname + "/vs/admin/group/"+ groupName +"/tenant/"+ tenant.getUsername(), HttpMethod.PUT, cookiesAdmin);

@@ -10,6 +10,7 @@ import it.nextworks.nfvmano.sebastian.nstE2eComposer.service.BucketService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -30,7 +31,11 @@ public class NSTe2eComposerRestController {
     @Autowired
     private NsTemplateCatalogueService nsTemplateCatalogueService;
 
+    @Value("${catalogue.admin}")
+    private String adminTenant;
+
     public NSTe2eComposerRestController(){    }
+
 
     private static String getUserFromAuth(Authentication auth) {
         Object principal = auth.getPrincipal();
@@ -43,7 +48,14 @@ public class NSTe2eComposerRestController {
     @RequestMapping(value = "/nstAdvertising", method = RequestMethod.POST)
     public ResponseEntity<?> advertiseNST(@RequestBody NST nst, Authentication auth,  HttpServletRequest request) {
 
-        //String user = getUserFromAuth(auth); TODO add auth
+
+        String user = getUserFromAuth(auth);
+        //Admin CANNOT advertise nst.
+        if (user.equals(adminTenant)) {
+            log.warn("Request refused as tenant {} is admin.", user);
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
+
         String ipAddress = request.getRemoteAddr();
         try {
         bucketService.bucketizeNst(nst, ipAddress);
@@ -66,7 +78,12 @@ public class NSTe2eComposerRestController {
 
     @RequestMapping(value = "/nstAdvertising/{nstId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> removeNSTadvertise(@PathVariable String nstId, Authentication auth,  HttpServletRequest request) {
-        //String user = getUserFromAuth(auth); TODO add auth
+        String user = getUserFromAuth(auth);
+        //Admin CANNOT advertise nst.
+        if (user.equals(adminTenant)) {
+            log.warn("Request refused as tenant {} is admin.", user);
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
         String ipAddress = request.getRemoteAddr();
         try {
             bucketService.removeFromBucket(nstId, ipAddress);

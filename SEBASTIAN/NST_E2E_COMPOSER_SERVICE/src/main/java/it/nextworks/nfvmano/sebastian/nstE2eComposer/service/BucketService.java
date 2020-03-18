@@ -32,18 +32,6 @@ public class BucketService {
     @EventListener
     public void appReady(ApplicationReadyEvent event){
         initBuckets();
-        log.info(" Going to test a couple of NST");
-
-        try {
-            testNstEMBB();
-            testNstURLCC();
-        } catch (MalformattedElementException e) {
-            e.printStackTrace();
-        } catch (FailedOperationException e) {
-            e.printStackTrace();
-        } catch (AlreadyExistingEntityException e) {
-            e.printStackTrace();
-        }
     }
         private void initBuckets(){
             //16 empty buckets are created in order to differentiate the advertised NSTs
@@ -127,7 +115,7 @@ public class BucketService {
             log.info("NST has slice type EMBB");
             List<Bucket> bucketEMBBList=bucketRepository.findByBucketType(BucketType.EMBB);
             if(nst.getNstServiceProfile().geteMBBPerfReq()==null &&  nst.getNstServiceProfile().geteMBBPerfReq().get(0)!=null)
-                throw new MalformattedElementException("EMBB performance requirements missing");
+                throw new MalformattedElementException("EMBB performance requirements missing.");
 
             EMBBPerfReq embbPerfReq=nst.getNstServiceProfile().geteMBBPerfReq().get(0); //TODO: supposing only one EMBB in the perfreq list. To be generalized ?
             log.info("NST with UUID "+nstId+" has "+nst.getNstServiceProfile().geteMBBPerfReq().size()+" EMBB performance requirements. Taking the first one.");
@@ -170,7 +158,7 @@ public class BucketService {
             }
         }
         if(isBucketized==false){
-            throw new FailedOperationException("Cannot bucketise NST. No buckets requirements are satisfied.");
+            throw new FailedOperationException("Cannot put NST into any buckets. No buckets requirements are satisfied.");
         }
     }
 
@@ -182,7 +170,7 @@ public class BucketService {
             if(bucket.getNstIdNspMap().get(nstId)!=null && bucket.getNstIdNspMap().get(nstId).equals(ipAddress)){
                 found=true;
                 bucket.removeNstId(nstId);
-                log.info("Going to remove NST advertised with UUID "+ nstId +" announced by "+ ipAddress + "from bucket "+ bucket.getBucketType().toString());
+                log.info("Going to remove NST advertised with UUID "+ nstId +" announced by "+ ipAddress + " from bucket "+ bucket.getBucketScenario().toString());
                 bucketRepository.saveAndFlush(bucket);
             }
         }
@@ -191,26 +179,4 @@ public class BucketService {
             throw new NotExistingEntityException("NST with UUID" + nstId + " not found");
         }
     }
-
-    private void testNstURLCC() throws MalformattedElementException, FailedOperationException, AlreadyExistingEntityException {
-        NstServiceProfile nstServiceProfile = new NstServiceProfile();
-        List<URLLCPerfReq> urllcPerfReqList = new ArrayList<URLLCPerfReq>();
-        urllcPerfReqList.add(new URLLCPerfReq(1,0,0,99.99999f,99.9999f,100000,"...",10000000,100000,""));
-        nstServiceProfile.setuRLLCPerfReq(urllcPerfReqList);
-        nstServiceProfile.setsST(SliceType.URLLC);
-        NST nst = new NST("nstIdOfURLLC","nstName","nstVersion","nstProvider",null,null,null,nstServiceProfile);
-        bucketizeNst(nst,"localhost");
-    }
-
-    private void testNstEMBB() throws MalformattedElementException, FailedOperationException, AlreadyExistingEntityException {
-        NstServiceProfile nstServiceProfile = new NstServiceProfile();
-        List<EMBBPerfReq> embbPerfReqList = new ArrayList<EMBBPerfReq>();
-        embbPerfReqList.add(new EMBBPerfReq(10000000,10000000,1000000,100000,40000,25,400,"..."));
-        nstServiceProfile.seteMBBPerfReq(embbPerfReqList);
-        nstServiceProfile.setsST(SliceType.EMBB);
-        NST nst = new NST("nstIdOfEMBBCC","nstName","nstVersion","nstProvider",null,null,null,nstServiceProfile);
-        bucketizeNst(nst,"localhost");
-    }
-
-
 }
