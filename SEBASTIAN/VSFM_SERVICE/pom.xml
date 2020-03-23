@@ -97,20 +97,15 @@
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>CommonElements</artifactId>
             <version>0.0.2-SNAPSHOT</version>
+        </dependency>
 
-        </dependency>
-        <dependency>
-            <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>VNComService</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>ARBITRATOR_SERVICE</artifactId>
             <version>0.0.2-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+
 		<dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>TranslatorService</artifactId>
@@ -121,12 +116,6 @@
         <dependency>
             <groupId>it.nextworks.nfvmano</groupId>
             <artifactId>NsTemplatesCatalogue</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>it.nextworks.nfvmano</groupId>
-            <artifactId>NST_E2E_COMPOSER_SERVICE</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
 

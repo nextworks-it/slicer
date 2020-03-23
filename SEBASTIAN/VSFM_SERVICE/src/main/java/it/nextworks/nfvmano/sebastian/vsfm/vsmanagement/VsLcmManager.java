@@ -216,12 +216,16 @@ public class VsLcmManager {
         log.debug("Instantiating Vertical Service " + vsiUuid + " with VSD " + vsdId);
         try {
         	VsDescriptor vsd = vsDescriptorCatalogueService.getVsd(vsdId);
+
+
         	this.vsDescriptors.put(vsdId, vsd);
         	this.tenantId = msg.getRequest().getTenantId();
         	List<String> vsdIds = new ArrayList<>();
         	vsdIds.add(vsdId);
-        
+
+
         	Map<String, NfvNsInstantiationInfo> nsInfo = translatorService.translateVsd(vsdIds);
+        	//List<String> nstIds = translatorService.translateVsdIntoNsts(vsdIds);
         	String nstId="";
         	for(String key: nsInfo.keySet()){
                 nstId=nsInfo.get(key).getNstId();
@@ -352,10 +356,14 @@ public class VsLcmManager {
         	
             //Translate VsdId into NfvNsInstantiationInfo
             //Map<String, NfvNsInstantiationInfo> nsInfos = translatorService.translateVsd(vsdIds);
-            ArrayList<String >nstIds=translatorService.translateVsdToNstIds(vsdIds);
-            String newNstId=nstIds.get(0);//For now getting only one nst Id for VSD
-            log.debug("The VSD has been translated into NST id. Getting the first one: "+newNstId);
 
+            Map<String, NfvNsInstantiationInfo> nsInfo = translatorService.translateVsd(vsdIds);
+            String newNstId="";
+            for(String key: nsInfo.keySet()){
+                newNstId=nsInfo.get(key).getNstId();
+            }
+
+            log.debug("The VSD has been translated into NST id. Getting the first one: "+newNstId);
             NetworkSliceInstance nsi = vsmfUtils.readNetworkSliceInstanceInformation(networkSliceUuid, tenantId);
             ModifyNsiRequest modifyNsiRequest = new ModifyNsiRequest(nsi.getNsiId(),
                     newNstId,
