@@ -7,6 +7,8 @@ import it.nextworks.nfvmano.sebastian.admin.elements.RemoteTenantInfo;
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
 import it.nextworks.nfvmano.sebastian.nsmf.nbi.VsmfNstAdvertiserRestClient;
 import it.nextworks.nfvmano.sebastian.nsmf.nstadvertiser.NstAdvertisingManager;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRemoveRequest;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,8 @@ public class NstOnboardingInterceptor implements HandlerInterceptor {
 
     private String vsmfHostname;
 
+    private String domainName;
+
     private VsmfNstAdvertiserRestClient vsmfNstAdvertiserRestClient;
 
     private NstAdvertisingManager nstAdvertisingManager;
@@ -42,8 +46,9 @@ public class NstOnboardingInterceptor implements HandlerInterceptor {
         requests=new ArrayBlockingQueue<Object>(100);
     }
 
-    public void setVsmfHostname(String vsmfHostname) {
+    public void setVsmfHostname(String vsmfHostname, String domainName) {
         this.vsmfHostname = vsmfHostname;
+        this.domainName = domainName;
     }
 
     @Override
@@ -86,8 +91,10 @@ public class NstOnboardingInterceptor implements HandlerInterceptor {
             }
             List<NST> nstList = nsTemplateRepository.findAll();
             NST lastNST = nstList.get(nstList.size() - 1);
+
             try {
-                requests.put(lastNST);
+                NstAdvertisementRequest nstAdvertisementRequest = new NstAdvertisementRequest(lastNST,domainName);
+                requests.put(nstAdvertisementRequest);
             }
             catch (InterruptedException ex) {
                 ex.printStackTrace();
@@ -97,10 +104,11 @@ public class NstOnboardingInterceptor implements HandlerInterceptor {
         if (httpServletRequest.getMethod().equals("DELETE") &&
                 requestUrl.indexOf(NST_PATH) != -1 &&
                 httpServletResponse.getStatus() == HttpStatus.OK.value()) {
-            String nstUUIDtoBeDeleted = requestUrl.split(NST_PATH)[1];
+            String nstUUIDtoBeDeleted = requestUrl.split(NST_PATH+"/")[1];
 
             try {
-                requests.put(nstUUIDtoBeDeleted);
+                NstAdvertisementRemoveRequest nstAdvertisementRemoveRequest = new NstAdvertisementRemoveRequest(nstUUIDtoBeDeleted, domainName);
+                requests.put(nstAdvertisementRemoveRequest);
             }  catch (InterruptedException ex) {
                 ex.printStackTrace();
             }

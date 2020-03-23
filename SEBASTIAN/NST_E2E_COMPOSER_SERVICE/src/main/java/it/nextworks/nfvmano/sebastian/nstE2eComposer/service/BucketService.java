@@ -1,10 +1,16 @@
 package it.nextworks.nfvmano.sebastian.nstE2eComposer.service;
 
+import it.nextworks.nfvmano.catalogue.domainLayer.Domain;
+import it.nextworks.nfvmano.catalogue.domainLayer.DomainLayer;
+import it.nextworks.nfvmano.catalogue.domainLayer.DomainLayerType;
+import it.nextworks.nfvmano.catalogues.domainLayer.services.DomainCatalogueService;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.AlreadyExistingEntityException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.ifa.templates.*;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRemoveRequest;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRequest;
 import it.nextworks.nfvmano.sebastian.nstE2eComposer.repository.BucketRepository;
 import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.*;
 import org.slf4j.Logger;
@@ -13,8 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,6 +28,9 @@ public class BucketService {
 
     @Autowired
     BucketRepository bucketRepository;
+
+    @Autowired
+    DomainCatalogueService domainCatalogueService;
 
     public BucketService(){
 
@@ -103,18 +110,38 @@ public class BucketService {
         }
 
 
-    public void bucketizeNst(NST nst, String ipAddress) throws MalformattedElementException, FailedOperationException, AlreadyExistingEntityException {
+    private String getNSPdomainIdFromNameAndIpAddress(String name, String ipAddress) throws NotExistingEntityException {
+        //It is supposed that the domainName-ipAddress pair is unique among NspDomainLayers.
+        for(Domain domain:domainCatalogueService.getDomainsByName(name)){
+            if(domain.getDomainInterface().getUrl().equals(ipAddress)){
+                for(DomainLayer domainLayer: domain.getOwnedLayers()){
+                    if(domainLayer.getDomainLayerType()== DomainLayerType.NETWORK_SLICE_PROVIDER) {
+                        return domain.getId().toString();
+                    }
+                }
+            }
+        }
+        log.error("No NSP owned by domain  "+name+" at "+ipAddress);
+        throw new NotExistingEntityException("No NSP owned by domain  "+name+" at "+ipAddress);
+    }
+
+
+    public void bucketizeNst(NstAdvertisementRequest nstAdvertisementRequest, String ipAddress) throws MalformattedElementException, FailedOperationException, AlreadyExistingEntityException, NotExistingEntityException {
         log.debug("Received request to advertise a NS Template from "+ipAddress);
+        nstAdvertisementRequest.isValid();
+
+        NST nst = nstAdvertisementRequest.getNst();
+        String domainName=nstAdvertisementRequest.getDomainName();
+
+        String domainId= getNSPdomainIdFromNameAndIpAddress(domainName, ipAddress);
         SliceType sliceType= nst.getNstServiceProfile().getsST();
         String nstId = nst.getNstId();
-        if(nstId==null){
-            throw new MalformattedElementException("NST UUID is missing");
-        }
+
         boolean isBucketized=false;
         if(sliceType==SliceType.EMBB){
             log.info("NST has slice type EMBB");
             List<Bucket> bucketEMBBList=bucketRepository.findByBucketType(BucketType.EMBB);
-            if(nst.getNstServiceProfile().geteMBBPerfReq()==null &&  nst.getNstServiceProfile().geteMBBPerfReq().get(0)!=null)
+            if(nst.getNstServiceProfile().geteMBBPerfReq()==null ||  nst.getNstServiceProfile().geteMBBPerfReq().get(0)==null)
                 throw new MalformattedElementException("EMBB performance requirements missing.");
 
             EMBBPerfReq embbPerfReq=nst.getNstServiceProfile().geteMBBPerfReq().get(0); //TODO: supposing only one EMBB in the perfreq list. To be generalized ?
@@ -124,9 +151,9 @@ public class BucketService {
                     BucketEMBB bucketEMBB = (BucketEMBB) bucket;
                     if(bucketEMBB.areRequirementsSatisfied(embbPerfReq)) {
                         //Added locally and into the DB
-                        if(bucketEMBB.addNstId(nstId,ipAddress)==false) {
-                            log.info("NST with UUID " + nstId + " advertised from " + ipAddress + "already available.");
-                            throw new AlreadyExistingEntityException("NST with UUID " + nstId + " advertised from " + ipAddress + "already available.");
+                        if(bucketEMBB.addNstId(nstId,domainId)==false) {
+                            log.info("NST with UUID " + nstId + " advertised from domain with ID " + domainId + "already available.");
+                            throw new AlreadyExistingEntityException("NST with UUID " + nstId + " advertised from domain with ID " + domainId + "already available.");
                         }
                         bucketRepository.saveAndFlush(bucketEMBB);
                         isBucketized=true;
@@ -140,7 +167,7 @@ public class BucketService {
         else if(sliceType==SliceType.URLLC){
             log.info("NST has slice type URLLC");
             List<Bucket> bucketURLLCList=bucketRepository.findByBucketType(BucketType.URLLC);
-            if(nst.getNstServiceProfile().getuRLLCPerfReq()==null && nst.getNstServiceProfile().getuRLLCPerfReq().get(0)!=null)
+            if(nst.getNstServiceProfile().getuRLLCPerfReq()==null || nst.getNstServiceProfile().getuRLLCPerfReq().get(0)==null)
                 throw new MalformattedElementException("URLLC performance requirements missing");
             URLLCPerfReq urllcPerfReq = nst.getNstServiceProfile().getuRLLCPerfReq().get(0);//TODO: supposing only one URLCC in the perfreq list. To be generalized ?
             log.info("NST with UUID "+nstId+" has "+nst.getNstServiceProfile().getuRLLCPerfReq().size()+" URLCC performance requirements. Taking the first one.");
@@ -148,13 +175,13 @@ public class BucketService {
             for(Bucket bucket: bucketURLLCList){
                 BucketURLLC bucketURLLC = (BucketURLLC) bucket;
                 if(bucketURLLC.areRequirementsSatisfied(urllcPerfReq)){
-                    bucketURLLC.addNstId(nstId,ipAddress);
+                    bucketURLLC.addNstId(nstId,domainId);
                     log.info("Added NST with UUID "	+nstId+ " into bucket "+bucketURLLC.getBucketScenario().toString());
                     bucketRepository.saveAndFlush(bucketURLLC);
                     isBucketized=true;
                 }
                 else
-                    log.info("Cannot add NST with UUID "	+nstId+ " into bucket "+bucketURLLC.getBucketScenario().toString());
+                    log.info("Cannot add NST with UUID "+nstId+ " into bucket "+bucketURLLC.getBucketScenario().toString());
             }
         }
         if(isBucketized==false){
@@ -162,20 +189,27 @@ public class BucketService {
         }
     }
 
-    public void removeFromBucket(String nstId, String ipAddress) throws NotExistingEntityException {
-        log.debug("Received request to remove an advertised NST from "+nstId);
+    public void removeFromBucket(NstAdvertisementRemoveRequest nstAdvertisementRemoveRequest, String ipAddress) throws NotExistingEntityException, MalformattedElementException {
+        nstAdvertisementRemoveRequest.isValid();
+        String nstId=nstAdvertisementRemoveRequest.getNstId();
+        String domainName=nstAdvertisementRemoveRequest.getDomainName();
+        log.debug("Received request to remove an advertised NST with ID "+nstId+" from "+domainName);
+        String domainIdSender= getNSPdomainIdFromNameAndIpAddress(domainName, ipAddress);
+
         List<Bucket> bucketList=bucketRepository.findAll();
         boolean found=false;
+        domainCatalogueService.getDomainsByName(domainName);
         for(Bucket bucket: bucketList){
-            if(bucket.getNstIdNspMap().get(nstId)!=null && bucket.getNstIdNspMap().get(nstId).equals(ipAddress)){
-                found=true;
-                bucket.removeNstId(nstId);
-                log.info("Going to remove NST advertised with UUID "+ nstId +" announced by "+ ipAddress + " from bucket "+ bucket.getBucketScenario().toString());
-                bucketRepository.saveAndFlush(bucket);
+            String domainId=bucket.getNstIdDomainIdMap().get(nstId);
+            if(domainId!=null && domainId.equals(domainIdSender)){
+                    found=true;
+                    bucket.removeNstId(nstId);
+                    log.info("Going to remove NST advertised with UUID "+ nstId +" announced by domain with ID "+ domainId + " from bucket "+ bucket.getBucketScenario().toString());
+                    bucketRepository.saveAndFlush(bucket);
+                }
             }
-        }
         if(found==false) {
-            log.info("NST advertised with UUID "+ nstId +" announced by "+ ipAddress +" not found.");
+            log.info("NST advertised with UUID "+ nstId +" announced from "+ ipAddress +" not found.");
             throw new NotExistingEntityException("NST with UUID" + nstId + " not found");
         }
     }

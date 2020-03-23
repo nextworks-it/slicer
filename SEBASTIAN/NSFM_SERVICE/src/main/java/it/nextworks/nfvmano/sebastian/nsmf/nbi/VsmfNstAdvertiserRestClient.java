@@ -7,6 +7,8 @@ import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.admin.elements.RemoteTenantInfo;
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
 import it.nextworks.nfvmano.sebastian.common.Authenticator;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRemoveRequest;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRequest;
 import org.junit.internal.runners.statements.Fail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,14 +46,14 @@ public class VsmfNstAdvertiserRestClient {
         }
     }
 
-    public void advertiseNst(NST nst) throws FailedOperationException,RestClientException {
+    public void advertiseNst(NstAdvertisementRequest nstAdvertisementRequest) throws FailedOperationException,RestClientException {
         performAuth();
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         if(this.cookies!=null){
             header.add("Cookie", this.cookies);
         }
-        HttpEntity<?> httpEntity = new HttpEntity<>(nst, header);
+        HttpEntity<?> httpEntity = new HttpEntity<>(nstAdvertisementRequest, header);
         log.debug("Sending HTTP message to advertise NST.");
         ResponseEntity<String> httpResponse =
                     restTemplate.exchange(VSMF_NST_ADVERTISMENT_URL, HttpMethod.POST, httpEntity, String.class);
@@ -69,18 +71,18 @@ public class VsmfNstAdvertiserRestClient {
     }
 
 
-    public void removeNstAdvertised(String nstId) throws FailedOperationException,RestClientException {
+    public void removeNstAdvertised(NstAdvertisementRemoveRequest nstAdvertisementRemoveRequest) throws FailedOperationException,RestClientException {
         performAuth();
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         if(this.cookies!=null){
             header.add("Cookie", this.cookies);
         }
-        HttpEntity<?> httpEntity = new HttpEntity<>(nstId, header);
+        HttpEntity<?> httpEntity = new HttpEntity<>(nstAdvertisementRemoveRequest, header);
 
-         log.debug("Sending HTTP message to remove NST previously advertised.");
+         log.debug("Sending HTTP request to remove NST with UIID " +nstAdvertisementRemoveRequest.getNstId()+ "previously advertised.");
          ResponseEntity<String> httpResponse =
-                    restTemplate.exchange(VSMF_NST_ADVERTISMENT_URL+nstId, HttpMethod.DELETE, httpEntity, String.class);
+                    restTemplate.exchange(VSMF_NST_ADVERTISMENT_URL, HttpMethod.DELETE, httpEntity, String.class);
 
          log.debug("Response code: " + httpResponse.getStatusCode().toString());
          HttpStatus code = httpResponse.getStatusCode();

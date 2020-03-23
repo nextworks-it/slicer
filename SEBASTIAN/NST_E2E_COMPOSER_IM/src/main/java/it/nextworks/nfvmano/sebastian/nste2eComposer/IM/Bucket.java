@@ -1,12 +1,7 @@
 package it.nextworks.nfvmano.sebastian.nste2eComposer.IM;
 
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
-
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -28,9 +23,9 @@ public class Bucket {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name="nst_id")
-    @Column(name ="ip_address")
-    @CollectionTable(name="nst_id_ip_address", joinColumns=@JoinColumn(name="id"))
-    private Map<String,String> nstIdNspMap = new HashMap<String, String>();
+    @Column(name ="domain_id")
+    @CollectionTable(name="nst_id_domain_id", joinColumns=@JoinColumn(name="id"))
+    private Map<String,String> nstIdDomainIdMap = new HashMap<String, String>();
 
     public Bucket(){
         //For JPA only
@@ -45,19 +40,19 @@ public class Bucket {
     }
 
     public boolean addNstId(String nstId, String ipAddress){
-       if(nstIdNspMap.get(nstId)==null){
-           nstIdNspMap.put(nstId,ipAddress);
+       if(nstIdDomainIdMap.get(nstId)==null){
+           nstIdDomainIdMap.put(nstId,ipAddress);
            return true;
        }
         return false;
     }
 
     public void removeNstId(String nstId){
-        nstIdNspMap.remove(nstId);
+        nstIdDomainIdMap.remove(nstId);
     }
 
-    public Map<String,String> getNstIdNspMap(){
-        return nstIdNspMap;
+    public Map<String,String> getNstIdDomainIdMap(){
+        return nstIdDomainIdMap;
     }
 
     public Long getId(){

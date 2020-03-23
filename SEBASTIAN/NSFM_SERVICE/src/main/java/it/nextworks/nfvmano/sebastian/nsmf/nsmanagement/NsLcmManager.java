@@ -232,7 +232,7 @@ public class NsLcmManager {
 			// TODO nsst management here
 		}
 
-		
+
 		try {
 			// Step 1: check for RAN
 			NstServiceProfile nstServiceProfile = networkSliceTemplate.getNstServiceProfile();

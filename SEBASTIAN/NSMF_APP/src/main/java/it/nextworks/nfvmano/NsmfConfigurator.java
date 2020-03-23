@@ -46,12 +46,15 @@ public class NsmfConfigurator {
 
 	@Value("${vsmf.notifications.url}")
 	private String vsmfNotificationsUrl;
-	
+
+	@Value("${nsmf.domainName}")
+	private String domainName;
+
 	@PostConstruct
 	public void configComService() {
 		nbiNotificationsHandler.setNotifDestinationUrl(vsmfNotificationsUrl);
 		//in the stand-alone NSMF version the consumer of the NSMF notification is a dispatcher of REST msg
 		nsLcmService.setNotificationDispatcher(nbiNotificationsHandler);
-		nstOnboardingInterceptor.setVsmfHostname(vsmfNotificationsUrl);
+		nstOnboardingInterceptor.setVsmfHostname(vsmfNotificationsUrl,domainName);
 	}
 }

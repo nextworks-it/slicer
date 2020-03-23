@@ -6,6 +6,8 @@ import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRemoveRequest;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRequest;
 import it.nextworks.nfvmano.sebastian.nstE2eComposer.service.BucketService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,20 +48,19 @@ public class NSTe2eComposerRestController {
     }
 
     @RequestMapping(value = "/nstAdvertising", method = RequestMethod.POST)
-    public ResponseEntity<?> advertiseNST(@RequestBody NST nst, Authentication auth,  HttpServletRequest request) {
-
+    public ResponseEntity<?> advertiseNst(@RequestBody NstAdvertisementRequest nstAdvertisementRequest, Authentication auth, HttpServletRequest request) {
 
         String user = getUserFromAuth(auth);
-        //Admin CANNOT advertise nst.
-        if (user.equals(adminTenant)) {
+
+        if (user.equals(adminTenant)) { //Admin CANNOT advertise nst.
             log.warn("Request refused as tenant {} is admin.", user);
             return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         String ipAddress = request.getRemoteAddr();
         try {
-        bucketService.bucketizeNst(nst, ipAddress);
-        return new ResponseEntity<String>("NST correctly advertised.", HttpStatus.CREATED);
+            bucketService.bucketizeNst(nstAdvertisementRequest, ipAddress);
+            return new ResponseEntity<String>("NST correctly advertised.", HttpStatus.CREATED);
         }
         catch (MalformattedElementException e) {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -76,24 +77,27 @@ public class NSTe2eComposerRestController {
         }
     }
 
-    @RequestMapping(value = "/nstAdvertising/{nstId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> removeNSTadvertise(@PathVariable String nstId, Authentication auth,  HttpServletRequest request) {
+    @RequestMapping(value = "/nstAdvertising", method = RequestMethod.DELETE)
+    public ResponseEntity<?> removeNSTadvertise(@RequestBody NstAdvertisementRemoveRequest nstAdvertisementRemoveRequest, Authentication auth, HttpServletRequest request) {
         String user = getUserFromAuth(auth);
-        //Admin CANNOT advertise nst.
-        if (user.equals(adminTenant)) {
+
+        if (user.equals(adminTenant)) {//Admin CANNOT advertise nst.
             log.warn("Request refused as tenant {} is admin.", user);
             return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
         String ipAddress = request.getRemoteAddr();
         try {
-            bucketService.removeFromBucket(nstId, ipAddress);
-           return new ResponseEntity<String>("Advertised NST with id "+nstId+" correctly removed.", HttpStatus.OK);
+            bucketService.removeFromBucket(nstAdvertisementRemoveRequest, ipAddress);
+           return new ResponseEntity<String>("Advertised NST with id "+nstAdvertisementRemoveRequest.getNstId()+" correctly removed.", HttpStatus.OK);
         }
         catch (NotExistingEntityException e) {
-            log.error("NST with UUID "+nstId+" advertised by "+ipAddress+" not found.");
+            log.error("NST with UUID "+nstAdvertisementRemoveRequest.getNstId()+" advertised by "+nstAdvertisementRemoveRequest.getDomainName()+" not found.");
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-
+        catch (MalformattedElementException e) {
+            log.error(e.getMessage());
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
         catch (Exception e) {
             log.error("Internal exception");
             log.error(e.getMessage());

@@ -3,6 +3,8 @@ package it.nextworks.nfvmano.sebastian.nsmf.nstadvertiser;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.sebastian.nsmf.nbi.VsmfNstAdvertiserRestClient;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRemoveRequest;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
@@ -24,16 +26,16 @@ public class NstAdvertisingManager implements Runnable {
 
 
     private void processRequest(Object request) throws FailedOperationException, InterruptedException {
-            if(request instanceof NST){
+            if(request instanceof NstAdvertisementRequest){
 
-                NST nst = (NST) request;
-                log.info("Going to advertise NST with UUID "+nst.getNstId());
-                vsmfNstAdvertiserRestClient.advertiseNst(nst);
+                NstAdvertisementRequest nstAdvertisementRequest = (NstAdvertisementRequest) request;
+                log.info("Going to advertise NST with UUID "+nstAdvertisementRequest.getNst().getNstId()+". Domain name inserted is "+nstAdvertisementRequest.getDomainName());
+                vsmfNstAdvertiserRestClient.advertiseNst(nstAdvertisementRequest);
             }
-            else if(request instanceof String){
-                String nstId = (String)request;
-                log.info("Going to remove advertising of NST with UUID "+nstId);
-                vsmfNstAdvertiserRestClient.removeNstAdvertised(nstId);
+            else if(request instanceof NstAdvertisementRemoveRequest){
+                NstAdvertisementRemoveRequest nstAdvertisementRemoveRequest = (NstAdvertisementRemoveRequest)request;
+                log.info("Going to remove advertising of NST with UUID "+nstAdvertisementRemoveRequest.getNstId()+" Domain name inserted is "+nstAdvertisementRemoveRequest.getDomainName());
+                vsmfNstAdvertiserRestClient.removeNstAdvertised(nstAdvertisementRemoveRequest);
             }
             else{
                 log.warn("Cannot process the request.");
@@ -98,8 +100,6 @@ public class NstAdvertisingManager implements Runnable {
                 if(e.getMessage().contains("400")){
                     log.warn("NST advertisement bad request. It will be discarded. Taking the next one available.");
                 }
-
-
 
             }
             catch (InterruptedException e) {
