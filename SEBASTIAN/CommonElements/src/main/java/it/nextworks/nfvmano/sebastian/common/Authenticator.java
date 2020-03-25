@@ -44,9 +44,6 @@ public class Authenticator {
             for(RemoteTenantInfo remoteTenantInfo: tenant.getRemoteTenantInfos()){
                 log.info(hostname);
                 log.info(remoteTenantInfo.getHost());
-                log.info(remoteTenantInfo.getRemoteTenantName());
-                log.info(remoteTenantInfo.getRemoteTenantPwd());
-
                 if(remoteTenantInfo.getHost().equals(hostname)){
                     username=remoteTenantInfo.getRemoteTenantName();
                     password=remoteTenantInfo.getRemoteTenantPwd();

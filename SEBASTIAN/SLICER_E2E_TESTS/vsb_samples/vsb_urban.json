@@ -1,0 +1,14 @@
+{
+	"vsBlueprint": {
+		"version": "1.0",
+		"name": "UrbanArea",
+		"description": "Automotive Video Streaming Service",
+		"keyword":"Urban",
+		"parameters":[{
+		"parameterId": "UrbanScenario",
+		"parameterName": "UrbanScenario",
+		"parameterType": "String",
+		"parameterDescription": "Urban scenario to chose."
+		}]
+	}
+}

@@ -48,4 +48,8 @@ public class BucketEMBB extends Bucket{
         return true;
     }
 
+    public EMBBPerfReq getEmbbPerfReq() {
+        return embbPerfReq;
+    }
+
 }

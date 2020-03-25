@@ -1,0 +1,19 @@
+{
+	"vsd": {
+		"name": "video_conference",
+		"version": "0.1",
+		"sst": "EMBCC",
+		"vsBlueprintId": "vsb_id",
+		"managementType": "PROVIDER_MANAGED", 
+		"qosParameters": {
+			"UrbanScenario": "Rural macro"
+		},
+		"serviceConstraints": [{
+			"sharable": false,
+			"canIncludeSharedElements": true,
+			"priority": "LOW"
+		}],
+		"sla": {}
+	},
+	"tenantId": "admin"
+}

@@ -276,11 +276,11 @@ public class SlicerE2ETest {
     }
 */
 
-    public void testVSDOnBoarding() {
+    public void testVSDOnBoarding(String filename) {
 
         final String ONBOARD_VSD_URL = "/portal/catalogue/vsdescriptor";
 
-        OnboardVsDescriptorRequest onboardVsDescriptorRequestFromJSON = (OnboardVsDescriptorRequest) getObjectFromFile(OnboardVsDescriptorRequest.class, "vsd_sample.json");
+        OnboardVsDescriptorRequest onboardVsDescriptorRequestFromJSON = (OnboardVsDescriptorRequest) getObjectFromFile(OnboardVsDescriptorRequest.class, filename);
 
         //field isPublic missing in the JSON, but if added JACKSON gives error.
         onboardVsDescriptorRequestFromJSON.getVsd().setVsBlueprintId(vsbId);
@@ -390,36 +390,8 @@ public class SlicerE2ETest {
 
     }
 
-
-    //@Test//Configuration needed (nfvo.catalogue is TIMEO, nfvo.lcm is DUMMY)
-    public void testVSLifecycle() {
-        //This test works with:
-        //nfvo.lcm.driver=dummy
-        //nfvo.catalogue.driver=TIMEO
-        init();
-        //Vertical service instantiation
-        VSIinstantionTest();
-        log.info("Pretending to wait net slice to be instantiated");
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        VsiTerminationTest();
-        log.info("Pretending to wait net slice to be terminated");
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        VsiPurgeTest();
-    }
-
     @Test
     public void onBoardVSBWithNstID(){
-
-
         //NSP1 SIDE
         nspInteraction.loginAdmin();
         nspInteraction.createGroup("NSP_group");
@@ -474,7 +446,7 @@ public class SlicerE2ETest {
         dspInteraction.createRemoteTenantInfo2(nspInteraction2.getTenant(),NSMF_HOST2);
 
         dspInteraction.associateLocalTenantWithRemoteTenant();
-        //dspInteraction.associateLocalTenantWithRemoteTenant2();
+        dspInteraction.associateLocalTenantWithRemoteTenant2();
 
         //On NSP1
         nspInteraction.createRemoteTenantInfo(dspInteraction.getTenantNot(),VSMF_HOST);
@@ -508,9 +480,11 @@ public class SlicerE2ETest {
 
 
         //DSP side
-        onBoardVsbWithNstTransRules(VSMF_HOST, "vsblueprint_osm_sample.json", nstUuid);
+        //onBoardVsbWithNstTransRules(VSMF_HOST, "vsblueprint_osm_sample.json", nstUuid);
+        onBoardVsbWithNstTransRules(VSMF_HOST, "vsb_samples/vsb_streaming.json", nstUuid);
         log.info("VSB on boarded");
-        testVSDOnBoarding();
+        //testVSDOnBoarding("vsd_sample.json");
+        testVSDOnBoarding("vsb_samples/vsd_streaming_one.json");
         log.info("VSD on boarded");
         VSIinstantionTest();
         log.info("VSI on boarded");
@@ -525,68 +499,5 @@ public class SlicerE2ETest {
         // }
 
 
-    }
-
-    //Configuration needed (nfvo.catalogue is DUMMY, nfvo.lcm is NMRO)
-    //@Test
-    public void testNmroAndOsm(){
-        //NSP SIDE
-        nspInteraction.loginAdmin();
-        nspInteraction.createGroup("NSP_group");
-        nspInteraction.createTenant("tenant_nsp_sample.json");
-        nspInteraction.loginTenant();
-
-
-        //DSP SIDE
-        dspInteraction.loginAdmin();
-        dspInteraction.createGroup("DSP_group");
-        dspInteraction.createTenant("tenant_sample.json");
-        dspInteraction.createTenantExt("tenant_notif_sample.json");
-        dspInteraction.createSLA();
-        dspInteraction.loginTenant();
-        dspInteraction.createRemoteTenantInfo(nspInteraction.getTenant(),NSMF_HOST);
-        dspInteraction.associateLocalTenantWithRemoteTenant();
-
-        //On NSP
-        nspInteraction.createRemoteTenantInfo(dspInteraction.getTenantNot(),VSMF_HOST);
-        nspInteraction.associateLocalTenantWithRemoteTenant();
-        nstUuid =nspInteraction.onBoardNST("nst_sample.json");
-
-        //DSP SIDE
-        //testVSBOnBoardingWithVsdNSDTranslRules(VSMF_HOST,"vsblueprint_osm_sample.json");
-        testVSDOnBoarding();
-        VSIinstantionTest();
-
-    }
-
-
-
-    private void init(){
-        //NSP SIDE
-        nspInteraction.loginAdmin();
-        nspInteraction.createGroup("NSP_group");
-        nspInteraction.createTenant("tenant_nsp_sample.json");
-        nspInteraction.createSLA();
-        nspInteraction.loginTenant();
-
-
-        //DSP SIDE
-        dspInteraction.loginAdmin();
-        dspInteraction.createGroup("DSP_group");
-        dspInteraction.createTenant("tenant_sample.json");
-        dspInteraction.createTenantExt("tenant_notif_sample.json");
-        dspInteraction.createSLA();
-        dspInteraction.loginTenant();
-        dspInteraction.createRemoteTenantInfo(nspInteraction.getTenant(),NSMF_HOST);
-        dspInteraction.associateLocalTenantWithRemoteTenant();
-
-        //On NSP
-        nspInteraction.createRemoteTenantInfo(dspInteraction.getTenantNot(),VSMF_HOST);
-        nspInteraction.associateLocalTenantWithRemoteTenant();
-        nstUuid =nspInteraction.onBoardNST("nst_sample.json");
-
-        //DSP SIDE
-        //testVSBOnBoardingWithVsdNSDTranslRules(VSMF_HOST,"vsblueprint_sample.json");
-        //testVSDOnBoarding();
     }
 }

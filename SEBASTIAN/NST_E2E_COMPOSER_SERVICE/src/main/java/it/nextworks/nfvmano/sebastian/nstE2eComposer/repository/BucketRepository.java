@@ -6,7 +6,9 @@ import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BucketRepository extends JpaRepository<Bucket, Long> {
         List<Bucket> findByBucketType(BucketType bucketType);
+        Optional<Bucket> findById(Long id);
 }

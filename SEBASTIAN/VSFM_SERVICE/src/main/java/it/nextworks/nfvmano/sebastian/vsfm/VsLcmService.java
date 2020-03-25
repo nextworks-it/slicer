@@ -14,17 +14,19 @@
  */
 package it.nextworks.nfvmano.sebastian.vsfm;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsBlueprintCatalogueService;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.catalogue.translator.TranslatorService;
+import it.nextworks.nfvmano.catalogues.domainLayer.services.DomainCatalogueService;
+import it.nextworks.nfvmano.libs.ifa.templates.EMBBPerfReq;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
+import it.nextworks.nfvmano.sebastian.nstE2eComposer.repository.BucketRepository;
+import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.Bucket;
+import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketEMBB;
+import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketType;
 import it.nextworks.nfvmano.sebastian.vsfm.vsmanagement.VsLcmManager;
 import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.CoordinateVsiRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.VsmfEngineMessage;
@@ -88,6 +90,8 @@ import it.nextworks.nfvmano.sebastian.vsfm.messages.QueryVsResponse;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.TerminateVsRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.vscoordinator.VsCoordinator;
 
+import static it.nextworks.nfvmano.catalogue.blueprint.elements.AvailabilityCoverageRange.AVAILABILITY_COVERAGE_HIGH;
+
 /**
  * Front-end service for managing the incoming requests 
  * about creation, termination, etc. of Vertical Service instances.
@@ -145,6 +149,12 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
     @Autowired
     private VsmfUtils vsmfUtils;
 
+    @Autowired
+	private BucketRepository bucketRepository;
+
+    @Autowired
+	private DomainCatalogueService domainCatalogueService;
+
     //internal map of VS LCM Managers
     //each VS LCM Manager is created when a new VSI UUID is created and removed when the VSI UUID is removed
     private Map<String, VsLcmManager> vsLcmManagers = new HashMap<>();
@@ -158,25 +168,25 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 			NotExistingEntityException, FailedOperationException, MalformattedElementException, NotPermittedOperationException {
 		log.debug("Received request to instantiate a new Vertical Service instance.");
 		request.isValid();
-		
+
 		String tenantId = request.getTenantId();
 		String vsdId = request.getVsdId();
-		
+
 		VsDescriptor vsd = vsDescriptorCatalogueService.getVsd(vsdId);
 		if ((!(vsd.getTenantId().equals(tenantId))) && (!(tenantId.equals(adminTenant)))) {
 			log.debug("Tenant " + tenantId + " is not allowed to create VS instance with VSD " + vsdId);
 			throw new NotPermittedOperationException("Tenant " + tenantId + " is not allowed to create VS instance with VSD " + vsdId);
 		}
-		
+
 		String vsbId = vsd.getVsBlueprintId();
 		VsBlueprint vsb = retrieveVsb(vsbId);
 		log.debug("Retrieved VSB for the requested VSI.");
-		
+
 		//checking configuration parameters
 		Map<String, String> userData = request.getUserData();
 		Set<String> providedConfigParameters = userData.keySet();
 		if (!(providedConfigParameters.isEmpty())) {
-			List<String> acceptableConfigParameters = vsb.getConfigurableParameters(); 
+			List<String> acceptableConfigParameters = vsb.getConfigurableParameters();
 			for (String cp : providedConfigParameters) {
 				if (!(acceptableConfigParameters.contains(cp))) {
 					log.error("The request includes a configuration parameter " + cp + " which is not present in the VSB. Not acceptable.");
@@ -185,20 +195,31 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 			}
 			log.debug("Set user configuration parameters for VS instance.");
 		}
-		
+
 		LocationInfo locationConstraints = request.getLocationConstraints();
 		String ranEndPointId = null;
 		if (locationConstraints != null) {
 			ranEndPointId = vsb.getRanEndPoint();
-			if (ranEndPointId != null) 
+			if (ranEndPointId != null)
 				log.debug("Set location constraints and RAN endpoint for VS instance.");
 			else log.warn("No RAN endpoint available. Unable to specify the location constraints for the service.");
 		}
-		
+
 		log.debug("The VS instantiation request is valid.");
-		
 		String vsiUuid = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData, locationConstraints, ranEndPointId);
-		initNewVsLcmManager(vsiUuid, request.getName());
+
+		RuntimeTranslator runtimeTranslator = new RuntimeTranslator(bucketRepository,vsDescriptorCatalogueService);
+		log.info("Filtering vsd against the NSTs buckets.");
+		ArrayList<Long> suitableBuckets = runtimeTranslator.translate(vsdId);
+
+		log.info("Filtering vsd against the NSTs buckets.");
+		if (locationConstraints != null) {
+			log.info("Pretending to filter NSTs by geographical constraints. TODO.");
+			suitableBuckets = runtimeTranslator.filterByLocationConstraints(suitableBuckets, locationConstraints);
+		}
+		HashMap<String,String> domainIdNstIdMap= runtimeTranslator.naiveArbitrator(suitableBuckets);
+		initNewVsLcmManager(vsiUuid, request.getName(), domainIdNstIdMap);
+
 		if (!(tenantId.equals(adminTenant))) adminService.addVsiInTenant(vsiUuid, tenantId);
 		try {
 			String topic = "lifecycle.instantiatevs." + vsiUuid;
@@ -572,7 +593,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
      *
      * @param vsiUuid ID of the VS instance for which the VS LCM Manager must be initialized
      */
-    private void initNewVsLcmManager(String vsiUuid, String vsiName) {
+    private void initNewVsLcmManager(String vsiUuid, String vsiName, HashMap<String,String> domainIdNstIdMap) {
         log.debug("Initializing new VS LCM manager for VSI UUID " + vsiUuid);
         VsLcmManager vsLcmManager = new VsLcmManager(vsiUuid,
         		vsiName,
@@ -582,9 +603,11 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
         		arbitratorService, 
         		adminService, 
         		this, 
-        		virtualResourceCalculatorService, 
+        		virtualResourceCalculatorService,
+        		domainCatalogueService,
         		nsmfLcmProvider,
-        		vsmfUtils);
+        		vsmfUtils,
+				domainIdNstIdMap);
         createQueue(vsiUuid, vsLcmManager);
         vsLcmManagers.put(vsiUuid, vsLcmManager);
         log.debug("VS LCM manager for VSI UUID " + vsiUuid + " initialized and added to the engine.");

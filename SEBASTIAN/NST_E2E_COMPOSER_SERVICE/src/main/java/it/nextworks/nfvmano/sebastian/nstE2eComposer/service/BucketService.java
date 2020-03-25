@@ -44,7 +44,7 @@ public class BucketService {
             //16 empty buckets are created in order to differentiate the advertised NSTs
             EMBBPerfReq embbPerfReqUrbanMacro = new EMBBPerfReq(50,25,100000,50000,10000,20,120,"Full network");
             BucketEMBB urbanMacroBucket = new BucketEMBB(BucketScenario.URBAN_MACRO, embbPerfReqUrbanMacro);
-             bucketRepository.saveAndFlush(urbanMacroBucket);
+            bucketRepository.saveAndFlush(urbanMacroBucket);
 
             EMBBPerfReq embbPerfReqRuralMacro = new EMBBPerfReq(50,25,1000,500,100,20,120,"Full network");
             BucketEMBB ruralMacroBucket = new BucketEMBB(BucketScenario.RURAL_MACRO, embbPerfReqRuralMacro);
@@ -78,7 +78,7 @@ public class BucketService {
             bucketRepository.saveAndFlush(hSpeedTrainBucket);
 
             //Supposed one plane
-            EMBBPerfReq embbPerfReqAirplane = new EMBBPerfReq(15,8,1200,600,400,20,1000,"...");
+            EMBBPerfReq embbPerfReqAirplane = new EMBBPerfReq(15,8,1200,600,400,20,1000,"Full network");
             BucketEMBB airplaneBucket = new BucketEMBB(BucketScenario.AIR_PLANE_CONNECTIVITY, embbPerfReqAirplane);
            bucketRepository.saveAndFlush(airplaneBucket);
 

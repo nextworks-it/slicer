@@ -80,7 +80,6 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 		HttpEntity<?> httpEntity = new HttpEntity<>(request, header);
 
 		try {
-			//log.info("URL performing the request to: "+url);
 			ResponseEntity<String> httpResponse =
 					restTemplate.exchange(url, httpMethod, httpEntity, String.class);
 			HttpStatus code = httpResponse.getStatusCode();
