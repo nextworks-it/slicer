@@ -1,12 +1,12 @@
 {
 	"vsd": {
-		"name": "video_conference",
+		"name": "urban 1",
 		"version": "0.1",
-		"sst": "EMBCC",
+		"sst": "EMBB",
 		"vsBlueprintId": "vsb_id",
 		"managementType": "PROVIDER_MANAGED",
 		"qosParameters": {
-			"UrbanScenario": "Urban macro"
+			"UrbanScenario": "URBAN_MACRO"
 		},
 		"serviceConstraints": [{
 			"sharable": false,

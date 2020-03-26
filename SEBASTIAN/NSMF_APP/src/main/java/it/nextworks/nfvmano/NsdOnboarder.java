@@ -16,6 +16,7 @@ import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,11 +33,19 @@ public class NsdOnboarder {
     @Autowired
     private NfvoCatalogueService nfvoCatalogueService;
 
+    @Value("${nfvo.catalogue.type}")
+    private String nfvoCatalogueType;
+
     private Nsd nsd;
     private static final Logger log = LoggerFactory.getLogger(NsdOnboarder.class);
 
     public void onBoardCustomNsd(){
+        if(!nfvoCatalogueType.equals("DUMMY")){
+            log.info("Nfvo catalogue type is not DUMMY. Going to NOT on board custom NSD");
+            return;
+        }
 
+        log.info("Nfvo catalogue type is DUMMY. Going to on board custom NSD");
         OnBoardVnfPackageRequest request=
                 new OnBoardVnfPackageRequest("vnfPackageName",
                 "vnfPackageVersion", "vnfPackageProvider",

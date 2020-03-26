@@ -75,13 +75,13 @@ public class VsLcmManager {
     private List<String> nestedVsi = new ArrayList<>();
 
     private String networkSliceUuid;
-    private ArrayList<String> networkSlicesUUid= new ArrayList<String>();
     private Map<String,String> domainIdNstIdMap;
     //Key: VSD UUID; Value: VSD
     private Map<String, VsDescriptor> vsDescriptors = new HashMap<>();
     private String tenantId;
 
-    private HashMap<String, NsmfRestClient> nsiUuidRestClient = new HashMap<String, NsmfRestClient>();
+    //Key: network slice UUID. Value: object containing the nsmf client in order to interact with NSP and the NST used to create and then instanciate the network slice.
+    private HashMap<String, NetworkSliceInfo> nsiUuidNetworkSliceInfoMap = new HashMap<String, NetworkSliceInfo>();
     // the following is for the WAITING_FOR_RESOURCES status
     ArbitratorResponse storedResponse;
     NfvNsInstantiationInfo storedNfvNsInstantiationInfo;
@@ -201,17 +201,19 @@ public class VsLcmManager {
         this.tenantId = tenantId;
     }
 
-    private void performRollback(){
-        if(nsiUuidRestClient.keySet().size()==0){
-            log.info("No network slice has been created. No rollback.");
+    //TODO to be tested against NSP offline and different error cases
+    private void rollbackCreation() throws FailedOperationException, MalformattedElementException, NotPermittedOperationException, NotExistingEntityException, MethodNotImplementedException {
+        if(nsiUuidNetworkSliceInfoMap.keySet().size()==0){
+            log.info("No network slice has been created yet, thus no rollback is going to be performed.");
             return;
         }
-
-        for(String nsiUuid: nsiUuidRestClient.keySet()){
-            log.info("Starting rollback for Network Slice with UUID: "+nsiUuid);
-            //nsiUuidRestClient.get(nsiUuid).terminateNetworkSliceInstance();
+        log.info("Slice creation rollback started.");
+        for(String nsiUuid: nsiUuidNetworkSliceInfoMap.keySet()){
+            log.info("Sending terminate request for Network Slice with UUID: "+nsiUuid);
+            NsmfRestClient nsmfRestClient = nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNsmfRestClient();
+            nsmfRestClient.terminateNetworkSliceInstance(new TerminateNsiRequest(nsiUuid), tenantId);
         }
-
+        nsiUuidNetworkSliceInfoMap.clear();
     }
 
     void processInstantiateRequest(InstantiateVsiRequestMessage msg) {
@@ -221,48 +223,88 @@ public class VsLcmManager {
         }
         String vsdId = msg.getRequest().getVsdId();
         log.debug("Instantiating Vertical Service " + vsiUuid + " with VSD " + vsdId);
-        try {
-        	VsDescriptor vsd = vsDescriptorCatalogueService.getVsd(vsdId);
 
-        	this.vsDescriptors.put(vsdId, vsd);
+        VsDescriptor vsd = null;
+        try {
+            vsd = vsDescriptorCatalogueService.getVsd(vsdId);
+        } catch (NotExistingEntityException e) {
+            manageVsError("Error while instantiating VS " + vsiUuid + ": " + e.getMessage());
+        }
+
+        this.vsDescriptors.put(vsdId, vsd);
         	this.tenantId = msg.getRequest().getTenantId();
         	List<String> vsdIds = new ArrayList<>();
         	vsdIds.add(vsdId);
 
             log.debug("The VSD has been translated in the required network slice(s) characteristics.");
-            for(String domainId: domainIdNstIdMap.keySet()){
-            	Domain domain=domainCatalogueService.getDomain(domainId);
-                DomainInterface domainInterface= domain.getDomainInterface();
-                final String BASE_URL = "http://"+domainInterface.getUrl()+":"+domainInterface.getPort();
-                String nstId=domainIdNstIdMap.get(domainId);
+
+            log.info("Going to perform the network slice creation request(s)");
+            for(String domainId: domainIdNstIdMap.keySet()) {
+                Domain domain = null;
+                try {
+                    domain = domainCatalogueService.getDomain(domainId);
+                } catch (NotExistingEntityException e) {
+                    manageVsError("Error while instantiating VS " + vsiUuid + ": " + e.getMessage());
+                }
+                DomainInterface domainInterface = domain.getDomainInterface();
+                final String BASE_URL = "http://" + domainInterface.getUrl() + ":" + domainInterface.getPort();
+                String nstId = domainIdNstIdMap.get(domainId);
+                if (nstId == null) {
+                    manageVsError("Error while instantiating VS " + vsiUuid + ": NST for domain with ID " + domainId + " not found.");
+                    return;
+                }
 
                 //Perform request to create network slice
                 CreateNsiUuidRequest request = new CreateNsiUuidRequest(nstId, "NS - " + vsiName, "Network slice for VS " + vsiName);
-                NsmfRestClient nsmfRestClient= new NsmfRestClient(BASE_URL, adminService);
-                String nsiUuid =nsmfRestClient.createNetworkSliceIdentifier(request, tenantId);
-                if(nsiUuid==null){
-                    performRollback();
-                    manageVsError("Error while instantiating VS " + vsiUuid + ": no solution returned from the arbitrator for NST with UUID "+nstId);
-                    return;
+                NsmfRestClient nsmfRestClient = new NsmfRestClient(BASE_URL, adminService);
+                String nsiUuid = null;
+                try {
+                    nsiUuid = nsmfRestClient.createNetworkSliceIdentifier(request, tenantId);
+                } catch (Exception e) {
+                    try {
+                        rollbackCreation();
+                    } catch (Exception ex) {
+                        log.error("Unable to rollback.");
+                        ex.printStackTrace();
+                    }
+                    manageVsError("Error while instantiating VS " + vsiUuid + " "+ e.getMessage());
                 }
-                nsiUuidRestClient.put(nsiUuid,nsmfRestClient);
-                log.info("Network slice with UUID: "+nsiUuid+" has been created.");
 
-                //Perform request to create a network slice instance
+                nsiUuidNetworkSliceInfoMap.put(nsiUuid, new NetworkSliceInfo(nsmfRestClient,nstId));
+                log.info("Network slice with UUID: " + nsiUuid + " has been created.");
+            }
+
+            log.info("Performed successfully creation of  "  +nsiUuidNetworkSliceInfoMap.size() + " Network Slice Instance(s).\n");
+            log.info("Going to perform the network slice instantiation request(s)");
+
+            for(String nsiUuid: nsiUuidNetworkSliceInfoMap.keySet()){
                 InstantiateNsiRequest instantiateNsiReq = new InstantiateNsiRequest(nsiUuid,
-                        nstId,null,null, null,
+                        nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNstId(),
+                        null,null, null,
                         msg.getRequest().getUserData(),
                         msg.getRequest().getLocationConstraints(),
                         msg.getRanEndpointId());
-                log.info("Performing request to instantiate network slice with UUID: "+nsiUuid+".");
-                nsmfRestClient=nsiUuidRestClient.get(nsiUuid);
-                nsmfRestClient.instantiateNetworkSlice(instantiateNsiReq, tenantId);//TODO check instantiation status
-                networkSlicesUUid.add(nsiUuid);
-                vsRecordService.setNsiInVsi(vsiUuid,nsiUuid);
+                log.info("Performing request to instantiate network slice with UUID "+nsiUuid+".");
+                NsmfRestClient nsmfRestClient=nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNsmfRestClient();
+                if(nsmfRestClient==null){
+                    manageVsError("Unable to find suitable rest client for Network Slice Instance with UUID equal to "+nsiUuid);
+                    return;
+                }
+                try {
+                    nsmfRestClient.instantiateNetworkSlice(instantiateNsiReq, tenantId);
+                } catch (Exception e) {
+                    //rollbackInstantiation(); TODO to be implemented
+                    manageVsError("Error while instantiating VS " + vsiUuid + ": " + e.getMessage());
+                }
+                try {
+                    vsRecordService.addNsiInVsi(vsiUuid,nsiUuid);
+                } catch (NotExistingEntityException e) {
+                    e.printStackTrace();
+                }
+
             }
-        } catch (Exception e) {
-            manageVsError("Error while instantiating VS " + vsiUuid + ": " + e.getMessage());
-        }
+            log.info("Performed successfully instantiation of  "  +nsiUuidNetworkSliceInfoMap.size() + "Network Slice Instance(s).\n");
+            //TODO remove nst from buckets or mark them as reusable (if any)
 
     }
 
@@ -472,7 +514,12 @@ public class VsLcmManager {
                 nsStatusChangeOperations(VerticalServiceStatus.TERMINATED);
             } else {
                 log.debug("Network slice " + networkSliceUuid + " must be terminated.");
-                nsmfLcmProvider.terminateNetworkSliceInstance(new TerminateNsiRequest(networkSliceUuid), tenantId);
+                List<String> nsiUuidList=vsRecordService.getVsInstance(vsiUuid).getNetworkSlicesId();
+                for(String nsiUuid: nsiUuidList){
+                    NsmfRestClient nsmfRestClient=nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNsmfRestClient();
+                    nsmfRestClient.terminateNetworkSliceInstance(new TerminateNsiRequest(networkSliceUuid), tenantId);
+                }
+                //nsmfLcmProvider.terminateNetworkSliceInstance(new TerminateNsiRequest(networkSliceUuid), tenantId);
                 //vsLocalEngine.terminateNs(networkSliceId);
             }
         } catch (Exception e) {
@@ -562,6 +609,32 @@ public class VsLcmManager {
 
 
 
+private class NetworkSliceInfo{
+        private NsmfRestClient nsmfRestClient;
+        private String nstId;
 
+
+        public NetworkSliceInfo(NsmfRestClient nsmfRestClient, String nstId){
+            this.nsmfRestClient=nsmfRestClient;
+            this.nstId=nstId;
+        }
+
+
+    public NsmfRestClient getNsmfRestClient() {
+        return nsmfRestClient;
+    }
+
+    public void setNsmfRestClient(NsmfRestClient nsmfRestClient) {
+        this.nsmfRestClient = nsmfRestClient;
+    }
+
+    public String getNstId() {
+        return nstId;
+    }
+
+    public void setNstId(String nstId) {
+        this.nstId = nstId;
+    }
+}
 
 }

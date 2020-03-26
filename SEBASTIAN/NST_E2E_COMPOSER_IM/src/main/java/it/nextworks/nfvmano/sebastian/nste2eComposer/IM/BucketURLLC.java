@@ -9,6 +9,14 @@ import javax.persistence.OneToOne;
 @Entity
 public class BucketURLLC extends Bucket{
 
+    public URLLCPerfReq getUrllcPerfReq() {
+        return urllcPerfReq;
+    }
+
+    public void setUrllcPerfReq(URLLCPerfReq urllcPerfReq) {
+        this.urllcPerfReq = urllcPerfReq;
+    }
+
     @OneToOne(cascade= CascadeType.ALL)
     private URLLCPerfReq urllcPerfReq;
 

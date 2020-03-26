@@ -39,7 +39,6 @@ public class NsmfApplication {
 
 		ConfigurableApplicationContext context = SpringApplication.run(NsmfApplication.class, args);
 		context.getBean(NsdOnboarder.class).onBoardCustomNsd();
-
 	}
 	
 }

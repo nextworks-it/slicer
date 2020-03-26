@@ -30,18 +30,16 @@ import static org.junit.Assert.assertTrue;
 public class SlicerE2ETest {
 
     private String nstUuid;
-    private String vsbId;
-    private String vsdId;
     private String vsiUuid;
 
     private final String VSMF_HOST = "http://10.30.8.54:8081";
     EndPointInteraction dspInteraction = new EndPointInteraction(VSMF_HOST, "DSP");
 
     private final String NSMF_HOST= "http://10.30.8.54:8082";
-    EndPointInteraction nspInteraction = new EndPointInteraction(NSMF_HOST, "NSP");
+    EndPointInteraction nspInteraction = new EndPointInteraction(NSMF_HOST, "NSP A");
 
     private final String NSMF_HOST2= "http://10.30.8.76:8082";
-    EndPointInteraction nspInteraction2 = new EndPointInteraction(NSMF_HOST2, "NSP");
+    EndPointInteraction nspInteraction2 = new EndPointInteraction(NSMF_HOST2, "NSP B");
 
 
 
@@ -133,16 +131,7 @@ public class SlicerE2ETest {
     }
 
 
-    private void getVSBbyId(){
-        final String ONBOARD_VSB_URL = "/portal/catalogue/vsblueprint";
-        ResponseEntity<?> responseEntity = Util.performHttpRequest(VsBlueprintInfo.class, null, VSMF_HOST + ONBOARD_VSB_URL + "/" + vsbId, HttpMethod.GET, dspInteraction.getCookiesAdmin());
-        VsBlueprintInfo vsBlueprintInfo = (VsBlueprintInfo) responseEntity.getBody();
-    }
-
-
-
-
-    public void onBoardVsbWithNstTransRules(String dspHost, String vsblueprintFilename,String nstUuid) {
+    public String onBoardVsbWithNstTransRules(String dspHost, String vsblueprintFilename,String nstUuid) {
         final String ONBOARD_VSB_URL = "/portal/catalogue/vsblueprint";
         log.info("The NST id on NSP side is "+nstUuid);
         OnBoardVsBlueprintRequest onBoardVsBlueprintRequestFromJSON = (OnBoardVsBlueprintRequest) getObjectFromFile(OnBoardVsBlueprintRequest.class, vsblueprintFilename);
@@ -166,117 +155,12 @@ public class SlicerE2ETest {
                 vsdNstTranslationRuleList);
 
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, onBoardVsBlueprintRequest, dspHost + ONBOARD_VSB_URL, HttpMethod.POST, dspInteraction.getCookiesAdmin());
-        vsbId = (String) responseEntity.getBody();
-        log.info(vsbId);
-        log.info("{}", responseEntity.getStatusCodeValue());
+        return (String) responseEntity.getBody();
     }
 
-    /* TODO to be changed because there is no more VSD to NSD translation rule
-    public void testVSBOnBoardingWithVsdNSDTranslRules(String dspHost, String vsblueprintFilename) {
-        final String ONBOARD_VSB_URL = "/portal/catalogue/vsblueprint";
-        OnBoardVsBlueprintRequest onBoardVsBlueprintRequestFromJSON = (OnBoardVsBlueprintRequest) getObjectFromFile(OnBoardVsBlueprintRequest.class, vsblueprintFilename);
-        List<VsdNstTranslationRule> vsdNsdTranslationRuleList = new ArrayList<VsdNstTranslationRule>();
-
-        for(int i=0; i<onBoardVsBlueprintRequestFromJSON.getTranslationRules().size(); i++){
-            VsdNstTranslationRule vsdNsdTranslationRuleFromJSON = onBoardVsBlueprintRequestFromJSON.getTranslationRules().get(i);
-
-            VsdNstTranslationRule vsdNsdTranslationRuleTmp = new VsdNstTranslationRule(
-                    vsdNsdTranslationRuleFromJSON.getInput(),
-                    nstUuid,
-                    vsdNsdTranslationRuleFromJSON.getNsInstantiationLevelId()
-                    );
-            vsdNsdTranslationRuleList.add(vsdNsdTranslationRuleTmp);
-        }
 
 
-        OnBoardVsBlueprintRequest onBoardVsBlueprintRequest = new OnBoardVsBlueprintRequest(
-                onBoardVsBlueprintRequestFromJSON.getVsBlueprint(),
-                onBoardVsBlueprintRequestFromJSON.getTranslationRules(),
-                vsdNsdTranslationRuleList);
-
-        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, onBoardVsBlueprintRequest, dspHost + ONBOARD_VSB_URL, HttpMethod.POST, dspInteraction.getCookiesAdmin());
-
-        vsbId = (String) responseEntity.getBody();
-        log.info(vsbId);
-        log.info("{}", responseEntity.getStatusCodeValue());
-        assertTrue(vsbId != null);
-        assertTrue(responseEntity.getStatusCode() == HttpStatus.CREATED);
-
-        ResponseEntity<?> responseEntity2 = Util.performHttpRequest(VsBlueprintInfo.class, null, dspHost + ONBOARD_VSB_URL + "/" + vsbId, HttpMethod.GET, dspInteraction.getCookiesAdmin());
-        VsBlueprintInfo vsBlueprintInfo = (VsBlueprintInfo) responseEntity2.getBody();
-        log.info("ID: " + vsBlueprintInfo.getVsBlueprintId());
-
-
-        VsBlueprint vsBlueprintFromJSON = onBoardVsBlueprintRequestFromJSON.getVsBlueprint();
-        VsBlueprint vsBlueprintFromHttpResponse = vsBlueprintInfo.getVsBlueprint();
-
-        ArrayList<String> paramsToNotCompare = new ArrayList<>();
-        //Below filed excluded because compared later
-        paramsToNotCompare.add("ApplicationMetrics");
-        paramsToNotCompare.add("AtomicComponents");
-        paramsToNotCompare.add("ConnectivityServices");
-        paramsToNotCompare.add("EndPoints");
-        paramsToNotCompare.add("Parameters");
-
-        //Below field excluded because not know a priori
-        paramsToNotCompare.add("BlueprintId");
-
-        haveTwoObjsSameFields(VsBlueprint.class, vsBlueprintFromJSON, vsBlueprintFromHttpResponse, paramsToNotCompare);
-
-        log.info("");
-        log.info("Comparing Application Metric");
-        List<ApplicationMetric> appMetricsFromJSON = vsBlueprintFromJSON.getApplicationMetrics();
-        List<ApplicationMetric> appMetricsFromHttpResp = vsBlueprintFromJSON.getApplicationMetrics();
-        assertTrue(appMetricsFromJSON.size() == appMetricsFromHttpResp.size());
-        for (int i = 0; i < appMetricsFromJSON.size(); i++) {
-            assertTrue(haveTwoObjsSameFields(ApplicationMetric.class, appMetricsFromJSON.get(i), appMetricsFromHttpResp.get(i), new ArrayList<String>()));
-            log.info("");
-        }
-
-
-        log.info("");
-        log.info("Comparing vsComponents");
-        List<VsComponent> vsComponentsFromJSON = vsBlueprintFromJSON.getAtomicComponents();
-        List<VsComponent> vsComponentsFromHttpResp = vsBlueprintFromJSON.getAtomicComponents();
-        assertTrue(vsComponentsFromJSON.size() == vsComponentsFromHttpResp.size());
-        for (int i = 0; i < vsComponentsFromJSON.size(); i++) {
-            haveTwoObjsSameFields(VsComponent.class, vsComponentsFromJSON.get(i), vsComponentsFromHttpResp.get(i), new ArrayList<String>());
-            log.info("");
-        }
-        log.info("");
-        log.info("Comparing VsbLinks");
-        List<VsbLink> vsbLinkFromJSON = vsBlueprintFromJSON.getConnectivityServices();
-        List<VsbLink> vsbLinkFromFromHttpResp = vsBlueprintFromJSON.getConnectivityServices();
-        assertTrue(vsbLinkFromJSON.size() == vsbLinkFromFromHttpResp.size());
-        for (int i = 0; i < vsbLinkFromJSON.size(); i++) {
-            assertTrue(haveTwoObjsSameFields(VsbLink.class, vsbLinkFromJSON.get(i), vsbLinkFromFromHttpResp.get(i), new ArrayList<String>()));
-            log.info("");
-        }
-
-        log.info("");
-        log.info("Comparing endpoints");
-        List<VsbEndpoint> vsbLEndPointFromJSON = vsBlueprintFromJSON.getEndPoints();
-        List<VsbEndpoint> vsbLEndPointFromFromHttpResp = vsBlueprintFromJSON.getEndPoints();
-        assertTrue(vsbLEndPointFromJSON.size() == vsbLEndPointFromFromHttpResp.size());
-        for (int i = 0; i < vsbLEndPointFromJSON.size(); i++) {
-            haveTwoObjsSameFields(VsbEndpoint.class, vsbLEndPointFromJSON.get(i), vsbLEndPointFromFromHttpResp.get(i), new ArrayList<String>());
-            log.info("");
-        }
-
-        log.info("");
-        log.info("Comparing Parameters");
-        List<VsBlueprintParameter> vsbparsFromJSON = vsBlueprintFromJSON.getParameters();
-        List<VsBlueprintParameter> vsbparsFromFromHttpResp = vsBlueprintFromJSON.getParameters();
-        assertTrue(vsbparsFromJSON.size() == vsbparsFromFromHttpResp.size());
-        for (int i = 0; i < vsbparsFromJSON.size(); i++) {
-            assertTrue(haveTwoObjsSameFields(VsBlueprintParameter.class, vsbparsFromJSON.get(i), vsbparsFromFromHttpResp.get(i), new ArrayList<String>()));
-            log.info("");
-        }
-        log.info("The VSB has been on boarded as expected. All the internal fields have ben set properly");
-    }
-*/
-
-    public void testVSDOnBoarding(String filename) {
+    public String testVSDOnBoarding(String vsbId, String filename) {
 
         final String ONBOARD_VSD_URL = "/portal/catalogue/vsdescriptor";
 
@@ -288,11 +172,11 @@ public class SlicerE2ETest {
         OnboardVsDescriptorRequest onboardVsDescriptorRequest = new OnboardVsDescriptorRequest(onboardVsDescriptorRequestFromJSON.getVsd(), dspInteraction.getTenant().getUsername(), true);
         log.info("Going to request VSD on boarding with tenantID: " + onboardVsDescriptorRequest.getTenantId()+ " and VSB ID "+onboardVsDescriptorRequest.getVsd().getVsBlueprintId());
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, onboardVsDescriptorRequest, VSMF_HOST + ONBOARD_VSD_URL, HttpMethod.POST, dspInteraction.getCookiesTenant());
-        vsdId = (String) responseEntity.getBody();
+
         assertTrue(vsbId != null);
         assertTrue(responseEntity.getStatusCode() == HttpStatus.CREATED);
 
-
+        String vsdId= (String)responseEntity.getBody();
         ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(VsDescriptor.class, null, VSMF_HOST + ONBOARD_VSD_URL + "/" + vsdId, HttpMethod.GET, dspInteraction.getCookiesTenant());
 
         VsDescriptor vsDescriptorActual = (VsDescriptor) responseEntityQuery.getBody();
@@ -322,10 +206,11 @@ public class SlicerE2ETest {
         log.info("Comparing VsdSla(s)");
         haveTwoObjsSameFields(VsdSla.class, vsDescriptorActual.getSla(), vsDescriptorExpected.getSla(), new ArrayList<String>());
         log.info("");
+        return vsdId;
     }
 
 
-    public void VSIinstantionTest() {
+    public void VSIinstantionTest(String vsdId) {
         final String VSI_INSTANTIATION_URL = "/vs/basic/vslcm/vs";
 
 
@@ -354,7 +239,7 @@ public class SlicerE2ETest {
 
 
 
-    public void VSImodificationTest() {
+    public void VSImodificationTest(String vsdId) {
         final String VSI_INSTANTIATION_URL = "/vs/basic/vslcm/vs/"+vsiUuid;
 
         ModifyVsRequest modifyVsRequest = new ModifyVsRequest(vsiUuid,dspInteraction.getTenant().getUsername(),vsdId);
@@ -368,7 +253,7 @@ public class SlicerE2ETest {
 
 
 
-    public void VsiTerminationTest() {
+    public void VsiTerminationTest(String vsdId) {
         final String VSI_TERMINATION_URL="/vs/basic/vslcm/vs/"+ vsiUuid +"/terminate";
         TerminateVsRequest terminateVsRequest = new TerminateVsRequest(vsdId, dspInteraction.getTenant().getUsername());
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, terminateVsRequest, VSMF_HOST + VSI_TERMINATION_URL, HttpMethod.POST, dspInteraction.getCookiesTenant());
@@ -379,7 +264,7 @@ public class SlicerE2ETest {
     }
 
 
-    public void VsiPurgeTest() {
+    public void VsiPurgeTest(String vsdId) {
         final String VSI_PURGE_URL="/vs/basic/vslcm/vs/"+ vsiUuid;
         PurgeVsRequest purgeVsRequest= new PurgeVsRequest(vsdId, dspInteraction.getTenant().getUsername());
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, purgeVsRequest, VSMF_HOST + VSI_PURGE_URL, HttpMethod.DELETE, dspInteraction.getCookiesAdmin());
@@ -478,16 +363,25 @@ public class SlicerE2ETest {
         String nstUrlccUuid_2 =nspInteraction2.onBoardNST("nst_sample_urlcc.json");
         // nspInteraction.removeNST(nstUrlccUuid_2);
 
-
+        try {
+            log.info("Terminate one NSP");
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         //DSP side
         //onBoardVsbWithNstTransRules(VSMF_HOST, "vsblueprint_osm_sample.json", nstUuid);
-        onBoardVsbWithNstTransRules(VSMF_HOST, "vsb_samples/vsb_streaming.json", nstUuid);
-        log.info("VSB on boarded");
-        //testVSDOnBoarding("vsd_sample.json");
-        testVSDOnBoarding("vsb_samples/vsd_streaming_one.json");
-        log.info("VSD on boarded");
-        VSIinstantionTest();
-        log.info("VSI on boarded");
+        log.info("Testing VSB and VSD streaming on boarding");
+        String vsbIdStreaming=onBoardVsbWithNstTransRules(VSMF_HOST, "vsb_samples/vsb_streaming.json", nstUuid);
+        String vsdStreamingId= testVSDOnBoarding(vsbIdStreaming,"vsb_samples/vsd_streaming_one.json");
+
+        log.info("Testing VSB and VSDs streaming on boarding");
+        String vsbIdUrban=onBoardVsbWithNstTransRules(VSMF_HOST, "vsb_samples/vsb_urban.json", nstUuid);
+        String vsdUrbanId1= testVSDOnBoarding(vsbIdUrban,"vsb_samples/vsd_urban_1.json");
+
+        //VSIinstantionTest(vsdStreamingId);
+        VSIinstantionTest(vsdUrbanId1);
+        //log.info("VSI on boarded");
 
         // try {
         //    log.info("Waiting vertical service to be instanciated");
