@@ -14,44 +14,39 @@
  */
 package it.nextworks.nfvmano.sebastian.vsfm.vsmanagement;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
+import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
+import it.nextworks.nfvmano.catalogue.domainLayer.Domain;
+import it.nextworks.nfvmano.catalogue.domainLayer.DomainInterface;
+import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
+import it.nextworks.nfvmano.catalogue.translator.TranslatorService;
+import it.nextworks.nfvmano.catalogues.domainLayer.services.DomainCatalogueService;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
+import it.nextworks.nfvmano.sebastian.admin.AdminService;
+import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
+import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorResponse;
+import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
+import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
+import it.nextworks.nfvmano.sebastian.record.VsRecordService;
+import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
+import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
+import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
+import it.nextworks.nfvmano.sebastian.vsfm.VsLcmService;
+import it.nextworks.nfvmano.sebastian.vsfm.VsmfUtils;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.*;
+import it.nextworks.nfvmano.sebastian.vsfm.sbi.NsmfRestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
-import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
-import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
-import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
-import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
-import it.nextworks.nfvmano.sebastian.vsfm.VsLcmService;
-import it.nextworks.nfvmano.sebastian.vsfm.VsmfUtils;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.VsmfEngineMessage;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.VsmfEngineMessageType;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.InstantiateVsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.ModifyVsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.NotifyNsiStatusChange;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.NotifyResourceGranted;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.TerminateVsiRequestMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import it.nextworks.nfvmano.sebastian.admin.AdminService;
-import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorResponse;
-import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
-import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
-
-import it.nextworks.nfvmano.sebastian.record.VsRecordService;
-import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
-import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
-import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
-import it.nextworks.nfvmano.catalogue.translator.TranslatorService;
 
 /**
  * Entity in charge of managing the lifecycle
@@ -72,6 +67,7 @@ public class VsLcmManager {
     private AdminService adminService;
     private VsLcmService vsLcmService;
     private VirtualResourceCalculatorService virtualResourceCalculatorService;
+    private DomainCatalogueService domainCatalogueService;
     private VerticalServiceStatus internalStatus;
     private NsmfLcmProviderInterface nsmfLcmProvider;
     private VsmfUtils vsmfUtils;
@@ -79,11 +75,13 @@ public class VsLcmManager {
     private List<String> nestedVsi = new ArrayList<>();
 
     private String networkSliceUuid;
-
+    private Map<String,String> domainIdNstIdMap;
     //Key: VSD UUID; Value: VSD
     private Map<String, VsDescriptor> vsDescriptors = new HashMap<>();
     private String tenantId;
 
+    //Key: network slice UUID. Value: object containing the nsmf client in order to interact with NSP and the NST used to create and then instanciate the network slice.
+    private HashMap<String, NetworkSliceInfo> nsiUuidNetworkSliceInfoMap = new HashMap<String, NetworkSliceInfo>();
     // the following is for the WAITING_FOR_RESOURCES status
     ArbitratorResponse storedResponse;
     NfvNsInstantiationInfo storedNfvNsInstantiationInfo;
@@ -112,8 +110,11 @@ public class VsLcmManager {
                         AdminService adminService,
                         VsLcmService vsLcmService, 
                         VirtualResourceCalculatorService virtualResourceCalculatorService,
+                        DomainCatalogueService domainCatalogueService,
                         NsmfLcmProviderInterface nsmfLcmProvider,
-                        VsmfUtils vsmfUtils) {
+                        VsmfUtils vsmfUtils,
+                        Map<String,String> domainIdNstIdMap
+                        ) {
         this.vsiUuid = vsiUuid;
         this.vsiName=vsiName;
         this.vsRecordService = vsRecordService;
@@ -124,8 +125,10 @@ public class VsLcmManager {
         this.internalStatus = VerticalServiceStatus.INSTANTIATING;
         this.vsLcmService = vsLcmService;
         this.virtualResourceCalculatorService=virtualResourceCalculatorService;
+        this.domainCatalogueService = domainCatalogueService;
         this.nsmfLcmProvider = nsmfLcmProvider;
         this.vsmfUtils = vsmfUtils;
+        this.domainIdNstIdMap = domainIdNstIdMap;
     }
 
     /**
@@ -198,14 +201,20 @@ public class VsLcmManager {
         this.tenantId = tenantId;
     }
 
-
-    String performArbitrationRequest(String nstId) throws FailedOperationException, MalformattedElementException, NotPermittedOperationException, NotExistingEntityException, MethodNotImplementedException {
-        log.info("Performing arbirator request");
-        CreateNsiUuidRequest request = new CreateNsiUuidRequest(nstId, "NS - " + vsiName, "Network slice for VS " + vsiName);
-        String nsiUuid = nsmfLcmProvider.createNetworkSliceIdentifier(request, tenantId);
-        return nsiUuid;
+    //TODO to be tested against NSP offline and different error cases
+    private void rollbackCreation() throws FailedOperationException, MalformattedElementException, NotPermittedOperationException, NotExistingEntityException, MethodNotImplementedException {
+        if(nsiUuidNetworkSliceInfoMap.keySet().size()==0){
+            log.info("No network slice has been created yet, thus no rollback is going to be performed.");
+            return;
+        }
+        log.info("Slice creation rollback started.");
+        for(String nsiUuid: nsiUuidNetworkSliceInfoMap.keySet()){
+            log.info("Sending terminate request for Network Slice with UUID: "+nsiUuid);
+            NsmfRestClient nsmfRestClient = nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNsmfRestClient();
+            nsmfRestClient.terminateNetworkSliceInstance(new TerminateNsiRequest(nsiUuid), tenantId);
+        }
+        nsiUuidNetworkSliceInfoMap.clear();
     }
-
 
     void processInstantiateRequest(InstantiateVsiRequestMessage msg) {
         if (internalStatus != VerticalServiceStatus.INSTANTIATING) {
@@ -214,41 +223,88 @@ public class VsLcmManager {
         }
         String vsdId = msg.getRequest().getVsdId();
         log.debug("Instantiating Vertical Service " + vsiUuid + " with VSD " + vsdId);
+
+        VsDescriptor vsd = null;
         try {
-        	VsDescriptor vsd = vsDescriptorCatalogueService.getVsd(vsdId);
-        	this.vsDescriptors.put(vsdId, vsd);
+            vsd = vsDescriptorCatalogueService.getVsd(vsdId);
+        } catch (NotExistingEntityException e) {
+            manageVsError("Error while instantiating VS " + vsiUuid + ": " + e.getMessage());
+        }
+
+        this.vsDescriptors.put(vsdId, vsd);
         	this.tenantId = msg.getRequest().getTenantId();
         	List<String> vsdIds = new ArrayList<>();
         	vsdIds.add(vsdId);
-        
-        	Map<String, NfvNsInstantiationInfo> nsInfo = translatorService.translateVsd(vsdIds);
-        	String nstId="";
-        	for(String key: nsInfo.keySet()){
-                nstId=nsInfo.get(key).getNstId();
-            }
-            log.debug("The VSD has been translated in the required network slice characteristics.");
-        	String nsiUuid=performArbitrationRequest(nstId);
 
-        if(nsiUuid==null){
-            manageVsError("Error while instantiating VS " + vsiUuid + ": no solution returned from the arbitrator");
-            return;
-        }
-            log.info("Network slice with UUID: "+nsiUuid);
-            InstantiateNsiRequest instantiateNsiReq = new InstantiateNsiRequest(nsiUuid,
-                    nstId,
-                    null,
-                    null,
-                    null,
-                    msg.getRequest().getUserData(),
-                    msg.getRequest().getLocationConstraints(),
-                    msg.getRanEndpointId());
-            log.info("Performing request to instantiate network slice with UUID: "+nsiUuid);
-            nsmfLcmProvider.instantiateNetworkSlice(instantiateNsiReq, tenantId);
-            setNetworkSliceUuid(nsiUuid);
-            vsRecordService.setNsiInVsi(vsiUuid,nsiUuid);
-        } catch (Exception e) {
-            manageVsError("Error while instantiating VS " + vsiUuid + ": " + e.getMessage());
-        }
+            log.debug("The VSD has been translated in the required network slice(s) characteristics.");
+
+            log.info("Going to perform the network slice creation request(s)");
+            for(String domainId: domainIdNstIdMap.keySet()) {
+                Domain domain = null;
+                try {
+                    domain = domainCatalogueService.getDomain(domainId);
+                } catch (NotExistingEntityException e) {
+                    manageVsError("Error while instantiating VS " + vsiUuid + ": " + e.getMessage());
+                }
+                DomainInterface domainInterface = domain.getDomainInterface();
+                final String BASE_URL = "http://" + domainInterface.getUrl() + ":" + domainInterface.getPort();
+                String nstId = domainIdNstIdMap.get(domainId);
+                if (nstId == null) {
+                    manageVsError("Error while instantiating VS " + vsiUuid + ": NST for domain with ID " + domainId + " not found.");
+                    return;
+                }
+
+                //Perform request to create network slice
+                CreateNsiUuidRequest request = new CreateNsiUuidRequest(nstId, "NS - " + vsiName, "Network slice for VS " + vsiName);
+                NsmfRestClient nsmfRestClient = new NsmfRestClient(BASE_URL, adminService);
+                String nsiUuid = null;
+                try {
+                    nsiUuid = nsmfRestClient.createNetworkSliceIdentifier(request, tenantId);
+                } catch (Exception e) {
+                    try {
+                        rollbackCreation();
+                    } catch (Exception ex) {
+                        log.error("Unable to rollback.");
+                        ex.printStackTrace();
+                    }
+                    manageVsError("Error while instantiating VS " + vsiUuid + " "+ e.getMessage());
+                }
+
+                nsiUuidNetworkSliceInfoMap.put(nsiUuid, new NetworkSliceInfo(nsmfRestClient,nstId));
+                log.info("Network slice with UUID: " + nsiUuid + " has been created.");
+            }
+
+            log.info("Performed successfully creation of  "  +nsiUuidNetworkSliceInfoMap.size() + " Network Slice Instance(s).\n");
+            log.info("Going to perform the network slice instantiation request(s)");
+
+            for(String nsiUuid: nsiUuidNetworkSliceInfoMap.keySet()){
+                InstantiateNsiRequest instantiateNsiReq = new InstantiateNsiRequest(nsiUuid,
+                        nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNstId(),
+                        null,null, null,
+                        msg.getRequest().getUserData(),
+                        msg.getRequest().getLocationConstraints(),
+                        msg.getRanEndpointId());
+                log.info("Performing request to instantiate network slice with UUID "+nsiUuid+".");
+                NsmfRestClient nsmfRestClient=nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNsmfRestClient();
+                if(nsmfRestClient==null){
+                    manageVsError("Unable to find suitable rest client for Network Slice Instance with UUID equal to "+nsiUuid);
+                    return;
+                }
+                try {
+                    nsmfRestClient.instantiateNetworkSlice(instantiateNsiReq, tenantId);
+                } catch (Exception e) {
+                    //rollbackInstantiation(); TODO to be implemented
+                    manageVsError("Error while instantiating VS " + vsiUuid + ": " + e.getMessage());
+                }
+                try {
+                    vsRecordService.addNsiInVsi(vsiUuid,nsiUuid);
+                } catch (NotExistingEntityException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            log.info("Performed successfully instantiation of  "  +nsiUuidNetworkSliceInfoMap.size() + "Network Slice Instance(s).\n");
+            //TODO remove nst from buckets or mark them as reusable (if any)
 
     }
 
@@ -352,10 +408,14 @@ public class VsLcmManager {
         	
             //Translate VsdId into NfvNsInstantiationInfo
             //Map<String, NfvNsInstantiationInfo> nsInfos = translatorService.translateVsd(vsdIds);
-            ArrayList<String >nstIds=translatorService.translateVsdToNstIds(vsdIds);
-            String newNstId=nstIds.get(0);//For now getting only one nst Id for VSD
-            log.debug("The VSD has been translated into NST id. Getting the first one: "+newNstId);
 
+            Map<String, NfvNsInstantiationInfo> nsInfo = translatorService.translateVsd(vsdIds);
+            String newNstId="";
+            for(String key: nsInfo.keySet()){
+                newNstId=nsInfo.get(key).getNstId();
+            }
+
+            log.debug("The VSD has been translated into NST id. Getting the first one: "+newNstId);
             NetworkSliceInstance nsi = vsmfUtils.readNetworkSliceInstanceInformation(networkSliceUuid, tenantId);
             ModifyNsiRequest modifyNsiRequest = new ModifyNsiRequest(nsi.getNsiId(),
                     newNstId,
@@ -454,7 +514,12 @@ public class VsLcmManager {
                 nsStatusChangeOperations(VerticalServiceStatus.TERMINATED);
             } else {
                 log.debug("Network slice " + networkSliceUuid + " must be terminated.");
-                nsmfLcmProvider.terminateNetworkSliceInstance(new TerminateNsiRequest(networkSliceUuid), tenantId);
+                List<String> nsiUuidList=vsRecordService.getVsInstance(vsiUuid).getNetworkSlicesId();
+                for(String nsiUuid: nsiUuidList){
+                    NsmfRestClient nsmfRestClient=nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNsmfRestClient();
+                    nsmfRestClient.terminateNetworkSliceInstance(new TerminateNsiRequest(networkSliceUuid), tenantId);
+                }
+                //nsmfLcmProvider.terminateNetworkSliceInstance(new TerminateNsiRequest(networkSliceUuid), tenantId);
                 //vsLocalEngine.terminateNs(networkSliceId);
             }
         } catch (Exception e) {
@@ -544,6 +609,32 @@ public class VsLcmManager {
 
 
 
+private class NetworkSliceInfo{
+        private NsmfRestClient nsmfRestClient;
+        private String nstId;
 
+
+        public NetworkSliceInfo(NsmfRestClient nsmfRestClient, String nstId){
+            this.nsmfRestClient=nsmfRestClient;
+            this.nstId=nstId;
+        }
+
+
+    public NsmfRestClient getNsmfRestClient() {
+        return nsmfRestClient;
+    }
+
+    public void setNsmfRestClient(NsmfRestClient nsmfRestClient) {
+        this.nsmfRestClient = nsmfRestClient;
+    }
+
+    public String getNstId() {
+        return nstId;
+    }
+
+    public void setNstId(String nstId) {
+        this.nstId = nstId;
+    }
+}
 
 }

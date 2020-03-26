@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.nextworks.nfvmano.catalogue.domainLayer.Domain;
 import it.nextworks.nfvmano.catalogue.template.messages.OnBoardNsTemplateRequest;
 import it.nextworks.nfvmano.sebastian.admin.elements.RemoteTenantInfo;
 import it.nextworks.nfvmano.sebastian.admin.elements.Sla;
@@ -16,11 +17,18 @@ import java.io.IOException;
 public class EndPointInteraction {
     private String groupName;
     private Tenant tenant;
+
     private Tenant tenantNotif;
+    private Tenant tenantNotif2;
+
     private String cookiesAdmin;
     private String cookiesTenant;
     private RemoteTenantInfo remoteTenantInfo;
+    private RemoteTenantInfo remoteTenantInfo2;
+
     private String remoteTenantInfoId;
+    private String remoteTenantInfoId2;
+
     private String hostDescriptionToInteractWith;
     private String hostname;
     private static final Logger log = LoggerFactory.getLogger(SlicerE2ETest.class);
@@ -57,12 +65,17 @@ public class EndPointInteraction {
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, tenant, hostname + "/vs/admin/group/" + groupName + "/tenant", HttpMethod.POST, cookiesAdmin);
     }
 
-    public void createTenantNotif(String filename) {
+    public void createTenantExt(String filename) {
         tenantNotif = (Tenant) getObjectFromFile(Tenant.class, filename);
         log.info("Creating tenantNotif on "+hostDescriptionToInteractWith+" with username: " + tenantNotif.getUsername());
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, tenantNotif, hostname + "/vs/admin/group/" + groupName + "/tenant", HttpMethod.POST, cookiesAdmin);
     }
 
+    public void createTenantExt2(String filename) {
+        tenantNotif2 = (Tenant) getObjectFromFile(Tenant.class, filename);
+        log.info("Creating tenantNotif on "+hostDescriptionToInteractWith+" with username: " + tenantNotif.getUsername());
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, tenantNotif2, hostname + "/vs/admin/group/" + groupName + "/tenant", HttpMethod.POST, cookiesAdmin);
+    }
 
     public void createSLA() {
         Sla sla = (Sla) getObjectFromFile(Sla.class, "sla_sample.json");
@@ -97,11 +110,23 @@ public class EndPointInteraction {
 
     }
 
+    public String addDomainInfo(Domain domain){
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, domain, hostname + "/domainLayer/catalogue", HttpMethod.POST, cookiesAdmin);
+        return (String) responseEntity.getBody();
+    }
+
     public void createRemoteTenantInfo(Tenant remoteTenant, String remoteHostname){
         remoteTenantInfo = new RemoteTenantInfo(remoteTenant.getUsername(),remoteTenant.getPassword(),remoteHostname);
         log.info("Creating new remote tenant info on "+hostDescriptionToInteractWith);
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, remoteTenantInfo, hostname + "/vs/admin/remotetenant", HttpMethod.POST, cookiesAdmin);
         remoteTenantInfoId = (String)responseEntity.getBody();
+    }
+
+    public void createRemoteTenantInfo2(Tenant remoteTenant, String remoteHostname){
+        remoteTenantInfo2 = new RemoteTenantInfo(remoteTenant.getUsername(),remoteTenant.getPassword(),remoteHostname);
+        log.info("Creating new remote tenant info on "+hostDescriptionToInteractWith);
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, remoteTenantInfo2, hostname + "/vs/admin/remotetenant", HttpMethod.POST, cookiesAdmin);
+        remoteTenantInfoId2 = (String)responseEntity.getBody();
     }
 
 
@@ -135,9 +160,20 @@ public class EndPointInteraction {
        return null;
     }
 
+    public void removeNST(String nstId){
+        final String DELETE_NST_URL = "/ns/catalogue/nstemplate/"+nstId;
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, null, hostname + DELETE_NST_URL, HttpMethod.DELETE, cookiesAdmin);
+
+    }
+
     public void associateLocalTenantWithRemoteTenant(){
         log.info("Going to associate local tenant with a remote one on "+this.hostDescriptionToInteractWith);
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, remoteTenantInfoId, hostname + "/vs/admin/group/"+ groupName +"/tenant/"+ tenant.getUsername(), HttpMethod.PUT, cookiesAdmin);
+    }
+
+    public void associateLocalTenantWithRemoteTenant2(){
+        log.info("Going to associate local tenant with a remote one on "+this.hostDescriptionToInteractWith);
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, remoteTenantInfoId2, hostname + "/vs/admin/group/"+ groupName +"/tenant/"+ tenant.getUsername(), HttpMethod.PUT, cookiesAdmin);
     }
 
     public void setHostname(String hostname){
@@ -157,6 +193,10 @@ public class EndPointInteraction {
 
     public Tenant getTenantNot() {
         return tenantNotif;
+    }
+
+    public Tenant getTenantNot2() {
+        return tenantNotif2;
     }
 
     public void setTenant(Tenant tenant) {

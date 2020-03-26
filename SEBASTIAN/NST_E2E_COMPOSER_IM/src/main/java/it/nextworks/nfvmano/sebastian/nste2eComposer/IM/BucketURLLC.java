@@ -1,18 +1,35 @@
-package it.nextworks.nfvmano.sebastian.vsfm.runtimetranslator;
+package it.nextworks.nfvmano.sebastian.nste2eComposer.IM;
 
 import it.nextworks.nfvmano.libs.ifa.templates.URLLCPerfReq;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
+
+@Entity
 public class BucketURLLC extends Bucket{
 
+    public URLLCPerfReq getUrllcPerfReq() {
+        return urllcPerfReq;
+    }
+
+    public void setUrllcPerfReq(URLLCPerfReq urllcPerfReq) {
+        this.urllcPerfReq = urllcPerfReq;
+    }
+
+    @OneToOne(cascade= CascadeType.ALL)
     private URLLCPerfReq urllcPerfReq;
 
-    public BucketURLLC(BucketType bucketType,URLLCPerfReq urllcPerfReq) {
-        super(bucketType);
+    public BucketURLLC(){
+        //FOR JPA
+    }
+    public BucketURLLC(BucketScenario bucketScenario, URLLCPerfReq urllcPerfReq) {
+        super(BucketType.URLLC, bucketScenario);
         this.urllcPerfReq=urllcPerfReq;
 
     }
 
-    boolean areRequirementsSatisfied(URLLCPerfReq externalUrllcPerfReq){
+    public boolean areRequirementsSatisfied(URLLCPerfReq externalUrllcPerfReq){
         if(externalUrllcPerfReq.getConnDensity()<urllcPerfReq.getConnDensity())
             return false;
         if(externalUrllcPerfReq.getcSAvailability()<urllcPerfReq.getcSAvailability())

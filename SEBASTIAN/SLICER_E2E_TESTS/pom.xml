@@ -32,6 +32,16 @@
           <version>0.0.2-SNAPSHOT</version>
       </dependency>
 
+      <dependency>
+          <groupId>it.nextworks.nfvmano</groupId>
+          <artifactId>NSFM_SERVICE</artifactId>
+          <version>0.0.2-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+          <groupId>it.nextworks.nfvmano</groupId>
+          <artifactId>DomainLayerCatalogue</artifactId>
+          <version>0.0.2-SNAPSHOT</version>
+      </dependency>
 
   </dependencies>
   

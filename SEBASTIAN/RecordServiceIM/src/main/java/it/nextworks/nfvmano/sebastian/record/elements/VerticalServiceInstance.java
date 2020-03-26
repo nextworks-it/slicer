@@ -34,10 +34,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 public class VerticalServiceInstance {
@@ -66,9 +63,12 @@ public class VerticalServiceInstance {
 	
 	@JsonIgnore
 	private String ranEndPointId;
-	
+
 	private String networkSliceId;
 
+	@ElementCollection(targetClass=String.class)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	private List<String> networkSlicesId = new ArrayList<String>();
 
 	@OneToMany
 	@LazyCollection(LazyCollectionOption.FALSE)
@@ -224,6 +224,13 @@ public class VerticalServiceInstance {
 	}
 
 	/**
+	 * @param networkSliceId the networkSliceId to be added
+	 */
+	public void addNetworkSliceId(String networkSliceId) {
+		this.networkSlicesId.add(networkSliceId);
+	}
+
+	/**
 	 *
 	 * @param nestedVsiId the nested VSI
 	 */
@@ -251,5 +258,13 @@ public class VerticalServiceInstance {
 
 	public UUID getUuid() {
 		return uuid;
+	}
+
+	public List<String> getNetworkSlicesId() {
+		return networkSlicesId;
+	}
+
+	public void setNetworkSlicesId(List<String> networkSlicesId) {
+		this.networkSlicesId = networkSlicesId;
 	}
 }

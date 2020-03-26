@@ -80,7 +80,6 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 		HttpEntity<?> httpEntity = new HttpEntity<>(request, header);
 
 		try {
-			//log.info("URL performing the request to: "+url);
 			ResponseEntity<String> httpResponse =
 					restTemplate.exchange(url, httpMethod, httpEntity, String.class);
 			HttpStatus code = httpResponse.getStatusCode();
@@ -98,12 +97,15 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 			return null;
 		}
 
-		if (httpResponse.getStatusCode().equals(httpStatusExpected)) log.info(okCodeMsg);
-		else log.info(errMsg);
+		if (httpResponse.getStatusCode().equals(httpStatusExpected))
+			log.info(okCodeMsg);
+		else
+			log.info(errMsg);
 
 		log.info("Response code: " + httpResponse.getStatusCode().toString());
 
-		if(httpResponse.getBody()==null) return null;
+		if(httpResponse.getBody()==null)
+			return null;
 
 		log.info(("Body response: "+httpResponse.getBody().toString()));
 		return httpResponse.getBody().toString();
@@ -125,7 +127,6 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 	public void instantiateNetworkSlice(InstantiateNsiRequest request, String tenantId)
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
 			MalformattedElementException, NotPermittedOperationException {
-		log.info("Sending request to instantiate network Slice");
 		String url = nsmfUrl + "/ns/"+request.getNsiId()+"/action/instantiate";
 		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.PUT, tenantId);
 		String bodyResponse = manageHTTPResponse(httpResponse, "Error while instantiating network slice", "Network slice instantiation correctly performed",HttpStatus.ACCEPTED);

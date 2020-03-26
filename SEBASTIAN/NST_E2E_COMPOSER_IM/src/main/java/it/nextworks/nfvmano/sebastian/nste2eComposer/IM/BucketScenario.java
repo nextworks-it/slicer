@@ -1,6 +1,6 @@
-package it.nextworks.nfvmano.sebastian.vsfm.runtimetranslator;
+package it.nextworks.nfvmano.sebastian.nste2eComposer.IM;
 
-public enum BucketType {
+public enum BucketScenario {
     URBAN_MACRO(Keyword.URBAN),
     RURAL_MACRO(Keyword.URBAN),
     BROADBAND_ACCESS_CROWD(Keyword.URBAN),
@@ -21,7 +21,7 @@ public enum BucketType {
 
     private Keyword keyword;
 
-    BucketType(Keyword keyword){
+    BucketScenario(Keyword keyword){
         this.keyword=keyword;
     }
 

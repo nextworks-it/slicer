@@ -35,7 +35,6 @@ public class VsmfRestClient implements NsmfLcmConsumerInterface {
 	private static final Logger log = LoggerFactory.getLogger(VsmfRestClient.class);
 	
 	private RestTemplate restTemplate;
-	
 	private String vsmfUrl;
 	private String cookies;
 	private Authenticator authenticator;

@@ -144,6 +144,20 @@ public class VsRecordService {
 	}
 
 	/**
+	 * This method update the VSI in DB, adding the associated network slice instance
+	 *
+	 * @param vsiUuid ID of the VSI to be updated
+	 * @param nsiId ID of the NSI to be associated to the VSI
+	 * @throws NotExistingEntityException if the VSI does not exist
+	 */
+	public synchronized void addNsiInVsi(String vsiUuid, String nsiUuid) throws NotExistingEntityException {
+		log.debug("Adding Network Slice instance " + nsiUuid + " to Vertical Service instance " + vsiUuid + " in VSI DB record.");
+		VerticalServiceInstance vsi = getVsInstance(vsiUuid);
+		vsi.addNetworkSliceId(nsiUuid);
+		vsInstanceRepository.saveAndFlush(vsi);
+		log.debug("VSI with UUID " + vsiUuid + " updated with NSI " + nsiUuid);
+	}
+	/**
 	 * This method returns the VSI stored in DB.
 	 *
 	 * @param vsiUuid UUID of the VSI to be returned
