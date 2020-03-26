@@ -52,6 +52,19 @@ public class QoSService extends CPSService{
         }
     }
 
+    public HttpStatus redirectTraffic(UUID sliceId, String segmentId, String ueIMSI, JSONObject qosRedirectParameters){
+        try {
+            String qosCpBaseURl = this.getQoSInfo(sliceId);
+            String url = String.format("%s/qos-instance/%s/redirect?segment_id=%s&user_eq_id=%s", qosCpBaseURl,
+                    sliceId.toString(), segmentId, ueIMSI);
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(qosRedirectParameters.toString(), url, HttpMethod.POST);
+            System.out.println(httpResponse.getBody());
+            return httpResponse.getStatusCode();
+        } catch (RestClientResponseException e){
+            log.info("Message received: "+e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
+    }
     public HttpStatus updateQoS(UUID sliceId, JSONObject qosConstraints){
         try {
             String qosCpBaseURl = this.getQoSInfo(sliceId);
