@@ -17,6 +17,7 @@ package it.nextworks.nfvmano.sebastian.vsfm.nbi;
 import java.util.List;
 
 import it.nextworks.nfvmano.sebastian.admin.MgmtCatalogueUtilities;
+import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
 import it.nextworks.nfvmano.sebastian.record.repo.VSICatalogueUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -203,5 +204,22 @@ public class VsLcmBasicRestController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-		
+
+
+	@RequestMapping(value = "/e2ens/{vsiId}/actuate", method = RequestMethod.POST)
+	public ResponseEntity<?> actuate(@PathVariable String vsiId, @RequestBody ActuationRequest request, Authentication auth) {
+		log.debug("Received request to modify E2E NSI UUID " + vsiId);
+		try {
+			String user = getUserFromAuth(auth);
+			//TODO tenant admin cannot actuate
+			vsLcmService.actuateNsiE2E(request,vsiId);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (MalformattedElementException e) {
+			log.error("Malformatted request");
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}catch (Exception e) {
+			log.error("Internal exception");
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

@@ -38,6 +38,7 @@ public class VsmfRestClient implements NsmfLcmConsumerInterface {
 	private String vsmfUrl;
 	private String cookies;
 	private Authenticator authenticator;
+	private String baseUrl;
 
 	private void performAuth(String tenantId){
 		authenticator.authenticate(tenantId);
@@ -48,6 +49,7 @@ public class VsmfRestClient implements NsmfLcmConsumerInterface {
 
 	public VsmfRestClient(String baseUrl, AdminService adminService) {
 		this.vsmfUrl = baseUrl + "/vs/notifications";
+		this.baseUrl = baseUrl;
 		this.restTemplate = new RestTemplate();
 		this.authenticator = new Authenticator(baseUrl,adminService);
 	}
@@ -124,5 +126,35 @@ public class VsmfRestClient implements NsmfLcmConsumerInterface {
 		}
 	}
 
-	
+	@Override
+	public void notifyNetworkSliceActuation(NetworkSliceStatusChangeNotification notification, String endpoint) {
+		log.debug("Sending notification about actuation result.");
+		performAuth(notification.getTenantId());
+		final String url = baseUrl +endpoint;
+		HttpHeaders header = new HttpHeaders();
+		header.add("Content-Type", "application/json");
+		if(this.cookies!=null){
+			header.add("Cookie", this.cookies);
+		}
+		log.info("Url to send the request to: "+url);
+		HttpEntity<?> postEntity = new HttpEntity<>(notification, header);
+		try{
+			ResponseEntity<String> httpResponse =
+					restTemplate.exchange(url, HttpMethod.POST, postEntity, String.class);
+
+			log.debug("Response code: " + httpResponse.getStatusCode().toString());
+			HttpStatus code = httpResponse.getStatusCode();
+
+			if (code.equals(HttpStatus.OK)) {
+				log.debug("Notification correctly dispatched.");
+			} else {
+				log.debug("Error while sending notification");
+			}
+
+		} catch (RestClientException e) {
+			log.info(e.getMessage());
+			log.debug("Error while sending notification");
+		}
+	}
+
 }

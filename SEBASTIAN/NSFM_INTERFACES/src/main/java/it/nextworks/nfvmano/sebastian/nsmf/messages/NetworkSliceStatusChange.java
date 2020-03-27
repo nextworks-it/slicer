@@ -21,6 +21,7 @@ public enum NetworkSliceStatusChange {
 	NSI_TERMINATED,
 	NSI_MODIFIED,
 	NSI_FAILED,
+	NSI_ACTUATED,
 	NOT_SPECIFIED
 	
 }

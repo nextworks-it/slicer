@@ -48,6 +48,11 @@ public class NbiNotificationsHandler implements NsmfLcmConsumerInterface {
 		vsmfRestClient.notifyNetworkSliceFailure(notification);
 	}
 
+	@Override
+	public void notifyNetworkSliceActuation(NetworkSliceStatusChangeNotification notification, String endpoint){
+		vsmfRestClient.notifyNetworkSliceActuation(notification, endpoint);
+	}
+
 	public void setNotifDestinationUrl(String notifDestinationUrl) {
 		this.vsmfRestClient = new VsmfRestClient(notifDestinationUrl,adminService);
 	}

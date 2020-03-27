@@ -28,6 +28,7 @@ import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
 import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorResponse;
+import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
@@ -138,12 +139,10 @@ public class VsLcmManager {
      */
     public void receiveMessage(String message) {
         log.debug("Received message for VSI " + vsiUuid + "\n" + message);
-
         try {
             ObjectMapper mapper = new ObjectMapper();
             VsmfEngineMessage em = mapper.readValue(message, VsmfEngineMessage.class);
             VsmfEngineMessageType type = em.getType();
-
             switch (type) {
                 case INSTANTIATE_VSI_REQUEST: {
                     log.debug("Processing VSI instantiation request.");
@@ -176,6 +175,13 @@ public class VsLcmManager {
                     log.debug("Processing resources granted notification.");
                     NotifyResourceGranted notifyResourceGranted = (NotifyResourceGranted) em;
                     processResourcesGrantedNotification(notifyResourceGranted);
+                    break;
+                }
+
+                case ACTUATION_REQUEST: {
+                    log.debug("Processing NSI E2E actuation.");
+                    ActauteNsiMessage actauteNsiMessage = (ActauteNsiMessage) em;
+                    processActuationRequest(actauteNsiMessage.getActuationRequest());
                     break;
                 }
 
@@ -305,6 +311,41 @@ public class VsLcmManager {
             }
             log.info("Performed successfully instantiation of  "  +nsiUuidNetworkSliceInfoMap.size() + "Network Slice Instance(s).\n");
             //TODO remove nst from buckets or mark them as reusable (if any)
+
+    }
+
+
+    private void processActuationRequest(ActuationRequest actuationRequest){
+        //From vsiUuid should be get the nsi associated.
+        //From the nsi associated should be get the domains and the resulting Ip address, thus the URLs
+        VerticalServiceInstance verticalServiceInstance=null;
+        try {
+            verticalServiceInstance = vsRecordService.getVsInstance(vsiUuid);
+        } catch (NotExistingEntityException e) {
+            manageVsError("Vertical service instance with ID " +vsiUuid+ "not found into DB.");
+            e.printStackTrace();
+        }
+        //TODO the vertical slice status must be instantiated. Skipping for now
+        for(int i=0; i< verticalServiceInstance.getNetworkSlicesId().size(); i++){
+            String nsiId = verticalServiceInstance.getNetworkSlicesId().get(i);
+            NetworkSliceInfo networkSliceInfo=nsiUuidNetworkSliceInfoMap.get(nsiId);
+            if(networkSliceInfo==null){
+                manageVsError("No local info found about Network Slice Instance with UUID "+nsiId );
+                return;
+            }
+            NsmfRestClient nsmfRestClient = networkSliceInfo.getNsmfRestClient();
+
+            try {
+                actuationRequest.setNotificationEndpoint("/vs/notifications/actuation/"+nsiId);
+                actuationRequest.setNsiId(nsiId);//The actuation request coming from the north side contain the nsiE2EId (or vsiId).
+                //The actuation request to be sent to the NSMF must have the nsiId instanciated by that NSMF.
+                nsmfRestClient.actuateNetworkSlice(actuationRequest, tenantId);
+            } catch (Exception e) {
+                log.error("Error during the request of actuation.");
+                e.printStackTrace();
+            }
+            //break; <-- use this for single domain ;)
+        }
 
     }
 

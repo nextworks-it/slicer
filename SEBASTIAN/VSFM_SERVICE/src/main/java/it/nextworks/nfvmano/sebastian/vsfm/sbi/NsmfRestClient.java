@@ -17,6 +17,7 @@ package it.nextworks.nfvmano.sebastian.vsfm.sbi;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
+import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
 import it.nextworks.nfvmano.sebastian.common.Authenticator;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiUuidRequest;
@@ -192,4 +193,16 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 			return null;
 		}
 	}
+
+	public void actuateNetworkSlice(ActuationRequest request, String tenantId)
+			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
+			MalformattedElementException, NotPermittedOperationException {
+		String nsiUuid = request.getNsiId();
+		log.info("Sending request to actuate network slice with UUID "+nsiUuid);
+		String url = nsmfUrl + "/nsi/"+nsiUuid+"/actuate-sd";
+		log.info("URL to perform the request to: "+url);
+		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.POST, tenantId);
+		String bodyResponse = manageHTTPResponse(httpResponse, "Error while sending actuation request to network slice", "Network slice termination correctly performed",HttpStatus.ACCEPTED);
+	}
+
 }

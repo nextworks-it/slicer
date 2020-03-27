@@ -31,15 +31,13 @@ import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
 import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorRequest;
 import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorResponse;
+import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
 import it.nextworks.nfvmano.sebastian.common.ConfigurationParameters;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiUuidRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.NsLcmManager;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.UsageResourceUpdate;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.FlexRanService;
@@ -47,7 +45,6 @@ import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
-import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.BindingBuilder;
@@ -202,7 +199,6 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
         	}
             String topic = "nslifecycle.instantiatens." + nsiUuid;
             nsLcmManagers.get(nsiUuid).getNsDfId();
-            //request.
             InstantiateNsiRequestMessage internalMessage = new InstantiateNsiRequestMessage(request, tenantId);
             try {
                 sendMessageToQueue(internalMessage, topic);
@@ -397,5 +393,17 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 		nsmfUtils.setNotificationDispatcher(notificationDispatcher);
 	}
 
-    
+
+    public void actuateNetworkSliceInstance(ActuationRequest request, String tenantId) throws MalformattedElementException {
+        request.isValid();
+        //TODO Check NSI: must be in instantiated status
+        String nsiUuid = request.getNsiId();
+        ActuateNsiRequestMessage internalMessage = new ActuateNsiRequestMessage(request, tenantId);
+        String topic = "nslifecycle.actuatensi." + nsiUuid;
+        try {
+            sendMessageToQueue(internalMessage, topic);
+        } catch (JsonProcessingException e) {
+            nsmfUtils.manageNsError(nsiUuid, "Error while translating internal NS actuation message in Json format.");
+        }
+    }
 }

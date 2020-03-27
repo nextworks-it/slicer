@@ -47,5 +47,12 @@ public interface NsmfLcmConsumerInterface {
 	 * @param notification message with the details of the failure
 	 */
 	public void notifyNetworkSliceFailure(NetworkSliceFailureNotification notification);
-	
+
+
+	/**
+	 * Method to notify about an actuation made on network slice instance
+	 *
+	 * @param notification message with the details of the status change and the end point to send the notification to
+	 */
+	public void notifyNetworkSliceActuation(NetworkSliceStatusChangeNotification notification, String endpoint);
 }

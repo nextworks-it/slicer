@@ -14,29 +14,41 @@
  */
 package it.nextworks.nfvmano.sebastian.vsfm;
 
-import java.util.*;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsBlueprint;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
+import it.nextworks.nfvmano.catalogue.blueprint.messages.QueryVsBlueprintResponse;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsBlueprintCatalogueService;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.catalogue.translator.TranslatorService;
 import it.nextworks.nfvmano.catalogues.domainLayer.services.DomainCatalogueService;
-import it.nextworks.nfvmano.libs.ifa.templates.EMBBPerfReq;
+import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
+import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.messages.QueryNsResponse;
+import it.nextworks.nfvmano.libs.ifa.records.nsinfo.NsInfo;
+import it.nextworks.nfvmano.libs.ifa.records.nsinfo.SapInfo;
+import it.nextworks.nfvmano.libs.ifa.records.vnfinfo.VnfExtCpInfo;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
+import it.nextworks.nfvmano.sebastian.admin.AdminService;
+import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
+import it.nextworks.nfvmano.sebastian.common.*;
+import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
+import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceFailureNotification;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
 import it.nextworks.nfvmano.sebastian.nstE2eComposer.repository.BucketRepository;
-import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.Bucket;
-import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketEMBB;
-import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketType;
-import it.nextworks.nfvmano.sebastian.vsfm.vsmanagement.VsLcmManager;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.CoordinateVsiRequest;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.VsmfEngineMessage;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.InstantiateVsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.ModifyVsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.NotifyNsiStatusChange;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.NotifyResourceGranted;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.TerminateVsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.VsiTerminationNotificationMessage;
+import it.nextworks.nfvmano.sebastian.record.VsRecordService;
+import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
+import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
+import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.vsfm.interfaces.VsLcmProviderInterface;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.*;
+import it.nextworks.nfvmano.sebastian.vsfm.vscoordinator.VsCoordinator;
+import it.nextworks.nfvmano.sebastian.vsfm.vsmanagement.VsLcmManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.BindingBuilder;
@@ -52,45 +64,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.MethodNotImplementedException;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotPermittedOperationException;
-import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
-import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
-import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.messages.QueryNsResponse;
-import it.nextworks.nfvmano.libs.ifa.records.nsinfo.NsInfo;
-import it.nextworks.nfvmano.libs.ifa.records.nsinfo.SapInfo;
-import it.nextworks.nfvmano.libs.ifa.records.vnfinfo.VnfExtCpInfo;
-import it.nextworks.nfvmano.sebastian.admin.AdminService;
-import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
-import it.nextworks.nfvmano.catalogue.blueprint.elements.VsBlueprint;
-import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
-import it.nextworks.nfvmano.catalogue.blueprint.messages.QueryVsBlueprintResponse;
-import it.nextworks.nfvmano.sebastian.common.ConfigurationParameters;
-import it.nextworks.nfvmano.sebastian.common.Utilities;
-import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
-import it.nextworks.nfvmano.sebastian.common.VsAction;
-import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
-import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceFailureNotification;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
-import it.nextworks.nfvmano.sebastian.record.VsRecordService;
-import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
-import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.InstantiateVsRequest;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.ModifyVsRequest;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.PurgeVsRequest;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.QueryVsResponse;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.TerminateVsRequest;
-import it.nextworks.nfvmano.sebastian.vsfm.vscoordinator.VsCoordinator;
-
-import static it.nextworks.nfvmano.catalogue.blueprint.elements.AvailabilityCoverageRange.AVAILABILITY_COVERAGE_HIGH;
+import java.util.*;
 
 /**
  * Front-end service for managing the incoming requests 
@@ -405,6 +379,21 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 	}
 	
 
+	public void actuateNsiE2E(ActuationRequest request, String e2eNsi) throws MalformattedElementException {
+		log.debug("Received request to actuate an NSI E2E.");
+		request.isValid();
+		//TODO check on e2e nsi existence. Skipped for now
+		//TODO check if the requesting tenant is the same that has previously instantiated the e2e nsi
+		//Suppose vsiId is equal to E2ENsi
+		String topic = "lifecycle.actuatevs." + e2eNsi;
+		ActauteNsiMessage message = new ActauteNsiMessage(request);
+		try {
+			sendMessageToQueue(message, topic);
+		} catch (JsonProcessingException e) {
+			log.error("Error while translating internal VS modification message in Json format.");
+			e.printStackTrace();
+		}
+	}
     /**
      *
      * @param invokerVsiUuid Is the UUID of the Vsi invoking the coordination. VsCoordinator uses it as Coordinator ID
@@ -553,10 +542,14 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		//TODO:
 		log.debug("Received network slice failure messages, but not able to process it at the moment. Skipped.");
 	}
-	
-	
-	
-	public void setNsmfLcmProvider(NsmfLcmProviderInterface nsmfLcmProvider) {
+
+    @Override
+    public void notifyNetworkSliceActuation(NetworkSliceStatusChangeNotification networkSliceStatusChangeNotification, String s) {
+
+    }
+
+
+    public void setNsmfLcmProvider(NsmfLcmProviderInterface nsmfLcmProvider) {
 		this.nsmfLcmProvider = nsmfLcmProvider;
 		this.arbitratorService.setNsmfLcmProvider(nsmfLcmProvider);
 	}

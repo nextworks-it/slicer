@@ -155,6 +155,7 @@ public class VirtualResourceCalculatorService {
         int vCPU = 0;
         int disk = 0;
 
+        log.info("Querying NSD by Id " +nsdId +" and version " +nsdVersion);
         QueryNsdResponse nsdRep = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null));
         Nsd nsd = nsdRep.getQueryResult().get(0).getNsd();
 

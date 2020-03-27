@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 	@Type(value = CoordinateVsiRequest.class, 	name = "COORDINATE_VSI_REQUEST"),
 	@Type(value = VsiTerminationNotificationMessage.class, 	name = "NOTIFY_TERMINATION"),
 	@Type(value = NotifyResourceGranted.class, 	name = "RESOURCES_GRANTED"),
+	@Type(value = ActauteNsiMessage.class, 	name = "ACTUATION_REQUEST"),
 })
 public abstract class VsmfEngineMessage {
 

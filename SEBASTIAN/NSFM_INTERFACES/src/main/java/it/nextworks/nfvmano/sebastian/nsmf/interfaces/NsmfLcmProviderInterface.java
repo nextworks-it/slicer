@@ -115,5 +115,5 @@ public interface NsmfLcmProviderInterface {
 	 */
 	public List<NetworkSliceInstance> queryNetworkSliceInstance(GeneralizedQueryRequest request, String tenantId)
 			throws MethodNotImplementedException, FailedOperationException, MalformattedElementException;
-	
+
 }

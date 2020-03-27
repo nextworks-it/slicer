@@ -5,6 +5,7 @@ import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementExcept
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotPermittedOperationException;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
+import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.NsLcmService;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiUuidRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
@@ -175,6 +176,19 @@ public class NsmfRestController {
 		} catch (NotPermittedOperationException e) {
 			log.error("NS termination failed due to missing permission or conflicting state.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+		} catch (Exception e) {
+			log.error("NS termination failed due to internal errors.");
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@RequestMapping(value = "/nsi/{nsiUuid}/actuate-sd", method = RequestMethod.POST)
+	public ResponseEntity<?> actuateNsi(@PathVariable String nsiUuid, @RequestBody ActuationRequest request, Authentication auth) {
+		log.debug("Received request to actuate network slice with UUID " + nsiUuid);
+		try {
+			String tenantId = getUserFromAuth(auth);
+			nsLcmService.actuateNetworkSliceInstance(request, tenantId);
+			return new ResponseEntity<>("NSI actuation procedure started successfully",HttpStatus.OK);
 		} catch (Exception e) {
 			log.error("NS termination failed due to internal errors.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

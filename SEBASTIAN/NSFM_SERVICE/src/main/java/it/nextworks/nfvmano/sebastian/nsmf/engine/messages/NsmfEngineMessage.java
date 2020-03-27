@@ -18,8 +18,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
-import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.NsmfEngineMessageType;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 
@@ -35,6 +33,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 	@Type(value = ModifyNsiRequestMessage.class, name = "MODIFY_NSI_REQUEST"),
 	@Type(value = TerminateNsiRequestMessage.class, 	name = "TERMINATE_NSI_REQUEST"),
 	@Type(value = NotifyNfvNsiStatusChange.class, 	name = "NOTIFY_NFV_NSI_STATUS_CHANGE"),
+	@Type(value = ActuateNsiRequestMessage.class, 	name = "ACTUATE_NSI_REQUEST"),
 })
 public abstract class NsmfEngineMessage {
 
