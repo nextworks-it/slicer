@@ -9,7 +9,9 @@
    <name>SEBASTIAN_AGGREGATOR</name>
     <modules>
       
-      
+      	<module>NST_E2E_COMPOSER_IM</module>
+	<module>NST_E2E_COMPOSER_INTERFACES</module>
+	<module>NST_E2E_COMPOSER_SERVICE</module>
         <module>ARBITRATOR_INTERFACES</module>
         <module>ARBITRATOR_SERVICE</module>
         <module>CommonElements</module>
