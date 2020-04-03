@@ -3,7 +3,6 @@
 		"version": "1.0",
 		"name": "Urban",
 		"description": "Urban mobility",
-		"keyword":"Urban",
                 "parameters":[{
                 "parameterId": "UrbanScenario",
                 "parameterName": "UrbanScenario",

@@ -24,6 +24,8 @@ import it.nextworks.nfvmano.catalogue.blueprint.services.VsBlueprintCatalogueSer
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.catalogue.translator.TranslatorService;
 import it.nextworks.nfvmano.catalogues.domainLayer.services.DomainCatalogueService;
+import it.nextworks.nfvmano.catalogues.template.repo.NsTemplateRepository;
+import it.nextworks.nfvmano.catalogues.template.services.NsTemplateCatalogueService;
 import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
@@ -185,13 +187,14 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		RuntimeTranslator runtimeTranslator = new RuntimeTranslator(bucketRepository,vsDescriptorCatalogueService);
 		log.info("Filtering vsd against the NSTs buckets.");
 		ArrayList<Long> suitableBuckets = runtimeTranslator.translate(vsdId);
+		HashMap<String,String> domainIdNstIdMap=new HashMap<String,String>();
 
-		log.info("Filtering vsd against the NSTs buckets.");
 		if (locationConstraints != null) {
-			log.info("Pretending to filter NSTs by geographical constraints. TODO.");
-			suitableBuckets = runtimeTranslator.filterByLocationConstraints(suitableBuckets, locationConstraints);
+			log.info("Filter NSTs by geographical constraints.");
+			domainIdNstIdMap=runtimeTranslator.filterByLocationConstraints(suitableBuckets, locationConstraints);
 		}
-		HashMap<String,String> domainIdNstIdMap= runtimeTranslator.naiveArbitrator(suitableBuckets);
+		domainIdNstIdMap= runtimeTranslator.naiveArbitrator(suitableBuckets);
+
 		initNewVsLcmManager(vsiUuid, request.getName(), domainIdNstIdMap);
 
 		if (!(tenantId.equals(adminTenant))) adminService.addVsiInTenant(vsiUuid, tenantId);

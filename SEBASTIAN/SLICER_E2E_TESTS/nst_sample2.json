@@ -6,6 +6,14 @@
 		"nstProvider": "nstProvider2",
 		"nsdId": "09f0f070-11a8-4fc3-8a47-253508673a99",
 		"nsdVersion": "1.0",
+		"geographicalAreaInfoList":[{
+                        "lat": 52.894059789742435,
+                        "lon": -8.600309558933717
+                },
+                {
+                        "lat": 52.89935623919947,
+                        "lon": -8.662568003691363
+                }],
 		"nsstIds": [
 			"1",
 			"2",

@@ -3,15 +3,16 @@ package it.nextworks.nfvmano.sebastian.vsfm;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.SliceServiceType;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
+import it.nextworks.nfvmano.catalogues.template.repo.NsTemplateRepository;
+import it.nextworks.nfvmano.catalogues.template.services.NsTemplateCatalogueService;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.libs.ifa.templates.EMBBPerfReq;
+import it.nextworks.nfvmano.libs.ifa.templates.GeographicalAreaInfo;
+import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.libs.ifa.templates.URLLCPerfReq;
 import it.nextworks.nfvmano.sebastian.nstE2eComposer.repository.BucketRepository;
-import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.Bucket;
-import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketEMBB;
-import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketType;
-import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketURLLC;
+import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ public class RuntimeTranslator {
 
     private static final Logger log = LoggerFactory.getLogger(RuntimeTranslator.class);
 
-    public RuntimeTranslator(BucketRepository bucketRepository,VsDescriptorCatalogueService vsDescriptorCatalogueService){
+    public RuntimeTranslator(BucketRepository bucketRepository, VsDescriptorCatalogueService vsDescriptorCatalogueService){
         this.bucketRepository=bucketRepository;
         this.vsDescriptorCatalogueService = vsDescriptorCatalogueService;
     }
@@ -54,17 +55,50 @@ public class RuntimeTranslator {
         return null;
     }
 
+    //It selects all the NSTs that satisfies the geographical constraints info.
+    public HashMap<String,String> filterByLocationConstraints(ArrayList<Long> filteredBucketsId, LocationInfo locationInfo){
+        //key: nstUUID, value advertised NST object
+        HashMap<String,String> domainIdNstUUIDMap = new HashMap<String,String>();
 
-    //Given the filtered bucket id list, it selects all the NSTs that satisfies the geographical constrain info expressed into the locationInfo input.
-    public ArrayList<Long> filterByLocationConstraints(ArrayList<Long> filteredBucketsId, LocationInfo locationInfo){
-
+        //First step: all the NSTs in the different bucketa, are put into a map.
+        HashMap<String, NstAdvertisedInfo> nstAdvertisedMap = new HashMap<String, NstAdvertisedInfo>();
         for(Long bucketId: filteredBucketsId){
             Bucket bucket=bucketRepository.findById(bucketId).get();
-            for(String nstId: bucket.getNstIdDomainIdMap().keySet()){
-                //TODO implement logic to filter NST by location constraints
+            for(NstAdvertisedInfo nstAdvertisedInfo: bucket.getNstAdvertisedInfoList()){
+                String nstUUID = nstAdvertisedInfo.getNstId();
+                log.info("Nst UUID is "+nstUUID);
+                if(nstAdvertisedMap.get(nstUUID)==null){
+                    log.info("Nst UUID "+nstAdvertisedInfo.getNstId()+"going to be added");
+                    nstAdvertisedMap.put(nstUUID,nstAdvertisedInfo);
+                }
             }
         }
-        return filteredBucketsId;
+        log.info("There are "+nstAdvertisedMap.size()+ " NST(s) advertised.");
+
+        //Then, for each advertised NST are checked the geographic constraints.
+        for(String nstUUID: nstAdvertisedMap.keySet()){
+            NstAdvertisedInfo nstAdvertisedInfo = nstAdvertisedMap.get(nstUUID);
+            String domainId = nstAdvertisedInfo.getDomainId();
+            log.info("Checking geographical info about NST with UUID: "+nstUUID +" It has "+nstAdvertisedInfo.getGeographicalAreaInfoList().size() + " location.");
+            List<GeographicalAreaInfo> geographicalAreaInfos = nstAdvertisedInfo.getGeographicalAreaInfoList();
+            for(int i=0; i<geographicalAreaInfos.size(); i++){
+                GeographicalAreaInfo geo = geographicalAreaInfos.get(i);
+                double distanceMeter=geo.computeDistanceMeter(locationInfo.getLatitude(), locationInfo.getLongitude());
+                log.debug("The distance between VSI center and NST with UUID "+nstUUID+" at geolocation #"+i+" is " +distanceMeter+ " meters.");
+                Map<String,Double> distanceToTheEdges=geo.getDistanceToTheEdgesInMeter(locationInfo.getLatitude(), locationInfo.getLongitude());
+                for(String edgeName: distanceToTheEdges.keySet()){
+                    double distanceToTheEdge = distanceToTheEdges.get(edgeName);
+                    //Finally, if the geo constraint are satisfied, it is put into the map the nstID and the domainID.
+                    if(distanceToTheEdge<locationInfo.getRange() && domainIdNstUUIDMap.get(domainId)==null){
+                        log.info("NST with UUID "+nstUUID+"  satisfied the geographical constraint.");
+                        domainIdNstUUIDMap.put(domainId, nstUUID);
+                    }
+                }
+            }
+        }
+        if(domainIdNstUUIDMap.size()==0)
+            log.warn("Warning the geographical filter did not return any NST.");
+        return domainIdNstUUIDMap;
     }
 
     public boolean embbBucketSelection(BucketEMBB bucketEMBB, VsDescriptor vsd) throws NotExistingEntityException {
@@ -89,6 +123,7 @@ public class RuntimeTranslator {
         }
         return true;
     }
+
 
 
     public boolean urllcBucketSelection(BucketURLLC bucketURLLC, VsDescriptor vsd) throws NotExistingEntityException {
@@ -129,11 +164,11 @@ public class RuntimeTranslator {
         for(Bucket bucket: bucketEMBBList){
             if(embbBucketSelection((BucketEMBB)bucket,vsd)){
                 String bucketName = bucket.getBucketScenario().toString();
-                if(bucket.getNstIdDomainIdMap().size()==0){
+                if(bucket.getNstAdvertisedInfoList().size()==0){
                     log.warn("Bucket "+bucketName+" fits the requirements but no NST were found.");
                 }
                 else {
-                    log.warn("Bucket "+bucketName+" fits exactly the requirements. There are "+bucket.getNstIdDomainIdMap().size() +" NST(s) available.");
+                    log.warn("Bucket "+bucketName+" fits exactly the requirements. There are "+bucket.getNstAdvertisedInfoList().size() +" NST(s) available.");
                     bucketsId.add(bucket.getId());
                 }
             }
@@ -163,11 +198,11 @@ public class RuntimeTranslator {
         for(Bucket bucket: bucketURLLCList){
             if(urllcBucketSelection((BucketURLLC)bucket,vsd)){
                 String bucketName = bucket.getBucketScenario().toString();
-                if(bucket.getNstIdDomainIdMap().size()==0){
+                if(bucket.getNstAdvertisedInfoList().size()==0){
                     log.warn("Bucket "+bucketName+" fits the requirements but no NST were found.");
                 }
                 else {
-                    log.warn("Bucket "+bucketName+" fits the requirements. There are "+bucket.getNstIdDomainIdMap().size() +" NST(s) available.");
+                    log.warn("Bucket "+bucketName+" fits the requirements. There are "+bucket.getNstAdvertisedInfoList().size() +" NST(s) available.");
                     bucketsId.add(bucket.getId());
                 }
             }
@@ -196,9 +231,10 @@ public class RuntimeTranslator {
         HashMap<String, String> domainIdNstIdMap = new HashMap<>();
         for(Long bucketId: suitableBuckets){
             Bucket bucket=bucketRepository.findById(bucketId).get();
-            Map<String, String> nstIdDomainIdMap=bucket.getNstIdDomainIdMap();
-            for(String nstId: nstIdDomainIdMap.keySet()){
-                String domainId=nstIdDomainIdMap.get(nstId);
+            List<NstAdvertisedInfo> nstAdvertisedInfos=bucket.getNstAdvertisedInfoList();
+            for(NstAdvertisedInfo nstAdvertisedInfo: nstAdvertisedInfos){
+                String domainId=nstAdvertisedInfo.getDomainId();
+                String nstId = nstAdvertisedInfo.getNstId();
                 if(domainIdNstIdMap.get(domainId)==null){
                     domainIdNstIdMap.put(domainId,nstId);
                 }
@@ -206,6 +242,7 @@ public class RuntimeTranslator {
         }
         return domainIdNstIdMap;
     }
+
 
 
 }

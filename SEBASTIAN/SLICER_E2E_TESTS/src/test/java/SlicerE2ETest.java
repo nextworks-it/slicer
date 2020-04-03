@@ -31,10 +31,10 @@ public class SlicerE2ETest {
     private String nstUuid;
     private String vsiUuid;
 
-    private final String VSMF_HOST = "http://10.30.8.54:8081";
+    private final String VSMF_HOST = "http://127.0.0.1:8081";
     EndPointInteraction dspInteraction = new EndPointInteraction(VSMF_HOST, "DSP");
 
-    private final String NSMF_HOST= "http://10.30.8.54:8082";
+    private final String NSMF_HOST= "http://127.0.0.1:8082";
     EndPointInteraction nspInteraction = new EndPointInteraction(NSMF_HOST, "NSP A");
 
     private final String NSMF_HOST2= "http://10.30.8.76:8082";
@@ -310,7 +310,7 @@ public class SlicerE2ETest {
                 "nsp_a","nsp a description",
                 "nsp_a owner","nsp_a admin",
                 domainLayerArrayList,new HashSet<DomainAgreement>(),
-                new DomainInterface("10.30.8.54",
+                new DomainInterface("127.0.0.1",
                 8082,true, InterfaceType.HTTP));
         domain.setDomainStatus(DomainStatus.ACTIVE);
 
@@ -373,7 +373,6 @@ public class SlicerE2ETest {
         parameters.put("key1","value1");
         parameters.put("key2","value2");
         ActuationRequest actuationRequest = new ActuationRequest(vsiId, "actuationName", "actiatonDescription",parameters,"");
-
         log.info("Going to perform actuation request for vsi with ID " + vsiId);
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/"+vsiId+"/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
         // try {

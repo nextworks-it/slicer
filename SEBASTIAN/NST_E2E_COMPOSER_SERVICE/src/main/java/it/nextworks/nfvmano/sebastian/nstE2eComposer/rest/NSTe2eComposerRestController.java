@@ -73,6 +73,7 @@ public class NSTe2eComposerRestController {
         }
         catch (Exception e) {
             log.error("Internal exception");
+            log.error(e.getMessage());
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

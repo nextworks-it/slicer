@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -28,6 +30,17 @@ public class  Util {
             e.printStackTrace();
             log.info(e.getLocalizedMessage());
             return null;
+        }
+    }
+    public static void printObejctJsonFormat(Object object){
+        ObjectMapper mapper = new ObjectMapper();
+        String json = null;
+        try {
+            log.info("Going to print JSON");
+            json = mapper.writeValueAsString(object);
+            log.info(json);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
     }
 }
