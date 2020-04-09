@@ -51,7 +51,7 @@ public class VirtualResourceCalculatorService {
      * @throws Exception
      */
     public VirtualResourceUsage computeVirtualResourceUsage(NetworkSliceInstance nsi, boolean current) throws Exception {
-        return computeVirtualResourceUsage(nsi.getNsInstantiationInfo(current));
+        return computeVirtualResourceUsageNew(nsi.getNsInstantiationInfo(current));
     }
 
 
@@ -86,7 +86,7 @@ public class VirtualResourceCalculatorService {
                 int vnfRam = 0;
                 int vnfVCpu = 0;
                 int vnfDisk = 0;
-                printJson(vnfd);
+                //printJson(vnfd);
                 String vnfdId = vnfd.getVnfdId();
                 log.info("Number of VDU: "+vnfd.getVdu().size());
                 for(Vdu vdu:vnfd.getVdu()){
@@ -235,6 +235,7 @@ public class VirtualResourceCalculatorService {
         return new VirtualResourceUsage(disk, vCPU, ram);
     }
 
+    /*
     public  VirtualResourceUsage computeVirtualResourceUsage( NfvNsInstantiationInfo nsInstantiationInfo) throws Exception {
         log.debug("Computing the amount of resources associated to a NS instantiation.");
 
@@ -249,14 +250,16 @@ public class VirtualResourceCalculatorService {
         int vCPU = 0;
         int disk = 0;
 
-        log.info("Querying NSD by Id " +nsdId +" and version " +nsdVersion);
+
         QueryNsdResponse nsdResp;
         if(nfvoCatalogueDriver.equals("NMRO")){
+            log.info("Querying NSD by Id " +nsdId +" only ");
             Map<String, String> filterParams = new HashMap();
             filterParams.put("NSD_ID", nsdId);
             nsdResp = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(new Filter(filterParams), null));
         }
         else{
+            log.info("Querying NSD by Id " +nsdId +" and version " +nsdVersion);
             nsdResp = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null));
 
         }
@@ -323,6 +326,6 @@ public class VirtualResourceCalculatorService {
 
         return new VirtualResourceUsage(disk, vCPU, ram);
     }
-
+*/
 
 }
