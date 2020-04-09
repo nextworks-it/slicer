@@ -40,6 +40,7 @@ import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.NsLcmManager;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.UsageResourceUpdate;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.ActuationLcmService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.FlexRanService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
@@ -105,6 +106,10 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 
     @Autowired
     UsageResourceUpdate usageResourceUpdate;
+
+    @Autowired
+    ActuationLcmService actuationLcmService;
+
     //internal map of NS LCM Managers
     //each NS LCM Manager is created when a new NSI ID is created and removed when the NSI ID is removed
     private Map<String, NsLcmManager> nsLcmManagers = new HashMap<>();
@@ -348,7 +353,8 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
                 this, networkSliceTemplate,
                 flexRanService,
                 pnPCommunicationService,
-                nsmfUtils, usageResourceUpdate);
+                nsmfUtils, usageResourceUpdate,
+                actuationLcmService);
 
         nsLcmManager.setNsDfId(nsDfId);
         nsLcmManager.setInstantationLevel(instantiationLevel);
@@ -397,7 +403,7 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 
     public void actuateNetworkSliceInstance(ActuationRequest request, String tenantId) throws MalformattedElementException {
         request.isValid();
-        //TODO Check NSI: must be in instantiated status
+
         String nsiUuid = request.getNsiId();
         ActuateNsiRequestMessage internalMessage = new ActuateNsiRequestMessage(request, tenantId);
         String topic = "nslifecycle.actuatensi." + nsiUuid;

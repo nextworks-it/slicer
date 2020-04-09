@@ -15,7 +15,7 @@ public class ActuationRequest {
     @JsonProperty("description")
     private String description;
     @JsonProperty("parameters")
-    private Map<String, String> parameters;
+    private Map<String, Object> parameters;
     @JsonProperty("notificationEndpoint")
     private String notificationEndpoint;
 
@@ -26,7 +26,7 @@ public class ActuationRequest {
     public ActuationRequest(@JsonProperty("nsiId") String nsiId,
                             @JsonProperty("actuationName") String actuationName,
                             @JsonProperty("description") String description,
-                            @JsonProperty("parameters") Map<String, String> parameters,
+                            @JsonProperty("parameters") Map<String, Object> parameters,
                             @JsonProperty("notificationEndpoint") String notificationEndpoint
                             ) {
         this.nsiId = nsiId;
@@ -45,11 +45,11 @@ public class ActuationRequest {
         this.description = description;
     }
 
-    public Map<String, String> getParameters() {
+    public Map<String, Object> getParameters() {
         return parameters;
     }
 
-    public void setParameters(Map<String, String> parameters) {
+    public void setParameters(Map<String, Object> parameters) {
         this.parameters = parameters;
     }
 

@@ -47,6 +47,7 @@ import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.ActuationLcmService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.FlexRanService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.RanQoSTranslator;
@@ -102,6 +103,7 @@ public class NsLcmManager {
 	private String nsDfId;
 
 	private String instantationLevel;
+	private ActuationLcmService actuationLcmService;
 
 	public NsLcmManager(String networkSliceInstanceUuid,
 						String name,
@@ -117,7 +119,9 @@ public class NsLcmManager {
 						FlexRanService flexRanService,
 						PnPCommunicationService pnPCommunicationService,
 						NsmfUtils nsmfUtils,
-						UsageResourceUpdate usageResourceUpdate) {
+						UsageResourceUpdate usageResourceUpdate,
+						ActuationLcmService actuationLcmService
+						) {
 
 		this.networkSliceInstanceUuid = networkSliceInstanceUuid;
 		this.name = name;
@@ -134,6 +138,7 @@ public class NsLcmManager {
 		this.pnPCommunicationService = pnPCommunicationService;
 		this.nsmfUtils = nsmfUtils;
 		this.usageResourceUpdate= usageResourceUpdate;
+		this.actuationLcmService = actuationLcmService;
 	}
 	
 	
@@ -241,7 +246,7 @@ public class NsLcmManager {
 
 		try {
 			// Step 1: check for RAN
-			
+
 			NstServiceProfile nstServiceProfile = networkSliceTemplate.getNstServiceProfile();
 			if(nstServiceProfile != null) {
 				this.sliceType = nstServiceProfile.getsST();
@@ -320,29 +325,34 @@ public class NsLcmManager {
 
 				String ranEndPointId = null;
 				LocationInfo locationInfo = msg.getRequest().getLocationConstraints();
+
 				if (locationInfo.isMeaningful()) {
 					ranEndPointId = msg.getRequest().getRanEndPointId();
 				}
 
-				List<Sapd> saps = nsd.getSapd();
+
 				List<SapData> sapData = new ArrayList<>();
-				for (Sapd sap : saps) {
-					SapData sData = null;
-					if (sap.getCpdId().equals(ranEndPointId)) {
-						sData = new SapData(sap.getCpdId(), 								//SAPD ID
-								"SAP-" + name + "-" + sap.getCpdId(),						//name
-								"SAP " + sap.getCpdId() + " for Network Slice " + name, 	//description
-								null,														//address
-								locationInfo);												//locationInfo
-						log.debug("Set location constraints for SAP " + sap.getCpdId());
-					} else {
-						sData = new SapData(sap.getCpdId(), 							//SAPD ID
-								"SAP-" + name + "-" + sap.getCpdId(),						//name
-								"SAP " + sap.getCpdId() + " for Network Slice " + name, 	//description
-								null,														//address
-								null);														//locationInfo
+				if(nsd!=null) {//This case is NOT triggered when the nfvo catalogue type is NMRO: the related driver does not take the NSD but the NsdInfo only.
+					List<Sapd> saps = nsd.getSapd();
+					for (Sapd sap : saps) {
+						SapData sData = null;
+						log.info("sap.getCpdId() is null {}", sap.getCpdId() == null);
+						if (sap.getCpdId().equals(ranEndPointId)) {
+							sData = new SapData(sap.getCpdId(),                                //SAPD ID
+									"SAP-" + name + "-" + sap.getCpdId(),                        //name
+									"SAP " + sap.getCpdId() + " for Network Slice " + name,    //description
+									null,                                                        //address
+									locationInfo);                                                //locationInfo
+							log.debug("Set location constraints for SAP " + sap.getCpdId());
+						} else {
+							sData = new SapData(sap.getCpdId(),                            //SAPD ID
+									"SAP-" + name + "-" + sap.getCpdId(),                        //name
+									"SAP " + sap.getCpdId() + " for Network Slice " + name,    //description
+									null,                                                        //address
+									null);                                                        //locationInfo
+						}
+						sapData.add(sData);
 					}
-					sapData.add(sData);
 				}
 				log.debug("Completed SAP Data");
 				//TODO: here manage service profile info
@@ -518,11 +528,12 @@ public class NsLcmManager {
 	}
 
 	private void processActuateRequest(ActuateNsiRequestMessage msg){
-		log.debug("Actuating network slice " + networkSliceInstanceUuid);
+		if (internalStatus != NetworkSliceStatus.INSTANTIATED) {
+			manageNsError("Received actuation request in wrong status. Skipping message.");
+			return;
+		}
 		ActuationRequest request = msg.getRequest();
-		//TODO logic actuation logic here
-
-		boolean successful = true;
+		boolean successful =actuationLcmService.processActuation(request);
 		NetworkSliceStatusChangeNotification networkSliceStatusChangeNotification =
 				new NetworkSliceStatusChangeNotification(request.getNsiId(),
 					NetworkSliceStatusChange.NSI_ACTUATED, successful);
