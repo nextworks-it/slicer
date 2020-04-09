@@ -127,6 +127,7 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
         ArbitratorRequest arbitratorRequest = new ArbitratorRequest("requestId", tenantId, nfvNsInstantiationInfo);
 
         arbitratorRequests.add(arbitratorRequest);
+
         ArbitratorResponse arbitratorResponse = arbitratorService.computeArbitratorSolution(arbitratorRequests).get(0);
 
         boolean isAcceptableRequest=arbitratorResponse.isAcceptableRequest();

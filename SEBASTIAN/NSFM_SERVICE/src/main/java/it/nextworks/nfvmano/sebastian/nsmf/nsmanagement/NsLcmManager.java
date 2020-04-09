@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
 import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.elements.NsdInfo;
+import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.messages.QueryNsdResponse;
+import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import it.nextworks.nfvmano.libs.ifa.common.enums.NsScaleType;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
@@ -239,7 +241,7 @@ public class NsLcmManager {
 
 		try {
 			// Step 1: check for RAN
-
+			
 			NstServiceProfile nstServiceProfile = networkSliceTemplate.getNstServiceProfile();
 			if(nstServiceProfile != null) {
 				this.sliceType = nstServiceProfile.getsST();
@@ -288,7 +290,14 @@ public class NsLcmManager {
 				nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.INSTANTIATING);
 
 				log.debug("Retrieving NSD");
-				NsdInfo nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0);
+				NsdInfo nsdInfo;
+				if(!nsmfUtils.isNmroNfvoCatalogueType()) {
+					nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0);
+				}else {
+					Map<String, String> filterParams = new HashMap();
+					filterParams.put("NSD_ID", nsdId);
+					nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(new Filter(filterParams), null)).getQueryResult().get(0);
+				}
 				log.debug("NSD correctly retrieved");
 				this.nsdInfoId = nsdInfo.getNsdInfoId();
 				this.nsd = nsdInfo.getNsd();
@@ -463,7 +472,7 @@ public class NsLcmManager {
 						nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.INSTANTIATED);
 
 						log.debug("Sending notification to engine.");
-						//usageResourceUpdate.addResourceUpdate(networkSliceInstanceUuid,tenantId);
+						usageResourceUpdate.addResourceUpdate(networkSliceInstanceUuid,tenantId);
 						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_CREATED, true,tenantId));
 						break;
 					}
@@ -473,7 +482,7 @@ public class NsLcmManager {
 						//TODO check on requestedInstantiationLevelId
 						nsRecordService.updateNsInstantiationLevelAfterScaling(networkSliceInstanceUuid, requestedInstantiationLevelId);
 						nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.INSTANTIATED);
-						//usageResourceUpdate.modifyResourceUsageUpdate(networkSliceInstanceUuid, tenantId);
+						usageResourceUpdate.modifyResourceUsageUpdate(networkSliceInstanceUuid, tenantId);
 						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_MODIFIED, true,tenantId));
 						break;
 					}
@@ -490,7 +499,7 @@ public class NsLcmManager {
 						nsLcmService.removeNsLcmManager(networkSliceInstanceUuid);
 						log.debug("Sending notification about network slice termination.");
 
-						//usageResourceUpdate.removeResourceUpdate(networkSliceInstanceUuid, tenantId);
+						usageResourceUpdate.removeResourceUpdate(networkSliceInstanceUuid, tenantId);
 						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_TERMINATED, true,tenantId));
 
 						break;

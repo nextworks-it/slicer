@@ -63,7 +63,7 @@ import it.nextworks.nfvmano.catalogue.translator.TranslatorService;
 public class BasicArbitrator extends AbstractArbitrator {
 
 	private static final Logger log = LoggerFactory.getLogger(BasicArbitrator.class);
-
+	private String nfvoCatalogueType;
 	
 
 	public BasicArbitrator(AdminService adminService, VsRecordService vsRecordService, VsDescriptorCatalogueService vsDescriptorCatalogueService,
@@ -71,6 +71,15 @@ public class BasicArbitrator extends AbstractArbitrator {
 						   VirtualResourceCalculatorService vsc, NsmfLcmProviderInterface nsmfLcmProvider) {
 		super(adminService, vsRecordService, vsDescriptorCatalogueService, translatorService, nfvoService, 
 				ArbitratorType.BASIC_ARBITRATOR, vsc, nsmfLcmProvider);
+	}
+
+	public BasicArbitrator(AdminService adminService, VsRecordService vsRecordService, VsDescriptorCatalogueService vsDescriptorCatalogueService,
+						   TranslatorService translatorService, NfvoCatalogueService nfvoService,
+						   VirtualResourceCalculatorService vsc, String nfvoCatalogueType, NsmfLcmProviderInterface nsmfLcmProvider) {
+		super(adminService, vsRecordService, vsDescriptorCatalogueService, translatorService, nfvoService,
+				ArbitratorType.BASIC_ARBITRATOR, vsc, nsmfLcmProvider);
+		this.nfvoCatalogueType=nfvoCatalogueType;
+		virtualResourceCalculatorService.setNfvoCatalogueDriver(nfvoCatalogueType);
 	}
 
 	/**
@@ -372,6 +381,5 @@ public class BasicArbitrator extends AbstractArbitrator {
 		}
     	return target;
 	}
-
 }
 

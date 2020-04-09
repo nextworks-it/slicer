@@ -60,6 +60,9 @@ public class NsmfUtils {
 	@Value("${nfvo.catalogue.username}")
 	private String nfvoCatalogueUsername;
 
+	@Value("${nfvo.catalogue.type}")
+	private String nfvoCatalogueType;
+
 	public NsTemplateInfo getNsTemplateInfoFromCatalogue(String nstUuid)
 			throws NotExistingEntityException {
 
@@ -91,6 +94,9 @@ public class NsmfUtils {
 		return isSsoNmroIntegrationScenario;
 	}
 
+	public boolean isNmroNfvoCatalogueType(){
+		return nfvoCatalogueType.equals("NMRO");
+	}
 	public String getNfvoCatalogueUsername(){
 		return nfvoCatalogueUsername;
 	}

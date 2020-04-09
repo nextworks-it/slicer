@@ -18,6 +18,7 @@ package it.nextworks.nfvmano.sebastian.arbitrator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.Basic;
 
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.sebastian.arbitrator.interfaces.ArbitratorInterface;
@@ -53,6 +54,9 @@ public class ArbitratorService implements ArbitratorInterface {
 	@Value("${arbitrator.type}")
 	private String arbitratorType;
 
+	@Value("${nfvo.catalogue.type}")
+	private String nfvoCatalogueType;
+
 	@Autowired
 	private VirtualResourceCalculatorService virtualResourceCalculatorService;
 
@@ -72,7 +76,7 @@ public class ArbitratorService implements ArbitratorInterface {
 	//In theory, if the arbitrator belongs to the VSMF it should be not able to read the NFVO catalogue.
 	@Autowired
 	private NfvoCatalogueService nfvoCatalogueService;
-	
+
 	private AbstractArbitrator arbitrator;
 	
 	public ArbitratorService() { }
@@ -82,8 +86,11 @@ public class ArbitratorService implements ArbitratorInterface {
 		log.debug("Initializing arbitrator");
 		if (arbitratorType.equals("BASIC")) {
 			log.debug("The Vertical Slicer is configured to operate with a basic arbitrator.");
+			//arbitrator = new BasicArbitrator(adminService, vsRecordService, vsDescriptorCatalogueService,
+			//		translatorService, nfvoCatalogueService, virtualResourceCalculatorService,null); //OLD
 			arbitrator = new BasicArbitrator(adminService, vsRecordService, vsDescriptorCatalogueService,
-					translatorService, nfvoCatalogueService, virtualResourceCalculatorService, null);
+					translatorService, nfvoCatalogueService, virtualResourceCalculatorService, nfvoCatalogueType,null);
+
 		} else {
 			log.error("Arbitrator not configured!");
 		}
