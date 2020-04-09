@@ -320,6 +320,13 @@ public class VsLcmManager {
     private void processActuationRequest(ActuationRequest actuationRequest){
         //From vsiUuid should be get the nsi associated.
         //From the nsi associated should be get the domains and the resulting Ip address, thus the URLs
+        if (internalStatus != VerticalServiceStatus.INSTANTIATED) {
+            final String ERR_MSG = "Received actuation request in wrong status. The End-to-end slice must be instanTiated. Skip this check for now";
+            log.warn(ERR_MSG);
+            //manageVsError(errorMessage);
+            //return;
+        }
+
         VerticalServiceInstance verticalServiceInstance=null;
         try {
             verticalServiceInstance = vsRecordService.getVsInstance(vsiUuid);
@@ -327,7 +334,7 @@ public class VsLcmManager {
             manageVsError("Vertical service instance with ID " +vsiUuid+ "not found into DB.");
             e.printStackTrace();
         }
-        //TODO the vertical slice status must be instantiated. Skipping for now
+
         for(int i=0; i< verticalServiceInstance.getNetworkSlicesId().size(); i++){
             String nsiId = verticalServiceInstance.getNetworkSlicesId().get(i);
             NspNetworkSliceInteraction nspNetworkSliceInteraction =nsiUuidNetworkSliceInfoMap.get(nsiId);
@@ -346,7 +353,6 @@ public class VsLcmManager {
                 log.error("Error during the request of actuation.");
                 e.printStackTrace();
             }
-            //break; <-- use this for single domain ;)
         }
 
     }

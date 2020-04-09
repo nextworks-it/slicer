@@ -209,10 +209,13 @@ public class VsLcmBasicRestController {
 
 	@RequestMapping(value = "/e2ens/{vsiId}/actuate", method = RequestMethod.POST)
 	public ResponseEntity<?> actuate(@PathVariable String vsiId, @RequestBody ActuationRequest request, Authentication auth) {
-		log.debug("Received request to actuate end-to-end Network Service Instance (VSI) with UUID " + vsiId);
+		log.debug("Received request to actuate end-to-end Network Service Instance with UUID " + vsiId);
 		try {
 			String user = getUserFromAuth(auth);
-			//TODO tenant admin cannot actuate
+			if(user.equals(adminTenant)){
+				log.error("Error: the admin cannot perform actuation request.");
+				return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+			}
 			vsLcmService.actuateNsiE2E(request,vsiId);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (MalformattedElementException e) {
