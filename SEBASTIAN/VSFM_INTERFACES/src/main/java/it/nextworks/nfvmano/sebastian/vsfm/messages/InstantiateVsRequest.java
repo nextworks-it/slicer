@@ -15,7 +15,9 @@
 */
 package it.nextworks.nfvmano.sebastian.vsfm.messages;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -38,10 +40,10 @@ public class InstantiateVsRequest implements InterfaceMessage {
 	private String tenantId;
 	private String notificationUrl;
 	private Map<String, String> userData = new HashMap<>();
-	
+
 	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private LocationInfo locationConstraints;
-	
+	private List<LocationInfo> locationsConstraints;
+
 	public InstantiateVsRequest() {	}
 	
 	
@@ -54,17 +56,17 @@ public class InstantiateVsRequest implements InterfaceMessage {
 	 * @param tenantId ID of the tenant instantiating the Vertical Service instance
 	 * @param notificationUrl URL where the tenant wants to receive notifications about the status of or events related to the Vertical Service instance.
 	 * @param userData Additional data, like config parameters provided by the vertical
-	 * @param locationConstraints constraint about the geographical coverage of the service
+	 * @param locationsConstraints constraints about the geographical coverage of the service
 	 */
 	public InstantiateVsRequest(String name, String description, String vsdId, String tenantId, String notificationUrl,
-			Map<String, String> userData, LocationInfo locationConstraints) {
+			Map<String, String> userData, List<LocationInfo> locationsConstraints) {
 		this.name = name;
 		this.description = description;
 		this.vsdId = vsdId;
 		this.tenantId = tenantId;
 		this.notificationUrl = notificationUrl;
 		if (userData != null) this.userData = userData;
-		this.locationConstraints = locationConstraints;
+		this.locationsConstraints=locationsConstraints;
 	}
 
 	
@@ -118,12 +120,11 @@ public class InstantiateVsRequest implements InterfaceMessage {
 
 	
 	/**
-	 * @return the locationConstraints
+	 * @return the locationsConstraints
 	 */
-	public LocationInfo getLocationConstraints() {
-		return locationConstraints;
+	public List<LocationInfo> getLocationsConstraints() {
+		return locationsConstraints;
 	}
-
 
 	@Override
 	public void isValid() throws MalformattedElementException {
@@ -131,7 +132,11 @@ public class InstantiateVsRequest implements InterfaceMessage {
 		if (description == null) throw new MalformattedElementException("Instantiate VS request without VS instance description");
 		if (vsdId == null) throw new MalformattedElementException("Instantiate VS request without VSD ID");
 		//if (tenantId == null) throw new MalformattedElementException("Instantiate VS request without tenant ID");
-		if (locationConstraints != null) locationConstraints.isValid();
+		if(locationsConstraints!=null){
+			for(LocationInfo locationInfo: locationsConstraints){
+				locationInfo.isValid();
+			}
+		}
 	}
 
 }

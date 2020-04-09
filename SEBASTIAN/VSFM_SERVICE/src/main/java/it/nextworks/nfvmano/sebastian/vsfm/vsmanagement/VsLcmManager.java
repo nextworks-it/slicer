@@ -25,6 +25,7 @@ import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
 import it.nextworks.nfvmano.catalogue.translator.TranslatorService;
 import it.nextworks.nfvmano.catalogues.domainLayer.services.DomainCatalogueService;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.arbitrator.ArbitratorService;
 import it.nextworks.nfvmano.sebastian.arbitrator.messages.ArbitratorResponse;
@@ -36,6 +37,7 @@ import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
+import it.nextworks.nfvmano.sebastian.vsfm.NetworkSliceInternalInfo;
 import it.nextworks.nfvmano.sebastian.vsfm.VsLcmService;
 import it.nextworks.nfvmano.sebastian.vsfm.VsmfUtils;
 import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.*;
@@ -76,13 +78,13 @@ public class VsLcmManager {
     private List<String> nestedVsi = new ArrayList<>();
 
     private String networkSliceUuid;
-    private Map<String,String> domainIdNstIdMap;
+    private Map<String,NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap;
     //Key: VSD UUID; Value: VSD
     private Map<String, VsDescriptor> vsDescriptors = new HashMap<>();
     private String tenantId;
 
     //Key: network slice UUID. Value: object containing the nsmf client in order to interact with NSP and the NST used to create and then instanciate the network slice.
-    private HashMap<String, NetworkSliceInfo> nsiUuidNetworkSliceInfoMap = new HashMap<String, NetworkSliceInfo>();
+    private HashMap<String, NspNetworkSliceInteraction> nsiUuidNetworkSliceInfoMap = new HashMap<String, NspNetworkSliceInteraction>();
     // the following is for the WAITING_FOR_RESOURCES status
     ArbitratorResponse storedResponse;
     NfvNsInstantiationInfo storedNfvNsInstantiationInfo;
@@ -114,7 +116,7 @@ public class VsLcmManager {
                         DomainCatalogueService domainCatalogueService,
                         NsmfLcmProviderInterface nsmfLcmProvider,
                         VsmfUtils vsmfUtils,
-                        Map<String,String> domainIdNstIdMap
+                        Map<String, NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap
                         ) {
         this.vsiUuid = vsiUuid;
         this.vsiName=vsiName;
@@ -129,7 +131,7 @@ public class VsLcmManager {
         this.domainCatalogueService = domainCatalogueService;
         this.nsmfLcmProvider = nsmfLcmProvider;
         this.vsmfUtils = vsmfUtils;
-        this.domainIdNstIdMap = domainIdNstIdMap;
+        this.domainIdNetworkSliceInternalInfoMap = domainIdNetworkSliceInternalInfoMap;
     }
 
     /**
@@ -245,7 +247,7 @@ public class VsLcmManager {
             log.debug("The VSD has been translated in the required network slice(s) characteristics.");
 
             log.info("Going to perform the network slice creation request(s)");
-            for(String domainId: domainIdNstIdMap.keySet()) {
+            for(String domainId: domainIdNetworkSliceInternalInfoMap.keySet()) {
                 Domain domain = null;
                 try {
                     domain = domainCatalogueService.getDomain(domainId);
@@ -254,14 +256,14 @@ public class VsLcmManager {
                 }
                 DomainInterface domainInterface = domain.getDomainInterface();
                 final String BASE_URL = "http://" + domainInterface.getUrl() + ":" + domainInterface.getPort();
-                String nstId = domainIdNstIdMap.get(domainId);
-                if (nstId == null) {
+                String nstUuid = domainIdNetworkSliceInternalInfoMap.get(domainId).getNstUuid();
+                if (nstUuid == null) {
                     manageVsError("Error while instantiating VS " + vsiUuid + ": NST for domain with ID " + domainId + " not found.");
                     return;
                 }
 
                 //Perform request to create network slice
-                CreateNsiUuidRequest request = new CreateNsiUuidRequest(nstId, "NS - " + vsiName, "Network slice for VS " + vsiName);
+                CreateNsiUuidRequest request = new CreateNsiUuidRequest(nstUuid, "NS - " + vsiName, "Network slice for VS " + vsiName);
                 NsmfRestClient nsmfRestClient = new NsmfRestClient(BASE_URL, adminService);
                 String nsiUuid = null;
                 try {
@@ -275,8 +277,8 @@ public class VsLcmManager {
                     }
                     manageVsError("Error while instantiating VS " + vsiUuid + " "+ e.getMessage());
                 }
-
-                nsiUuidNetworkSliceInfoMap.put(nsiUuid, new NetworkSliceInfo(nsmfRestClient,nstId));
+                LocationInfo locationInfoVsi =domainIdNetworkSliceInternalInfoMap.get(domainId).getLocationInfo();
+                nsiUuidNetworkSliceInfoMap.put(nsiUuid, new NspNetworkSliceInteraction(nsmfRestClient,nstUuid,locationInfoVsi));
                 log.info("Network slice with UUID: " + nsiUuid + " has been created.");
             }
 
@@ -288,7 +290,7 @@ public class VsLcmManager {
                         nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNstId(),
                         null,null, null,
                         msg.getRequest().getUserData(),
-                        msg.getRequest().getLocationConstraints(),
+                        nsiUuidNetworkSliceInfoMap.get(nsiUuid).getLocationInfoVsi(),
                         msg.getRanEndpointId());
                 log.info("Performing request to instantiate network slice with UUID "+nsiUuid+".");
                 NsmfRestClient nsmfRestClient=nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNsmfRestClient();
@@ -307,8 +309,8 @@ public class VsLcmManager {
                 } catch (NotExistingEntityException e) {
                     e.printStackTrace();
                 }
-
             }
+
             log.info("Performed successfully instantiation of  "  +nsiUuidNetworkSliceInfoMap.size() + "Network Slice Instance(s).\n");
             //TODO remove nst from buckets or mark them as reusable (if any)
 
@@ -328,12 +330,12 @@ public class VsLcmManager {
         //TODO the vertical slice status must be instantiated. Skipping for now
         for(int i=0; i< verticalServiceInstance.getNetworkSlicesId().size(); i++){
             String nsiId = verticalServiceInstance.getNetworkSlicesId().get(i);
-            NetworkSliceInfo networkSliceInfo=nsiUuidNetworkSliceInfoMap.get(nsiId);
-            if(networkSliceInfo==null){
+            NspNetworkSliceInteraction nspNetworkSliceInteraction =nsiUuidNetworkSliceInfoMap.get(nsiId);
+            if(nspNetworkSliceInteraction ==null){
                 manageVsError("No local info found about Network Slice Instance with UUID "+nsiId );
                 return;
             }
-            NsmfRestClient nsmfRestClient = networkSliceInfo.getNsmfRestClient();
+            NsmfRestClient nsmfRestClient = nspNetworkSliceInteraction.getNsmfRestClient();
 
             try {
                 actuationRequest.setNotificationEndpoint("/vs/notifications/actuation/"+nsiId);
@@ -403,7 +405,7 @@ public class VsLcmManager {
                 		nsiInfo.getInstantiationLevelId(),
                 		nsSubnetInstanceUuids,
                 		msg.getRequest().getUserData(),
-                		msg.getRequest().getLocationConstraints(),
+                		msg.getRequest().getLocationsConstraints().get(0),//Supposed one location. TODO generalise
                 		msg.getRanEndpointId());
                 log.debug("Sending request to instantiate network slice ");
                 nsmfLcmProvider.instantiateNetworkSlice(instantiateNsiReq, tenantId);
@@ -650,32 +652,29 @@ public class VsLcmManager {
 
 
 
-private class NetworkSliceInfo{
+private class NspNetworkSliceInteraction {
         private NsmfRestClient nsmfRestClient;
         private String nstId;
+        private LocationInfo locationInfoVsi;
 
-
-        public NetworkSliceInfo(NsmfRestClient nsmfRestClient, String nstId){
+        public NspNetworkSliceInteraction(NsmfRestClient nsmfRestClient, String nstId, LocationInfo locationInfoVsi){
             this.nsmfRestClient=nsmfRestClient;
             this.nstId=nstId;
+            this.locationInfoVsi= locationInfoVsi;
         }
-
 
     public NsmfRestClient getNsmfRestClient() {
         return nsmfRestClient;
-    }
-
-    public void setNsmfRestClient(NsmfRestClient nsmfRestClient) {
-        this.nsmfRestClient = nsmfRestClient;
     }
 
     public String getNstId() {
         return nstId;
     }
 
-    public void setNstId(String nstId) {
-        this.nstId = nstId;
+    public LocationInfo getLocationInfoVsi() {
+        return locationInfoVsi;
     }
+
 }
 
 }

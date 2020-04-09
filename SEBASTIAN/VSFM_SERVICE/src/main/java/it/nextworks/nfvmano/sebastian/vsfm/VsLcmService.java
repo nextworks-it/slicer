@@ -172,9 +172,9 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 			log.debug("Set user configuration parameters for VS instance.");
 		}
 
-		LocationInfo locationConstraints = request.getLocationConstraints();
+		List<LocationInfo> locationsConstraints = request.getLocationsConstraints();
 		String ranEndPointId = null;
-		if (locationConstraints != null) {
+		if (locationsConstraints != null && locationsConstraints.size()>0) {
 			ranEndPointId = vsb.getRanEndPoint();
 			if (ranEndPointId != null)
 				log.debug("Set location constraints and RAN endpoint for VS instance.");
@@ -182,20 +182,23 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		}
 
 		log.debug("The VS instantiation request is valid.");
-		String vsiUuid = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData, locationConstraints, ranEndPointId);
+		String vsiUuid = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData, locationsConstraints, ranEndPointId);
 
 		RuntimeTranslator runtimeTranslator = new RuntimeTranslator(bucketRepository,vsDescriptorCatalogueService);
-		log.info("Filtering vsd against the NSTs buckets.");
+		log.info("Filtering Vertical Service Instantiation request against the NSTs buckets.");
 		ArrayList<Long> suitableBuckets = runtimeTranslator.translate(vsdId);
-		HashMap<String,String> domainIdNstIdMap=new HashMap<String,String>();
+		HashMap<String,NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap=new HashMap<String,NetworkSliceInternalInfo>();
 
-		if (locationConstraints != null) {
-			log.info("Filter NSTs by geographical constraints.");
-			domainIdNstIdMap=runtimeTranslator.filterByLocationConstraints(suitableBuckets, locationConstraints);
+		if (locationsConstraints != null) {
+			log.info("Filtering NSTs by geographical constraints in the Vertical Service Instance.");
+			for (LocationInfo locationConstraints : locationsConstraints) {
+				domainIdNetworkSliceInternalInfoMap = runtimeTranslator.filterByLocationConstraints(suitableBuckets, locationConstraints, domainIdNetworkSliceInternalInfoMap);
+
+			}
 		}
-		domainIdNstIdMap= runtimeTranslator.naiveArbitrator(suitableBuckets);
+		log.info("The Geographical filtering results in "+domainIdNetworkSliceInternalInfoMap.size()+" NST(s)");
 
-		initNewVsLcmManager(vsiUuid, request.getName(), domainIdNstIdMap);
+		initNewVsLcmManager(vsiUuid, request.getName(), domainIdNetworkSliceInternalInfoMap);
 
 		if (!(tenantId.equals(adminTenant))) adminService.addVsiInTenant(vsiUuid, tenantId);
 		try {
@@ -589,7 +592,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
      *
      * @param vsiUuid ID of the VS instance for which the VS LCM Manager must be initialized
      */
-    private void initNewVsLcmManager(String vsiUuid, String vsiName, HashMap<String,String> domainIdNstIdMap) {
+    private void initNewVsLcmManager(String vsiUuid, String vsiName, HashMap<String,NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap) {
         log.debug("Initializing new VS LCM manager for VSI UUID " + vsiUuid);
         VsLcmManager vsLcmManager = new VsLcmManager(vsiUuid,
         		vsiName,
@@ -603,7 +606,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
         		domainCatalogueService,
         		nsmfLcmProvider,
         		vsmfUtils,
-				domainIdNstIdMap);
+				domainIdNetworkSliceInternalInfoMap);
         createQueue(vsiUuid, vsLcmManager);
         vsLcmManagers.put(vsiUuid, vsLcmManager);
         log.debug("VS LCM manager for VSI UUID " + vsiUuid + " initialized and added to the engine.");

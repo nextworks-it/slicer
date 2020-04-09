@@ -24,6 +24,7 @@ public class RuntimeTranslator {
 
     private BucketRepository bucketRepository;
     private VsDescriptorCatalogueService vsDescriptorCatalogueService;
+    private HashMap<String, NstAdvertisedInfo> nstAdvertisedMap;
 
     private static final Logger log = LoggerFactory.getLogger(RuntimeTranslator.class);
 
@@ -55,50 +56,58 @@ public class RuntimeTranslator {
         return null;
     }
 
-    //It selects all the NSTs that satisfies the geographical constraints info.
-    public HashMap<String,String> filterByLocationConstraints(ArrayList<Long> filteredBucketsId, LocationInfo locationInfo){
-        //key: nstUUID, value advertised NST object
-        HashMap<String,String> domainIdNstUUIDMap = new HashMap<String,String>();
-
-        //First step: all the NSTs in the different bucketa, are put into a map.
-        HashMap<String, NstAdvertisedInfo> nstAdvertisedMap = new HashMap<String, NstAdvertisedInfo>();
+    private void setNstAdvertisedMap(ArrayList<Long> filteredBucketsId){
+        nstAdvertisedMap = new HashMap<String, NstAdvertisedInfo>();
         for(Long bucketId: filteredBucketsId){
             Bucket bucket=bucketRepository.findById(bucketId).get();
             for(NstAdvertisedInfo nstAdvertisedInfo: bucket.getNstAdvertisedInfoList()){
                 String nstUUID = nstAdvertisedInfo.getNstId();
                 log.info("Nst UUID is "+nstUUID);
                 if(nstAdvertisedMap.get(nstUUID)==null){
-                    log.info("Nst UUID "+nstAdvertisedInfo.getNstId()+"going to be added");
+                    log.info("Nst UUID "+nstAdvertisedInfo.getNstId()+" going to be added");
                     nstAdvertisedMap.put(nstUUID,nstAdvertisedInfo);
                 }
             }
         }
+    }
+
+
+    //It selects all the NSTs that satisfies the geographical constraints info.
+    public HashMap<String,NetworkSliceInternalInfo> filterByLocationConstraints(ArrayList<Long> filteredBucketsId, LocationInfo locationInfo,  HashMap<String,NetworkSliceInternalInfo> networkSliceInternalInfoMap){
+        //Step #1: all the NSTs in the different buckets, are put into a map. This process is made once per Vertical Service Instance request, regardless the number of geo constraints.
+        if(nstAdvertisedMap==null)
+            setNstAdvertisedMap(filteredBucketsId);
+
         log.info("There are "+nstAdvertisedMap.size()+ " NST(s) advertised.");
 
-        //Then, for each advertised NST are checked the geographic constraints.
+        //Step #2: for each advertised NST are checked the geographic constraints.
+        if(networkSliceInternalInfoMap ==null)
+            networkSliceInternalInfoMap = new HashMap<String,NetworkSliceInternalInfo>();
+
         for(String nstUUID: nstAdvertisedMap.keySet()){
             NstAdvertisedInfo nstAdvertisedInfo = nstAdvertisedMap.get(nstUUID);
             String domainId = nstAdvertisedInfo.getDomainId();
-            log.info("Checking geographical info about NST with UUID: "+nstUUID +" It has "+nstAdvertisedInfo.getGeographicalAreaInfoList().size() + " location.");
+            //log.info("Checking geographical info about NST with UUID: "+nstUUID +" It has "+nstAdvertisedInfo.getGeographicalAreaInfoList().size() + " location.");
             List<GeographicalAreaInfo> geographicalAreaInfos = nstAdvertisedInfo.getGeographicalAreaInfoList();
             for(int i=0; i<geographicalAreaInfos.size(); i++){
                 GeographicalAreaInfo geo = geographicalAreaInfos.get(i);
                 double distanceMeter=geo.computeDistanceMeter(locationInfo.getLatitude(), locationInfo.getLongitude());
-                log.debug("The distance between VSI center and NST with UUID "+nstUUID+" at geolocation #"+i+" is " +distanceMeter+ " meters.");
+                //log.debug("The distance between VSI center and NST with UUID "+nstUUID+" at geolocation #"+i+" is " +distanceMeter+ " meters.");
                 Map<String,Double> distanceToTheEdges=geo.getDistanceToTheEdgesInMeter(locationInfo.getLatitude(), locationInfo.getLongitude());
                 for(String edgeName: distanceToTheEdges.keySet()){
                     double distanceToTheEdge = distanceToTheEdges.get(edgeName);
-                    //Finally, if the geo constraint are satisfied, it is put into the map the nstID and the domainID.
-                    if(distanceToTheEdge<locationInfo.getRange() && domainIdNstUUIDMap.get(domainId)==null){
-                        log.info("NST with UUID "+nstUUID+"  satisfied the geographical constraint.");
-                        domainIdNstUUIDMap.put(domainId, nstUUID);
+                    //Step #3: if the geo constraint are satisfied, it is put into the map the nstID, the domainID and the location info of VSI.
+                    if(distanceToTheEdge<locationInfo.getRange() && networkSliceInternalInfoMap.get(domainId)==null){
+                        log.info("NST with UUID "+nstUUID+"  satisfies the geographical constraints.");
+                        networkSliceInternalInfoMap.put(domainId, new NetworkSliceInternalInfo(domainId, nstUUID, locationInfo));
                     }
                 }
             }
         }
-        if(domainIdNstUUIDMap.size()==0)
-            log.warn("Warning the geographical filter did not return any NST.");
-        return domainIdNstUUIDMap;
+        if(networkSliceInternalInfoMap.size()==0)
+            log.warn("Warning: the geographical filter did not return any NST.");
+
+        return networkSliceInternalInfoMap;
     }
 
     public boolean embbBucketSelection(BucketEMBB bucketEMBB, VsDescriptor vsd) throws NotExistingEntityException {
@@ -223,26 +232,6 @@ public class RuntimeTranslator {
         }
         return null;
     }
-
-
-    //Basically it takes the first two NSTs belonging to the first two different domains.
-    public HashMap<String, String> naiveArbitrator(ArrayList<Long> suitableBuckets) {
-        log.info("Started naive arbitrator.");
-        HashMap<String, String> domainIdNstIdMap = new HashMap<>();
-        for(Long bucketId: suitableBuckets){
-            Bucket bucket=bucketRepository.findById(bucketId).get();
-            List<NstAdvertisedInfo> nstAdvertisedInfos=bucket.getNstAdvertisedInfoList();
-            for(NstAdvertisedInfo nstAdvertisedInfo: nstAdvertisedInfos){
-                String domainId=nstAdvertisedInfo.getDomainId();
-                String nstId = nstAdvertisedInfo.getNstId();
-                if(domainIdNstIdMap.get(domainId)==null){
-                    domainIdNstIdMap.put(domainId,nstId);
-                }
-            }
-        }
-        return domainIdNstIdMap;
-    }
-
 
 
 }

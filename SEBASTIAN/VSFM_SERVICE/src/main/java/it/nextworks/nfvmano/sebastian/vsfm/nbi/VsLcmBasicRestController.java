@@ -89,6 +89,7 @@ public class VsLcmBasicRestController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
 			log.error("VS instantiation failed due to internal errors.");
+			log.error(e.getMessage());
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -208,7 +209,7 @@ public class VsLcmBasicRestController {
 
 	@RequestMapping(value = "/e2ens/{vsiId}/actuate", method = RequestMethod.POST)
 	public ResponseEntity<?> actuate(@PathVariable String vsiId, @RequestBody ActuationRequest request, Authentication auth) {
-		log.debug("Received request to modify E2E NSI UUID " + vsiId);
+		log.debug("Received request to actuate end-to-end Network Service Instance (VSI) with UUID " + vsiId);
 		try {
 			String user = getUserFromAuth(auth);
 			//TODO tenant admin cannot actuate

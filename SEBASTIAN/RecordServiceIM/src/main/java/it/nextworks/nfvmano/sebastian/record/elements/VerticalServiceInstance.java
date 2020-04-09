@@ -56,11 +56,15 @@ public class VerticalServiceInstance {
 	@Fetch(FetchMode.SELECT)
 	@Cascade(org.hibernate.annotations.CascadeType.ALL)
 	private Map<String, String> userData = new HashMap<>();
-	
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	@Embedded
-	private LocationInfo locationConstraints;
-	
+
+	public void setLocationsConstraints(List<LocationInfo> locationsConstraints) {
+		this.locationsConstraints = locationsConstraints;
+	}
+
+	@ElementCollection(targetClass=LocationInfo.class)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	private List<LocationInfo> locationsConstraints;
+
 	@JsonIgnore
 	private String ranEndPointId;
 
@@ -73,7 +77,8 @@ public class VerticalServiceInstance {
 	@OneToMany
 	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<VerticalServiceInstance> nestedVsi;
-	
+
+
 	private String errorMessage; //this field gets a value only in case of failure
 	
 	public VerticalServiceInstance() {}
@@ -89,11 +94,11 @@ public class VerticalServiceInstance {
 	 * @param description description of the VS instance
 	 * @param networkSliceId ID of the network slice implementing the VS instance
 	 * @param userData configuration parameters provided by the vertical
-	 * @param locationConstraints constraint about the geographical coverage of the service
+	 * @param locationsConstraints constraints about the geographical coverage of the service. The service could be deployed in different areas.
 	 * @param ranEndPointId ID of the end point attached to the RAN segment
 	 */
 	public VerticalServiceInstance(String vsiId, String vsdId, String tenantId, String name, String description,
-			String networkSliceId, Map<String, String> userData, LocationInfo locationConstraints, String ranEndPointId) {
+								   String networkSliceId, Map<String, String> userData, List<LocationInfo> locationsConstraints, String ranEndPointId) {
 		this.vsiId = vsiId;
 		this.vsdId = vsdId;
 		this.tenantId = tenantId;
@@ -102,11 +107,11 @@ public class VerticalServiceInstance {
 		this.networkSliceId = networkSliceId;
 		this.status = VerticalServiceStatus.INSTANTIATING;
 		if (userData != null) this.userData = userData;
-		if (locationConstraints != null) this.locationConstraints = locationConstraints;
-			else this.locationConstraints = new LocationInfo();
+		if (locationsConstraints != null){
+			this.locationsConstraints = locationsConstraints;
+		}
 		this.ranEndPointId = ranEndPointId;
 	}
-
 
 
 	/**
@@ -114,14 +119,6 @@ public class VerticalServiceInstance {
 	 */
 	public String getRanEndPointId() {
 		return ranEndPointId;
-	}
-
-
-	/**
-	 * @return the locationConstraints
-	 */
-	public LocationInfo getLocationConstraints() {
-		return locationConstraints;
 	}
 
 
@@ -267,4 +264,9 @@ public class VerticalServiceInstance {
 	public void setNetworkSlicesId(List<String> networkSlicesId) {
 		this.networkSlicesId = networkSlicesId;
 	}
+
+	public List<LocationInfo> getLocationsConstraints() {
+		return locationsConstraints;
+	}
+
 }

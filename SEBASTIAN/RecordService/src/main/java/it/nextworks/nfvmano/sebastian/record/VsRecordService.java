@@ -64,13 +64,13 @@ public class VsRecordService {
 	 * @param vsdId       ID of the VSD
 	 * @param tenantId    ID owning the VSI
 	 * @param userData	  configuration parameters provided by the vertical
-	 * @param locationConstraints constraints on the geographical placement of the service
+	 * @param locationsConstraints constraints on the geographical placement of the service
 	 * @param ranEndPointId ID of the connection point attached to the RAN
 	 * @return the UUID assigned to the Vertical Service instance
 	 */
-	public synchronized String createVsInstance(String name, String description, String vsdId, String tenantId, Map<String, String> userData, LocationInfo locationConstraints, String ranEndPointId) {
+	public synchronized String createVsInstance(String name, String description, String vsdId, String tenantId, Map<String, String> userData, List<LocationInfo> locationsConstraints, String ranEndPointId) {
 		log.debug("Creating a new VS instance in DB.");
-		VerticalServiceInstance vsi = new VerticalServiceInstance(null, vsdId, tenantId, name, description, null, userData, locationConstraints, ranEndPointId);
+		VerticalServiceInstance vsi = new VerticalServiceInstance(null, vsdId, tenantId, name, description, null, userData, locationsConstraints, ranEndPointId);
 		vsInstanceRepository.saveAndFlush(vsi);
 		String vsiUuid = vsi.getUuid().toString();
 		log.debug("Created Vertical Service instance with UUID " + vsiUuid);
@@ -98,7 +98,7 @@ public class VsRecordService {
 	/**
 	 * This method updates the VSI in DB, setting it in failure state and filling its error message.
 	 *
-	 * @param vsiId        Uuid of the VSI to be modified in the DB
+	 * @param vsiUuid        Uuid of the VSI to be modified in the DB
 	 * @param errorMessage error message to be set for the VSI
 	 */
 	public synchronized void setVsFailureInfo(String vsiUuid, String errorMessage) {
@@ -116,7 +116,7 @@ public class VsRecordService {
 	/**
 	 * This method updates the VSI in DB, setting its status
 	 *
-	 * @param vsiId  UUID of the VSI to be modified in the DB
+	 * @param vsiUuid  UUID of the VSI to be modified in the DB
 	 * @param status new status of the VSI
 	 * @throws NotExistingEntityException if the VSI does not exist in DB.
 	 */
@@ -132,7 +132,7 @@ public class VsRecordService {
 	 * This method update the VSI in DB, setting the associated network slice instance
 	 *
 	 * @param vsiUuid ID of the VSI to be updated
-	 * @param nsiId ID of the NSI to be associated to the VSI
+	 * @param nsiUuid ID of the NSI to be associated to the VSI
 	 * @throws NotExistingEntityException if the VSI does not exist
 	 */
 	public synchronized void setNsiInVsi(String vsiUuid, String nsiUuid) throws NotExistingEntityException {
@@ -147,7 +147,7 @@ public class VsRecordService {
 	 * This method update the VSI in DB, adding the associated network slice instance
 	 *
 	 * @param vsiUuid ID of the VSI to be updated
-	 * @param nsiId ID of the NSI to be associated to the VSI
+	 * @param nsiUuid ID of the NSI to be associated to the VSI
 	 * @throws NotExistingEntityException if the VSI does not exist
 	 */
 	public synchronized void addNsiInVsi(String vsiUuid, String nsiUuid) throws NotExistingEntityException {

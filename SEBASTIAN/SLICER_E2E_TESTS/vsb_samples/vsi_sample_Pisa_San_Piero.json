@@ -1,0 +1,20 @@
+{
+    "name":"test_instance_Pisa_San_Pietro",
+    "description":"5gt service instance in Pisa and S. Piero",
+    "vsdId":"vsdId",
+    "tenantId":"tenantId",
+    "userData": {},
+    "locationsConstraints":[{
+        "latitude":"43.7202",
+        "longitude": "10.4012",
+        "range": "7000"
+    },{
+	"latitude":"43.6809",
+        "longitude": "10.3387",
+        "range": "7000"
+    }]
+}
+
+---------------------------------------------
+
+
