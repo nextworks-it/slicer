@@ -9,6 +9,7 @@ import it.nextworks.nfvmano.sebastian.vsfm.messages.InstantiateVsRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.ModifyVsRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.PurgeVsRequest;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.TerminateVsRequest;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,14 +32,18 @@ public class SlicerE2ETest {
     private String nstUuid;
     private String vsiUuid;
 
-    private final String VSMF_HOST = "http://127.0.0.1:8081";
+    private final String VSMF_IP = "10.30.8.54";
+    private final String NSMF_IP = "10.30.8.54";
+    private final String NSMF2_IP = "10.30.8.76";
+
+    private final String VSMF_HOST = "http://"+VSMF_IP+":8081";
     EndPointInteraction dspInteraction = new EndPointInteraction(VSMF_HOST, "DSP");
 
-    private final String NSMF_HOST= "http://127.0.0.1:8082";
+    private final String NSMF_HOST= "http://"+NSMF_IP+":8082";
     EndPointInteraction nspInteraction = new EndPointInteraction(NSMF_HOST, "NSP A");
 
-    private final String NSMF_HOST2= "http://127.0.0.1:8083";
-    EndPointInteraction nspInteraction2 = new EndPointInteraction(NSMF_HOST2, "NSP B");
+    //private final String NSMF_HOST2= "http://"+NSMF2_IP+":8082";
+    //EndPointInteraction nspInteraction2 = new EndPointInteraction(NSMF_HOST2, "NSP B");
 
 
 
@@ -274,8 +279,14 @@ public class SlicerE2ETest {
 
     }
 
+
+
+
+
     @Test
     public void onBoardVSBWithNstID(){
+
+
         //NSP1 SIDE
         nspInteraction.loginAdmin();
         nspInteraction.createGroup("NSP_group");
@@ -286,12 +297,12 @@ public class SlicerE2ETest {
 
 
         //NSP2 SIDE
-        nspInteraction2.loginAdmin();
-        nspInteraction2.createGroup("NSP_group");
-        nspInteraction2.createTenant("tenant_nsp_sample_b.json");
-        nspInteraction2.createSLA();
-        nspInteraction.createSLANoResource();
-        nspInteraction2.loginTenant();
+        //nspInteraction2.loginAdmin();
+        //nspInteraction2.createGroup("NSP_group");
+        //nspInteraction2.createTenant("tenant_nsp_sample_b.json");
+        //nspInteraction2.createSLA();
+        //nspInteraction2.createSLANoResource();
+        // nspInteraction2.loginTenant();
 
 
         //DSP SIDE
@@ -310,7 +321,7 @@ public class SlicerE2ETest {
                 "nsp_a","nsp a description",
                 "nsp_a owner","nsp_a admin",
                 domainLayerArrayList,new HashSet<DomainAgreement>(),
-                new DomainInterface("127.0.0.1",
+                new DomainInterface(NSMF_IP,
                 8082,true, InterfaceType.HTTP));
         domain.setDomainStatus(DomainStatus.ACTIVE);
 
@@ -320,24 +331,24 @@ public class SlicerE2ETest {
                 "nsp_b","nsp_b descr",
                 "nsp_b owner","nsp_b admin",
                 domainLayerArrayList2,new HashSet<DomainAgreement>(),
-                new DomainInterface("127.0.0.1",
-                        8083,true, InterfaceType.HTTP));
+                new DomainInterface(NSMF2_IP,
+                        8082,true, InterfaceType.HTTP));
         domainb.setDomainStatus(DomainStatus.ACTIVE);
         dspInteraction.addDomainInfo(domain);
         dspInteraction.addDomainInfo(domainb);
 
-        dspInteraction.createRemoteTenantInfo2(nspInteraction2.getTenant(),NSMF_HOST2);
+        //dspInteraction.createRemoteTenantInfo2(nspInteraction2.getTenant(),NSMF_HOST2);
 
         dspInteraction.associateLocalTenantWithRemoteTenant();
-        dspInteraction.associateLocalTenantWithRemoteTenant2();
+        //dspInteraction.associateLocalTenantWithRemoteTenant2();
 
         //On NSP1
         nspInteraction.createRemoteTenantInfo(dspInteraction.getTenantNot(),VSMF_HOST);
         nspInteraction.associateLocalTenantWithRemoteTenant();
 
         //On NSP2
-        nspInteraction2.createRemoteTenantInfo(dspInteraction.getTenantNot2(),VSMF_HOST);
-         nspInteraction2.associateLocalTenantWithRemoteTenant();
+        //nspInteraction2.createRemoteTenantInfo(dspInteraction.getTenantNot2(),VSMF_HOST);
+        // nspInteraction2.associateLocalTenantWithRemoteTenant();
 
 
         //ON NSP1
@@ -348,11 +359,11 @@ public class SlicerE2ETest {
 
 
         //ON NSP2
-        String nstUuid_2 =nspInteraction2.onBoardNST("nst_sample_S_Piero.json"));
-        String nstUuid2_2 =nspInteraction2.onBoardNST("nst_sample2.json");
-        String nstUuid3_2 =nspInteraction2.onBoardNST("nst_sample3.json");
-        nspInteraction2.removeNST(nstUuid2_2);
-        String nstUrlccUuid_2 =nspInteraction2.onBoardNST("nst_sample_urlcc.json");
+        //String nstUuid_2 =nspInteraction2.onBoardNST("nst_sample_S_Piero.json");
+        //String nstUuid2_2 =nspInteraction2.onBoardNST("nst_sample2.json");
+        //String nstUuid3_2 =nspInteraction2.onBoardNST("nst_sample3.json");
+        //nspInteraction2.removeNST(nstUuid2_2);
+        //String nstUrlccUuid_2 =nspInteraction2.onBoardNST("nst_sample_urlcc.json");
 
         //DSP side
         //onBoardVsbWithNstTransRules(VSMF_HOST, "vsblueprint_osm_sample.json", nstUuid);
@@ -365,15 +376,48 @@ public class SlicerE2ETest {
         String vsdUrbanId1= testVSDOnBoarding(vsbIdUrban,"vsb_samples/vsd_urban_1.json");
 
         String vsiId = VSIinstantionTest(vsdStreamingId,"vsb_samples/vsi_sample_Pisa_San_Piero.json");
-        log.info("VSI instantiated. Id is "+vsiId);
+        log.info("Waiting slice instantiation");
 
 
-        Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("key1","value1");
-        parameters.put("key2","value2");
-        ActuationRequest actuationRequest = new ActuationRequest(vsiId, "actuationName", "actiatonDescription",parameters,"");
-        log.info("Going to perform actuation request for vsi with ID " + vsiId);
+        try {
+            Thread.sleep(70000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        log.info("Slice should be instantiated");
+         /*
+        Map<String, Object> qosContraint = new HashMap<>();
+        Map<String, Object> ranCoreContraint = new HashMap<>();
+        Map<String, Object> ranCoreContraint2 = new HashMap<>();
+        ranCoreContraint.put("bandIncDir",  "DL");
+        ranCoreContraint.put("bandIncVal",  "10");
+        ranCoreContraint.put("bandUnitScale",  "MB");
+
+        ranCoreContraint2.put("bandIncDir",  "UL");
+        ranCoreContraint2.put("bandIncVal",  "10");
+        ranCoreContraint2.put("bandUnitScale",  "MB");
+        List<Map<String, Object>> ranArray = new ArrayList<>();
+        ranArray.add(ranCoreContraint);
+
+        ranArray.add(ranCoreContraint2);
+        qosContraint.put("ran_core_constraints", ranArray);
+         ActuationRequest actuationRequest = new ActuationRequest(vsiId, "actuationName", "actuationDescription",qosContraint,"");
+        */
+
+        Map<String, String> qosRedirectParameters = new HashMap<>();
+        Map<String, Object> qosRedirectParametersParent = new HashMap<>();
+        qosRedirectParameters.put("FromServer", "192.168.100.6");
+        qosRedirectParameters.put("ToServer", "192.168.100.7");
+        qosRedirectParametersParent.put("routes", qosRedirectParameters);
+        qosRedirectParametersParent.put("ueIMSI", "208920100001103");
+
+        ActuationRequest actuationRequest = new ActuationRequest(vsiId, "actuationName", "actuationDescription",qosRedirectParametersParent,"");
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/"+vsiId+"/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+
+
+
+
         // try {
         //    log.info("Waiting vertical service to be instanciated");
         //    Thread.sleep(30000);

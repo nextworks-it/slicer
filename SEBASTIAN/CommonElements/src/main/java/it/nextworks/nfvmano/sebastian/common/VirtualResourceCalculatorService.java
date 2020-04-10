@@ -86,7 +86,7 @@ public class VirtualResourceCalculatorService {
                 int vnfRam = 0;
                 int vnfVCpu = 0;
                 int vnfDisk = 0;
-                //printJson(vnfd);
+                printJson(vnfd);
                 String vnfdId = vnfd.getVnfdId();
                 log.info("Number of VDU: "+vnfd.getVdu().size());
                 for(Vdu vdu:vnfd.getVdu()){
@@ -132,6 +132,9 @@ public class VirtualResourceCalculatorService {
                 ram += vnfRam;
                 vCPU += vnfVCpu;
                 disk += vnfDisk;
+
+                log.debug("Values for the whole NSD with ID " + nsdInfo.getNsdId() + "- vCPU: " + vCPU + "; RAM: " + ram + "; Disk: " + disk);
+
 
             }
         }
