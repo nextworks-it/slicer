@@ -68,8 +68,6 @@ public class VerticalServiceInstance {
 	@JsonIgnore
 	private String ranEndPointId;
 
-	private String networkSliceId;
-
 	@ElementCollection(targetClass=String.class)
 	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<String> networkSlicesId = new ArrayList<String>();
@@ -92,19 +90,16 @@ public class VerticalServiceInstance {
 	 * @param tenantId ID of the tenant owning the VS instance
 	 * @param name name of the VS instance
 	 * @param description description of the VS instance
-	 * @param networkSliceId ID of the network slice implementing the VS instance
 	 * @param userData configuration parameters provided by the vertical
 	 * @param locationsConstraints constraints about the geographical coverage of the service. The service could be deployed in different areas.
 	 * @param ranEndPointId ID of the end point attached to the RAN segment
 	 */
-	public VerticalServiceInstance(String vsiId, String vsdId, String tenantId, String name, String description,
-								   String networkSliceId, Map<String, String> userData, List<LocationInfo> locationsConstraints, String ranEndPointId) {
+	public VerticalServiceInstance(String vsiId, String vsdId, String tenantId, String name, String description, Map<String, String> userData, List<LocationInfo> locationsConstraints, String ranEndPointId) {
 		this.vsiId = vsiId;
 		this.vsdId = vsdId;
 		this.tenantId = tenantId;
 		this.name = name;
 		this.description = description;
-		this.networkSliceId = networkSliceId;
 		this.status = VerticalServiceStatus.INSTANTIATING;
 		if (userData != null) this.userData = userData;
 		if (locationsConstraints != null){
@@ -173,13 +168,6 @@ public class VerticalServiceInstance {
 		return description;
 	}
 
-	/**
-	 * @return the networkSliceId
-	 */
-	public String getNetworkSliceId() {
-		return networkSliceId;
-	}
-
 
 	/**
 	 * @return the status
@@ -210,14 +198,6 @@ public class VerticalServiceInstance {
 	 */
 	public void setVsdId(String vsdId) {
 		this.vsdId = vsdId;
-	}
-
-
-	/**
-	 * @param networkSliceId the networkSliceId to set
-	 */
-	public void setNetworkSliceId(String networkSliceId) {
-		this.networkSliceId = networkSliceId;
 	}
 
 	/**

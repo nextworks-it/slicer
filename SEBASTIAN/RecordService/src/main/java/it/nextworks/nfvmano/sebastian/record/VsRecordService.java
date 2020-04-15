@@ -15,6 +15,7 @@
 */
 package it.nextworks.nfvmano.sebastian.record;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,7 +71,7 @@ public class VsRecordService {
 	 */
 	public synchronized String createVsInstance(String name, String description, String vsdId, String tenantId, Map<String, String> userData, List<LocationInfo> locationsConstraints, String ranEndPointId) {
 		log.debug("Creating a new VS instance in DB.");
-		VerticalServiceInstance vsi = new VerticalServiceInstance(null, vsdId, tenantId, name, description, null, userData, locationsConstraints, ranEndPointId);
+		VerticalServiceInstance vsi = new VerticalServiceInstance(null, vsdId, tenantId, name, description,  userData, locationsConstraints, ranEndPointId);
 		vsInstanceRepository.saveAndFlush(vsi);
 		String vsiUuid = vsi.getUuid().toString();
 		log.debug("Created Vertical Service instance with UUID " + vsiUuid);
@@ -137,8 +138,8 @@ public class VsRecordService {
 	 */
 	public synchronized void setNsiInVsi(String vsiUuid, String nsiUuid) throws NotExistingEntityException {
 		log.debug("Adding Network Slice instance " + nsiUuid + " to Vertical Service instance " + vsiUuid + " in VSI DB record.");
-		VerticalServiceInstance vsi = getVsInstance(vsiUuid);
-		vsi.setNetworkSliceId(nsiUuid);
+		VerticalServiceInstance vsi = getVsInstance(vsiUuid);;
+		vsi.addNetworkSliceId(nsiUuid);
 		vsInstanceRepository.saveAndFlush(vsi);
 		log.debug("VSI with UUID " + vsiUuid + " updated with NSI " + nsiUuid);
 	}
@@ -195,8 +196,22 @@ public class VsRecordService {
 	 * @param sliceUuid UUID of the slice where the vertical services are mapped
 	 * @return the vertical services associated to the slice
 	 */
+
+
+	private List<VerticalServiceInstance> getVsInstancesFromNetworkSliceUuid(String sliceUuid){
+		List<VerticalServiceInstance> verticalServiceInstances= new ArrayList<VerticalServiceInstance>();
+		for(VerticalServiceInstance verticalServiceInstance: vsInstanceRepository.findAll()){
+			for(String nsiUuid: verticalServiceInstance.getNetworkSlicesId()){
+				if(sliceUuid.equals(nsiUuid)){
+					verticalServiceInstances.add(verticalServiceInstance);
+				}
+			}
+		}
+		return verticalServiceInstances;
+	}
+
 	public List<VerticalServiceInstance> getVsInstancesFromNetworkSlice(String sliceUuid) {
-		return vsInstanceRepository.findByNetworkSliceId(sliceUuid);
+		return getVsInstancesFromNetworkSliceUuid(sliceUuid);
 	}
 
 	/**
@@ -219,7 +234,7 @@ public class VsRecordService {
 	}
 
 	public synchronized void setNsFailureInfoInVsInstances(String nsiUuid, String errorMessage) {
-		List<VerticalServiceInstance> vsis = vsInstanceRepository.findByNetworkSliceId(nsiUuid);
+		List<VerticalServiceInstance> vsis = getVsInstancesFromNetworkSliceUuid(nsiUuid);
 		for (VerticalServiceInstance vsi : vsis) {
 			vsi.setFailureState(errorMessage);
 			vsInstanceRepository.saveAndFlush(vsi);

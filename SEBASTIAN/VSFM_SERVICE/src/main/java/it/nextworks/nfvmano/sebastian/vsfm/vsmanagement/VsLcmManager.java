@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -163,7 +164,8 @@ public class VsLcmManager {
                 case TERMINATE_VSI_REQUEST: {
                     log.debug("Processing VSI termination request.");
                     TerminateVsiRequestMessage terminateVsRequestMsg = (TerminateVsiRequestMessage) em;
-                    processTerminateRequest(terminateVsRequestMsg);
+                    //processTerminateRequest(terminateVsRequestMsg);
+                    processTerminateRequestSupposingNotSharedNsi(terminateVsRequestMsg);
                     break;
                 }
 
@@ -267,6 +269,7 @@ public class VsLcmManager {
                 NsmfRestClient nsmfRestClient = new NsmfRestClient(BASE_URL, adminService);
                 String nsiUuid = null;
                 try {
+                    log.info("KPI:"+ Instant.now().toEpochMilli()+", Going to request Network Slice Creation.");
                     nsiUuid = nsmfRestClient.createNetworkSliceIdentifier(request, tenantId);
                 } catch (Exception e) {
                     try {
@@ -283,6 +286,7 @@ public class VsLcmManager {
             }
 
             log.info("Performed successfully creation of  "  +nsiUuidNetworkSliceInfoMap.size() + " Network Slice Instance(s).\n");
+            log.info("KPI:"+ Instant.now().toEpochMilli()+", Slice creation OK. Starting with Slice Instatiation Request.");
             log.info("Going to perform the network slice instantiation request(s)");
 
             for(String nsiUuid: nsiUuidNetworkSliceInfoMap.keySet()){
@@ -299,6 +303,7 @@ public class VsLcmManager {
                     return;
                 }
                 try {
+                    log.info("KPI:"+ Instant.now().toEpochMilli()+", End of VSI request processing. Going to send Network slice instantiation request.");
                     nsmfRestClient.instantiateNetworkSlice(instantiateNsiReq, tenantId);
                 } catch (Exception e) {
                     //rollbackInstantiation(); TODO to be implemented
@@ -310,9 +315,6 @@ public class VsLcmManager {
                     e.printStackTrace();
                 }
             }
-
-            log.info("Performed successfully instantiation of  "  +nsiUuidNetworkSliceInfoMap.size() + "Network Slice Instance(s).\n");
-            //TODO remove nst from buckets or mark them as reusable (if any)
 
     }
 
@@ -544,6 +546,33 @@ public class VsLcmManager {
 
     }
 
+    void processTerminateRequestSupposingNotSharedNsi(TerminateVsiRequestMessage msg) {
+        if (!msg.getVsiId().equals(vsiUuid)) {
+            throw new IllegalArgumentException(String.format("Wrong VSI ID: %s", msg.getVsiId()));
+        }
+        if (internalStatus != VerticalServiceStatus.INSTANTIATED) {
+            manageVsError("Received termination request in wrong status. Skipping message.");
+            return;
+        }
+
+        log.debug("Terminating Vertical Service " + vsiUuid);
+        log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating Vertical Service.");
+        this.internalStatus = VerticalServiceStatus.TERMINATING;
+        try {
+            vsRecordService.setVsStatus(vsiUuid, VerticalServiceStatus.TERMINATING);
+
+                List<String> nsiUuidList=vsRecordService.getVsInstance(vsiUuid).getNetworkSlicesId();
+                for(String nsiUuid: nsiUuidList){
+                    log.debug("Network slice " + nsiUuid + " must be terminated.");
+                    NsmfRestClient nsmfRestClient=nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNsmfRestClient();
+                    nsmfRestClient.terminateNetworkSliceInstance(new TerminateNsiRequest(nsiUuid), tenantId);
+                }
+        } catch (Exception e) {
+            manageVsError("Error while terminating VS " + vsiUuid + ": " + e.getMessage());
+        }
+    }
+
+    //This function is the implementation that supposes to have shared network slice instances.
     void processTerminateRequest(TerminateVsiRequestMessage msg) {
         if (!msg.getVsiId().equals(vsiUuid)) {
             throw new IllegalArgumentException(String.format("Wrong VSI ID: %s", msg.getVsiId()));
@@ -554,6 +583,7 @@ public class VsLcmManager {
         }
 
         log.debug("Terminating Vertical Service " + vsiUuid);
+        log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating Vertical Service.");
         this.internalStatus = VerticalServiceStatus.TERMINATING;
         try {
             vsRecordService.setVsStatus(vsiUuid, VerticalServiceStatus.TERMINATING);

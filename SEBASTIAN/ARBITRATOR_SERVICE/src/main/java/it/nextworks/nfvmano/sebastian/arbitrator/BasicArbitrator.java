@@ -88,6 +88,7 @@ public class BasicArbitrator extends AbstractArbitrator {
 	 * @return impactedVerticalServiceInstances of impacted VSIs and associated actions
 	 * @throws NotExistingEntityException
 	 */
+	//TODO The field returned from this function is not used by NSMF. Can this function be deleted ?
 	private Map<String, VsAction> generateImpactedVsList(String tenantId) throws NotExistingEntityException, FailedOperationException {
 		// search VS to be updated/terminated
 		List<VerticalServiceInstance> candidateVsiList = vsRecordService.getAllVsInstances(tenantId);
@@ -100,12 +101,17 @@ public class BasicArbitrator extends AbstractArbitrator {
 			if(serviceConstraints.isEmpty() || serviceConstraints.get(0).getPriority() == ServicePriorityLevel.LOW){
 				//retrive NSInfo
 				//NetworkSliceInstance nsi = vsRecordService.getNsInstance(vsi.getNetworkSliceId());
-				NetworkSliceInstance nsi = readNetworkSliceInstanceInformation(vsi.getNetworkSliceId(), vsi.getTenantId());
-				impactedVerticalServiceInstances.put(vsi.getVsiId(), new VsAction(
-						vsi.getVsiId(),
-						VsActionType.TERMINATE,
-						nsi.getNsInstantiationInfo(true)
-				));
+				//
+				for(String networkSliceUuid: vsi.getNetworkSlicesId()){
+					NetworkSliceInstance nsi = readNetworkSliceInstanceInformation(networkSliceUuid, vsi.getTenantId());
+					impactedVerticalServiceInstances.put(vsi.getVsiId(), new VsAction(
+							vsi.getVsiId(),
+							VsActionType.TERMINATE,
+							nsi.getNsInstantiationInfo(true)
+					));
+				}
+
+
 			}else if(serviceConstraints.get(0).getPriority() == ServicePriorityLevel.MEDIUM){
 				/*NetworkSliceInstance nsi = vsRecordService.getNsInstance(vsi.getNetworkSliceId());
 				impactedVerticalServiceInstances.put(vsi.getVsiId(), new VsAction(

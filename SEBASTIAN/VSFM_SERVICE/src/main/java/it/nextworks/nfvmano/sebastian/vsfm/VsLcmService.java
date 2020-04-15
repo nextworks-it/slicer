@@ -66,6 +66,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -193,11 +194,10 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 			log.info("Filtering NSTs by geographical constraints in the Vertical Service Instance.");
 			for (LocationInfo locationConstraints : locationsConstraints) {
 				domainIdNetworkSliceInternalInfoMap = runtimeTranslator.filterByLocationConstraints(suitableBuckets, locationConstraints, domainIdNetworkSliceInternalInfoMap);
-
 			}
 		}
 		log.info("The Geographical filtering results in "+domainIdNetworkSliceInternalInfoMap.size()+" NST(s)");
-
+		log.info("KPI:"+ Instant.now().toEpochMilli()+", Instantiation request found suitable NSTs.");
 		initNewVsLcmManager(vsiUuid, request.getName(), domainIdNetworkSliceInternalInfoMap);
 
 		if (!(tenantId.equals(adminTenant))) adminService.addVsiInTenant(vsiUuid, tenantId);
@@ -242,26 +242,31 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 				if (tenantId.equals(adminTenant) || tenantId.equals(vsi.getTenantId())) {
 					List<SapInfo> externalInterconnections = new ArrayList<>();
 					Map<String, List<VnfExtCpInfo>> internalInterconnections = new HashMap<>();
-					String nsiId = vsi.getNetworkSliceId();
+					List<String> nsiUiidList = vsi.getNetworkSlicesId();
+
 					String monitoringUrl = null;
-					if (nsiId != null) {
-						NetworkSliceInstance nsi = vsmfUtils.readNetworkSliceInstanceInformation(nsiId, tenantId);
-						String nfvNsId = nsi.getNfvNsId();
-						if (nfvNsId != null) {
-							//TODO: check with Pietro. This should be removed from here and embedded into the 
-							//network slice instance information handled at the NSMF -
-							//e.g. through a new query that explicitely request NFV related info
-							//maybe this could be embedded into the attribute field of the query request
-							QueryNsResponse queryNs = nfvoLcmService.queryNs(new GeneralizedQueryRequest(Utilities.buildNfvNsiFilter(nfvNsId), null));
-							NsInfo nsInfo = queryNs.getQueryNsResult().get(0);
-							log.debug("Retrieved NS info from NFVO");
-							externalInterconnections = nsInfo.getSapInfo();
-							monitoringUrl = nsInfo.getMonitoringDashboardUrl();
-							if ("".equals(monitoringUrl)) {
-								monitoringUrl = null;
-							}
-							//TODO: in order to get VNF info we should interact with the VNFM... Still thinking about how to do that.
-						} else log.debug("The Network Slice is not associated to any NFV Network Service. No interconnection info available.");
+					if (nsiUiidList.size()>0) {
+						/*for(String nsiUuid: nsiUiidList){
+							NetworkSliceInstance nsi = vsmfUtils.readNetworkSliceInstanceInformation(nsiUuid, tenantId);
+
+							String nfvNsId = nsi.getNfvNsId();
+
+							if (nfvNsId != null) {
+								//TODO: check with Pietro. This should be removed from here and embedded into the
+								//network slice instance information handled at the NSMF -
+								//e.g. through a new query that explicitely request NFV related info
+								//maybe this could be embedded into the attribute field of the query request
+								QueryNsResponse queryNs = nfvoLcmService.queryNs(new GeneralizedQueryRequest(Utilities.buildNfvNsiFilter(nfvNsId), null));
+								NsInfo nsInfo = queryNs.getQueryNsResult().get(0);
+								log.debug("Retrieved NS info from NFVO");
+								externalInterconnections = nsInfo.getSapInfo();
+								monitoringUrl = nsInfo.getMonitoringDashboardUrl();
+								if ("".equals(monitoringUrl)) {
+									monitoringUrl = null;
+								}
+								//TODO: in order to get VNF info we should interact with the VNFM... Still thinking about how to do that.
+							} else log.debug("The Network Slice is not associated to any NFV Network Service. No interconnection info available.");
+						}*/
 					} else log.debug("The VS is not associated to any Network Slice. No interconnection info available.");
 					return new QueryVsResponse(
 							vsiUuid,
@@ -269,7 +274,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 							vsi.getDescription(),
 							vsi.getVsdId(),
 							vsi.getStatus(),
-							externalInterconnections,
+							null,
 							internalInterconnections,
 							vsi.getErrorMessage(),
 							monitoringUrl

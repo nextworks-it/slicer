@@ -5,10 +5,8 @@ import it.nextworks.nfvmano.catalogue.blueprint.messages.OnBoardVsBlueprintReque
 import it.nextworks.nfvmano.catalogue.blueprint.messages.OnboardVsDescriptorRequest;
 import it.nextworks.nfvmano.catalogue.domainLayer.*;
 import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.InstantiateVsRequest;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.ModifyVsRequest;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.PurgeVsRequest;
-import it.nextworks.nfvmano.sebastian.vsfm.messages.TerminateVsRequest;
+import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
+import it.nextworks.nfvmano.sebastian.vsfm.messages.*;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -28,9 +26,6 @@ import java.util.*;
 import static org.junit.Assert.assertTrue;
 
 public class SlicerE2ETest {
-
-    private String nstUuid;
-    private String vsiUuid;
 
     private final String VSMF_IP = "10.30.8.54";
     private final String NSMF_IP = "10.30.8.54";
@@ -243,7 +238,7 @@ public class SlicerE2ETest {
 
 
 
-    public void VSImodificationTest(String vsdId) {
+    public void VSImodificationTest(String vsiUuid, String vsdId) {
         final String VSI_INSTANTIATION_URL = "/vs/basic/vslcm/vs/"+vsiUuid;
 
         ModifyVsRequest modifyVsRequest = new ModifyVsRequest(vsiUuid,dspInteraction.getTenant().getUsername(),vsdId);
@@ -257,9 +252,9 @@ public class SlicerE2ETest {
 
 
 
-    public void VsiTerminationTest(String vsdId) {
+    public void VsiTerminationTest(String vsiUuid) {
         final String VSI_TERMINATION_URL="/vs/basic/vslcm/vs/"+ vsiUuid +"/terminate";
-        TerminateVsRequest terminateVsRequest = new TerminateVsRequest(vsdId, dspInteraction.getTenant().getUsername());
+        TerminateVsRequest terminateVsRequest = new TerminateVsRequest(vsiUuid, dspInteraction.getTenant().getUsername());
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, terminateVsRequest, VSMF_HOST + VSI_TERMINATION_URL, HttpMethod.POST, dspInteraction.getCookiesTenant());
         String terminationResponse = (String) responseEntity.getBody();
         log.info("Termination response body response: "+terminationResponse);
@@ -268,9 +263,9 @@ public class SlicerE2ETest {
     }
 
 
-    public void VsiPurgeTest(String vsdId) {
+    public void VsiPurgeTest(String vsiUuid) {
         final String VSI_PURGE_URL="/vs/basic/vslcm/vs/"+ vsiUuid;
-        PurgeVsRequest purgeVsRequest= new PurgeVsRequest(vsdId, dspInteraction.getTenant().getUsername());
+        PurgeVsRequest purgeVsRequest= new PurgeVsRequest(vsiUuid, dspInteraction.getTenant().getUsername());
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, purgeVsRequest, VSMF_HOST + VSI_PURGE_URL, HttpMethod.DELETE, dspInteraction.getCookiesAdmin());
         String purgeResponse = (String) responseEntity.getBody();
         log.info("Termination response body response: "+purgeResponse);
@@ -352,7 +347,7 @@ public class SlicerE2ETest {
 
 
         //ON NSP1
-        nstUuid=nspInteraction.onBoardNST("nst_sample.json");
+        String nstUuid=nspInteraction.onBoardNST("nst_sample.json");
         String nstUuid2 =nspInteraction.onBoardNST("nst_sample_Pisa.json");
         //String nstUuid3 =nspInteraction.onBoardNST("nst_sample_S_Piero.json");
         String nstUrlccUuid =nspInteraction.onBoardNST("nst_sample_urlcc.json");
@@ -375,8 +370,8 @@ public class SlicerE2ETest {
         String vsbIdUrban=onBoardVsbWithNstTransRules(VSMF_HOST, "vsb_samples/vsb_urban.json", nstUuid);
         String vsdUrbanId1= testVSDOnBoarding(vsbIdUrban,"vsb_samples/vsd_urban_1.json");
 
-        String vsiId = VSIinstantionTest(vsdStreamingId,"vsb_samples/vsi_sample_Pisa_San_Piero.json");
-        log.info("Waiting slice instantiation");
+        String vsiUuid = VSIinstantionTest(vsdStreamingId,"vsb_samples/vsi_sample_Pisa_San_Piero.json");
+        /*log.info("Waiting slice instantiation");
 
 
         try {
@@ -386,7 +381,7 @@ public class SlicerE2ETest {
         }
 
         log.info("Slice should be instantiated");
-         /*
+
         Map<String, Object> qosContraint = new HashMap<>();
         Map<String, Object> ranCoreContraint = new HashMap<>();
         Map<String, Object> ranCoreContraint2 = new HashMap<>();
@@ -403,7 +398,7 @@ public class SlicerE2ETest {
         ranArray.add(ranCoreContraint2);
         qosContraint.put("ran_core_constraints", ranArray);
          ActuationRequest actuationRequest = new ActuationRequest(vsiId, "actuationName", "actuationDescription",qosContraint,"");
-        */
+
 
         Map<String, String> qosRedirectParameters = new HashMap<>();
         Map<String, Object> qosRedirectParametersParent = new HashMap<>();
@@ -414,19 +409,28 @@ public class SlicerE2ETest {
 
         ActuationRequest actuationRequest = new ActuationRequest(vsiId, "actuationName", "actuationDescription",qosRedirectParametersParent,"");
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/"+vsiId+"/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+*/
+        boolean isInstantiated = false;
 
-
-
-
-        // try {
-        //    log.info("Waiting vertical service to be instanciated");
-        //    Thread.sleep(30000);
-        //    //VSImodificationTest();
-        //    VsiTerminationTest();
-        //} catch (InterruptedException e) {
-        //   e.printStackTrace();
-        // }
-
+        while(!isInstantiated){
+                ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
+                QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
+            log.info("Vertical service instance Status "+queryVsResponse.getStatus().toString());
+                if(queryVsResponse.getStatus()== VerticalServiceStatus.INSTANTIATED){
+                    isInstantiated=true;
+                }
+                else{
+                    log.info("Vertical service instance not instantiated yet. Next check in 30 seconds");
+                    try {
+                        Thread.sleep(30000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+        }
+        log.info("Going to terminate VSI");
+        VsiTerminationTest(vsiUuid);
+        //VSImodificationTest();
 
     }
 }

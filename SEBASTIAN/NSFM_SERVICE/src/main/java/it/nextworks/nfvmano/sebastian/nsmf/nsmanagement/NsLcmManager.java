@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
 import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.elements.NsdInfo;
-import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.messages.QueryNsdResponse;
 import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import it.nextworks.nfvmano.libs.ifa.common.enums.NsScaleType;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
@@ -36,7 +35,6 @@ import it.nextworks.nfvmano.libs.ifa.records.nsinfo.NsInfo;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.libs.ifa.templates.NstServiceProfile;
 import it.nextworks.nfvmano.libs.ifa.templates.SliceType;
-import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
 import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
@@ -47,7 +45,6 @@ import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
-import it.nextworks.nfvmano.sebastian.nsmf.sbi.ActuationLcmService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.FlexRanService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.RanQoSTranslator;
@@ -59,6 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -227,6 +225,7 @@ public class NsLcmManager {
 	}
 	
 	private void processInstantiateRequest(InstantiateNsiRequestMessage msg) {
+		log.info("KPI:"+ Instant.now().toEpochMilli()+", Start processing instantiate Network Slice creation request.");
 		if (internalStatus != NetworkSliceStatus.NOT_INSTANTIATED) {
 			manageNsError("Received instantiation request in wrong status. Skipping message.");
 			return;
@@ -314,9 +313,9 @@ public class NsLcmManager {
 					this.nsdInfoId = nsdInfo.getNsdId();// The NSD cannot be on boarded specifying its own ID, so the custom one is get from NSD
 					log.info("Set the NFVO Catalogue username into request: "+tenantIdOsm);
 				}
-
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", Sending request to create Ns Identifier.");
 				String nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-" + name, description, tenantIdOsm));
-
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", Received response about creation of Ns Identifier.");
 				log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
 				this.nfvNsiInstanceId = nfvNsId;
 				nsRecordService.setNfvNsiInNsi(networkSliceInstanceUuid, nfvNsId);
@@ -373,6 +372,7 @@ public class NsLcmManager {
 				//Read configuration parameters
 				Map<String, String> additionalParamForNs = msg.getRequest().getUserData();
 				log.info("Nfv Ns id is: "+nfvNsId);
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", Sending request to instanciate network slice.");
 				String operationId = nfvoLcmService.instantiateNs(new InstantiateNsRequest(nfvNsId,
 						dfId, 					//flavourId
 						sapData, 				//sapData
@@ -454,7 +454,7 @@ public class NsLcmManager {
 			if (msg.isSuccessful()) {
 				switch (internalStatus) {
 					case INSTANTIATING: {
-
+						log.info("KPI:"+ Instant.now().toEpochMilli()+", Successful instantiation of NFV NS and network slice.");
 						log.debug("Successful instantiation of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceUuid);
 						this.internalStatus=NetworkSliceStatus.INSTANTIATED;
 
@@ -498,6 +498,7 @@ public class NsLcmManager {
 					}
 
 					case TERMINATING: {
+						log.info("KPI:"+Instant.now().toEpochMilli()+", Successful termination of NFV NS.");
 						log.debug("Successful termination of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceUuid);
 						//TODO: should we also remove the NS instance ID from the NFVO?
 						for (String soManagedNsiUuid : soNestedNsiUuids){
@@ -551,7 +552,7 @@ public class NsLcmManager {
         }
 
 		log.debug("Terminating network slice " + networkSliceInstanceUuid);
-
+		log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating network slice.");
 		if (pnPCommunicationService.isPnP(UUID.fromString(networkSliceInstanceUuid))) {
 			log.debug("Terminating P&P Functions for " + networkSliceInstanceUuid);
 			pnPCommunicationService.terminateSliceComponents(UUID.fromString(networkSliceInstanceUuid));
@@ -565,7 +566,7 @@ public class NsLcmManager {
 		nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.TERMINATING);
 		log.debug("Sending request to terminate NFV network service " + nfvNsiInstanceId);
 		try {
-			String operationId = nfvoLcmService.terminateNs(new TerminateNsRequest(nfvNsiInstanceId, null));
+			String operationId = nfvoLcmService.terminateNs(new TerminateNsRequest(nfvNsiInstanceId, new Date(System.currentTimeMillis())));
 			log.debug("Sent request to NFVO service for terminating NFV NS " + nfvNsiInstanceId + ": operation ID " + operationId);
 		} catch (Exception e) {
 			manageNsError(e.getMessage());

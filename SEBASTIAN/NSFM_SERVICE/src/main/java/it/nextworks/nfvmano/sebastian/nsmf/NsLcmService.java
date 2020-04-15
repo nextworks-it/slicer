@@ -40,7 +40,7 @@ import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.NsLcmManager;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.UsageResourceUpdate;
-import it.nextworks.nfvmano.sebastian.nsmf.sbi.ActuationLcmService;
+import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.ActuationLcmService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.FlexRanService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
@@ -61,6 +61,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -193,6 +194,7 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     public void instantiateNetworkSlice(InstantiateNsiRequest request, String tenantId)
     		throws NotExistingEntityException, MalformattedElementException, NotPermittedOperationException {
     	log.debug("Processing request to instantiate a network slice instance");
+        log.info("KPI:"+ Instant.now().toEpochMilli()+", Processing request to instantiate a network slice instance");
     	request.isValid();
     	String nsiUuid = request.getNsiId();
     	log.debug("Processing NSI instantiation request for NSI UUID " + nsiUuid);

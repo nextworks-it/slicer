@@ -27,6 +27,5 @@ public interface VerticalServiceInstanceRepository extends JpaRepository<Vertica
 	Optional<VerticalServiceInstance> findByVsiId(String vsiId);
 	List<VerticalServiceInstance> findByTenantId(String tenantId);
 	List<VerticalServiceInstance> findByVsdId(String vsdId);
-	List<VerticalServiceInstance> findByNetworkSliceId(String networkSliceId);
 	
 }

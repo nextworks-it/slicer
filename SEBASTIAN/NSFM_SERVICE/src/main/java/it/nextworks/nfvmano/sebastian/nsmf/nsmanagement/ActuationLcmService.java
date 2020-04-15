@@ -1,7 +1,8 @@
-package it.nextworks.nfvmano.sebastian.nsmf.sbi;
+package it.nextworks.nfvmano.sebastian.nsmf.nsmanagement;
 
 import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.QoSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ public class ActuationLcmService {
 
     private final String REDIRECT="REDIRECT";
     private final String UPDATE_QOS="UPDATE_QOS";
+
 
     public ActuationLcmService(){}
 

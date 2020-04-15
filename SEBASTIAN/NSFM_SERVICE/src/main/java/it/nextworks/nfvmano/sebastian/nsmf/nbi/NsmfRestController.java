@@ -22,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +119,7 @@ public class NsmfRestController {
 	@RequestMapping(value = "/ns/{nsiUuid}/action/instantiate", method = RequestMethod.PUT)
 	public ResponseEntity<?> instantiateNsi(@PathVariable String nsiUuid, @RequestBody InstantiateNsiRequest request, Authentication auth) {
 		log.debug("Received request to instantiate network slice " + nsiUuid);
+		log.info("KPI:"+ Instant.now().toEpochMilli()+", Received request to instantiate network slice");
 		try {
 
 			String tenantId = getUserFromAuth(auth);
@@ -163,6 +165,7 @@ public class NsmfRestController {
 	@RequestMapping(value = "/ns/{nsiUuid}/action/terminate", method = RequestMethod.PUT)
 	public ResponseEntity<?> terminateNsi(@PathVariable String nsiUuid, @RequestBody TerminateNsiRequest request, Authentication auth) {
 		log.debug("Received request to terminate network slice " + nsiUuid);
+		log.info("KPI:"+Instant.now().toEpochMilli()+", Received request to terminate network slice.");
 		try {
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.terminateNetworkSliceInstance(request, tenantId);

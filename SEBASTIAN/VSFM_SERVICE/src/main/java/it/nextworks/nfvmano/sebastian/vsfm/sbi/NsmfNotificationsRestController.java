@@ -29,6 +29,8 @@ import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceFailureNotificat
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
 import it.nextworks.nfvmano.sebastian.vsfm.VsLcmService;
 
+import java.time.Instant;
+
 /**
  * This class implements a REST controller to receive notifications from
  * the NSMF about failures or LCM changes of network slice instances
@@ -52,13 +54,16 @@ public class NsmfNotificationsRestController {
 	@RequestMapping(value = "/nsilcmchange", method = RequestMethod.POST)
 	public ResponseEntity<?> notifyNsiLcmChange(@RequestBody NetworkSliceStatusChangeNotification notification) {
 		log.debug("Received notification about network slice instance LCM change");
+		log.info("KPI:"+ Instant.now().toEpochMilli()+", Received notification about network slice instance LCM change." +notification.getStatusChange().toString());
 		vsLcmService.notifyNetworkSliceStatusChange(notification);
+		//TODO	remove NST from bucket used if the instantiation goes good
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/nsifailure", method = RequestMethod.POST)
 	public ResponseEntity<?> notifyNsiFailure(@RequestBody NetworkSliceFailureNotification notification) {
 		log.debug("Received notification about network slice instance failure");
+		log.info("KPI:"+ Instant.now().toEpochMilli()+", Received notification about network slice instance failure");
 		vsLcmService.notifyNetworkSliceFailure(notification);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
