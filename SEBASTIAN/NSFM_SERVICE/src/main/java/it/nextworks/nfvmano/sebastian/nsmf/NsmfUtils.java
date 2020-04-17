@@ -63,6 +63,9 @@ public class NsmfUtils {
 	@Value("${nfvo.catalogue.type}")
 	private String nfvoCatalogueType;
 
+	@Value("${nfvo.lcm.polling}")
+	private int nfvoLcmPolling;
+
 	public NsTemplateInfo getNsTemplateInfoFromCatalogue(String nstUuid)
 			throws NotExistingEntityException {
 
@@ -100,4 +103,5 @@ public class NsmfUtils {
 	public String getNfvoCatalogueUsername(){
 		return nfvoCatalogueUsername;
 	}
+	public int getNfvoLcmPolling(){ return nfvoLcmPolling; }
 }
