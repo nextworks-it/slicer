@@ -17,10 +17,15 @@ package it.nextworks.nfvmano.sebastian.nsmf.nsmanagement;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.upc.gco.slcnt.orch.nmro.driver.lcm.NmroLcmDriver;
 import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
 import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.elements.NsdInfo;
 import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import it.nextworks.nfvmano.libs.ifa.common.enums.NsScaleType;
+import it.nextworks.nfvmano.libs.ifa.common.enums.OperationStatus;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MethodNotImplementedException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.ifa.descriptors.nsd.Nsd;
@@ -37,7 +42,9 @@ import it.nextworks.nfvmano.libs.ifa.templates.NstServiceProfile;
 import it.nextworks.nfvmano.libs.ifa.templates.SliceType;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
+import it.nextworks.nfvmano.nfvodriver.NfvoLcmAbstractDriver;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
+import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
 import it.nextworks.nfvmano.sebastian.common.Utilities;
 import it.nextworks.nfvmano.sebastian.nsmf.NsLcmService;
@@ -103,6 +110,7 @@ public class NsLcmManager {
 
 	private String instantationLevel;
 	private ActuationLcmService actuationLcmService;
+	private List<String> operationsId;
 
 	public NsLcmManager(String networkSliceInstanceUuid,
 						String name,
@@ -138,6 +146,7 @@ public class NsLcmManager {
 		this.nsmfUtils = nsmfUtils;
 		this.usageResourceUpdate= usageResourceUpdate;
 		this.actuationLcmService = actuationLcmService;
+		operationsId=new ArrayList<String>();
 	}
 	
 	
@@ -386,7 +395,7 @@ public class NsLcmManager {
 						null,					//startTime
 						ilId,					//nsInstantiationLevelId
 						null));					//additionalAffinityOrAntiAffinityRule
-
+				operationsId.add(operationId);
 				log.debug("Sent request to NFVO service for instantiating NFV NS " + nfvNsId + ": operation ID " + operationId);
 			}
 
@@ -441,6 +450,40 @@ public class NsLcmManager {
 
 	}
 
+	//If the lcm driver type is NMRO, then the instantiation requires two checks:
+    //the first one about the operational status
+    //a second one (below implemented) about the config status
+    //It has been done here and not in the nfvo polling manager because it would imply to modify the above interface and this could cause problems.
+
+	private boolean pollConfigStatusNetworkServices() throws InterruptedException, FailedOperationException, MalformattedElementException, NotExistingEntityException, MethodNotImplementedException {
+		if(nfvoLcmService.getNfvoLcmDriver() instanceof NmroLcmDriver) {
+			int pollingTime = nsmfUtils.getNfvoLcmPolling();
+			log.info("Polling in "+pollingTime+" seconds the config status of Network Service(s).");
+			int configStatusSuccessfulCount = 0;
+			while(configStatusSuccessfulCount<operationsId.size()) {
+				Thread.sleep(nsmfUtils.getNfvoLcmPolling() * 1000);
+				for (String operationId : operationsId) {
+					NmroLcmDriver nmroLcmDriver = (NmroLcmDriver) nfvoLcmService.getNfvoLcmDriver();
+					if (nmroLcmDriver.getConfigStatus(operationId) == OperationStatus.SUCCESSFULLY_DONE) {
+						log.info("OperationId "+operationId +" is in successful status.");
+						configStatusSuccessfulCount++;
+					}
+					if (nmroLcmDriver.getConfigStatus(operationId) == OperationStatus.FAILED) {
+						log.error("Configuration status in failed status of operation ID "+operationId);
+						return false;
+					}
+					log.info("Current number of config status in successful status: "+configStatusSuccessfulCount);
+				}
+
+			}
+			operationsId.clear();
+			return true;
+		}
+		else{
+			return true;
+		}
+	}
+
 	private void processNfvNsChangeNotification(NotifyNfvNsiStatusChange msg) {
 		if (! ((internalStatus == NetworkSliceStatus.INSTANTIATING) || (internalStatus == NetworkSliceStatus.TERMINATING) || (internalStatus == NetworkSliceStatus.UNDER_MODIFICATION))) {
 			log.info("Internal status is "+internalStatus);
@@ -455,6 +498,15 @@ public class NsLcmManager {
 			if (msg.isSuccessful()) {
 				switch (internalStatus) {
 					case INSTANTIATING: {
+
+						if(pollConfigStatusNetworkServices()==false){
+							NotifyNfvNsiStatusChange newMsg = new NotifyNfvNsiStatusChange(
+									msg.getNfvNsiId(),
+									NsStatusChange.NS_FAILED,
+									false);
+							processNfvNsChangeNotification(newMsg);
+						}
+
 						log.info("KPI:"+ Instant.now().toEpochMilli()+", Successful instantiation of NFV NS and network slice.");
 						log.debug("Successful instantiation of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceUuid);
 						this.internalStatus=NetworkSliceStatus.INSTANTIATED;
@@ -481,7 +533,6 @@ public class NsLcmManager {
 							nsRecordService.addNsSubnetsInNetworkSliceInstance(networkSliceInstanceUuid, soNestedNsiUuids);
 
 						nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.INSTANTIATED);
-
 						log.debug("Sending notification to engine.");
 						usageResourceUpdate.addResourceUpdate(networkSliceInstanceUuid,tenantId);
 						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_CREATED, true,tenantId));
