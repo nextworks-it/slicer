@@ -431,6 +431,22 @@ public class SlicerE2ETest {
         log.info("Going to terminate VSI");
         VsiTerminationTest(vsiUuid);
         //VSImodificationTest();
-
+	boolean isTerminated=false;
+        while(!isTerminated){
+            ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
+            QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
+            log.info("Vertical service instance Status "+queryVsResponse.getStatus().toString());
+            if(queryVsResponse.getStatus()== VerticalServiceStatus.TERMINATED){
+                isTerminated=true;
+            }
+            else{
+                log.info("Vertical service instance not terinated yet. Next check in 30 seconds");
+                try {
+                    Thread.sleep(30000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

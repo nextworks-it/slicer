@@ -69,4 +69,4 @@ instantiation_time = round(instantiation_time/1000,2)
 termination_time = round(termination_time/1000,2)
 
 print("\nTotal instantiation time: "+str(instantiation_time)+" seconds.")
-print("Total termination time: "+str(termination_time)+" seconds.")
+print("Total termination time: "+str(termination_time)+" seconds.\n")
