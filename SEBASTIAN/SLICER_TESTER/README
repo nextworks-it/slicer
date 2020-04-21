@@ -6,7 +6,7 @@ In order to run the E2E tests for the slicer, you have to perform the following 
 
 0.2 The VSMF_APP must be running and reachable
 
-0.3 The NSMF_APP must be running and reachable (At the start up, an NSD is on boarded on the nfvo catalogue (the DUMMY one). It will be used later)
+0.3 The NSMF_APP must be running and reachable (At the start up, an NSD is on boarded on the nfvo catalogue (if the catalogue is the DUMMY one). It will be used later)
 
 0.4 The NMRO must be running and reachable
 
@@ -14,7 +14,7 @@ In order to run the E2E tests for the slicer, you have to perform the following 
 
 0.6. Set on the test source code the IP address of VSMF_APP and NSMF_APP
 
-You can easily run the test with 'mvn test' command.
+You can easily run the test with the script in this folder command.
 
 ----------------------------------------------------------------------------------------------------------
 It performs the following operations:
@@ -48,5 +48,5 @@ Briefly there are two associations between tenant and remote tenant:
 
 4. On DSP side, the on boarding of VSB and then of related VSD is performed and tested.
 5. The VSI instantiation is tested. It results as network slice instantiation and Network Service instantation.
-#6. The VSI termination is tested. ## To be done
+6. The VSI termination is tested.
 #7. The VSI purge is tested. ## To be done

@@ -1,3 +1,5 @@
+package it.nextworks.nfvmano.test.tests;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.catalogue.domainLayer.Domain;
 import it.nextworks.nfvmano.catalogue.template.messages.OnBoardNsTemplateRequest;
@@ -78,14 +80,14 @@ public class EndPointInteraction {
     }
 
     public void createSLA() {
-        Sla sla = (Sla) getObjectFromFile(Sla.class, "sla_sample.json");
+        Sla sla = (Sla) getObjectFromFile(Sla.class, "./json_test/sla_sample.json");
         log.info("Creating SLA on "+hostDescriptionToInteractWith+" with username: " + tenant.getUsername()+" at group "+groupName);
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, sla, hostname + "/vs/admin/group/" + groupName + "/tenant/" + tenant.getUsername() + "/sla", HttpMethod.POST, cookiesAdmin);
         log.info("Status code create SLA request: "+responseEntity.getStatusCode().toString());
     }
 
     public void createSLANoResource() {
-        Sla sla = (Sla) getObjectFromFile(Sla.class, "sla_no_resources_sample.json");
+        Sla sla = (Sla) getObjectFromFile(Sla.class, "./json_test/sla_no_resources_sample.json");
         log.info("Creating SLA with no resources  "+hostDescriptionToInteractWith+" with username: " + tenant.getUsername()+" at group "+groupName);
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, sla, hostname + "/vs/admin/group/" + groupName + "/tenant/" + tenant.getUsername() + "/sla", HttpMethod.POST, cookiesAdmin);
         log.info("Status code create SLA request: "+responseEntity.getStatusCode().toString());

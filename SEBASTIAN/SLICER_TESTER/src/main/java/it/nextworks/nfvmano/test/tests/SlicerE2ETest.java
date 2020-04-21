@@ -1,14 +1,15 @@
-import com.fasterxml.jackson.annotation.JsonProperty;
+package it.nextworks.nfvmano.test.tests;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.nextworks.nfvmano.catalogue.blueprint.elements.*;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.ServiceConstraints;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsdNstTranslationRule;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsdSla;
 import it.nextworks.nfvmano.catalogue.blueprint.messages.OnBoardVsBlueprintRequest;
 import it.nextworks.nfvmano.catalogue.blueprint.messages.OnboardVsDescriptorRequest;
 import it.nextworks.nfvmano.catalogue.domainLayer.*;
-import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.*;
-import org.json.JSONObject;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -21,7 +22,9 @@ import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
@@ -37,8 +40,8 @@ public class SlicerE2ETest {
     private final String NSMF_HOST= "http://"+NSMF_IP+":8082";
     EndPointInteraction nspInteraction = new EndPointInteraction(NSMF_HOST, "NSP A");
 
-    //private final String NSMF_HOST2= "http://"+NSMF2_IP+":8082";
-    //EndPointInteraction nspInteraction2 = new EndPointInteraction(NSMF_HOST2, "NSP B");
+    private final String NSMF_HOST2= "http://"+NSMF2_IP+":8082";
+    EndPointInteraction nspInteraction2 = new EndPointInteraction(NSMF_HOST2, "NSP B");
 
 
 
@@ -227,7 +230,7 @@ public class SlicerE2ETest {
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, instantiateVsRequest, VSMF_HOST + VSI_INSTANTIATION_URL, HttpMethod.POST, dspInteraction.getCookiesTenant());
         return (String) responseEntity.getBody();
 
-        //ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + VSI_INSTANTIATION_URL + "/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
+        //ResponseEntity<?> responseEntityQuery = it.nextworks.nfvmano.test.test.Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + VSI_INSTANTIATION_URL + "/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
         //QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
 
         //assertTrue(queryVsResponse.getVsiId().equals(vsiUuid));
@@ -275,17 +278,13 @@ public class SlicerE2ETest {
     }
 
 
-
-
-
-    @Test
     public void onBoardVSBWithNstID(){
 
 
         //NSP1 SIDE
         nspInteraction.loginAdmin();
         nspInteraction.createGroup("NSP_group");
-        nspInteraction.createTenant("tenant_nsp_sample_a.json");
+        nspInteraction.createTenant("./json_test/tenant_nsp_sample_a.json");
         nspInteraction.createSLA();
         //nspInteraction.createSLANoResource();
         nspInteraction.loginTenant();
@@ -294,7 +293,7 @@ public class SlicerE2ETest {
         //NSP2 SIDE
         //nspInteraction2.loginAdmin();
         //nspInteraction2.createGroup("NSP_group");
-        //nspInteraction2.createTenant("tenant_nsp_sample_b.json");
+        //nspInteraction2.createTenant("./json_test/tenant_nsp_sample_b.json");
         //nspInteraction2.createSLA();
         //nspInteraction2.createSLANoResource();
         // nspInteraction2.loginTenant();
@@ -303,9 +302,9 @@ public class SlicerE2ETest {
         //DSP SIDE
         dspInteraction.loginAdmin();
         dspInteraction.createGroup("DSP_group");
-        dspInteraction.createTenant("tenant_sample.json");
-        dspInteraction.createTenantExt("tenant_notif_sample.json");
-        dspInteraction.createTenantExt2("tenant_notif_sample_2.json");
+        dspInteraction.createTenant("./json_test/tenant_sample.json");
+        dspInteraction.createTenantExt("./json_test/tenant_notif_sample.json");
+        dspInteraction.createTenantExt2("./json_test/tenant_notif_sample_2.json");
 
         dspInteraction.loginTenant();
         dspInteraction.createRemoteTenantInfo(nspInteraction.getTenant(),NSMF_HOST);
@@ -347,30 +346,30 @@ public class SlicerE2ETest {
 
 
         //ON NSP1
-        String nstUuid=nspInteraction.onBoardNST("nst_sample.json");
-        String nstUuid2 =nspInteraction.onBoardNST("nst_sample_Pisa.json");
-        //String nstUuid3 =nspInteraction.onBoardNST("nst_sample_S_Piero.json");
-        String nstUrlccUuid =nspInteraction.onBoardNST("nst_sample_urlcc.json");
+        String nstUuid=nspInteraction.onBoardNST("./json_test/nst_sample.json");
+        String nstUuid2 =nspInteraction.onBoardNST("./json_test/nst_sample_Pisa.json");
+        //String nstUuid3 =nspInteraction.onBoardNST("./json_test/nst_sample_S_Piero.json");
+        String nstUrlccUuid =nspInteraction.onBoardNST("./json_test/nst_sample_urlcc.json");
 
 
         //ON NSP2
-        //String nstUuid_2 =nspInteraction2.onBoardNST("nst_sample_S_Piero.json");
-        //String nstUuid2_2 =nspInteraction2.onBoardNST("nst_sample2.json");
-        //String nstUuid3_2 =nspInteraction2.onBoardNST("nst_sample3.json");
+        //String nstUuid_2 =nspInteraction2.onBoardNST("./json_test/nst_sample_S_Piero.json");
+        //String nstUuid2_2 =nspInteraction2.onBoardNST("./json_test/nst_sample2.json");
+        //String nstUuid3_2 =nspInteraction2.onBoardNST("./json_test/nst_sample3.json");
         //nspInteraction2.removeNST(nstUuid2_2);
-        //String nstUrlccUuid_2 =nspInteraction2.onBoardNST("nst_sample_urlcc.json");
+        //String nstUrlccUuid_2 =nspInteraction2.onBoardNST("./json_test/nst_sample_urlcc.json");
 
         //DSP side
         //onBoardVsbWithNstTransRules(VSMF_HOST, "vsblueprint_osm_sample.json", nstUuid);
         log.info("Testing VSB and VSD streaming on boarding");
-        String vsbIdStreaming=onBoardVsbWithNstTransRules(VSMF_HOST, "vsb_samples/vsb_streaming.json", nstUuid);
-        String vsdStreamingId= testVSDOnBoarding(vsbIdStreaming,"vsb_samples/vsd_streaming_one.json");
+        String vsbIdStreaming=onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_streaming.json", nstUuid);
+        String vsdStreamingId= testVSDOnBoarding(vsbIdStreaming,"./json_test/vsb_samples/vsd_streaming_one.json");
 
         log.info("Testing VSB and VSDs streaming on boarding");
-        String vsbIdUrban=onBoardVsbWithNstTransRules(VSMF_HOST, "vsb_samples/vsb_urban.json", nstUuid);
-        String vsdUrbanId1= testVSDOnBoarding(vsbIdUrban,"vsb_samples/vsd_urban_1.json");
+        String vsbIdUrban=onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_urban.json", nstUuid);
+        String vsdUrbanId1= testVSDOnBoarding(vsbIdUrban,"./json_test/vsb_samples/vsd_urban_1.json");
 
-        String vsiUuid = VSIinstantionTest(vsdStreamingId,"vsb_samples/vsi_sample_Pisa_San_Piero.json");
+        String vsiUuid = VSIinstantionTest(vsdStreamingId,"./json_test/vsb_samples/vsi_sample_Pisa_San_Piero.json");
         /*log.info("Waiting slice instantiation");
 
 
@@ -408,7 +407,7 @@ public class SlicerE2ETest {
         qosRedirectParametersParent.put("ueIMSI", "208920100001103");
 
         ActuationRequest actuationRequest = new ActuationRequest(vsiId, "actuationName", "actuationDescription",qosRedirectParametersParent,"");
-        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/"+vsiId+"/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+        ResponseEntity<?> responseEntity = it.nextworks.nfvmano.test.test.Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/"+vsiId+"/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
 */
         boolean isInstantiated = false;
 
