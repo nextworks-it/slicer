@@ -29,7 +29,7 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/vs/basic/nslcm")
+@RequestMapping("/ns/basic/nslcm")
 public class NsmfRestController {
 
 	private static final Logger log = LoggerFactory.getLogger(NsmfRestController.class);
@@ -51,7 +51,7 @@ public class NsmfRestController {
 	public NsmfRestController() {
 	}
 
-	@RequestMapping(value = "/ns", method = RequestMethod.POST)
+	@RequestMapping(value = "/nsi", method = RequestMethod.POST)
 	public ResponseEntity<?> createNsId(@RequestBody CreateNsiUuidRequest request, Authentication auth) {
 		log.debug("Received request to create a new network slice instance ID.");
 		try {
@@ -73,7 +73,7 @@ public class NsmfRestController {
 		}
 	}
 
-	@RequestMapping(value = "/ns/{nsiUuid}", method = RequestMethod.GET)
+	@RequestMapping(value = "/nsi/{nsiUuid}", method = RequestMethod.GET)
 	public ResponseEntity<?> getNsInstance(@PathVariable String nsiUuid, Authentication auth) {
 		log.debug("Received query for network slice instance with UUID " + nsiUuid);
 		try {
@@ -97,7 +97,7 @@ public class NsmfRestController {
 		}
 	}
 
-	@RequestMapping(value = "/ns", method = RequestMethod.GET)
+	@RequestMapping(value = "/nsi", method = RequestMethod.GET)
 	public ResponseEntity<?> getNsInstance(Authentication auth) {
 		log.debug("Received query for all network slice instances.");
 		try {
@@ -116,7 +116,7 @@ public class NsmfRestController {
 		}
 	}
 
-	@RequestMapping(value = "/ns/{nsiUuid}/action/instantiate", method = RequestMethod.PUT)
+	@RequestMapping(value = "/nsi/{nsiUuid}/action/instantiate", method = RequestMethod.PUT)
 	public ResponseEntity<?> instantiateNsi(@PathVariable String nsiUuid, @RequestBody InstantiateNsiRequest request, Authentication auth) {
 		log.debug("Received request to instantiate network slice " + nsiUuid);
 		log.info("KPI:"+ Instant.now().toEpochMilli()+", Received request to instantiate network slice");
@@ -140,7 +140,7 @@ public class NsmfRestController {
 		}
 	}
 
-	@RequestMapping(value = "/ns/{nsiUuid}/action/modify", method = RequestMethod.PUT)
+	@RequestMapping(value = "/nsi/{nsiUuid}/action/modify", method = RequestMethod.PUT)
 	public ResponseEntity<?> modifyNsi(@PathVariable String nsiUuid, @RequestBody ModifyNsiRequest request, Authentication auth) {
 		log.debug("Received request to modify network slice " + nsiUuid);
 		try {
@@ -162,7 +162,7 @@ public class NsmfRestController {
 		}
 	}
 
-	@RequestMapping(value = "/ns/{nsiUuid}/action/terminate", method = RequestMethod.PUT)
+	@RequestMapping(value = "/nsi/{nsiUuid}/action/terminate", method = RequestMethod.PUT)
 	public ResponseEntity<?> terminateNsi(@PathVariable String nsiUuid, @RequestBody TerminateNsiRequest request, Authentication auth) {
 		log.debug("Received request to terminate network slice " + nsiUuid);
 		log.info("KPI:"+Instant.now().toEpochMilli()+", Received request to terminate network slice.");

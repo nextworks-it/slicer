@@ -53,7 +53,7 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 
 
 	public NsmfRestClient(String baseUrl, AdminService adminService) {
-		this.nsmfUrl = baseUrl + "/vs/basic/nslcm";
+		this.nsmfUrl = baseUrl + "/ns/basic/nslcm";
 		this.restTemplate = new RestTemplate();
 		this.authenticator = new Authenticator(baseUrl, adminService);
 	}
@@ -118,7 +118,7 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 	public String createNetworkSliceIdentifier(CreateNsiUuidRequest request, String tenantId)
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
 			MalformattedElementException, NotPermittedOperationException {
-		String url = nsmfUrl + "/ns";
+		String url = nsmfUrl + "/nsi";
 		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.POST, tenantId);
 		return manageHTTPResponse(httpResponse, "Error while creating network slice identifier", "Network slice identifier correctly created",HttpStatus.CREATED);
 	}
@@ -128,7 +128,7 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 	public void instantiateNetworkSlice(InstantiateNsiRequest request, String tenantId)
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
 			MalformattedElementException, NotPermittedOperationException {
-		String url = nsmfUrl + "/ns/"+request.getNsiId()+"/action/instantiate";
+		String url = nsmfUrl + "/nsi/"+request.getNsiId()+"/action/instantiate";
 		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.PUT, tenantId);
 		String bodyResponse = manageHTTPResponse(httpResponse, "Error while instantiating network slice", "Network slice instantiation correctly performed",HttpStatus.ACCEPTED);
 	}
@@ -138,7 +138,7 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
 			MalformattedElementException, NotPermittedOperationException {
 		log.info("Sending request to modify network slice");
-		String url = nsmfUrl + "/ns/"+request.getNsiId()+"/action/modify";
+		String url = nsmfUrl + "/nsi/"+request.getNsiId()+"/action/modify";
 		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.PUT, tenantId);
 		String bodyResponse = manageHTTPResponse(httpResponse, "Error while modifying network slice", "Network slice modification correctly performed",HttpStatus.ACCEPTED);
 	}
@@ -148,7 +148,7 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 			throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException,
 			MalformattedElementException, NotPermittedOperationException {
 		log.info("Sending request to terminate network slice");
-		String url = nsmfUrl + "/ns/"+request.getNsiId()+"/action/terminate";
+		String url = nsmfUrl + "/nsi/"+request.getNsiId()+"/action/terminate";
 		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.PUT, tenantId);
 		String bodyResponse = manageHTTPResponse(httpResponse, "Error while terminating network slice", "Network slice termination correctly performed",HttpStatus.ACCEPTED);
 	}
@@ -157,7 +157,7 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 	public List<NetworkSliceInstance> queryNetworkSliceInstance(GeneralizedQueryRequest request, String tenantId)
 			throws MethodNotImplementedException, FailedOperationException, MalformattedElementException {
 		log.info("Sending request to query network slice instance");
-		String url = nsmfUrl + "/ns/";
+		String url = nsmfUrl + "/nsi/";
 		HttpHeaders header = new HttpHeaders();
 		header.add("Content-Type", "application/json");
 		performAuth(tenantId);
