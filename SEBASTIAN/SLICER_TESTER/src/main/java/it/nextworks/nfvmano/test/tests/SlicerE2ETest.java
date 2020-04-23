@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 public class SlicerE2ETest {
 
     private final String VSMF_IP = "10.30.8.54";
-    private final String NSMF_IP = "10.30.8.54";
+    private final String NSMF_IP = "10.30.8.76";
     private final String NSMF2_IP = "10.30.8.76";
 
     private final String VSMF_HOST = "http://"+VSMF_IP+":8081";
@@ -278,7 +278,7 @@ public class SlicerE2ETest {
     }
 
 
-    public void onBoardVSBWithNstID(){
+    public void onBoardVSBWithNstID(final int ITERATIONS){
 
 
         //NSP1 SIDE
@@ -369,81 +369,77 @@ public class SlicerE2ETest {
         String vsbIdUrban=onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_urban.json", nstUuid);
         String vsdUrbanId1= testVSDOnBoarding(vsbIdUrban,"./json_test/vsb_samples/vsd_urban_1.json");
 
-        String vsiUuid = VSIinstantionTest(vsdStreamingId,"./json_test/vsb_samples/vsi_sample_Pisa_San_Piero.json");
-        /*log.info("Waiting slice instantiation");
+        for(int i=0; i<ITERATIONS; i++){
 
 
-        try {
-            Thread.sleep(70000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            String vsiUuid = VSIinstantionTest(vsdStreamingId,"./json_test/vsb_samples/vsi_sample_Pisa_San_Piero.json");
 
-        log.info("Slice should be instantiated");
+            boolean isInstantiated = false;
 
-        Map<String, Object> qosContraint = new HashMap<>();
-        Map<String, Object> ranCoreContraint = new HashMap<>();
-        Map<String, Object> ranCoreContraint2 = new HashMap<>();
-        ranCoreContraint.put("bandIncDir",  "DL");
-        ranCoreContraint.put("bandIncVal",  "10");
-        ranCoreContraint.put("bandUnitScale",  "MB");
+            while(!isInstantiated){
+                    ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
+                    QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
+                    log.info("Vertical service instance Status "+queryVsResponse.getStatus().toString());
+                    if(queryVsResponse.getStatus()== VerticalServiceStatus.INSTANTIATED){
+                        isInstantiated=true;
+                    }
+                    else{
+                        log.info("Vertical service instance not instantiated yet. Next check in 60 seconds");
+                        try {
+                            Thread.sleep(60000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+            }
+          /* ACTUATION LINE OF CODES
+            Map<String, Object> qosContraint = new HashMap<>();
+            Map<String, Object> ranCoreContraint = new HashMap<>();
+            Map<String, Object> ranCoreContraint2 = new HashMap<>();
+            ranCoreContraint.put("bandIncDir",  "DL");
+            ranCoreContraint.put("bandIncVal",  "10");
+            ranCoreContraint.put("bandUnitScale",  "MB");
 
-        ranCoreContraint2.put("bandIncDir",  "UL");
-        ranCoreContraint2.put("bandIncVal",  "10");
-        ranCoreContraint2.put("bandUnitScale",  "MB");
-        List<Map<String, Object>> ranArray = new ArrayList<>();
-        ranArray.add(ranCoreContraint);
+            ranCoreContraint2.put("bandIncDir",  "UL");
+            ranCoreContraint2.put("bandIncVal",  "10");
+            ranCoreContraint2.put("bandUnitScale",  "MB");
+            List<Map<String, Object>> ranArray = new ArrayList<>();
+            ranArray.add(ranCoreContraint);
 
-        ranArray.add(ranCoreContraint2);
-        qosContraint.put("ran_core_constraints", ranArray);
-         ActuationRequest actuationRequest = new ActuationRequest(vsiId, "actuationName", "actuationDescription",qosContraint,"");
+            ranArray.add(ranCoreContraint2);
+            qosContraint.put("ran_core_constraints", ranArray);
+            ActuationRequest actuationRequest = new ActuationRequest(vsiId, "actuationName", "actuationDescription",qosContraint,"");
 
 
-        Map<String, String> qosRedirectParameters = new HashMap<>();
-        Map<String, Object> qosRedirectParametersParent = new HashMap<>();
-        qosRedirectParameters.put("FromServer", "192.168.100.6");
-        qosRedirectParameters.put("ToServer", "192.168.100.7");
-        qosRedirectParametersParent.put("routes", qosRedirectParameters);
-        qosRedirectParametersParent.put("ueIMSI", "208920100001103");
+            Map<String, String> qosRedirectParameters = new HashMap<>();
+            Map<String, Object> qosRedirectParametersParent = new HashMap<>();
+            qosRedirectParameters.put("FromServer", "192.168.100.6");
+            qosRedirectParameters.put("ToServer", "192.168.100.7");
+            qosRedirectParametersParent.put("routes", qosRedirectParameters);
+            qosRedirectParametersParent.put("ueIMSI", "208920100001103");
 
-        ActuationRequest actuationRequest = new ActuationRequest(vsiId, "actuationName", "actuationDescription",qosRedirectParametersParent,"");
-        ResponseEntity<?> responseEntity = it.nextworks.nfvmano.test.test.Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/"+vsiId+"/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+            ActuationRequest actuationRequest = new ActuationRequest(vsiId, "actuationName", "actuationDescription",qosRedirectParametersParent,"");
+            ResponseEntity<?> responseEntity = it.nextworks.nfvmano.test.test.Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/"+vsiId+"/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
 */
-        boolean isInstantiated = false;
 
-        while(!isInstantiated){
+            log.info("Going to terminate VSI");
+            VsiTerminationTest(vsiUuid);
+            //VSImodificationTest();
+	        boolean isTerminated=false;
+            while(!isTerminated){
                 ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
                 QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
-            log.info("Vertical service instance Status "+queryVsResponse.getStatus().toString());
-                if(queryVsResponse.getStatus()== VerticalServiceStatus.INSTANTIATED){
-                    isInstantiated=true;
+                log.info("Vertical service instance Status "+queryVsResponse.getStatus().toString());
+                if(queryVsResponse.getStatus()== VerticalServiceStatus.TERMINATED){
+                    isTerminated=true;
                 }
                 else{
-                    log.info("Vertical service instance not instantiated yet. Next check in 30 seconds");
+                    log.info("Vertical service instance not terinated yet. Next check in 30 seconds");
                     try {
                         Thread.sleep(30000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                }
-        }
-        log.info("Going to terminate VSI");
-        VsiTerminationTest(vsiUuid);
-        //VSImodificationTest();
-	boolean isTerminated=false;
-        while(!isTerminated){
-            ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
-            QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
-            log.info("Vertical service instance Status "+queryVsResponse.getStatus().toString());
-            if(queryVsResponse.getStatus()== VerticalServiceStatus.TERMINATED){
-                isTerminated=true;
-            }
-            else{
-                log.info("Vertical service instance not terinated yet. Next check in 30 seconds");
-                try {
-                    Thread.sleep(30000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
         }

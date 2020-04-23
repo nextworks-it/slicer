@@ -12,6 +12,6 @@ public class ServiceStartup {
     public void configComService() {
         //Once start, it executes tests
         SlicerE2ETest slicerE2ETest = new SlicerE2ETest();
-        slicerE2ETest.onBoardVSBWithNstID();;
+        slicerE2ETest.onBoardVSBWithNstID(5);;
     }
 }
