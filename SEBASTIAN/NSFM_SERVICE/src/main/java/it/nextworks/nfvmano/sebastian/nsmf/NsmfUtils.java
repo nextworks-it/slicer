@@ -66,6 +66,11 @@ public class NsmfUtils {
 	@Value("${nfvo.lcm.polling}")
 	private int nfvoLcmPolling;
 
+
+
+	@Value("${plugAndPlay.hostname}")
+	private String plugAndPlayHostname;
+
 	public NsTemplateInfo getNsTemplateInfoFromCatalogue(String nstUuid)
 			throws NotExistingEntityException {
 
@@ -104,4 +109,7 @@ public class NsmfUtils {
 		return nfvoCatalogueUsername;
 	}
 	public int getNfvoLcmPolling(){ return nfvoLcmPolling; }
+	public String getPlugAndPlayHostname() {
+		return plugAndPlayHostname;
+	}
 }

@@ -147,6 +147,7 @@ public class NsLcmManager {
 		this.usageResourceUpdate= usageResourceUpdate;
 		this.actuationLcmService = actuationLcmService;
 		operationsId=new ArrayList<String>();
+		pnPCommunicationService.setTargetUrl(nsmfUtils.getPlugAndPlayHostname());
 	}
 	
 	
@@ -252,8 +253,8 @@ public class NsLcmManager {
 			// TODO nsst management here
 		}
 
-
 		try {
+			//TODO get nsst RAN if any
 			// Step 1: check for RAN
 
 			NstServiceProfile nstServiceProfile = networkSliceTemplate.getNstServiceProfile();
@@ -282,6 +283,7 @@ public class NsLcmManager {
 				this.flexRanService.applyInitialQosConstraints(UUID.fromString(networkSliceInstanceUuid),qosConstraints);
 			}
 
+			//TODO P&P should be always available
 			// Step 2: check for PnP functions
 			List<PpFunction> ppFunctions = networkSliceTemplate.getPpFunctionList();
 			if (ppFunctions != null) {
@@ -290,6 +292,7 @@ public class NsLcmManager {
 
 			}
 
+			//TODO get all nsst
 			// Step 3: proceed in instantiating nsds, if any
 
 			if (networkSliceTemplate.getNsdId() != null) {
