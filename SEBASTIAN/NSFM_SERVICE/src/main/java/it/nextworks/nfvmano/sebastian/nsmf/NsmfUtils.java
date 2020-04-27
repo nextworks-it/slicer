@@ -66,10 +66,15 @@ public class NsmfUtils {
 	@Value("${nfvo.lcm.polling}")
 	private int nfvoLcmPolling;
 
-
-
+	//These configuration variables below were moved into related services but they were set to null. Placed here as workaround
 	@Value("${plugAndPlay.hostname}")
 	private String plugAndPlayHostname;
+
+	@Value("${llmec.hostname}")
+	private String llMecHostname;
+
+	@Value("${llmecAdapter.hostname}")
+	private String llMecAdapteHostname;
 
 	public NsTemplateInfo getNsTemplateInfoFromCatalogue(String nstUuid)
 			throws NotExistingEntityException {
@@ -109,7 +114,10 @@ public class NsmfUtils {
 		return nfvoCatalogueUsername;
 	}
 	public int getNfvoLcmPolling(){ return nfvoLcmPolling; }
+
 	public String getPlugAndPlayHostname() {
 		return plugAndPlayHostname;
 	}
+	public String getLlMecHostname() {	return llMecHostname;	}
+	public String getLlMecAdapteHostname() {		return llMecAdapteHostname;	}
 }

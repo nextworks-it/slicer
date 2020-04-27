@@ -54,6 +54,7 @@ import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.FlexRanService;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.LlMecService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.RanQoSTranslator;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
@@ -112,6 +113,8 @@ public class NsLcmManager {
 	private ActuationLcmService actuationLcmService;
 	private List<String> operationsId;
 
+	private LlMecService llMecService;
+
 	public NsLcmManager(String networkSliceInstanceUuid,
 						String name,
 						String description,
@@ -127,7 +130,8 @@ public class NsLcmManager {
 						PnPCommunicationService pnPCommunicationService,
 						NsmfUtils nsmfUtils,
 						UsageResourceUpdate usageResourceUpdate,
-						ActuationLcmService actuationLcmService
+						ActuationLcmService actuationLcmService,
+						LlMecService llMecService
 						) {
 
 		this.networkSliceInstanceUuid = networkSliceInstanceUuid;
@@ -146,8 +150,11 @@ public class NsLcmManager {
 		this.nsmfUtils = nsmfUtils;
 		this.usageResourceUpdate= usageResourceUpdate;
 		this.actuationLcmService = actuationLcmService;
+		this.llMecService = llMecService;
 		operationsId=new ArrayList<String>();
 		pnPCommunicationService.setTargetUrl(nsmfUtils.getPlugAndPlayHostname());
+		llMecService.setLlMecAdapterUrl(nsmfUtils.getLlMecAdapteHostname());
+		llMecService.setLlMecURL(nsmfUtils.getLlMecHostname());
 	}
 	
 	
@@ -291,6 +298,10 @@ public class NsLcmManager {
 				this.pnPCommunicationService.deploySliceComponents(UUID.fromString(networkSliceInstanceUuid), this.networkSliceTemplate);
 
 			}
+
+
+			llMecService.createLlMecSlice(UUID.fromString(networkSliceInstanceUuid));
+
 
 			//TODO get all nsst
 			// Step 3: proceed in instantiating nsds, if any
@@ -616,6 +627,8 @@ public class NsLcmManager {
 			log.debug("Terminating RAN Slice for  " + networkSliceInstanceUuid);
 			flexRanService.terminateRanSlice(UUID.fromString(networkSliceInstanceUuid));
 		}
+
+		llMecService.terminateLlMecSlice(UUID.fromString(networkSliceInstanceUuid));
 
 		this.internalStatus = NetworkSliceStatus.TERMINATING;
 		nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.TERMINATING);

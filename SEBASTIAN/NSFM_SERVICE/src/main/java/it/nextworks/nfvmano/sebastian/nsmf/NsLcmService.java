@@ -42,6 +42,7 @@ import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.NsLcmManager;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.UsageResourceUpdate;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.ActuationLcmService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.FlexRanService;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.LlMecService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
@@ -110,6 +111,9 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 
     @Autowired
     ActuationLcmService actuationLcmService;
+
+    @Autowired
+    LlMecService llMecService;
 
     //internal map of NS LCM Managers
     //each NS LCM Manager is created when a new NSI ID is created and removed when the NSI ID is removed
@@ -356,7 +360,8 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
                 flexRanService,
                 pnPCommunicationService,
                 nsmfUtils, usageResourceUpdate,
-                actuationLcmService);
+                actuationLcmService,
+                llMecService);
 
         nsLcmManager.setNsDfId(nsDfId);
         nsLcmManager.setInstantationLevel(instantiationLevel);
