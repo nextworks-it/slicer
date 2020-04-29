@@ -2,14 +2,17 @@ package it.nextworks.nfvmano.sebastian.nsmf.nsmanagement;
 
 import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.NsmfSbRestClient;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.QoSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -23,6 +26,7 @@ public class ActuationLcmService {
 
     private final String REDIRECT="REDIRECT";
     private final String UPDATE_QOS="UPDATE_QOS";
+    private final String HANDOVER = "HANDOVER";
 
 
     public ActuationLcmService(){}
@@ -35,6 +39,9 @@ public class ActuationLcmService {
 
         if(parametersActuation.containsKey("ran_core_constraints") )
             return UPDATE_QOS;
+
+        if(parametersActuation.containsKey("ueid") && parametersActuation.containsKey("sid") && parametersActuation.containsKey("tid"))
+            return HANDOVER;
 
         throw new MalformattedElementException("Error: check the request parameters.");
     }
@@ -53,7 +60,7 @@ public class ActuationLcmService {
             switch(actuationType)
             {
                 case REDIRECT:
-                    log.info("The actuation is a REDIRECT request");
+                    log.info("The actuation is a REDIRECT request.");
                     json = new JSONObject(parameters);
                     qoSService.setTargetUrl(url);
                     httpStatus =qoSService.redirectTraffic(UUID.fromString(nsiId),
@@ -62,12 +69,21 @@ public class ActuationLcmService {
 
 
                 case UPDATE_QOS:
-                    log.info("The actuation is a UPDATE QOS request");
+                    log.info("The actuation is a UPDATE QOS request.");
                     qoSService.setTargetUrl(url);
                     json = new JSONObject(parameters);
                     httpStatus =qoSService.setQoS(UUID.fromString(nsiId), json);
                     return httpStatus==HttpStatus.OK;
 
+
+                case HANDOVER:
+                    log.info("The actuation is a handover request.");
+                    qoSService.setTargetUrl(url);
+                    Map<String,Object> jsonFather = new HashMap<String, Object>();
+                    jsonFather.put("ueHandover",parameters);
+                    json = new JSONObject(jsonFather);
+                    httpStatus =qoSService.handover(UUID.fromString(nsiId), json);
+                    return httpStatus==HttpStatus.OK;
                 default:
                     log.info("The actuation request is neither REDIRECT nor update QOS.");
                     return false;

@@ -28,6 +28,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -70,6 +72,22 @@ public class QoSService extends CPSService{
             return HttpStatus.valueOf(e.getRawStatusCode());
         }
     }
+
+    public HttpStatus handover(UUID sliceId, JSONObject handoverParams){
+        try {
+            String baseUri= this.getTargetUrl();
+            String url = String.format("%s/slicenet/ctrlplane/qos/v1/qos-instance/%s/handover",baseUri, sliceId.toString());
+            log.info("Actuation JSON going to send");
+            log.info(handoverParams.toString());
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(handoverParams.toString(), url, HttpMethod.POST);
+            System.out.println(httpResponse.getBody());
+            return httpResponse.getStatusCode();
+        } catch (RestClientResponseException e){
+            log.info("Message received: "+e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
+    }
+
     public HttpStatus updateQoS(UUID sliceId, JSONObject qosConstraints){
         try {
             String qosCpBaseURl = this.getQoSInfo(sliceId);
