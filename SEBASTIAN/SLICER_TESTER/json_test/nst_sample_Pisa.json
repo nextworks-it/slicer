@@ -40,16 +40,12 @@
 			"sST": "EMBB",
 			"uEMobilityLevel": "STATIONARY"
 		},
-		"ppFunctionList": [{
-				"ppFeatureName": "ElementControl",
-				"ppFeatureLevel": "ELEMENT",
-				"ppFeatureType": "CONTROL"
-			},
-			{
-				"ppFeatureName": "SliceMonitoring",
-				"ppFeatureLevel": "SLICE",
-				"ppFeatureType": "MONITORING"
-			}
-		]
+		"ppFunctionList": [
+                        {
+                                "ppFeatureName": "qos_ctrl_feature",
+                                "ppFeatureLevel": "SLICE",
+                                "ppFeatureType": "CONTROL"
+                        }
+                ]
 	}
 }

@@ -83,7 +83,7 @@ public class ActuationLcmService {
                     jsonFather.put("ueHandover",parameters);
                     json = new JSONObject(jsonFather);
                     httpStatus =qoSService.handover(UUID.fromString(nsiId), json);
-                    return httpStatus==HttpStatus.OK;
+                    return httpStatus==HttpStatus.CREATED;
                 default:
                     log.info("The actuation request is neither REDIRECT nor update QOS.");
                     return false;
