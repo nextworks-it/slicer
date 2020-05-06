@@ -24,14 +24,10 @@ import it.nextworks.nfvmano.catalogue.blueprint.services.VsBlueprintCatalogueSer
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.catalogue.translator.TranslatorService;
 import it.nextworks.nfvmano.catalogues.domainLayer.services.DomainCatalogueService;
-import it.nextworks.nfvmano.catalogues.template.repo.NsTemplateRepository;
-import it.nextworks.nfvmano.catalogues.template.services.NsTemplateCatalogueService;
 import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
-import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.messages.QueryNsResponse;
-import it.nextworks.nfvmano.libs.ifa.records.nsinfo.NsInfo;
 import it.nextworks.nfvmano.libs.ifa.records.nsinfo.SapInfo;
 import it.nextworks.nfvmano.libs.ifa.records.vnfinfo.VnfExtCpInfo;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
@@ -43,8 +39,8 @@ import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceFailureNotification;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
 import it.nextworks.nfvmano.sebastian.nstE2eComposer.repository.BucketRepository;
+import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.NstAdvertisedInfo;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
-import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.vsfm.interfaces.VsLcmProviderInterface;
@@ -66,7 +62,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.*;
 
 /**
@@ -186,18 +181,26 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		String vsiUuid = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData, locationsConstraints, ranEndPointId);
 
 		RuntimeTranslator runtimeTranslator = new RuntimeTranslator(bucketRepository,vsDescriptorCatalogueService);
-		log.info("Filtering Vertical Service Instantiation request against the NSTs buckets.");
-		ArrayList<Long> suitableBuckets = runtimeTranslator.translate(vsdId);
-		HashMap<String,NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap=new HashMap<String,NetworkSliceInternalInfo>();
 
+		log.info("Translate VSD into NST");
+		Map<String,NstAdvertisedInfo>  nstAdvertisedInfoMapFiltered = runtimeTranslator.translateVsdToNst(vsd);
+
+		HashMap<String,NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap=new HashMap<String,NetworkSliceInternalInfo>();
 		if (locationsConstraints != null) {
 			log.info("Filtering NSTs by geographical constraints in the Vertical Service Instance.");
 			for (LocationInfo locationConstraints : locationsConstraints) {
-				domainIdNetworkSliceInternalInfoMap = runtimeTranslator.filterByLocationConstraints(suitableBuckets, locationConstraints, domainIdNetworkSliceInternalInfoMap);
+				domainIdNetworkSliceInternalInfoMap.putAll(runtimeTranslator.filterByLocationConstraints(nstAdvertisedInfoMapFiltered,locationConstraints));
+			}
+			log.info("The Geographical filtering results in "+domainIdNetworkSliceInternalInfoMap.size()+" NST(s)");
+		}
+		else{
+			log.info("No location constraints found, thus no geographical filtering is applied.");
+			for(String nstUuid: nstAdvertisedInfoMapFiltered.keySet()){
+				NstAdvertisedInfo nstAdvertisedInfo = nstAdvertisedInfoMapFiltered.get(nstUuid);
+				domainIdNetworkSliceInternalInfoMap.put(nstAdvertisedInfo.getDomainId(), new NetworkSliceInternalInfo(nstAdvertisedInfo.getDomainId(), nstUuid, null));
 			}
 		}
-		log.info("The Geographical filtering results in "+domainIdNetworkSliceInternalInfoMap.size()+" NST(s)");
-		log.info("KPI:"+ Instant.now().toEpochMilli()+", Instantiation request found suitable NSTs.");
+
 		initNewVsLcmManager(vsiUuid, request.getName(), domainIdNetworkSliceInternalInfoMap);
 
 		if (!(tenantId.equals(adminTenant))) adminService.addVsiInTenant(vsiUuid, tenantId);

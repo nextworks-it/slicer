@@ -9,6 +9,7 @@ import it.nextworks.nfvmano.libs.ifa.templates.EMBBPerfReq;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.libs.ifa.templates.SliceType;
 import it.nextworks.nfvmano.libs.ifa.templates.URLLCPerfReq;
+import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRemoveRequest;
 import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRequest;
 import it.nextworks.nfvmano.sebastian.nstE2eComposer.repository.BucketRepository;
@@ -20,6 +21,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -108,6 +110,9 @@ public class BucketService {
             URLLCPerfReq intellTranspostSysURLLCCPerf = new URLLCPerfReq(30,-0,100,99.9999f,99.999f,10,"Small to big",10000,1000,"2 km along road");
             BucketURLLC bucketIntellTranspostSys = new BucketURLLC(BucketScenario.INTELLIGENT_TR_SYS, intellTranspostSysURLLCCPerf);
             bucketRepository.saveAndFlush(bucketIntellTranspostSys);
+
+            BucketOnlyPP bucketPPOnly = new BucketOnlyPP();
+            bucketRepository.saveAndFlush(bucketPPOnly);
         }
 
 
@@ -128,68 +133,111 @@ public class BucketService {
 
 
 
-    public synchronized void bucketizeNst(NstAdvertisementRequest nstAdvertisementRequest, String ipAddress) throws MalformattedElementException, FailedOperationException, AlreadyExistingEntityException, NotExistingEntityException, MethodNotImplementedException {
-        log.debug("Received request to advertise a NS Template from "+ipAddress);
-        nstAdvertisementRequest.isValid();
+    private boolean bucketizeNsst(String nstId, NST nsst, String domainId) throws MalformattedElementException, AlreadyExistingEntityException, FailedOperationException {
 
-        NST nst = nstAdvertisementRequest.getNst();
-        String domainName=nstAdvertisementRequest.getDomainName();
-
-        String domainId= getNSPdomainIdFromNameAndIpAddress(domainName, ipAddress);
-        SliceType sliceType= nst.getNstServiceProfile().getsST();
-        String nstId = nst.getNstId();
-
+        SliceType sliceType= nsst.getNstServiceProfile().getsST();
+        String nsstId = nsst.getNstId();
         boolean isBucketized=false;
         if(sliceType==SliceType.EMBB){
             log.info("NST has slice type EMBB");
             List<Bucket> bucketEMBBList=bucketRepository.findByBucketType(BucketType.EMBB);
-            if(nst.getNstServiceProfile().geteMBBPerfReq()==null ||  nst.getNstServiceProfile().geteMBBPerfReq().get(0)==null)
+            if(nsst.getNstServiceProfile().geteMBBPerfReq()==null ||  nsst.getNstServiceProfile().geteMBBPerfReq().get(0)==null)
                 throw new MalformattedElementException("EMBB performance requirements missing.");
 
-            EMBBPerfReq embbPerfReq=nst.getNstServiceProfile().geteMBBPerfReq().get(0); //TODO: supposing only one EMBB in the perfreq list. To be generalized ?
-            log.info("NST with UUID "+nstId+" has "+nst.getNstServiceProfile().geteMBBPerfReq().size()+" EMBB performance requirements. Taking the first one.");
+            EMBBPerfReq embbPerfReq=nsst.getNstServiceProfile().geteMBBPerfReq().get(0); //TODO: supposing only one EMBB in the perfreq list. To be generalized ?
+            log.info("NST with UUID "+nstId+" has "+nsst.getNstServiceProfile().geteMBBPerfReq().size()+" EMBB performance requirements. Taking the first one.");
 
             for(Bucket bucket: bucketEMBBList){
-                    BucketEMBB bucketEMBB = (BucketEMBB) bucket;
-                    if(bucketEMBB.areRequirementsSatisfied(embbPerfReq)) {
-                        //Added locally and into the DB
-                        if(bucketEMBB.addNstId(nstId,domainId,nst.getGeographicalAreaInfoList())==false) {
-                            log.info("NST with UUID " + nstId + " advertised from domain with ID " + domainId + "already available.");
-                            throw new AlreadyExistingEntityException("NST with UUID " + nstId + " advertised from domain with ID " + domainId + "already available.");
-                        }
-                        
-                        bucketRepository.saveAndFlush(bucketEMBB);
-                        isBucketized=true;
-                        log.info("Added NST with UUID " + nstId + " into bucket " + bucketEMBB.getBucketScenario().toString());
+                BucketEMBB bucketEMBB = (BucketEMBB) bucket;
+                String compositeNstId = nstId+"_"+nsstId;
+                if(bucketEMBB.areRequirementsSatisfied(embbPerfReq)) {
+                    //Added locally and into the DB
+                    //One or more nsst can be available into to NST. in order to avoid duplicate into bucket and link nsst to nst, a composite nstId is used.
+                    if(bucketEMBB.addNstId(compositeNstId,domainId,nsst.getGeographicalAreaInfoList(),new ArrayList<PpFunction>())==false) {
+                        log.info("NST with composite UUID " + compositeNstId + " advertised from domain with ID " + domainId + "already available.");
+                        throw new AlreadyExistingEntityException("NST with composite UUID " + compositeNstId + " advertised from domain with ID " + domainId + "already available.");
                     }
-                    else
-                        log.debug("Cannot add NST with UUID "	+nstId+ " into bucket "+bucketEMBB.getBucketScenario().toString());
+
+                    bucketRepository.saveAndFlush(bucketEMBB);
+                    isBucketized=true;
+                    log.info("Added NST with composite UUID " + compositeNstId + " into bucket " + bucketEMBB.getBucketScenario().toString());
+                }
+                else
+                    log.debug("Cannot add NST with composite UUID "	+compositeNstId+ " into bucket "+bucketEMBB.getBucketScenario().toString());
             }
         }
 
         else if(sliceType==SliceType.URLLC){
             log.info("NST has slice type URLLC");
             List<Bucket> bucketURLLCList=bucketRepository.findByBucketType(BucketType.URLLC);
-            if(nst.getNstServiceProfile().getuRLLCPerfReq()==null || nst.getNstServiceProfile().getuRLLCPerfReq().get(0)==null)
+            if(nsst.getNstServiceProfile().getuRLLCPerfReq()==null || nsst.getNstServiceProfile().getuRLLCPerfReq().get(0)==null)
                 throw new MalformattedElementException("URLLC performance requirements missing");
-            URLLCPerfReq urllcPerfReq = nst.getNstServiceProfile().getuRLLCPerfReq().get(0);//TODO: supposing only one URLCC in the perfreq list. To be generalized ?
-            log.info("NST with UUID "+nstId+" has "+nst.getNstServiceProfile().getuRLLCPerfReq().size()+" URLCC performance requirements. Taking the first one.");
+            URLLCPerfReq urllcPerfReq = nsst.getNstServiceProfile().getuRLLCPerfReq().get(0);//TODO: supposing only one URLCC in the perfreq list. To be generalized ?
+            log.info("NST with UUID "+nstId+" has "+nsst.getNstServiceProfile().getuRLLCPerfReq().size()+" URLCC performance requirements. Taking the first one.");
 
             for(Bucket bucket: bucketURLLCList){
                 BucketURLLC bucketURLLC = (BucketURLLC) bucket;
+                String compositeNstId = nstId+"_"+nsstId;
                 if(bucketURLLC.areRequirementsSatisfied(urllcPerfReq)){
-                    bucketURLLC.addNstId(nstId,domainId,nst.getGeographicalAreaInfoList());
-                    log.info("Added NST with UUID "	+nstId+ " into bucket "+bucketURLLC.getBucketScenario().toString());
+                    bucketURLLC.addNstId(compositeNstId,domainId,nsst.getGeographicalAreaInfoList(),new ArrayList<PpFunction>());
+                    log.info("Added NST with composite UUID "	+compositeNstId+ " into bucket "+bucketURLLC.getBucketScenario().toString());
                     bucketRepository.saveAndFlush(bucketURLLC);
                     isBucketized=true;
                 }
                 else
-                    log.debug("Cannot add NST with UUID "+nstId+ " into bucket "+bucketURLLC.getBucketScenario().toString());
+                    log.debug("Cannot add NST with composite UUID "+compositeNstId+ " into bucket "+bucketURLLC.getBucketScenario().toString());
             }
         }
         if(isBucketized==false){
             throw new FailedOperationException("Cannot put NST into any buckets. No buckets requirements are satisfied.");
         }
+        return true;
+    }
+
+    private void addNstIntoPPBucket(String nstId, String domainId, List<PpFunction> ppFunctionsList) throws AlreadyExistingEntityException {
+        List<Bucket> ppBuckets=bucketRepository.findByBucketType(BucketType.PP);
+        Bucket bucket =  ppBuckets.get(0);   //For now is supposed to have only one PP bucket
+        boolean isNotDuplicate = bucket.addNstId(nstId,domainId,null,ppFunctionsList);
+        if(isNotDuplicate==false) {
+            log.info("NST with UUID " + nstId + " advertised from domain with ID " + domainId + "already available.");
+            throw new AlreadyExistingEntityException("NST with UUID " + nstId + " advertised from domain with ID " + domainId + "already available.");
+        }
+        bucketRepository.saveAndFlush(bucket);
+    }
+
+
+    public synchronized void bucketizeNst(NstAdvertisementRequest nstAdvertisementRequest, String ipAddress) throws MalformattedElementException, FailedOperationException, AlreadyExistingEntityException, NotExistingEntityException, MethodNotImplementedException {
+
+        nstAdvertisementRequest.isValid();
+        NST nst = nstAdvertisementRequest.getNst();
+        log.debug("Received request to advertise a NS Template with "+nst.getPpFunctionList().size()+" functions and "+nst.getNsst().size()+" Nsst from "+ipAddress);
+
+        String domainName=nstAdvertisementRequest.getDomainName();
+
+        String domainId= getNSPdomainIdFromNameAndIpAddress(domainName, ipAddress);
+        String nstId = nst.getNstId();
+        List<PpFunction> ppFunctionList = nst.getPpFunctionList();
+        //Case #1. The NST has only P&P functions and no nsst embedded.
+        if(nst.getNsst().size()==0 && nst.getPpFunctionList().size()>0){
+            log.info("An Network Service Template with only P&P function has been advertised");
+            addNstIntoPPBucket(nstId, domainId,ppFunctionList);
+            return;
+        }
+
+        //Case #2. The NST has P&P functions and one or more NSSTs embedded. Each of them could have the RAN
+        if(nst.getNsst().size()>0 && nst.getPpFunctionList().size()>0){
+            log.info("An Network Service Template with P&P function and PerfReq has been advertised");
+            List<NST> nstList = nst.getNsst();
+            for(NST nsst: nstList){
+                bucketizeNsst(nstId, nsst, domainId);
+            }
+            addNstIntoPPBucket(nstId, domainId,ppFunctionList);
+            return;
+        }
+
+        //Case #3. The NST has NOT P&P functions. Then, an error is triggered
+        log.error("Could not bucketize an NST without P&P functions.");
+        throw new FailedOperationException("Cannot put NST without P&P functions.");
     }
 
     public synchronized void removeFromBucket(NstAdvertisementRemoveRequest nstAdvertisementRemoveRequest, String ipAddress) throws NotExistingEntityException, MalformattedElementException {

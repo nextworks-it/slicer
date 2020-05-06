@@ -29,12 +29,12 @@ public class NstAdvertisingManager implements Runnable {
             if(request instanceof NstAdvertisementRequest){
 
                 NstAdvertisementRequest nstAdvertisementRequest = (NstAdvertisementRequest) request;
-                log.info("Going to advertise NST with UUID "+nstAdvertisementRequest.getNst().getNstId()+". Domain name inserted is "+nstAdvertisementRequest.getDomainName());
+                log.info("Going to advertise NST with UUID "+nstAdvertisementRequest.getNst().getNstId());
                 vsmfNstAdvertiserRestClient.advertiseNst(nstAdvertisementRequest);
             }
             else if(request instanceof NstAdvertisementRemoveRequest){
                 NstAdvertisementRemoveRequest nstAdvertisementRemoveRequest = (NstAdvertisementRemoveRequest)request;
-                log.info("Going to remove advertising of NST with UUID "+nstAdvertisementRemoveRequest.getNstId()+" Domain name inserted is "+nstAdvertisementRemoveRequest.getDomainName());
+                log.info("Going to remove advertising of NST with UUID "+nstAdvertisementRemoveRequest.getNstId());
                 vsmfNstAdvertiserRestClient.removeNstAdvertised(nstAdvertisementRemoveRequest);
             }
             else{

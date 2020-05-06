@@ -15,11 +15,13 @@
 */
 package it.nextworks.nfvmano.sebastian.record;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
+import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +91,8 @@ public class NsRecordService {
 			boolean soManaged
 	) {
 		log.debug("Creating a new Network Slice instance");
-		NetworkSliceInstance nsi = new NetworkSliceInstance(null, nstUuid, nsdId, nsdVersion, dfId, ilId, nfvNsId, networkSliceSubnetInstances, tenantId, name, description, soManaged);
+		NetworkSliceInstance nsi =
+				new NetworkSliceInstance(null, nstUuid,tenantId, name, description, soManaged);
 		nsInstanceRepository.saveAndFlush(nsi);
 		String nsiUuid = nsi.getUuid().toString();
 		log.debug("Created Network Slice instance with UUID " + nsiUuid);
@@ -97,7 +100,21 @@ public class NsRecordService {
 		nsInstanceRepository.saveAndFlush(nsi);
 		return nsiUuid;
 	}
-	
+
+	public synchronized void addNfvNeworkServiceInfoIntoNsi(String nsiUuid, NfvNsInstantiationInfo nfvNsInstantiationInfo, String networkServiceId) throws NotExistingEntityException {
+        NetworkSliceInstance nsi = getNsInstance(nsiUuid);
+        nsi.addNfvNetworkServiceInfo(nfvNsInstantiationInfo,networkServiceId);
+		this.nsInstanceRepository.saveAndFlush(nsi);
+    }
+
+    public void setNfvNsId(String nsiUuid, String nsstId, String nfvNsId) throws NotExistingEntityException {
+		NetworkSliceInstance nsi = getNsInstance(nsiUuid);
+		if(nsi.setNfvNsId(nsstId,nfvNsId)==true)
+			nsInstanceRepository.saveAndFlush(nsi);
+		else{
+			log.warn("Unable to set NFV NS ID "+nsstId+" for NSST with ID "+nsstId);
+		}
+	}
 	/**
 	 * This method updated a network slice instance in DB setting the information associated to its instantiation
 	 * 
@@ -107,16 +124,30 @@ public class NsRecordService {
 	 * @param networkSliceSubnetInstances UUID of the network slice instances nested in the slice
 	 * @throws NotExistingEntityException if the network slice is not present in DB
 	 */
-	public synchronized void setNsiInstantiationInfo(String nsiUuid, String dfId, String ilId, List<String> networkSliceSubnetInstances) throws NotExistingEntityException {
+
+	public synchronized void setNsiInstantiationInfo(String nstUuid, String nsiUuid, String dfId, String ilId, List<String> networkSliceSubnetInstances) throws NotExistingEntityException {
 		log.debug("Setting instantiation info for Network Slice instance " + nsiUuid + " in NSI DB record.");
 		NetworkSliceInstance nsi = getNsInstance(nsiUuid);
-		nsi.setDfId(dfId);
-		nsi.setInstantiationLevelId(ilId);
+		nsi.setDeploymentFlavourId(nstUuid,dfId);
+		nsi.setInstantiationLevel(nstUuid,ilId);
+		//nsi.setDfId(dfId); //OLD
+		//nsi.setInstantiationLevelId(ilId); //OLD
 		nsi.setNetworkSliceSubnetInstances(networkSliceSubnetInstances);
 		nsInstanceRepository.saveAndFlush(nsi);
 		log.debug("Updated Network Slice instance " + nsiUuid + " in NSI DB record.");
 	}
 
+	private void debugPrint(NetworkSliceInstance nsi){
+		log.info("nfvNsInstantiationInfo into NSI with ID "+nsi.getNsiId());
+		for(NfvNsInstantiationInfo nfvNsInstantiationInfo: nsi.getNfvNsInstantiationInfoList()){
+			log.info("nfvNsInstantiationInfo.getNstId() "+nfvNsInstantiationInfo.getNstId());
+			log.info("nfvNsInstantiationInfo.getNfvNsdId() "+nfvNsInstantiationInfo.getNfvNsdId());
+			log.info("nfvNsInstantiationInfo.getNsdVersion() "+nfvNsInstantiationInfo.getNsdVersion());
+		}
+		for(String nfvNsId: nsi.getNfvNsIdList()){
+			log.info("nfvNsId "+nfvNsId);
+		}
+	}
 	/**
 	 * This method update the Network Slice Instance in DB, setting the associated NFV Network Service instance
 	 *
@@ -124,10 +155,11 @@ public class NsRecordService {
 	 * @param nfvNsiId NFV Network Service instance ID to be associated to the network slice instance
 	 * @throws NotExistingEntityException if the network slice instance is not present in DB.
 	 */
-	public synchronized void setNfvNsiInNsi(String nsiUuid, String nfvNsiId) throws NotExistingEntityException {
+	public synchronized void setNfvNsiInNsi(String nsiUuid, String nsstUuid, String nfvNsiId) throws NotExistingEntityException {
 		log.debug("Adding NFV Network Service instance " + nfvNsiId + " to Network Slice instance " + nsiUuid + " in NSI DB record.");
 		NetworkSliceInstance nsi = getNsInstance(nsiUuid);
-		nsi.setNfvNsId(nfvNsiId);
+		debugPrint(nsi);
+		nsi.setNfvNsId(nfvNsiId); //OLD
 		Optional<String> guiUrl = Optional.empty();
 		if (nfvoGuiConnector != null) {
 			guiUrl = nfvoGuiConnector.makeNfvNsUrl(nfvNsiId);
@@ -144,7 +176,7 @@ public class NsRecordService {
 	 * This method updates the NSI in DB, setting it in failure state and filling its error message.
 	 * If the NSI is associated to the a VSI, the same is done for the VSI.
 	 *
-	 * @param nsiId        ID of the NSI to be modified in the DB
+	 * @param nsiUuid        UUID of the NSI to be modified in the DB
 	 * @param errorMessage error message to be set for the NSI
 	 */
 	public synchronized void setNsFailureInfo(String nsiUuid, String errorMessage) {
@@ -178,16 +210,17 @@ public class NsRecordService {
 		}
 	}
 
-	public synchronized void setNsInstantiationLevel(String nsiUuid, String instantiationLevelId){
+	public synchronized void setNsInstantiationLevel(String nsiUuid, String nsstUuid, String instantiationLevelId){
 		log.debug("Setting new Instantiation Level Id " + instantiationLevelId + " for network slice " + nsiUuid + " in DB.");
 		try {
 			NetworkSliceInstance nsi = getNsInstance(nsiUuid);
-			nsi.setInstantiationLevelId(instantiationLevelId);
+			nsi.setInstantiationLevel(nsstUuid,instantiationLevelId);
+			//nsi.setInstantiationLevelId(instantiationLevelId);
 			nsInstanceRepository.saveAndFlush(nsi);
 			log.debug("NS IL set for network slice " + nsiUuid);
-
-		} catch (NotExistingEntityException e) {
-			log.error("NSI not present in DB. Impossible to complete the IL setting.");
+		}
+		catch (NotExistingEntityException e) {
+		log.error("NSI not present in DB. Impossible to complete the IL setting.");
 		}
 	}
 	
@@ -262,10 +295,20 @@ public class NsRecordService {
 	 */
 	public NetworkSliceInstance getNsInstanceFromNfvNsi(String nfvNsiId) throws NotExistingEntityException {
 		log.debug("Retrieving NSI associated to NFV Network Service with ID " + nfvNsiId + " from DB.");
-		Optional<NetworkSliceInstance> nsi = nsInstanceRepository.findByNfvNsId(nfvNsiId);
-		if (nsi.isPresent()) return nsi.get();
-		else
-			throw new NotExistingEntityException("NSI associated to NFV network service with ID " + nfvNsiId + " not present in DB.");
+		//Optional<NetworkSliceInstance> nsi = nsInstanceRepository.findByNfvNsId(nfvNsiId); //OLD
+		List<NetworkSliceInstance> networkSliceInstanceList = nsInstanceRepository.findAll();
+
+		for(NetworkSliceInstance networkSliceInstance: networkSliceInstanceList){
+			for(String nfvNetworkServiceId: networkSliceInstance.getNfvNsIdList()){
+				if(nfvNetworkServiceId.equals(nfvNsiId)){
+					return  networkSliceInstance;
+				}
+			}
+		}
+		/*if (nsi.isPresent())
+			return nsi.get();  //OLD
+		else*/
+		throw new NotExistingEntityException("NSI associated to NFV network service with ID " + nfvNsiId + " not present in DB.");
 	}
 
 	/**

@@ -125,52 +125,60 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 
     private boolean performArbitrationRequest(CreateNsiUuidRequest request, String deploymentFlavour, String tenantId) throws NotExistingEntityException, FailedOperationException {
         log.info("Performing arbitration request");
-        List<ArbitratorRequest> arbitratorRequests = new ArrayList<>();
+        //List<ArbitratorRequest> arbitratorRequests = new ArrayList<>();
         //only a single request is supported at the moment
         NsTemplateInfo nstInfo = nsmfUtils.getNsTemplateInfoFromCatalogue(request.getNstUuid());
         NST nsTemplate = nstInfo.getNST();
 
-        NfvNsInstantiationInfo nfvNsInstantiationInfo = new NfvNsInstantiationInfo(
-                nsTemplate.getNsdId(),
-                nsTemplate.getNsdVersion(),
-                deploymentFlavour, null,new ArrayList<String>());
-        ArbitratorRequest arbitratorRequest = new ArbitratorRequest("requestId", tenantId, nfvNsInstantiationInfo);
-
-        arbitratorRequests.add(arbitratorRequest);
-
-        ArbitratorResponse arbitratorResponse = arbitratorService.computeArbitratorSolution(arbitratorRequests).get(0);
-
-        boolean isAcceptableRequest=arbitratorResponse.isAcceptableRequest();
-        if (!(arbitratorResponse.isAcceptableRequest())) {
-           log.info("Arbitration request is NOT acceptable.");
-        }else{
-            log.info("Arbitration request is acceptable.");
+        for(NST nsst: nsTemplate.getNsst()){
+            List<ArbitratorRequest> arbitratorRequests = new ArrayList<>();
+            NfvNsInstantiationInfo nfvNsInstantiationInfo = new NfvNsInstantiationInfo(
+                    nsst.getNsdId(),
+                    nsst.getNsdVersion(),
+                    deploymentFlavour, null,new ArrayList<String>());
+            ArbitratorRequest arbitratorRequest = new ArbitratorRequest("requestId", tenantId, nfvNsInstantiationInfo);
+            arbitratorRequests.add(arbitratorRequest);
+            ArbitratorResponse arbitratorResponse = arbitratorService.computeArbitratorSolution(arbitratorRequests).get(0);
+            boolean isAcceptableRequest=arbitratorResponse.isAcceptableRequest();
+            if(!isAcceptableRequest){ //If at least one of the request is not acceptable, the the arbitration request fails
+                log.info("Arbitration request is NOT acceptable.");
+                return false;
+            }
         }
-        return isAcceptableRequest;
+        log.info("Arbitration request is acceptable.");
+        return true;
     }
 
     @Override
     public String createNetworkSliceIdentifier(CreateNsiUuidRequest request, String tenantId)
     		throws NotExistingEntityException,  FailedOperationException, MalformattedElementException {
 
-    	log.debug("Processing request to create a new network slicer identifier");
+    	log.debug("Processing request to create a new network slicer identifier.");
     	request.isValid();
 
     	String nstId = request.getNstUuid();
     	
     	NsTemplateInfo nstInfo = nsmfUtils.getNsTemplateInfoFromCatalogue(nstId);
     	NST nsTemplate = nstInfo.getNST();
+
         if (nsTemplate == null) {
-            log.error("Null NS template retrieved from the catalogue");
-            throw new NotExistingEntityException("Null NS template retrieved from the catalogue");
+            log.error("Null NS template retrieved from the catalogue.");
+            throw new NotExistingEntityException("Null NS template retrieved from the catalogue.");
         }
         //TODO. The below one is hard coded into NSMF APP. It is known at priori. Find a generic way to get them
         String nsdDFid="nsdDfId";
         String instantiationLevelId="vVS_il";
 
-       if(!performArbitrationRequest(request, nsdDFid, tenantId)){
-           return null;
-       }
+        boolean isOnlyppNST = nsTemplate.getPpFunctionList().size()>0 && nsTemplate.getNsst().size()==0;
+        if(!isOnlyppNST){
+            boolean arbitrationRequest = performArbitrationRequest(request, nsdDFid, tenantId);
+            if(!arbitrationRequest){
+                return null;
+            }
+        }
+        else{
+            log.info("Arbitration skipped: the Network Service Template contains P&P function(s) only.");
+        }
 
     	log.debug("Network Slice Template retrieved from catalogue");
     	
@@ -190,7 +198,8 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     			request.getDescription(),
     			false							//SO managed
     	);
-    	initNewNsLcmManager(networkSliceId, tenantId, request.getName(), request.getDescription(), nsTemplate, nsdDFid,instantiationLevelId);
+
+        initNewNsLcmManager(networkSliceId, tenantId, request.getName(), request.getDescription(), nsTemplate, nsdDFid,instantiationLevelId);
     	return networkSliceId;
     }
 

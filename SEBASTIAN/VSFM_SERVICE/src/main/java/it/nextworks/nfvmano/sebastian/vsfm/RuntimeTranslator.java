@@ -3,14 +3,12 @@ package it.nextworks.nfvmano.sebastian.vsfm;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.SliceServiceType;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
-import it.nextworks.nfvmano.catalogues.template.repo.NsTemplateRepository;
-import it.nextworks.nfvmano.catalogues.template.services.NsTemplateCatalogueService;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.libs.ifa.templates.EMBBPerfReq;
 import it.nextworks.nfvmano.libs.ifa.templates.GeographicalAreaInfo;
-import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.libs.ifa.templates.URLLCPerfReq;
+import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import it.nextworks.nfvmano.sebastian.nstE2eComposer.repository.BucketRepository;
 import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.*;
 import org.slf4j.Logger;
@@ -56,58 +54,65 @@ public class RuntimeTranslator {
         return null;
     }
 
-    private void setNstAdvertisedMap(ArrayList<Long> filteredBucketsId){
+    public Map<String, NstAdvertisedInfo> setNstAdvertisedMap(ArrayList<Long> filteredBucketsId){
         nstAdvertisedMap = new HashMap<String, NstAdvertisedInfo>();
         for(Long bucketId: filteredBucketsId){
+            log.info("Getting NST from bucket with ID "+bucketId);
             Bucket bucket=bucketRepository.findById(bucketId).get();
             for(NstAdvertisedInfo nstAdvertisedInfo: bucket.getNstAdvertisedInfoList()){
                 String nstUUID = nstAdvertisedInfo.getNstId();
-                log.info("Nst UUID is "+nstUUID);
+                if(bucket.getBucketType()!=BucketType.PP) {
+                    String  compositeNstUuid[] = nstUUID.split("_");
+                    nstUUID = compositeNstUuid[0];
+                }
                 if(nstAdvertisedMap.get(nstUUID)==null){
-                    log.info("Nst UUID "+nstAdvertisedInfo.getNstId()+" going to be added");
-                    nstAdvertisedMap.put(nstUUID,nstAdvertisedInfo);
+                    log.info("Adding "+nstUUID);
+                    NstAdvertisedInfo nstAdvertisedInfoTmp
+                            = new NstAdvertisedInfo(nstUUID, nstAdvertisedInfo.getDomainId(), new ArrayList<GeographicalAreaInfo>(), new ArrayList<PpFunction>());
+                    nstAdvertisedMap.put(nstUUID,nstAdvertisedInfoTmp);
                 }
             }
         }
+
+        return nstAdvertisedMap;
     }
 
 
-    //It selects all the NSTs that satisfies the geographical constraints info.
-    public HashMap<String,NetworkSliceInternalInfo> filterByLocationConstraints(ArrayList<Long> filteredBucketsId, LocationInfo locationInfo,  HashMap<String,NetworkSliceInternalInfo> networkSliceInternalInfoMap){
-        //Step #1: all the NSTs in the different buckets, are put into a map. This process is made once per Vertical Service Instance request, regardless the number of geo constraints.
-        if(nstAdvertisedMap==null)
-            setNstAdvertisedMap(filteredBucketsId);
 
-        log.info("There are "+nstAdvertisedMap.size()+ " NST(s) advertised.");
+    //It selects all the NSTs that satisfies the geographical constraints info.
+    public Map<String,NetworkSliceInternalInfo> filterByLocationConstraints(Map<String, NstAdvertisedInfo> mapNstAdverisedInfo, LocationInfo locationInfo){
+        Map<String,NetworkSliceInternalInfo> networkSliceInternalInfoMapGeoFilter = new HashMap<String,NetworkSliceInternalInfo>();
+        log.info("There are "+mapNstAdverisedInfo.size()+ " NST(s) advertised to filter against the geographical constraints.");
 
         //Step #2: for each advertised NST are checked the geographic constraints.
-        if(networkSliceInternalInfoMap ==null)
-            networkSliceInternalInfoMap = new HashMap<String,NetworkSliceInternalInfo>();
+        for(String nstUUID: mapNstAdverisedInfo.keySet()){
+            NstAdvertisedInfo nstAdvertisedInfo = mapNstAdverisedInfo.get(nstUUID);
 
-        for(String nstUUID: nstAdvertisedMap.keySet()){
-            NstAdvertisedInfo nstAdvertisedInfo = nstAdvertisedMap.get(nstUUID);
             String domainId = nstAdvertisedInfo.getDomainId();
             //log.info("Checking geographical info about NST with UUID: "+nstUUID +" It has "+nstAdvertisedInfo.getGeographicalAreaInfoList().size() + " location.");
-            List<GeographicalAreaInfo> geographicalAreaInfos = nstAdvertisedInfo.getGeographicalAreaInfoList();
-            for(int i=0; i<geographicalAreaInfos.size(); i++){
-                GeographicalAreaInfo geo = geographicalAreaInfos.get(i);
-                double distanceMeter=geo.computeDistanceMeter(locationInfo.getLatitude(), locationInfo.getLongitude());
+            List<GeographicalAreaInfo> geographicalAreaInfo = nstAdvertisedInfo.getGeographicalAreaInfoList();
+
+            //Step #2.5: For each geo info into the NST, is checked whether the condition is satisfied or not
+            for(int i=0; i<geographicalAreaInfo.size(); i++){
+                GeographicalAreaInfo geo = geographicalAreaInfo.get(i);
+                //double distanceMeter=geo.computeDistanceMeter(locationInfo.getLatitude(), locationInfo.getLongitude());
                 //log.debug("The distance between VSI center and NST with UUID "+nstUUID+" at geolocation #"+i+" is " +distanceMeter+ " meters.");
                 Map<String,Double> distanceToTheEdges=geo.getDistanceToTheEdgesInMeter(locationInfo.getLatitude(), locationInfo.getLongitude());
                 for(String edgeName: distanceToTheEdges.keySet()){
                     double distanceToTheEdge = distanceToTheEdges.get(edgeName);
                     //Step #3: if the geo constraint are satisfied, it is put into the map the nstID, the domainID and the location info of VSI.
-                    if(distanceToTheEdge<locationInfo.getRange() && networkSliceInternalInfoMap.get(domainId)==null){
+                    if(distanceToTheEdge<locationInfo.getRange() && networkSliceInternalInfoMapGeoFilter.get(domainId)==null){
                         log.info("NST with UUID "+nstUUID+"  satisfies the geographical constraints.");
-                        networkSliceInternalInfoMap.put(domainId, new NetworkSliceInternalInfo(domainId, nstUUID, locationInfo));
+                        networkSliceInternalInfoMapGeoFilter.put(domainId, new NetworkSliceInternalInfo(domainId, nstUUID, locationInfo));
                     }
                 }
             }
+
         }
-        if(networkSliceInternalInfoMap.size()==0)
+        if(networkSliceInternalInfoMapGeoFilter.size()==0)
             log.warn("Warning: the geographical filter did not return any NST.");
 
-        return networkSliceInternalInfoMap;
+        return networkSliceInternalInfoMapGeoFilter;
     }
 
     public boolean embbBucketSelection(BucketEMBB bucketEMBB, VsDescriptor vsd) throws NotExistingEntityException {
@@ -211,7 +216,7 @@ public class RuntimeTranslator {
                     log.warn("Bucket "+bucketName+" fits the requirements but no NST were found.");
                 }
                 else {
-                    log.warn("Bucket "+bucketName+" fits the requirements. There are "+bucket.getNstAdvertisedInfoList().size() +" NST(s) available.");
+                    log.info("Bucket "+bucketName+" fits the requirements. There are "+bucket.getNstAdvertisedInfoList().size() +" NST(s) available.");
                     bucketsId.add(bucket.getId());
                 }
             }
@@ -221,15 +226,106 @@ public class RuntimeTranslator {
     }
 
 
+    private void printNstAdvertisedFiltered(Map<String,NstAdvertisedInfo> nstFiltered){
+        if(nstFiltered.size()==0){
+            log.info("No elements found");
+        }
+        for(String nstUuid: nstFiltered.keySet()){
+            NstAdvertisedInfo nstAdvertisedInfo= nstFiltered.get(nstUuid);
+            log.info("nstUuid "+nstAdvertisedInfo.getNstId());
+            log.info("domainId "+nstAdvertisedInfo.getDomainId());
+            log.info("nstAdvertisedInfo.getPpFunctionList().size() "+nstAdvertisedInfo.getPpFunctionList().size());
+            log.info("nstAdvertisedInfo.getGeographicalAreaInfoList()==null {}",nstAdvertisedInfo.getGeographicalAreaInfoList()==null);
+        }
+    }
+
+    public Map<String,NstAdvertisedInfo> translateVsdToNst(VsDescriptor vsDescriptor) throws NotExistingEntityException {
+        String vsdId = vsDescriptor.getVsDescriptorId();
+        //Given the Vsd ID, it gets the list of suitable buckets that satisfies the requirements, then
+        //A map (key: id of nst advertised, value the nst advertised itself) is set
+        ArrayList<Long> suitableBuckets = translate(vsdId);
+        Map<String,NstAdvertisedInfo> nstAdvertisedFiltered = new HashMap<String,NstAdvertisedInfo>();
+        if(suitableBuckets==null){
+            return nstAdvertisedFiltered;
+        }
+        // nstAdvertisedFiltered contains the filtered advertised nst by performance requirements or P&P function, depending on SsT into VSD.
+        // nstAdvertisedFilteredByConstraintsMap contains the filtered advertised nst by PP.
+        nstAdvertisedFiltered = setNstAdvertisedMap(suitableBuckets);
+
+        log.info("Filtering from perf buckets");
+        printNstAdvertisedFiltered(nstAdvertisedFiltered);
+
+        Map<String,NstAdvertisedInfo> nstAdvertisedFilteredByPPFunctions  = getFilteredAdvNstByPPFunction(vsDescriptor);
+        log.info("PP filtering");
+        printNstAdvertisedFiltered(nstAdvertisedFilteredByPPFunctions);
+
+        //The maps are merged to have all the advertised nst that satisfies the requirements in terms of performance and P&P
+        Set<String> nstIdInCommon = new HashSet<String>(nstAdvertisedFiltered.keySet());
+        nstIdInCommon.retainAll(nstAdvertisedFilteredByPPFunctions.keySet());
+        Map<String,NstAdvertisedInfo> mapsIntersection = new HashMap<String,NstAdvertisedInfo>();
+        for(String nstUuid: nstIdInCommon){
+            mapsIntersection.put(nstUuid,nstAdvertisedFiltered.get(nstUuid));
+        }
+        log.info("Intersection of filtering");
+        printNstAdvertisedFiltered(mapsIntersection);
+
+        return mapsIntersection;
+    }
+
+    public Map<String,NstAdvertisedInfo> getFilteredAdvNstByPPFunction(VsDescriptor vsDescriptor){
+        //Filter advertised NST based on P&P functions
+        Map<String,NstAdvertisedInfo> nstAdvertisedInfoHashMap = new HashMap<String,NstAdvertisedInfo>();
+        List<PpFunction> ppFunctionListVsd = vsDescriptor.getPpFunctionList();
+        log.info("Vsd with ID "+vsDescriptor.getId()+ "has "+ppFunctionListVsd.size()+ " pp functions");
+        if(ppFunctionListVsd!=null && ppFunctionListVsd.size()>=0){
+            List<Bucket> ppBuckets= bucketRepository.findByBucketType(BucketType.PP);
+            Bucket ppBucket = ppBuckets.get(0);
+
+            List<NstAdvertisedInfo> nstAdvertisedInfoList = ppBucket.getNstAdvertisedInfoList();
+            //Despite there are three for cycles, the computational cost would not be high because the number of ppFunctions is generally low.
+            log.info("There are "+nstAdvertisedInfoList.size()+ " NSTs into PP bucket");
+            for(NstAdvertisedInfo nstAdvertisedInfo:  nstAdvertisedInfoList){
+                List<PpFunction> ppFunctionListAdvNst = nstAdvertisedInfo.getPpFunctionList();
+                log.info("Nst with UUID "+nstAdvertisedInfo.getNstId()+ " has "+ppFunctionListAdvNst.size()+ "pp functions");
+
+                for(PpFunction ppFunctionAdvNst: ppFunctionListAdvNst){
+                    for(PpFunction ppFunctionVsd: ppFunctionListVsd) {
+                        if(ppFunctionAdvNst.equals(ppFunctionVsd)){
+                            log.info("Found PP function into NST");
+                            nstAdvertisedInfoHashMap.put(nstAdvertisedInfo.getNstId(),nstAdvertisedInfo);
+                        }
+                    }
+                }
+            }
+        }
+        else{
+            log.warn("No P&P function into VSD.");
+        }
+        return nstAdvertisedInfoHashMap;
+    }
+
+    //It translates the requirements available into VSD into a list of the IDs of the buckets where there could be NSTs.
     public ArrayList<Long> translate(String vsdId) throws NotExistingEntityException {
         VsDescriptor vsd = vsDescriptorCatalogueService.getVsd(vsdId);
         SliceServiceType sliceType=vsd.getSst();
+        //Case #1: the vertical service instantiation request, requires EMBB NST type.
         if(sliceType== SliceServiceType.EMBB){
             return translateToNstEmbb(vsd);
         }
+        //Case #2: the vertical service instantiation request, requires URLL NST type.
         if(sliceType==SliceServiceType.URLLC){
             return translateToNstUrllc(vsd);
         }
+
+        //Case #2: the vertical service instantiation request, requires NONE type. It means to have only P&P functions for the slice.
+        if(sliceType==SliceServiceType.NONE){
+            List<Bucket> ppBuckets= bucketRepository.findByBucketType(BucketType.PP);
+            Long ppBlucketId = ppBuckets.get(0).getId();
+            ArrayList<Long> suitableBuckets = new ArrayList<Long>();
+            suitableBuckets.add(ppBlucketId);
+            return suitableBuckets;
+        }
+        log.error("Slice Service type not specified into Vertical Slice Descriptor.");
         return null;
     }
 

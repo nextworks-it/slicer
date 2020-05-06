@@ -26,13 +26,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
+import org.hibernate.annotations.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/*An NST may have zero to N NSST embedded.
+In the generic case of N NSST case, the network slice instance could refer to up to N nfvNsInstantiationInfoList and N nfvNsIdList,
+depending how these NSST are internally composed.
+*/
 @Entity
 public class NetworkSliceInstance {
 
@@ -47,18 +50,18 @@ public class NetworkSliceInstance {
 	
 	private String nsiId;	//ID of the network slice
 	
-	private String nstId;	//ID of the network slice template
+	private String nstId; //OLD;	//ID of the network slice template
 	
-	private String nsdId;	//ID of the descriptor of the NFV network service that implements the network slice
+	private String nsdId;//OLD	//ID of the descriptor of the NFV network service that implements the network slice
+
+	private String nsdVersion;//OLD	//version of the descriptor of the NFV network service that implements the network slice
 	
-	private String nsdVersion;	//version of the descriptor of the NFV network service that implements the network slice
+	private String dfId;//OLD 	//ID of the deployment flavour in the NFV network service
 	
-	private String dfId; 	//ID of the deployment flavour in the NFV network service
-	
-	private String instantiationLevelId;	//ID of the instantiation level in the NFV network service
+	private String instantiationLevelId;//OLD	//ID of the instantiation level in the NFV network service
 	
 	@JsonIgnore
-	private String oldInstantiationLevelId; //ID of the previous instantiation level when the NFV network service is scaled
+	private String oldInstantiationLevelId;//OLD //ID of the previous instantiation level when the NFV network service is scaled
 	
 	private String nfvNsId;	//ID of the NFV network service that implements the network slice
 
@@ -78,7 +81,19 @@ public class NetworkSliceInstance {
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String nfvNsUrl;
-	
+
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @ElementCollection(targetClass= NfvNsInstantiationInfo.class)
+    @LazyCollection(LazyCollectionOption.FALSE)
+	private List<NfvNsInstantiationInfo> nfvNsInstantiationInfoList;
+
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	@ElementCollection(fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@Cascade(org.hibernate.annotations.CascadeType.ALL)
+	private List<String> nfvNsIdList;
+
 	public NetworkSliceInstance() {	}
 
 	/**
@@ -92,7 +107,8 @@ public class NetworkSliceInstance {
 	 * @param networkSliceSubnetInstances in case of composite network slice, the ID of its network slice subnets
 	 * @param tenantId owner of the slice
 	 */
-	public NetworkSliceInstance(String nsiId, String nstId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String nfvNsId,
+
+	/*public NetworkSliceInstance(String nsiId, String nstId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String nfvNsId,
 			List<String> networkSliceSubnetInstances, String tenantId, String name, String description, boolean soManaged) {
 		this.nsiId = nsiId;
 		this.nstId = nstId;
@@ -107,7 +123,70 @@ public class NetworkSliceInstance {
 		this.name = name;
 		this.description = description;
 		this.soManaged = soManaged;
+	}*/
+
+	public NetworkSliceInstance(String nsiId,
+								String nstId,
+								String tenantId,
+								String name,
+								String description,
+								boolean soManaged){
+		this.nsiId=nsiId;
+		this.nstId = nstId;
+		this.tenantId=tenantId;
+		this.name=name;
+		this.description=description;
+		this.soManaged = soManaged;
+		this.nfvNsInstantiationInfoList=new ArrayList<NfvNsInstantiationInfo>();
+		this.nfvNsIdList = new ArrayList<String>();
+		this.networkSliceSubnetInstances=new ArrayList<String>();
 	}
+
+
+	public boolean addNfvNetworkServiceInfo(NfvNsInstantiationInfo nfvNsInstantiationInfo, String networkServiceId){
+		/*for(NfvNsInstantiationInfo nfvNsInstantiationInfoTmp: nfvNsInstantiationInfoList){
+			if(nfvNsInstantiationInfoTmp.getNstId().equals(nfvNsInstantiationInfo.getNstId()))
+				return false;
+		}
+
+			if(nfvNsInstantiationInfoList.contains(nfvNsInstantiationInfo))
+				return false;
+		*/
+		nfvNsInstantiationInfoList.add(nfvNsInstantiationInfo);
+		nfvNsIdList.add(networkServiceId);
+		return true;
+	}
+
+	public boolean setNfvNetworkServiceId(String nsstUuid, String nfvNsiId){
+		for(int i=0; i<nfvNsInstantiationInfoList.size(); i++){
+			if(nfvNsInstantiationInfoList.get(i).getNstId().equals(nsstUuid)){
+				nfvNsIdList.set(i,nfvNsiId);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean setDeploymentFlavourId(String nsstUuid, String newDeploymentFlavourId){
+		for(NfvNsInstantiationInfo nfvNsInstantiationInfoTmp: nfvNsInstantiationInfoList){
+			if(nfvNsInstantiationInfoTmp.getNstId().equals(nsstUuid)){
+				nfvNsInstantiationInfoTmp.setDeploymentFlavourId(newDeploymentFlavourId);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean setInstantiationLevel(String nsstId, String newInstantiationLevel){
+		for(NfvNsInstantiationInfo nfvNsInstantiationInfoTmp: nfvNsInstantiationInfoList){
+			if(nfvNsInstantiationInfoTmp.getNstId().equals(nsstId)){
+				nfvNsInstantiationInfoTmp.setInstantiationLevelId(newInstantiationLevel);
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 	public NfvNsInstantiationInfo getNsInstantiationInfo(boolean current) {
 		if (current)
@@ -262,7 +341,7 @@ public class NetworkSliceInstance {
 	public void setNfvNsId(String nfvNsId) {
 		this.nfvNsId = nfvNsId;
 	}
-	
+
 	/**
 	 * This method adds a new slice subnet into the main slice
 	 * 
@@ -330,4 +409,13 @@ public class NetworkSliceInstance {
 	public UUID getUuid() {
 		return uuid;
 	}
+
+	public List<NfvNsInstantiationInfo> getNfvNsInstantiationInfoList() {
+		return nfvNsInstantiationInfoList;
+	}
+
+	public List<String> getNfvNsIdList() {
+		return nfvNsIdList;
+	}
+
 }

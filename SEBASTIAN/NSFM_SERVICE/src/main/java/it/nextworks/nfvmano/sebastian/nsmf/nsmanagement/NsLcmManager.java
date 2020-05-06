@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.upc.gco.slcnt.orch.nmro.driver.lcm.NmroLcmDriver;
 import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
+import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
 import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.elements.NsdInfo;
 import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import it.nextworks.nfvmano.libs.ifa.common.enums.NsScaleType;
@@ -63,6 +64,7 @@ import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -241,7 +243,26 @@ public class NsLcmManager {
 			manageNsError("IO error when receiving json message: " + e.getMessage());
 		}
 	}
-	
+
+	private boolean hasNstRAN(){
+		for(NST nsst: networkSliceTemplate.getNsst()){
+			if(nsst.getGeographicalAreaInfoList().size()>0){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean hasNstPP(){
+		List<PpFunction> ppFunctions = networkSliceTemplate.getPpFunctionList();
+		return ppFunctions != null && ppFunctions.size()>0;
+	}
+
+	private boolean hasNstNfv(){
+		boolean hasNstNfv= networkSliceTemplate.getNsst().size()>0 && networkSliceTemplate.getNsdId() != null;
+		return hasNstNfv;
+	}
+
 	private void processInstantiateRequest(InstantiateNsiRequestMessage msg) {
 		log.info("KPI:"+ Instant.now().toEpochMilli()+", Start processing instantiate Network Slice creation request.");
 		if (internalStatus != NetworkSliceStatus.NOT_INSTANTIATED) {
@@ -249,23 +270,17 @@ public class NsLcmManager {
 			return;
 		}
 		internalStatus = NetworkSliceStatus.INSTANTIATING;
-
 		Map<String, String> nsdToInstantiate = null;
 
 		/* NST Analysis */
 		//SliceType sliceType = networkSliceTemplate.getSliceType();
-		// Step 1: Check NSSTs list
-		List<String> nsstList = networkSliceTemplate.getNsstIds();
-		for(String nsst_id: nsstList){
-			// TODO nsst management here
-		}
-
 		try {
 			//TODO get nsst RAN if any
-			// Step 1: check for RAN
-
+			// Step #1: check for RAN
+            boolean ranInstanciated = false;
 			NstServiceProfile nstServiceProfile = networkSliceTemplate.getNstServiceProfile();
-			if(nstServiceProfile != null) {
+			if(hasNstRAN()) {
+				log.info("The Network Slice Template has RAN slice to be instantiated.");
 				this.sliceType = nstServiceProfile.getsST();
 				RanQoSTranslator ranQoSTranslator = new RanQoSTranslator();
 				List<JSONObject> qosConstraints = ranQoSTranslator.ranProfileToQoSConstraints(networkSliceTemplate);
@@ -283,140 +298,167 @@ public class NsLcmManager {
 //						break;
 //				}
 				// RAN-1 -> Slice creation on flexran
-				this.flexRanService.createRanSlice(UUID.fromString(networkSliceInstanceUuid));
+                HttpStatus httpStatusCreateRanSlice = this.flexRanService.createRanSlice(UUID.fromString(networkSliceInstanceUuid));
 				// RAN-2 -> Map Slice UUID to FlexranID into the RANAdapter (it's crazy, I know)
-				this.flexRanService.mapIdsRemotely(UUID.fromString(networkSliceInstanceUuid));
+                HttpStatus httpStatusmapIdsRemotely = this.flexRanService.mapIdsRemotely(UUID.fromString(networkSliceInstanceUuid));
 				// RAN-3 -> Apply QoS Constraints
-				this.flexRanService.applyInitialQosConstraints(UUID.fromString(networkSliceInstanceUuid),qosConstraints);
+                HttpStatus httpStatusApplyQos = this.flexRanService.applyInitialQosConstraints(UUID.fromString(networkSliceInstanceUuid),qosConstraints);
+                ranInstanciated = httpStatusCreateRanSlice==HttpStatus.CREATED && httpStatusCreateRanSlice==HttpStatus.OK & httpStatusCreateRanSlice==HttpStatus.OK;
 			}
+            else{
+                log.info("RAN slice will not be instantiated because no RAN available in NSST.");
+                ranInstanciated = true;
+            }
 
-			//TODO P&P should be always available
+			//TODO P&P should be always available. In case of only P&P in the NST father, the network slice is immediately instantiated.
 			// Step 2: check for PnP functions
 			List<PpFunction> ppFunctions = networkSliceTemplate.getPpFunctionList();
-			if (ppFunctions != null) {
+            boolean ppInstanciated = false;
+			if (hasNstPP()) {
 				// Do PnP stuff
-				this.pnPCommunicationService.deploySliceComponents(UUID.fromString(networkSliceInstanceUuid), this.networkSliceTemplate);
-
+                HttpStatus httpStatusPpSlice = this.pnPCommunicationService.deploySliceComponents(UUID.fromString(networkSliceInstanceUuid), this.networkSliceTemplate);
+                ppInstanciated = httpStatusPpSlice == HttpStatus.OK;
 			}
+			else{
+			    log.warn("Network Slice template has not P&P functions.");
+                ppInstanciated=true;
+            }
 
-
-			llMecService.createLlMecSlice(UUID.fromString(networkSliceInstanceUuid));
-
-
-			//TODO get all nsst
+			boolean createLlMecSlice = false;
+			if(createLlMecSlice) {
+				log.info("Creating Llmec Slice");
+				llMecService.createLlMecSlice(UUID.fromString(networkSliceInstanceUuid));
+			}
+			//TODO below block of code must be executed for all nsst that contains nfv
 			// Step 3: proceed in instantiating nsds, if any
 
-			if (networkSliceTemplate.getNsdId() != null) {
-				String nsdId = networkSliceTemplate.getNsdId();
-				String nsdVersion = networkSliceTemplate.getNsdVersion();
-				//Assumption: supposing having only one NsDfId and ILid for NsLcmManager
-				String dfId = this.getNsDfId();
-				String ilId = this.getInstantationLevel();
-				log.debug("Creating NFV NSI ID for NFV NS with NSD ID " + nsdId);
-				log.debug("Updating internal network slice record");
-				nsRecordService.setNsiInstantiationInfo(networkSliceInstanceUuid, null, null, msg.getRequest().getNsSubnetIds());
-				nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.INSTANTIATING);
+			if (hasNstNfv()) {
+				log.info("Network Slice Template owns Nsst with Nfv.");
+				for(NST nsst: networkSliceTemplate.getNsst()){
+					log.info("Instantiating NSST with ID "+nsst.getNstId());
+					String nsdId = nsst.getNsdId();
+					String nsdVersion = nsst.getNsdVersion();
+					//Assumption: supposing having only one NsDfId and ILid for NsLcmManager
+					String dfId = this.getNsDfId();
+					String ilId = this.getInstantationLevel();
+					log.debug("Creating NFV NSI ID for NFV NS with NSD ID " + nsdId);
+					log.debug("Updating internal network slice record");
+					nsRecordService.setNsiInstantiationInfo(nsst.getNstId(), networkSliceInstanceUuid, null, null, msg.getRequest().getNsSubnetIds());
+					nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.INSTANTIATING);
 
-				log.debug("Retrieving NSD");
-				NsdInfo nsdInfo;
-				if(!nsmfUtils.isNmroNfvoCatalogueType()) {
-					nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0);
-				}else {
-					Map<String, String> filterParams = new HashMap();
-					filterParams.put("NSD_ID", nsdId);
-					nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(new Filter(filterParams), null)).getQueryResult().get(0);
-				}
-				log.debug("NSD correctly retrieved");
-				this.nsdInfoId = nsdInfo.getNsdInfoId();
-				this.nsd = nsdInfo.getNsd();
+                    log.debug("Retrieving NSD");
+					NsdInfo nsdInfo;
+					if(!nsmfUtils.isNmroNfvoCatalogueType()) {
+						nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0);
+					}else {
+						Map<String, String> filterParams = new HashMap();
+						filterParams.put("NSD_ID", nsdId);
+						nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(new Filter(filterParams), null)).getQueryResult().get(0);
+					}
+					log.debug("NSD correctly retrieved");
+					this.nsdInfoId = nsdInfo.getNsdInfoId();
+					this.nsd = nsdInfo.getNsd();
 
-				String tenantIdOsm="";
-				if(nsmfUtils.isSsoNmroIntegrationScenario()) {
-
-					tenantIdOsm=nsmfUtils.getNfvoCatalogueUsername();//TODO the mapping between the tenant on NSP and tenant on NFVO is missing. Get from config variable
+					String tenantIdOsm=nsmfUtils.getNfvoCatalogueUsername();//TODO the mapping between the tenant on NSP and tenant on NFVO is missing. Get from config variable
 					this.nsdInfoId = nsdInfo.getNsdId();// The NSD cannot be on boarded specifying its own ID, so the custom one is get from NSD
 					log.info("Set the NFVO Catalogue username into request: "+tenantIdOsm);
-				}
-				log.info("KPI:"+ Instant.now().toEpochMilli()+", Sending request to create Ns Identifier.");
-				String nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-" + name, description, tenantIdOsm));
-				log.info("KPI:"+ Instant.now().toEpochMilli()+", Received response about creation of Ns Identifier.");
-				log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
-				this.nfvNsiInstanceId = nfvNsId;
-				nsRecordService.setNfvNsiInNsi(networkSliceInstanceUuid, nfvNsId);
 
-				log.debug("Building NFV NS instantiation request");
+					log.info("KPI:"+ Instant.now().toEpochMilli()+", Sending request to create Ns Identifier.");
+					String nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-" + name, description, tenantIdOsm));
+					log.info("KPI:"+ Instant.now().toEpochMilli()+", Received response about creation of Ns Identifier.");
+					log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
+					this.nfvNsiInstanceId = nfvNsId;
 
-				String ranEndPointId = null;
-				LocationInfo locationInfo = msg.getRequest().getLocationConstraints();
+                    NfvNsInstantiationInfo nfvNsInstantiationInfo =
+                            new NfvNsInstantiationInfo(nsst.getNsdId(), nsst.getNsdVersion(), "df", "il", new ArrayList<String>());
+					nfvNsInstantiationInfo.setNstId(nsst.getNstId());
+                    nsRecordService.addNfvNeworkServiceInfoIntoNsi(networkSliceInstanceUuid, nfvNsInstantiationInfo,nfvNsId);
+					log.debug("Building NFV NS instantiation request");
 
-				if (locationInfo.isMeaningful()) {
-					ranEndPointId = msg.getRequest().getRanEndPointId();
-				}
+					String ranEndPointId = null;
+					LocationInfo locationInfo = msg.getRequest().getLocationConstraints();
 
-
-				List<SapData> sapData = new ArrayList<>();
-				if(nsd!=null) {//This case is NOT triggered when the nfvo catalogue type is NMRO: the related driver does not take the NSD but the NsdInfo only.
-					List<Sapd> saps = nsd.getSapd();
-					for (Sapd sap : saps) {
-						SapData sData = null;
-						log.info("sap.getCpdId() is null {}", sap.getCpdId() == null);
-						if (sap.getCpdId().equals(ranEndPointId)) {
-							sData = new SapData(sap.getCpdId(),                                //SAPD ID
-									"SAP-" + name + "-" + sap.getCpdId(),                        //name
-									"SAP " + sap.getCpdId() + " for Network Slice " + name,    //description
-									null,                                                        //address
-									locationInfo);                                                //locationInfo
-							log.debug("Set location constraints for SAP " + sap.getCpdId());
-						} else {
-							sData = new SapData(sap.getCpdId(),                            //SAPD ID
-									"SAP-" + name + "-" + sap.getCpdId(),                        //name
-									"SAP " + sap.getCpdId() + " for Network Slice " + name,    //description
-									null,                                                        //address
-									null);                                                        //locationInfo
-						}
-						sapData.add(sData);
+					if (locationInfo !=null && locationInfo.isMeaningful()) {
+						ranEndPointId = msg.getRequest().getRanEndPointId();
 					}
-				}
-				log.debug("Completed SAP Data");
-				//TODO: here manage service profile info
 
-				//Read NFV_NS_IDs from nsSubnetIds and put in nestedNsInstanceId list
-				//TODO: candidate for removal
-				List<String> nestedNfvNsId = new ArrayList<>();
-				for(String nsiUuid : msg.getRequest().getNsSubnetIds()){
-					NetworkSliceInstance nsi = nsRecordService.getNsInstance(nsiUuid);
-					nestedNfvNsId.add(nsi.getNfvNsId());
-					this.nestedNsiUuids.add(nsi.getNsiId());
-				}
-				/*
-				 * DON'T STORE this.nestedNsiIds on DB:
-				 * The nested Nsi are found by the Arbitrator -> they are ALREADY on DB
-				 */
 
-				//Read configuration parameters
-				Map<String, String> additionalParamForNs = msg.getRequest().getUserData();
-				log.info("Nfv Ns id is: "+nfvNsId);
-				log.info("KPI:"+ Instant.now().toEpochMilli()+", Sending request to instanciate network slice.");
-				String operationId = nfvoLcmService.instantiateNs(new InstantiateNsRequest(nfvNsId,
-						dfId, 					//flavourId
-						sapData, 				//sapData
-						null,					//pnfInfo
-						null,					//vnfInstanceData
-						nestedNfvNsId,			//nestedNsInstanceId
-						null,					//locationConstraints
-						additionalParamForNs,	//additionalParamForNs
-						null,					//additionalParamForVnf
-						null,					//startTime
-						ilId,					//nsInstantiationLevelId
-						null));					//additionalAffinityOrAntiAffinityRule
-				operationsId.add(operationId);
-				log.debug("Sent request to NFVO service for instantiating NFV NS " + nfvNsId + ": operation ID " + operationId);
+					List<SapData> sapData = new ArrayList<>();
+					if(nsd!=null) {//This case is NOT triggered when the nfvo catalogue type is NMRO: the related driver does not take the NSD but the NsdInfo only.
+						List<Sapd> saps = nsd.getSapd();
+						for (Sapd sap : saps) {
+							SapData sData = null;
+							log.info("sap.getCpdId() is null {}", sap.getCpdId() == null);
+							if (sap.getCpdId().equals(ranEndPointId)) {
+								sData = new SapData(sap.getCpdId(),                                //SAPD ID
+										"SAP-" + name + "-" + sap.getCpdId(),                        //name
+										"SAP " + sap.getCpdId() + " for Network Slice " + name,    //description
+										null,                                                        //address
+										locationInfo);                                                //locationInfo
+								log.debug("Set location constraints for SAP " + sap.getCpdId());
+							} else {
+								sData = new SapData(sap.getCpdId(),                            //SAPD ID
+										"SAP-" + name + "-" + sap.getCpdId(),                        //name
+										"SAP " + sap.getCpdId() + " for Network Slice " + name,    //description
+										null,                                                        //address
+										null);                                                        //locationInfo
+							}
+							sapData.add(sData);
+						}
+						log.debug("Completed SAP Data");
+					}
+					//TODO: here manage service profile info
+
+					//Read NFV_NS_IDs from nsSubnetIds and put in nestedNsInstanceId list
+					//TODO: candidate for removal
+					List<String> nestedNfvNsId = new ArrayList<>();
+                    nestedNfvNsId.add(nfvNsId);
+
+                    //It looks like useless but not delete
+                   /* for(String nsiUuid : msg.getRequest().getNsSubnetIds()){
+						NetworkSliceInstance nsi = nsRecordService.getNsInstance(nsiUuid);
+						nsRecordService.setNfvNsId(nsiUuid, nsst.getNstId(), nfvNsId);
+						this.nestedNsiUuids.add(nsi.getNsiId());
+						nestedNfvNsId.add(nfvNsId);
+					}/*
+					/*
+					 * DON'T STORE this.nestedNsiIds on DB:
+					 * The nested Nsi are found by the Arbitrator -> they are ALREADY on DB
+					 */
+
+					//Read configuration parameters
+					Map<String, String> additionalParamForNs = msg.getRequest().getUserData();
+					log.info("Nfv Ns id is: "+nfvNsId);
+					log.info("KPI:"+ Instant.now().toEpochMilli()+", Sending request to instantiate network slice.");
+					String operationId = nfvoLcmService.instantiateNs(new InstantiateNsRequest(nfvNsId,
+							dfId, 					//flavourId
+							sapData, 				//sapData
+							null,					//pnfInfo
+							null,					//vnfInstanceData
+							nestedNfvNsId,			//nestedNsInstanceId
+							null,					//locationConstraints
+							additionalParamForNs,	//additionalParamForNs
+							null,					//additionalParamForVnf
+							null,					//startTime
+							ilId,					//nsInstantiationLevelId
+							null));					//additionalAffinityOrAntiAffinityRule
+					operationsId.add(operationId);
+					log.debug("Sent request to NFVO service for instantiating NFV NS " + nfvNsId + ": operation ID " + operationId);
+				}
 			}
-
-
+		else{
+		    if(ranInstanciated && ppInstanciated){
+                log.info("No embedded nsst with Nfv found into NST. The network slice is instantiated without Network Services.");
+                this.internalStatus=NetworkSliceStatus.INSTANTIATED;
+                notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_CREATED, true,tenantId));
+            }
+		    else{
+                manageNsError("Error during the instantiation of either P&P or RAN.");
+            }
+		}
 		} catch (Exception e) {
 			//instantiationRollback();
-			log.info(e.getMessage());
+			//log.info(e.getMessage());
 			manageNsError(e.getMessage());
 		}
 	}
@@ -532,12 +574,13 @@ public class NsLcmManager {
 
 						NsInfo nsInfo = queryNs.getQueryNsResult().get(0);
 						List<String> nfvNsIds = nsInfo.getNestedNsInfoId();
+
 						for (String nfvNsId : nfvNsIds){
 							try{
 								nsRecordService.getNsInstanceFromNfvNsi(nfvNsId);
 							} catch (NotExistingEntityException e){
 								String nestedNsiId = nsRecordService.createNetworkSliceInstanceEntry(null,
-										null, null, null, null, nfvNsId, null,
+										nsInfo.getNsdId(), null, null, null, nfvNsId, null,
 										null, null, null, true);
 								soNestedNsiUuids.add(nestedNsiId);
 								nsRecordService.setNsStatus(nestedNsiId, NetworkSliceStatus.INSTANTIATED);
@@ -608,7 +651,13 @@ public class NsLcmManager {
 		notificationDispatcher.notifyNetworkSliceActuation(networkSliceStatusChangeNotification, request.getNotificationEndpoint());
 	}
 
+	private void sendTerminateErrorNotification(){
+
+	}
 	private void processTerminateRequest(TerminateNsiRequestMessage msg) {
+		//termination steps. See below:
+
+		//Step #0: Check the status of the network Slice
 		if (internalStatus != NetworkSliceStatus.INSTANTIATED) {
 			manageNsError("Received termination request in wrong status. Skipping message.");
 			return;
@@ -616,30 +665,72 @@ public class NsLcmManager {
             manageNsError("Received termination request with wrong nsiUuid " + msg.getRequest().getNsiId());
             return;
         }
-
 		log.debug("Terminating network slice " + networkSliceInstanceUuid);
 		log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating network slice.");
-		if (pnPCommunicationService.isPnP(UUID.fromString(networkSliceInstanceUuid))) {
-			log.debug("Terminating P&P Functions for " + networkSliceInstanceUuid);
-			pnPCommunicationService.terminateSliceComponents(UUID.fromString(networkSliceInstanceUuid));
+
+		//Step #1: Terminate P&P Slice, if any.
+		boolean ppSliceCorrectlyTerminated=false;
+		if(hasNstPP()) {
+			log.info("Terminating slice component P&P.");
+			if (pnPCommunicationService.isPnP(UUID.fromString(networkSliceInstanceUuid))) {
+				log.debug("Terminating P&P Functions for " + networkSliceInstanceUuid);
+				HttpStatus httpStatus = pnPCommunicationService.terminateSliceComponents(UUID.fromString(networkSliceInstanceUuid));
+				ppSliceCorrectlyTerminated = httpStatus == HttpStatus.OK;
+			}
 		}
-		if (flexRanService.isRan(UUID.fromString(networkSliceInstanceUuid))){
-			log.debug("Terminating RAN Slice for  " + networkSliceInstanceUuid);
-			flexRanService.terminateRanSlice(UUID.fromString(networkSliceInstanceUuid));
+		else{
+			log.info("No P&P into network service template. P&P terminate request not sent.");
+			ppSliceCorrectlyTerminated= true;
 		}
 
-		llMecService.terminateLlMecSlice(UUID.fromString(networkSliceInstanceUuid));
+		//Step #2: Terminate RAN Slice, if any.
+		boolean ranSliceCorrectlyTerminated=false;
+		if(hasNstRAN()) {
+			log.info("Terminating slice component RAN.");
+			if (flexRanService.isRan(UUID.fromString(networkSliceInstanceUuid))) {
+				log.debug("Terminating RAN Slice for  " + networkSliceInstanceUuid);
+				HttpStatus httpStatus =flexRanService.terminateRanSlice(UUID.fromString(networkSliceInstanceUuid));
+				ranSliceCorrectlyTerminated = httpStatus == HttpStatus.OK;
+			}
+		}
+		else{
+			log.info("No RAN available into Network Service Template. RAN terminate request not sent.");
+			ranSliceCorrectlyTerminated=true;
+		}
+
+		//Step #3: Terminate LLLEC Slice, if any. TODO
+		//llMecService.terminateLlMecSlice(UUID.fromString(networkSliceInstanceUuid));
 
 		this.internalStatus = NetworkSliceStatus.TERMINATING;
 		nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.TERMINATING);
-		log.debug("Sending request to terminate NFV network service " + nfvNsiInstanceId);
-		try {
-			String operationId = nfvoLcmService.terminateNs(new TerminateNsRequest(nfvNsiInstanceId, new Date(System.currentTimeMillis())));
-			log.debug("Sent request to NFVO service for terminating NFV NS " + nfvNsiInstanceId + ": operation ID " + operationId);
-		} catch (Exception e) {
-			manageNsError(e.getMessage());
+
+		//Step #4: Terminate Network Service, if any.
+		if(hasNstNfv()) {
+			log.debug("Sending request to terminate NFV network service " + nfvNsiInstanceId);
+			try {
+				String operationId = nfvoLcmService.terminateNs(new TerminateNsRequest(nfvNsiInstanceId, new Date(System.currentTimeMillis())));
+				log.debug("Sent request to NFVO service for terminating NFV NS " + nfvNsiInstanceId + ": operation ID " + operationId);
+			} catch (Exception e) {
+				manageNsError(e.getMessage());
+			}
 		}
-		
+		else{
+			log.info("No Nfv available into network service template. Request to terminate Network service not sent.");
+			if(ppSliceCorrectlyTerminated && ranSliceCorrectlyTerminated){
+				log.info("KPI:"+Instant.now().toEpochMilli()+", Successful termination of P&P and RAN.");
+				this.internalStatus=NetworkSliceStatus.TERMINATED;
+				nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.TERMINATED);
+				nsLcmService.removeNsLcmManager(networkSliceInstanceUuid);
+				log.debug("Sending notification about network slice termination.");
+				notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_TERMINATED, true,tenantId));
+			}
+			else{
+				//Either the P&P or RAN termination request fails
+				final String ERR = "Either the P&P or RAN termination request fails";
+				manageNsError(ERR);
+			}
+		}
+
 	}
 
 	public String getNsDfId() {

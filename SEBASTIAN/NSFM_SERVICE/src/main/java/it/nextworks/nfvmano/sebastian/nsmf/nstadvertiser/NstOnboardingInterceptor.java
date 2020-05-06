@@ -89,8 +89,21 @@ public class NstOnboardingInterceptor implements HandlerInterceptor {
                 Thread thread =new Thread(nstAdvertisingManager);
                 thread.start();
             }
+
             List<NST> nstList = nsTemplateRepository.findAll();
-            NST lastNST = nstList.get(nstList.size() - 1);
+
+            NST lastNST=null;
+            for(int i=nstList.size()-1; i>=0; i--){
+                if(nstList.get(i).getNsst().size()>0 || nstList.get(i).getPpFunctionList().size()>0){
+                    lastNST = nstList.get(i);
+                    break;
+                }
+            }
+
+            if(lastNST==null){
+                log.error("Unable to advertise NST");
+                return;
+            }
 
             try {
                 NstAdvertisementRequest nstAdvertisementRequest = new NstAdvertisementRequest(lastNST,domainName);

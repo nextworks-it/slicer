@@ -1,6 +1,7 @@
 package it.nextworks.nfvmano.sebastian.nste2eComposer.IM;
 
 import it.nextworks.nfvmano.libs.ifa.templates.GeographicalAreaInfo;
+import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -53,9 +54,9 @@ public class Bucket {
         return -1;
     }
 
-    public boolean addNstId(String nstId, String domainId, List<GeographicalAreaInfo> geographicalAreaInfos) {
+    public boolean addNstId(String nstId, String domainId, List<GeographicalAreaInfo> geographicalAreaInfos, List<PpFunction> ppFunction) {
         if (nstAdvertisedInfoInList(nstId) == -1) {
-            nstAdvertisedInfoList.add(new NstAdvertisedInfo(nstId, domainId, geographicalAreaInfos));
+            nstAdvertisedInfoList.add(new NstAdvertisedInfo(nstId, domainId, geographicalAreaInfos,ppFunction));
             return true;
         }
         return false;

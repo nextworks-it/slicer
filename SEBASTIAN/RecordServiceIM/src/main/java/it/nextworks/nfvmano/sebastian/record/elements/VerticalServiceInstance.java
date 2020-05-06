@@ -57,10 +57,7 @@ public class VerticalServiceInstance {
 	@Cascade(org.hibernate.annotations.CascadeType.ALL)
 	private Map<String, String> userData = new HashMap<>();
 
-	public void setLocationsConstraints(List<LocationInfo> locationsConstraints) {
-		this.locationsConstraints = locationsConstraints;
-	}
-
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	@ElementCollection(targetClass=LocationInfo.class)
 	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<LocationInfo> locationsConstraints;
@@ -248,5 +245,9 @@ public class VerticalServiceInstance {
 	public List<LocationInfo> getLocationsConstraints() {
 		return locationsConstraints;
 	}
+
+	 public void setLocationsConstraints(List<LocationInfo> locationsConstraints) {
+                this.locationsConstraints = locationsConstraints;
+        }
 
 }

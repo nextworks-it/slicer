@@ -22,10 +22,7 @@ public class LlMecService extends CPSService{
     private Map<UUID, Integer> llMecSliceId;
     private List<Integer> availableLlMecId = new ArrayList<>();
 
-    @Value("${llmec.url}")
     private String llMecUrl;
-
-    @Value("${llmecAdapter.url}")
     private String llMecAdapterUrl;
 
 

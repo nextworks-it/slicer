@@ -51,7 +51,18 @@ public class VirtualResourceCalculatorService {
      * @throws Exception
      */
     public VirtualResourceUsage computeVirtualResourceUsage(NetworkSliceInstance nsi, boolean current) throws Exception {
-        return computeVirtualResourceUsageNew(nsi.getNsInstantiationInfo(current));
+        int totalCpu=0;
+        int totalRam=0;
+        int totalDisk=0;
+        for(int i=0; i<nsi.getNfvNsInstantiationInfoList().size(); i++){
+            VirtualResourceUsage virtualResourceUsage =computeVirtualResourceUsageNew(nsi.getNfvNsInstantiationInfoList().get(i));
+            totalCpu +=virtualResourceUsage.getvCPU();
+            totalRam +=virtualResourceUsage.getMemoryRAM();
+            totalDisk +=virtualResourceUsage.getDiskStorage();
+
+        }
+        return new VirtualResourceUsage(totalDisk, totalCpu, totalRam);
+
     }
 
 
