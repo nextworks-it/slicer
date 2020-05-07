@@ -17,6 +17,7 @@ package it.nextworks.nfvmano.sebastian.vsfm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.catalogue.blueprint.BlueprintCatalogueUtilities;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.SliceServiceType;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.VsBlueprint;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.VsDescriptor;
 import it.nextworks.nfvmano.catalogue.blueprint.messages.QueryVsBlueprintResponse;
@@ -39,6 +40,8 @@ import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceFailureNotification;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
 import it.nextworks.nfvmano.sebastian.nstE2eComposer.repository.BucketRepository;
+import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketOnlyPP;
+import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketType;
 import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.NstAdvertisedInfo;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
@@ -180,16 +183,34 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		log.debug("The VS instantiation request is valid.");
 		String vsiUuid = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData, locationsConstraints, ranEndPointId);
 
+
 		RuntimeTranslator runtimeTranslator = new RuntimeTranslator(bucketRepository,vsDescriptorCatalogueService);
 
 		log.info("Translate VSD into NST");
 		Map<String,NstAdvertisedInfo>  nstAdvertisedInfoMapFiltered = runtimeTranslator.translateVsdToNst(vsd);
-
 		HashMap<String,NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap=new HashMap<String,NetworkSliceInternalInfo>();
+
 		if (locationsConstraints != null) {
 			log.info("Filtering NSTs by geographical constraints in the Vertical Service Instance.");
+			BucketType bucketType;
+			switch(vsd.getSst()) {
+
+				case EMBB:
+					bucketType = BucketType.EMBB;
+					break;
+
+				case URLLC:
+					bucketType = BucketType.URLLC;
+					break;
+
+				default:
+					bucketType= null;
+					log.warn("The VSD associated to the VSI request has neither EMBB or URLLC ServiceSliceType");
+					break;
+			}
 			for (LocationInfo locationConstraints : locationsConstraints) {
-				domainIdNetworkSliceInternalInfoMap.putAll(runtimeTranslator.filterByLocationConstraints(nstAdvertisedInfoMapFiltered,locationConstraints));
+				domainIdNetworkSliceInternalInfoMap =
+						runtimeTranslator.filterByLocationConstraints(nstAdvertisedInfoMapFiltered,locationConstraints, bucketType);
 			}
 			log.info("The Geographical filtering results in "+domainIdNetworkSliceInternalInfoMap.size()+" NST(s)");
 		}
@@ -201,6 +222,10 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 			}
 		}
 
+		if(domainIdNetworkSliceInternalInfoMap.size()==0){
+			log.warn("No suitable NST found. Network slice will be not instantiated.");
+			throw new FailedOperationException("No suitable NST found for Vertical Slice instantiation");
+		}
 		initNewVsLcmManager(vsiUuid, request.getName(), domainIdNetworkSliceInternalInfoMap);
 
 		if (!(tenantId.equals(adminTenant))) adminService.addVsiInTenant(vsiUuid, tenantId);

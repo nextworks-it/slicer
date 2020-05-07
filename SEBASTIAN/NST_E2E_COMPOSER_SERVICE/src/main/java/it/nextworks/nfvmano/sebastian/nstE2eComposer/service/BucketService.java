@@ -127,14 +127,12 @@ public class BucketService {
                 }
             }
         }
-        log.error("No NSP owned by domain  "+name+" at "+ipAddress);
+        log.error("No NSP owned by domain "+name+" at "+ipAddress);
         throw new NotExistingEntityException("No NSP owned by domain  "+name+" at "+ipAddress);
     }
 
 
-
     private boolean bucketizeNsst(String nstId, NST nsst, String domainId) throws MalformattedElementException, AlreadyExistingEntityException, FailedOperationException {
-
         SliceType sliceType= nsst.getNstServiceProfile().getsST();
         String nsstId = nsst.getNstId();
         boolean isBucketized=false;

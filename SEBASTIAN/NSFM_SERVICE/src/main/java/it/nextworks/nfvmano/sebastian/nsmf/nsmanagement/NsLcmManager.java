@@ -275,43 +275,54 @@ public class NsLcmManager {
 		/* NST Analysis */
 		//SliceType sliceType = networkSliceTemplate.getSliceType();
 		try {
-			//TODO get nsst RAN if any
-			// Step #1: check for RAN
+			// Step #1: check for RAN into NSST.
             boolean ranInstanciated = false;
-			NstServiceProfile nstServiceProfile = networkSliceTemplate.getNstServiceProfile();
 			if(hasNstRAN()) {
-				log.info("The Network Slice Template has RAN slice to be instantiated.");
-				this.sliceType = nstServiceProfile.getsST();
-				RanQoSTranslator ranQoSTranslator = new RanQoSTranslator();
-				List<JSONObject> qosConstraints = ranQoSTranslator.ranProfileToQoSConstraints(networkSliceTemplate);
-//				switch (sliceType) {
-//					case URLLC:
-//						//TODO: translate stype info of the NST in Flexran attributes
-//						break;
+				log.info("The Network Slice Template has at least one RAN slice to be instantiated.");
+				if(nsmfUtils.isRanSimulated()){
+					log.info("(Simulated) Ran slice correctly instantiated.");
+					ranInstanciated=true;
+				}
+				else {
+					for(NST nsst: networkSliceTemplate.getNsst()){
+						//The NSST taken into consideration are those with geographical area info. The other ones are skipped
+						if(nsst.getGeographicalAreaInfoList()==null || nsst.getGeographicalAreaInfoList().size()==0)
+							continue;
+
+						NstServiceProfile nstServiceProfile = nsst.getNstServiceProfile();
+						this.sliceType = nstServiceProfile.getsST();
+						RanQoSTranslator ranQoSTranslator = new RanQoSTranslator();
+						List<JSONObject> qosConstraints = ranQoSTranslator.ranProfileToQoSConstraints(networkSliceTemplate);
+//					switch (sliceType) {
+//						case URLLC:
+//							//TODO: translate stype info of the NST in Flexran attributes
+//							break;
 //
-//					case EMBB:
-//						//TODO: translate stype info of the NST in Flexran attributes
-//						break;
+//						case EMBB:
+//							//TODO: translate stype info of the NST in Flexran attributes
+//							break;
 //
-//					default:
-//						//TODO invoke rollback!
+//						default:
+//							//TODO invoke rollback!
 //						break;
-//				}
-				// RAN-1 -> Slice creation on flexran
-                HttpStatus httpStatusCreateRanSlice = this.flexRanService.createRanSlice(UUID.fromString(networkSliceInstanceUuid));
-				// RAN-2 -> Map Slice UUID to FlexranID into the RANAdapter (it's crazy, I know)
-                HttpStatus httpStatusmapIdsRemotely = this.flexRanService.mapIdsRemotely(UUID.fromString(networkSliceInstanceUuid));
-				// RAN-3 -> Apply QoS Constraints
-                HttpStatus httpStatusApplyQos = this.flexRanService.applyInitialQosConstraints(UUID.fromString(networkSliceInstanceUuid),qosConstraints);
-                ranInstanciated = httpStatusCreateRanSlice==HttpStatus.CREATED && httpStatusCreateRanSlice==HttpStatus.OK & httpStatusCreateRanSlice==HttpStatus.OK;
+//					}
+
+						// RAN-1 -> Slice creation on flexran
+						HttpStatus httpStatusCreateRanSlice = this.flexRanService.createRanSlice(UUID.fromString(networkSliceInstanceUuid));
+						// RAN-2 -> Map Slice UUID to FlexranID into the RANAdapter (it's crazy, I know)
+						HttpStatus httpStatusmapIdsRemotely = this.flexRanService.mapIdsRemotely(UUID.fromString(networkSliceInstanceUuid));
+						// RAN-3 -> Apply QoS Constraints
+						HttpStatus httpStatusApplyQos = this.flexRanService.applyInitialQosConstraints(UUID.fromString(networkSliceInstanceUuid), qosConstraints);
+						ranInstanciated = httpStatusCreateRanSlice == HttpStatus.CREATED && httpStatusCreateRanSlice == HttpStatus.OK & httpStatusCreateRanSlice == HttpStatus.OK;
+					}
+				}
 			}
             else{
-                log.info("RAN slice will not be instantiated because no RAN available in NSST.");
+                log.info("RAN slice instantiation skipped because no RAN available in NSST.");
                 ranInstanciated = true;
             }
 
-			//TODO P&P should be always available. In case of only P&P in the NST father, the network slice is immediately instantiated.
-			// Step 2: check for PnP functions
+			// Step 2: check for PnP functions.
 			List<PpFunction> ppFunctions = networkSliceTemplate.getPpFunctionList();
             boolean ppInstanciated = false;
 			if (hasNstPP()) {
@@ -324,16 +335,17 @@ public class NsLcmManager {
                 ppInstanciated=true;
             }
 
-			boolean createLlMecSlice = false;
-			if(createLlMecSlice) {
+			if(!nsmfUtils.isLlMecSimulated()) {
 				log.info("Creating Llmec Slice");
 				llMecService.createLlMecSlice(UUID.fromString(networkSliceInstanceUuid));
 			}
-			//TODO below block of code must be executed for all nsst that contains nfv
-			// Step 3: proceed in instantiating nsds, if any
+			else{
+				log.info("(Simulated) Correctly created LlMec Slice");
+			}
 
+			// Step #3: proceed in instantiating nsds, if any
 			if (hasNstNfv()) {
-				log.info("Network Slice Template owns Nsst with Nfv.");
+				log.info("Network Slice Template owns NSST with Nfv.");
 				for(NST nsst: networkSliceTemplate.getNsst()){
 					log.info("Instantiating NSST with ID "+nsst.getNstId());
 					String nsdId = nsst.getNsdId();
@@ -685,12 +697,19 @@ public class NsLcmManager {
 
 		//Step #2: Terminate RAN Slice, if any.
 		boolean ranSliceCorrectlyTerminated=false;
+
 		if(hasNstRAN()) {
 			log.info("Terminating slice component RAN.");
-			if (flexRanService.isRan(UUID.fromString(networkSliceInstanceUuid))) {
-				log.debug("Terminating RAN Slice for  " + networkSliceInstanceUuid);
-				HttpStatus httpStatus =flexRanService.terminateRanSlice(UUID.fromString(networkSliceInstanceUuid));
-				ranSliceCorrectlyTerminated = httpStatus == HttpStatus.OK;
+			if(nsmfUtils.isRanSimulated()){
+				log.info("(Simulated) RAN slice correctly terminated");
+				ranSliceCorrectlyTerminated=true;
+			}
+			else {
+				if (flexRanService.isRan(UUID.fromString(networkSliceInstanceUuid))) {
+					log.debug("Terminating RAN Slice for  " + networkSliceInstanceUuid);
+					HttpStatus httpStatus = flexRanService.terminateRanSlice(UUID.fromString(networkSliceInstanceUuid));
+					ranSliceCorrectlyTerminated = httpStatus == HttpStatus.OK;
+				}
 			}
 		}
 		else{
@@ -698,9 +717,12 @@ public class NsLcmManager {
 			ranSliceCorrectlyTerminated=true;
 		}
 
-		//Step #3: Terminate LLLEC Slice, if any. TODO
-		//llMecService.terminateLlMecSlice(UUID.fromString(networkSliceInstanceUuid));
-
+		//Step #3: Terminate LLLEC Slice, if any.
+		if(!nsmfUtils.isLlMecSimulated())
+			llMecService.terminateLlMecSlice(UUID.fromString(networkSliceInstanceUuid));
+		else{
+			log.info("(Simulated) LlMec slice correctly terminated.");
+		}
 		this.internalStatus = NetworkSliceStatus.TERMINATING;
 		nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.TERMINATING);
 

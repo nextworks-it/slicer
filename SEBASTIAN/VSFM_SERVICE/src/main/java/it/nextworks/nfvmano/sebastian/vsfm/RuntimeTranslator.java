@@ -66,7 +66,6 @@ public class RuntimeTranslator {
                     nstUUID = compositeNstUuid[0];
                 }
                 if(nstAdvertisedMap.get(nstUUID)==null){
-                    log.info("Adding "+nstUUID);
                     NstAdvertisedInfo nstAdvertisedInfoTmp
                             = new NstAdvertisedInfo(nstUUID, nstAdvertisedInfo.getDomainId(), new ArrayList<GeographicalAreaInfo>(), new ArrayList<PpFunction>());
                     nstAdvertisedMap.put(nstUUID,nstAdvertisedInfoTmp);
@@ -79,38 +78,60 @@ public class RuntimeTranslator {
 
 
 
+    private synchronized List<NstAdvertisedInfo> getNsstFromNstParentUuid(String nstUuid, BucketType bucketType){
+        List<NstAdvertisedInfo> nstAdvertisedInfos = new ArrayList<NstAdvertisedInfo>();
+        List<Bucket> bucketList = bucketRepository.findByBucketType(bucketType);
+        for(Bucket bucket: bucketList){
+            for(NstAdvertisedInfo nstAdvertisedInfo: bucket.getNstAdvertisedInfoList()){
+                if(nstAdvertisedInfo.getNstId().contains(nstUuid)){
+                    nstAdvertisedInfos.add(nstAdvertisedInfo);
+                }
+            }
+        }
+        return nstAdvertisedInfos;
+    }
+
     //It selects all the NSTs that satisfies the geographical constraints info.
-    public Map<String,NetworkSliceInternalInfo> filterByLocationConstraints(Map<String, NstAdvertisedInfo> mapNstAdverisedInfo, LocationInfo locationInfo){
-        Map<String,NetworkSliceInternalInfo> networkSliceInternalInfoMapGeoFilter = new HashMap<String,NetworkSliceInternalInfo>();
-        log.info("There are "+mapNstAdverisedInfo.size()+ " NST(s) advertised to filter against the geographical constraints.");
+    public HashMap<String,NetworkSliceInternalInfo> filterByLocationConstraints(Map<String, NstAdvertisedInfo> mapNstAdverisedInfo, LocationInfo locationInfo, BucketType bucketType){
+        if(bucketType==null){
+            log.warn("Not able to find geographical location. Please check the Slicetype Into VSD");
+            return new HashMap<String,NetworkSliceInternalInfo>();
+        }
+        List<NstAdvertisedInfo> nsstAdvertisedInfos = new ArrayList<>();
+
+        for(String nstUuid: mapNstAdverisedInfo.keySet()) {
+            nsstAdvertisedInfos.addAll(getNsstFromNstParentUuid(nstUuid, bucketType));
+        }
+
+        HashMap<String,NetworkSliceInternalInfo> networkSliceInternalInfoMapGeoFilter = new HashMap<String,NetworkSliceInternalInfo>();
+        log.info("There are "+nsstAdvertisedInfos.size()+ " NST(s) advertised to filter against the geographical constraints.");
 
         //Step #2: for each advertised NST are checked the geographic constraints.
-        for(String nstUUID: mapNstAdverisedInfo.keySet()){
-            NstAdvertisedInfo nstAdvertisedInfo = mapNstAdverisedInfo.get(nstUUID);
-
+            for(NstAdvertisedInfo nstAdvertisedInfo: nsstAdvertisedInfos){
+                String nstUUID = nstAdvertisedInfo.getNstId();
             String domainId = nstAdvertisedInfo.getDomainId();
-            //log.info("Checking geographical info about NST with UUID: "+nstUUID +" It has "+nstAdvertisedInfo.getGeographicalAreaInfoList().size() + " location.");
+            log.info("Checking geographical info about NST with UUID: "+nstUUID +" It has "+nstAdvertisedInfo.getGeographicalAreaInfoList().size() + " location.");
             List<GeographicalAreaInfo> geographicalAreaInfo = nstAdvertisedInfo.getGeographicalAreaInfoList();
 
             //Step #2.5: For each geo info into the NST, is checked whether the condition is satisfied or not
             for(int i=0; i<geographicalAreaInfo.size(); i++){
                 GeographicalAreaInfo geo = geographicalAreaInfo.get(i);
                 //double distanceMeter=geo.computeDistanceMeter(locationInfo.getLatitude(), locationInfo.getLongitude());
-                //log.debug("The distance between VSI center and NST with UUID "+nstUUID+" at geolocation #"+i+" is " +distanceMeter+ " meters.");
+                //log.debug("The distance between VSI center and NST with composite UUID "+nstUUID+" at geolocation #"+i+" is " +distanceMeter+ " meters.");
                 Map<String,Double> distanceToTheEdges=geo.getDistanceToTheEdgesInMeter(locationInfo.getLatitude(), locationInfo.getLongitude());
                 for(String edgeName: distanceToTheEdges.keySet()){
                     double distanceToTheEdge = distanceToTheEdges.get(edgeName);
                     //Step #3: if the geo constraint are satisfied, it is put into the map the nstID, the domainID and the location info of VSI.
                     if(distanceToTheEdge<locationInfo.getRange() && networkSliceInternalInfoMapGeoFilter.get(domainId)==null){
-                        log.info("NST with UUID "+nstUUID+"  satisfies the geographical constraints.");
+                        log.info("NST with composite UUID "+nstUUID+"  satisfies the geographical constraints.");
+                        nstUUID = nstUUID.split("_")[0];
                         networkSliceInternalInfoMapGeoFilter.put(domainId, new NetworkSliceInternalInfo(domainId, nstUUID, locationInfo));
                     }
                 }
             }
-
         }
         if(networkSliceInternalInfoMapGeoFilter.size()==0)
-            log.warn("Warning: the geographical filter did not return any NST.");
+            log.warn("The geographical filter did not return any NST.");
 
         return networkSliceInternalInfoMapGeoFilter;
     }
@@ -241,9 +262,10 @@ public class RuntimeTranslator {
 
     public Map<String,NstAdvertisedInfo> translateVsdToNst(VsDescriptor vsDescriptor) throws NotExistingEntityException {
         String vsdId = vsDescriptor.getVsDescriptorId();
+
         //Given the Vsd ID, it gets the list of suitable buckets that satisfies the requirements, then
-        //A map (key: id of nst advertised, value the nst advertised itself) is set
-        ArrayList<Long> suitableBuckets = translate(vsdId);
+        //A map (key: uuid of nst advertised, value the nst advertised itself) is set
+        ArrayList<Long> suitableBuckets = findSuitableBucketsId(vsdId);
         Map<String,NstAdvertisedInfo> nstAdvertisedFiltered = new HashMap<String,NstAdvertisedInfo>();
         if(suitableBuckets==null){
             return nstAdvertisedFiltered;
@@ -251,15 +273,14 @@ public class RuntimeTranslator {
         // nstAdvertisedFiltered contains the filtered advertised nst by performance requirements or P&P function, depending on SsT into VSD.
         // nstAdvertisedFilteredByConstraintsMap contains the filtered advertised nst by PP.
         nstAdvertisedFiltered = setNstAdvertisedMap(suitableBuckets);
-
-        log.info("Filtering from perf buckets");
-        printNstAdvertisedFiltered(nstAdvertisedFiltered);
+        //log.info("Filtering from perf buckets");
+        //printNstAdvertisedFiltered(nstAdvertisedFiltered);
 
         Map<String,NstAdvertisedInfo> nstAdvertisedFilteredByPPFunctions  = getFilteredAdvNstByPPFunction(vsDescriptor);
-        log.info("PP filtering");
-        printNstAdvertisedFiltered(nstAdvertisedFilteredByPPFunctions);
+        //log.info("PP filtering");
+        ////printNstAdvertisedFiltered(nstAdvertisedFilteredByPPFunctions);
 
-        //The maps are merged to have all the advertised nst that satisfies the requirements in terms of performance and P&P
+        //The maps are intersected for having all the advertised nst that satisfies the requirements in terms of performance and P&P functions
         Set<String> nstIdInCommon = new HashSet<String>(nstAdvertisedFiltered.keySet());
         nstIdInCommon.retainAll(nstAdvertisedFilteredByPPFunctions.keySet());
         Map<String,NstAdvertisedInfo> mapsIntersection = new HashMap<String,NstAdvertisedInfo>();
@@ -305,7 +326,7 @@ public class RuntimeTranslator {
     }
 
     //It translates the requirements available into VSD into a list of the IDs of the buckets where there could be NSTs.
-    public ArrayList<Long> translate(String vsdId) throws NotExistingEntityException {
+    public ArrayList<Long> findSuitableBucketsId(String vsdId) throws NotExistingEntityException {
         VsDescriptor vsd = vsDescriptorCatalogueService.getVsd(vsdId);
         SliceServiceType sliceType=vsd.getSst();
         //Case #1: the vertical service instantiation request, requires EMBB NST type.

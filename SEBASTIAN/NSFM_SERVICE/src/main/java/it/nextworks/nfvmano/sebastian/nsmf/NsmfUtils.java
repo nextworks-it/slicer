@@ -76,6 +76,12 @@ public class NsmfUtils {
 	@Value("${llmecAdapter.hostname}")
 	private String llMecAdapteHostname;
 
+	@Value("#{new Boolean('${simulateLlMec}')}")
+	private Boolean simutateLlMec;
+
+	@Value("#{new Boolean('${simulateRan}')}")
+	private Boolean simulateRan;
+
 	public NsTemplateInfo getNsTemplateInfoFromCatalogue(String nstUuid)
 			throws NotExistingEntityException {
 
@@ -120,4 +126,12 @@ public class NsmfUtils {
 	}
 	public String getLlMecHostname() {	return llMecHostname;	}
 	public String getLlMecAdapteHostname() {		return llMecAdapteHostname;	}
+
+	public boolean isLlMecSimulated() {
+		return simutateLlMec;
+	}
+
+	public boolean isRanSimulated() {
+		return simulateRan;
+	}
 }
