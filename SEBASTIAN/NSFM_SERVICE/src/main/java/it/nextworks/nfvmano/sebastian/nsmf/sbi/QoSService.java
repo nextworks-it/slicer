@@ -58,6 +58,19 @@ public class QoSService extends CPSService{
             return HttpStatus.valueOf(e.getRawStatusCode());
         }
     }
+    public HttpStatus setPriority(UUID sliceId, JSONObject qosConstraints) throws Exception{
+        try {
+            String qosCpBaseURl = this.getQoSInfo(sliceId);
+            String url = String.format("%s/slicenet/ctrlplane/qos/v1/qos-instance/%s/priority_constraints?segment_id=ACCESS", qosCpBaseURl, sliceId.toString());
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(qosConstraints.toString(), url, HttpMethod.PUT);
+            System.out.println(httpResponse.getBody());
+            return httpResponse.getStatusCode();
+        } catch (RestClientResponseException e){
+            log.info("Message received: "+e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
+    }
+
 
     public HttpStatus redirectTraffic(UUID sliceId, String segmentId, String ueIMSI, JSONObject qosRedirectParameters){
         try {

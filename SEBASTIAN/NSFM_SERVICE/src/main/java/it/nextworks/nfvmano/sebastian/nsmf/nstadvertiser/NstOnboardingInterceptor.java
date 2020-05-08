@@ -93,11 +93,21 @@ public class NstOnboardingInterceptor implements HandlerInterceptor {
             List<NST> nstList = nsTemplateRepository.findAll();
 
             NST lastNST=null;
-            for(int i=nstList.size()-1; i>=0; i--){
-                if(nstList.get(i).getNsst().size()>0 || nstList.get(i).getPpFunctionList().size()>0){
-                    lastNST = nstList.get(i);
-                    break;
+            NST latestAdded = nstList.get(nstList.size()-1);
+            //The order the NST are stored is the following: first the NST "father", then the NSST
+            //If the last NST contains at least one NSST, the NST father is going to be advertised. Otherwise is advertised the last one
+            if(latestAdded.getNsst()==null || latestAdded.getNsst().size()==0) {
+                log.info("Going to on board NST with NSST embedded");
+                for (int i = nstList.size() - 1; i >= 0; i--) {
+                    if (nstList.get(i).getNsst().size() > 0 || nstList.get(i).getPpFunctionList().size() > 0) {
+                        lastNST = nstList.get(i);
+                        break;
+                    }
                 }
+            }
+            else{
+                log.info("Going to on board NST with P&P functions");
+                lastNST = latestAdded;
             }
 
             if(lastNST==null){

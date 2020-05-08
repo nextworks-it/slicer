@@ -70,10 +70,18 @@ public class PnPCommunicationService extends NsmfSbRestClient {
         return reqComponentFeatureArray;
     }
 
+    private ArrayNode buildDomainsList() {
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode domainsList = mapper.createArrayNode();
+        return domainsList;
+    }
+
     private ObjectNode generateRequestPayload(NST nst, UUID sliceId) {
         ObjectNode sliceInfoHeader = buildNetworkSliceInfo(nst, sliceId);
         ArrayNode sliceInfoFeatures = buildRequiredComponentFeature(nst);
         sliceInfoHeader.putPOJO("required_feature", sliceInfoFeatures);
+        //ArrayNode domainsList = buildDomainsList(); //Only in DSP TODO
+        //sliceInfoHeader.putPOJO("domains", domainsList);
         return sliceInfoHeader;
     }
 
@@ -81,6 +89,7 @@ public class PnPCommunicationService extends NsmfSbRestClient {
         try{
             String url = this.getTargetUrl() + "/plug-and-play-manager/slice/" + sliceUuid +"/";
             Object requestPayload = generateRequestPayload(nst, sliceUuid);
+
             ResponseEntity<String> httpResponse = this.performHTTPRequest(requestPayload, url, HttpMethod.POST);
             sliceIDs.add(sliceUuid);
             return httpResponse.getStatusCode();

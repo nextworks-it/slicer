@@ -2,11 +2,9 @@ package it.nextworks.nfvmano.sebastian.nsmf.nsmanagement;
 
 import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.sbi.NsmfSbRestClient;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.QoSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +24,7 @@ public class ActuationLcmService {
 
     private final String REDIRECT="REDIRECT";
     private final String UPDATE_QOS="UPDATE_QOS";
+    private final String UPDATE_PRIORITY ="UPDATE_PRIORITY";
     private final String HANDOVER = "HANDOVER";
 
 
@@ -39,6 +38,9 @@ public class ActuationLcmService {
 
         if(parametersActuation.containsKey("ran_core_constraints") )
             return UPDATE_QOS;
+
+        if(parametersActuation.containsKey("ran_slice_priority") )
+            return UPDATE_PRIORITY;
 
         if(parametersActuation.containsKey("ueid") && parametersActuation.containsKey("sid") && parametersActuation.containsKey("tid"))
             return HANDOVER;
@@ -73,6 +75,14 @@ public class ActuationLcmService {
                     qoSService.setTargetUrl(url);
                     json = new JSONObject(parameters);
                     httpStatus =qoSService.setQoS(UUID.fromString(nsiId), json);
+                    return httpStatus==HttpStatus.OK;
+
+
+                case UPDATE_PRIORITY:
+                    log.info("The actuation is a UPDATE priority request.");
+                    qoSService.setTargetUrl(url);
+                    json = new JSONObject(parameters);
+                    httpStatus =qoSService.setPriority(UUID.fromString(nsiId), json);
                     return httpStatus==HttpStatus.OK;
 
 
