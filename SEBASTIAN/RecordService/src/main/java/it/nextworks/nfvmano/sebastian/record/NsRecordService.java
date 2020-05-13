@@ -109,11 +109,8 @@ public class NsRecordService {
 
     public void setNfvNsId(String nsiUuid, String nsstId, String nfvNsId) throws NotExistingEntityException {
 		NetworkSliceInstance nsi = getNsInstance(nsiUuid);
-		if(nsi.setNfvNsId(nsstId,nfvNsId)==true)
-			nsInstanceRepository.saveAndFlush(nsi);
-		else{
-			log.warn("Unable to set NFV NS ID "+nsstId+" for NSST with ID "+nsstId);
-		}
+		nsi.setNfvNsId(nsstId);
+		log.warn("Unable to set NFV NS ID "+nsstId+" for NSST with ID "+nsstId);
 	}
 	/**
 	 * This method updated a network slice instance in DB setting the information associated to its instantiation

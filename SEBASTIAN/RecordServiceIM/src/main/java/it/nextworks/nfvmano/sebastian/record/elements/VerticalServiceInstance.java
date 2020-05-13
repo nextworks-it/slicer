@@ -62,12 +62,19 @@ public class VerticalServiceInstance {
 	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<LocationInfo> locationsConstraints;
 
+	@OneToMany
+	@Cascade(org.hibernate.annotations.CascadeType.ALL)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	private List<ImsiInfo> imsiInfoList;
+
 	@JsonIgnore
 	private String ranEndPointId;
 
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	@ElementCollection(targetClass=String.class)
 	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<String> networkSlicesId = new ArrayList<String>();
+
 
 	@OneToMany
 	@LazyCollection(LazyCollectionOption.FALSE)
@@ -91,7 +98,8 @@ public class VerticalServiceInstance {
 	 * @param locationsConstraints constraints about the geographical coverage of the service. The service could be deployed in different areas.
 	 * @param ranEndPointId ID of the end point attached to the RAN segment
 	 */
-	public VerticalServiceInstance(String vsiId, String vsdId, String tenantId, String name, String description, Map<String, String> userData, List<LocationInfo> locationsConstraints, String ranEndPointId) {
+	public VerticalServiceInstance(String vsiId, String vsdId, String tenantId, String name, String description, Map<String, String> userData,
+								   List<LocationInfo> locationsConstraints, String ranEndPointId, List<ImsiInfo> imsiInfoList) {
 		this.vsiId = vsiId;
 		this.vsdId = vsdId;
 		this.tenantId = tenantId;
@@ -101,6 +109,9 @@ public class VerticalServiceInstance {
 		if (userData != null) this.userData = userData;
 		if (locationsConstraints != null){
 			this.locationsConstraints = locationsConstraints;
+		}
+		if (imsiInfoList != null){
+			this.imsiInfoList = imsiInfoList;
 		}
 		this.ranEndPointId = ranEndPointId;
 	}
@@ -250,4 +261,7 @@ public class VerticalServiceInstance {
                 this.locationsConstraints = locationsConstraints;
         }
 
+	public List<ImsiInfo> getImsiInfoList() {
+		return imsiInfoList;
+	}
 }

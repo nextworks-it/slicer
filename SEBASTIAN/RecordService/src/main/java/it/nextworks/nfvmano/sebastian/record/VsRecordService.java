@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import it.nextworks.nfvmano.sebastian.record.elements.ImsiInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,13 +70,20 @@ public class VsRecordService {
 	 * @param ranEndPointId ID of the connection point attached to the RAN
 	 * @return the UUID assigned to the Vertical Service instance
 	 */
-	public synchronized String createVsInstance(String name, String description, String vsdId, String tenantId, Map<String, String> userData, List<LocationInfo> locationsConstraints, String ranEndPointId) {
+	public synchronized String createVsInstance(String name, String description, String vsdId, String tenantId, Map<String, String> userData,
+												List<LocationInfo> locationsConstraints, String ranEndPointId, List<ImsiInfo> imsiInfoList) {
 		log.debug("Creating a new VS instance in DB.");
-		VerticalServiceInstance vsi = new VerticalServiceInstance(null, vsdId, tenantId, name, description,  userData, locationsConstraints, ranEndPointId);
+		VerticalServiceInstance vsi = new VerticalServiceInstance(null, vsdId, tenantId, name, description,  userData, locationsConstraints, ranEndPointId, imsiInfoList);
 		vsInstanceRepository.saveAndFlush(vsi);
 		String vsiUuid = vsi.getUuid().toString();
 		log.debug("Created Vertical Service instance with UUID " + vsiUuid);
 		vsi.setVsiId(vsiUuid);
+		if(vsi.getImsiInfoList()!=null && vsi.getImsiInfoList().size()>0){
+			log.debug("Updating the Slice into IMSI info");
+			for(ImsiInfo imsiInfo: vsi.getImsiInfoList()){
+				imsiInfo.setSlice(vsiUuid);
+			}
+		}
 		vsInstanceRepository.saveAndFlush(vsi);
 		return vsiUuid;
 	}

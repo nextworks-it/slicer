@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import it.nextworks.nfvmano.libs.ifa.common.InterfaceMessage;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
+import it.nextworks.nfvmano.sebastian.record.elements.ImsiInfo;
 
 public class InstantiateNsiRequest implements InterfaceMessage {
 
@@ -47,18 +48,20 @@ public class InstantiateNsiRequest implements InterfaceMessage {
 	
 	@JsonProperty("locationConstraints")
 	private LocationInfo locationConstraints;
-	
+
 	@JsonProperty("ranEndPointId")
 	private String ranEndPointId;
 
-	
+	@JsonProperty
+	private List<ImsiInfo> imsiInfoList = new ArrayList<>();
+
 	/**
 	 * Constructor
 	 * 
 	 * @param nsiId ID of the network slice to be instantiated
 	 * @param nstId ID of the NST associated to the network slice
 	 * @param dfId ID of the deployment flavour for the NFV NSD associated to the network slice
-	 * @param ilId ID of the instantiation level for the NFV NSD asssociated to the network slice
+	 * @param ilId ID of the instantiation level for the NFV NSD associated to the network slice
 	 * @param nsSubnetIds ID of the network slice subnets to be included in the e2e network slice
 	 * @param userData user-defined data
 	 * @param locationConstraints location constraints
@@ -66,13 +69,16 @@ public class InstantiateNsiRequest implements InterfaceMessage {
 	 */
 	public InstantiateNsiRequest(String nsiId, String nstId, String dfId, String ilId,
 			List<String> nsSubnetIds, Map<String, String> userData, LocationInfo locationConstraints,
-			String ranEndPointId) {
+			String ranEndPointId, List<ImsiInfo> imsiInfoList) {
 		this.nsiId = nsiId;
 		this.nstId = nstId;
 		this.dfId = dfId;
 		this.ilId = ilId;
+
 		if (nsSubnetIds != null) this.nsSubnetIds = nsSubnetIds;
 		if (userData != null) this.userData = userData;
+		if(imsiInfoList!=null) this.imsiInfoList=imsiInfoList;
+
 		this.locationConstraints = locationConstraints;
 		this.ranEndPointId = ranEndPointId;
 	}
@@ -126,6 +132,9 @@ public class InstantiateNsiRequest implements InterfaceMessage {
 	}
 
 
+	public List<ImsiInfo> getImsiInfoList() {
+		return imsiInfoList;
+	}
 
 	@Override
 	public void isValid() throws MalformattedElementException {

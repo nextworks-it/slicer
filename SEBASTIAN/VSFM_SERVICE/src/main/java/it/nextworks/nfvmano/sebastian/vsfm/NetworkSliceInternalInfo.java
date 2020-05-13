@@ -1,6 +1,7 @@
 package it.nextworks.nfvmano.sebastian.vsfm;
 
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange;
 
 public class NetworkSliceInternalInfo {
 

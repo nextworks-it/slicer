@@ -181,13 +181,19 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		}
 
 		log.debug("The VS instantiation request is valid.");
-		String vsiUuid = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData, locationsConstraints, ranEndPointId);
 
+		String vsiUuid = vsRecordService.createVsInstance(request.getName(), request.getDescription(), vsdId, tenantId, userData, locationsConstraints, ranEndPointId, request.getImsiInfoList());
 
 		RuntimeTranslator runtimeTranslator = new RuntimeTranslator(bucketRepository,vsDescriptorCatalogueService);
 
 		log.info("Translate VSD into NST");
 		Map<String,NstAdvertisedInfo>  nstAdvertisedInfoMapFiltered = runtimeTranslator.translateVsdToNst(vsd);
+		if(nstAdvertisedInfoMapFiltered.size()==0)
+		{
+			log.warn("Unable to perform translation from VSD to NST: no suitable NST found.");
+			throw new FailedOperationException("No suitable NST found for Vertical Slice instantiation");
+		}
+
 		HashMap<String,NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap=new HashMap<String,NetworkSliceInternalInfo>();
 
 		if (locationsConstraints != null) {

@@ -88,6 +88,12 @@ public class NetworkSliceInstance {
     @LazyCollection(LazyCollectionOption.FALSE)
 	private List<NfvNsInstantiationInfo> nfvNsInstantiationInfoList;
 
+    /*
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	@ElementCollection(targetClass=ImsiInfo.class)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	private List<ImsiInfo> imsiInfoList;*/
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	@ElementCollection(fetch=FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
@@ -99,12 +105,6 @@ public class NetworkSliceInstance {
 	/**
 	 * @param nsiId ID of the network slice
 	 * @param nstId ID of the network slice template
-	 * @param nsdId ID of the descriptor of the NFV network service that implements the network slice
-	 * @param nsdVersion Version of the descriptor of the NFV network service that implements the network slice
-	 * @param dfId ID of the deployment flavour in the NFV network service
-	 * @param instantiationLevelId ID of the instantiation level in the NFV network service
-	 * @param nfvNsId ID of the NFV network service that implements the network slice
-	 * @param networkSliceSubnetInstances in case of composite network slice, the ID of its network slice subnets
 	 * @param tenantId owner of the slice
 	 */
 
@@ -131,6 +131,7 @@ public class NetworkSliceInstance {
 								String name,
 								String description,
 								boolean soManaged){
+								//List<ImsiInfo> imsiInfoList){
 		this.nsiId=nsiId;
 		this.nstId = nstId;
 		this.tenantId=tenantId;
@@ -140,18 +141,11 @@ public class NetworkSliceInstance {
 		this.nfvNsInstantiationInfoList=new ArrayList<NfvNsInstantiationInfo>();
 		this.nfvNsIdList = new ArrayList<String>();
 		this.networkSliceSubnetInstances=new ArrayList<String>();
+		//if(imsiInfoList!=null) this.imsiInfoList = imsiInfoList;
 	}
 
 
 	public boolean addNfvNetworkServiceInfo(NfvNsInstantiationInfo nfvNsInstantiationInfo, String networkServiceId){
-		/*for(NfvNsInstantiationInfo nfvNsInstantiationInfoTmp: nfvNsInstantiationInfoList){
-			if(nfvNsInstantiationInfoTmp.getNstId().equals(nfvNsInstantiationInfo.getNstId()))
-				return false;
-		}
-
-			if(nfvNsInstantiationInfoList.contains(nfvNsInstantiationInfo))
-				return false;
-		*/
 		nfvNsInstantiationInfoList.add(nfvNsInstantiationInfo);
 		nfvNsIdList.add(networkServiceId);
 		return true;
@@ -418,4 +412,7 @@ public class NetworkSliceInstance {
 		return nfvNsIdList;
 	}
 
+	//public List<ImsiInfo> getImsiInfoList() {
+//		return imsiInfoList;
+//	}
 }

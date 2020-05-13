@@ -54,9 +54,9 @@ public class Bucket {
         return -1;
     }
 
-    public boolean addNstId(String nstId, String domainId, List<GeographicalAreaInfo> geographicalAreaInfos, List<PpFunction> ppFunction) {
+    public boolean addNstId(String nstId, String domainId, List<GeographicalAreaInfo> geographicalAreaInfos, List<PpFunction> ppFunction, List<String> kpiList) {
         if (nstAdvertisedInfoInList(nstId) == -1) {
-            nstAdvertisedInfoList.add(new NstAdvertisedInfo(nstId, domainId, geographicalAreaInfos,ppFunction));
+            nstAdvertisedInfoList.add(new NstAdvertisedInfo(nstId, domainId, geographicalAreaInfos,ppFunction,kpiList));
             return true;
         }
         return false;

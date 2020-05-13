@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import it.nextworks.nfvmano.libs.ifa.common.InterfaceMessage;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
+import it.nextworks.nfvmano.sebastian.record.elements.ImsiInfo;
 
 /**
  * Request to instantiate a new Vertical Service instance.
@@ -44,6 +45,8 @@ public class InstantiateVsRequest implements InterfaceMessage {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private List<LocationInfo> locationsConstraints;
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private List<ImsiInfo> imsiInfoList;
 	public InstantiateVsRequest() {	}
 	
 	
@@ -59,7 +62,7 @@ public class InstantiateVsRequest implements InterfaceMessage {
 	 * @param locationsConstraints constraints about the geographical coverage of the service
 	 */
 	public InstantiateVsRequest(String name, String description, String vsdId, String tenantId, String notificationUrl,
-			Map<String, String> userData, List<LocationInfo> locationsConstraints) {
+			Map<String, String> userData, List<LocationInfo> locationsConstraints, List<ImsiInfo> imsiInfoList) {
 		this.name = name;
 		this.description = description;
 		this.vsdId = vsdId;
@@ -67,6 +70,7 @@ public class InstantiateVsRequest implements InterfaceMessage {
 		this.notificationUrl = notificationUrl;
 		if (userData != null) this.userData = userData;
 		this.locationsConstraints=locationsConstraints;
+		if(imsiInfoList!=null)  this.imsiInfoList = imsiInfoList;
 	}
 
 	
@@ -124,6 +128,10 @@ public class InstantiateVsRequest implements InterfaceMessage {
 	 */
 	public List<LocationInfo> getLocationsConstraints() {
 		return locationsConstraints;
+	}
+
+	public List<ImsiInfo> getImsiInfoList() {
+		return imsiInfoList;
 	}
 
 	@Override

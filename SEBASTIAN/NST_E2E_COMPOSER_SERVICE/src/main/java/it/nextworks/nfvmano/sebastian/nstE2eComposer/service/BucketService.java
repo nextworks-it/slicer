@@ -151,7 +151,7 @@ public class BucketService {
                 if(bucketEMBB.areRequirementsSatisfied(embbPerfReq)) {
                     //Added locally and into the DB
                     //One or more nsst can be available into to NST. in order to avoid duplicate into bucket and link nsst to nst, a composite nstId is used.
-                    if(bucketEMBB.addNstId(compositeNstId,domainId,nsst.getGeographicalAreaInfoList(),new ArrayList<PpFunction>())==false) {
+                    if(bucketEMBB.addNstId(compositeNstId,domainId,nsst.getGeographicalAreaInfoList(),new ArrayList<PpFunction>(), nsst.getKpiList())==false) {
                         log.info("NST with composite UUID " + compositeNstId + " advertised from domain with ID " + domainId + "already available.");
                         throw new AlreadyExistingEntityException("NST with composite UUID " + compositeNstId + " advertised from domain with ID " + domainId + "already available.");
                     }
@@ -177,7 +177,7 @@ public class BucketService {
                 BucketURLLC bucketURLLC = (BucketURLLC) bucket;
                 String compositeNstId = nstId+"_"+nsstId;
                 if(bucketURLLC.areRequirementsSatisfied(urllcPerfReq)){
-                    bucketURLLC.addNstId(compositeNstId,domainId,nsst.getGeographicalAreaInfoList(),new ArrayList<PpFunction>());
+                    bucketURLLC.addNstId(compositeNstId,domainId,nsst.getGeographicalAreaInfoList(),new ArrayList<PpFunction>(), nsst.getKpiList());
                     log.info("Added NST with composite UUID "	+compositeNstId+ " into bucket "+bucketURLLC.getBucketScenario().toString());
                     bucketRepository.saveAndFlush(bucketURLLC);
                     isBucketized=true;
@@ -192,10 +192,10 @@ public class BucketService {
         return true;
     }
 
-    private void addNstIntoPPBucket(String nstId, String domainId, List<PpFunction> ppFunctionsList) throws AlreadyExistingEntityException {
+    private void addNstIntoPPBucket(String nstId, String domainId, List<PpFunction> ppFunctionsList, List<String> kpiList) throws AlreadyExistingEntityException {
         List<Bucket> ppBuckets=bucketRepository.findByBucketType(BucketType.PP);
         Bucket bucket =  ppBuckets.get(0);   //For now is supposed to have only one PP bucket
-        boolean isNotDuplicate = bucket.addNstId(nstId,domainId,null,ppFunctionsList);
+        boolean isNotDuplicate = bucket.addNstId(nstId,domainId,null,ppFunctionsList, kpiList);
         if(isNotDuplicate==false) {
             log.info("NST with UUID " + nstId + " advertised from domain with ID " + domainId + "already available.");
             throw new AlreadyExistingEntityException("NST with UUID " + nstId + " advertised from domain with ID " + domainId + "already available.");
@@ -211,14 +211,14 @@ public class BucketService {
         log.debug("Received request to advertise a NS Template with "+nst.getPpFunctionList().size()+" functions and "+nst.getNsst().size()+" Nsst from "+ipAddress);
 
         String domainName=nstAdvertisementRequest.getDomainName();
-
+        List<String> kpiList = nstAdvertisementRequest.getNst().getKpiList();
         String domainId= getNSPdomainIdFromNameAndIpAddress(domainName, ipAddress);
         String nstId = nst.getNstId();
         List<PpFunction> ppFunctionList = nst.getPpFunctionList();
         //Case #1. The NST has only P&P functions and no nsst embedded.
         if(nst.getNsst().size()==0 && nst.getPpFunctionList().size()>0){
             log.info("An Network Service Template with only P&P function has been advertised");
-            addNstIntoPPBucket(nstId, domainId,ppFunctionList);
+            addNstIntoPPBucket(nstId, domainId,ppFunctionList,kpiList);
             return;
         }
 
@@ -229,7 +229,7 @@ public class BucketService {
             for(NST nsst: nstList){
                 bucketizeNsst(nstId, nsst, domainId);
             }
-            addNstIntoPPBucket(nstId, domainId,ppFunctionList);
+            addNstIntoPPBucket(nstId, domainId,ppFunctionList,kpiList);
             return;
         }
 

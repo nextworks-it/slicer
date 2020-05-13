@@ -52,6 +52,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange.NSI_CREATED;
+import static it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange.NSI_TERMINATED;
+
 /**
  * Entity in charge of managing the lifecycle
  * of a single vertical service instance
@@ -84,7 +87,7 @@ public class VsLcmManager {
     private Map<String, VsDescriptor> vsDescriptors = new HashMap<>();
     private String tenantId;
 
-    //Key: network slice UUID. Value: object containing the nsmf client in order to interact with NSP and the NST used to create and then instanciate the network slice.
+    //Key: network slice UUID. Value: object containing the nsmf client in order to interact with NSP and the NST used to create and then instantiate the network slice.
     private HashMap<String, NspNetworkSliceInteraction> nsiUuidNetworkSliceInfoMap = new HashMap<String, NspNetworkSliceInteraction>();
     // the following is for the WAITING_FOR_RESOURCES status
     ArbitratorResponse storedResponse;
@@ -246,8 +249,6 @@ public class VsLcmManager {
         	List<String> vsdIds = new ArrayList<>();
         	vsdIds.add(vsdId);
 
-            log.debug("The VSD has been translated in the required network slice(s) characteristics.");
-
             log.info("Going to perform the network slice creation request(s)");
             for(String domainId: domainIdNetworkSliceInternalInfoMap.keySet()) {
                 Domain domain = null;
@@ -286,7 +287,7 @@ public class VsLcmManager {
             }
 
             log.info("Performed successfully creation of  "  +nsiUuidNetworkSliceInfoMap.size() + " Network Slice Instance(s).\n");
-            log.info("KPI:"+ Instant.now().toEpochMilli()+", Slice creation OK. Starting with Slice Instatiation Request.");
+            log.info("KPI:"+ Instant.now().toEpochMilli()+", Slice creation OK. Starting with Slice Instantiation Request.");
             log.info("Going to perform the network slice instantiation request(s)");
 
             for(String nsiUuid: nsiUuidNetworkSliceInfoMap.keySet()){
@@ -295,7 +296,7 @@ public class VsLcmManager {
                         null,null, null,
                         msg.getRequest().getUserData(),
                         nsiUuidNetworkSliceInfoMap.get(nsiUuid).getLocationInfoVsi(),
-                        msg.getRanEndpointId());
+                        msg.getRanEndpointId(), msg.getRequest().getImsiInfoList());
                 log.info("Performing request to instantiate network slice with UUID "+nsiUuid+".");
                 NsmfRestClient nsmfRestClient=nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNsmfRestClient();
                 if(nsmfRestClient==null){
@@ -414,7 +415,7 @@ public class VsLcmManager {
                 		nsSubnetInstanceUuids,
                 		msg.getRequest().getUserData(),
                 		msg.getRequest().getLocationsConstraints().get(0),//Supposed one location. TODO generalise
-                		msg.getRanEndpointId());
+                		msg.getRanEndpointId(),msg.getRequest().getImsiInfoList());
                 log.debug("Sending request to instantiate network slice ");
                 nsmfLcmProvider.instantiateNetworkSlice(instantiateNsiReq, tenantId);
                 
@@ -645,16 +646,29 @@ public class VsLcmManager {
         }
     }
 
+    private boolean expectedStatusNetworkSlices(NetworkSliceStatusChange networkSliceStatusChangeExpected){
+        for(String nstUuid: nsiUuidNetworkSliceInfoMap.keySet()){
+            if(nsiUuidNetworkSliceInfoMap.get(nstUuid).getNetworkSliceStatusChange()!=networkSliceStatusChangeExpected)
+                return false;
+        }
+        return true;
+    }
+
     void processNsiStatusChangeNotification(NotifyNsiStatusChange msg) {
         if (!((internalStatus == VerticalServiceStatus.INSTANTIATING) || (internalStatus == VerticalServiceStatus.TERMINATING) || (internalStatus == VerticalServiceStatus.UNDER_MODIFICATION))) {
             manageVsError("Received NSI status change notification in wrong status. Skipping message.");
             return;
         }
         NetworkSliceStatusChange nsStatusChange = msg.getStatusChange();
+        String nsiId = msg.getNsiId();
         try {
             switch (nsStatusChange) {
+
                 case NSI_CREATED: {
-                    nsStatusChangeOperations(VerticalServiceStatus.INSTANTIATED);
+                    nsiUuidNetworkSliceInfoMap.get(nsiId).setNetworkSliceStatusChange(NSI_CREATED);
+                    boolean areAllNetworkSliceInstantiated = expectedStatusNetworkSlices(NSI_CREATED);
+                    if(areAllNetworkSliceInstantiated)
+                        nsStatusChangeOperations(VerticalServiceStatus.INSTANTIATED);
                     break;
                 }
                 case NSI_MODIFIED: {
@@ -662,7 +676,10 @@ public class VsLcmManager {
                     break;
                 }
                 case NSI_TERMINATED: {
-                    nsStatusChangeOperations(VerticalServiceStatus.TERMINATED);
+                    nsiUuidNetworkSliceInfoMap.get(nsiId).setNetworkSliceStatusChange(NSI_TERMINATED);
+                    boolean areAllNetworkSliceTerminated = expectedStatusNetworkSlices(NSI_TERMINATED);
+                    if(areAllNetworkSliceTerminated)
+                        nsStatusChangeOperations(VerticalServiceStatus.TERMINATED);
                     break;
                 }
 
@@ -692,6 +709,7 @@ private class NspNetworkSliceInteraction {
         private NsmfRestClient nsmfRestClient;
         private String nstId;
         private LocationInfo locationInfoVsi;
+        private NetworkSliceStatusChange networkSliceStatusChange;
 
         public NspNetworkSliceInteraction(NsmfRestClient nsmfRestClient, String nstId, LocationInfo locationInfoVsi){
             this.nsmfRestClient=nsmfRestClient;
@@ -711,6 +729,13 @@ private class NspNetworkSliceInteraction {
         return locationInfoVsi;
     }
 
+    public NetworkSliceStatusChange getNetworkSliceStatusChange() {
+        return networkSliceStatusChange;
+    }
+
+    public void setNetworkSliceStatusChange(NetworkSliceStatusChange networkSliceStatusChange) {
+        this.networkSliceStatusChange = networkSliceStatusChange;
+    }
 }
 
 }
