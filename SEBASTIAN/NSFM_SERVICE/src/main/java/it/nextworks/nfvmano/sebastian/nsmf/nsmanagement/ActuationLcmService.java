@@ -90,7 +90,7 @@ public class ActuationLcmService {
                     log.info("The actuation is a handover request.");
                     qoSService.setTargetUrl(url);
                     Map<String,Object> jsonFather = new HashMap<String, Object>();
-                    jsonFather.put("ueHandover",parameters);
+                    jsonFather.put("ue_handover",parameters);
                     json = new JSONObject(jsonFather);
                     httpStatus =qoSService.handover(UUID.fromString(nsiId), json);
                     return httpStatus==HttpStatus.CREATED;

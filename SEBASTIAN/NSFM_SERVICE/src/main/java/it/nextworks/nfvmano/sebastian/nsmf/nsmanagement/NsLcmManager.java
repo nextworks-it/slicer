@@ -472,30 +472,37 @@ public class NsLcmManager {
 		Map<String, String> nsdToInstantiate = null;
 
 		try {
-			// Step #1: Instantiate RAN slice, if RAN available into NSST.
-            boolean ranInstantiated =  createRanSlice();
+				// Step #1: Instantiate RAN slice, if RAN available into NSST.
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", RAN slice creation started.");
+				boolean ranInstantiated =  createRanSlice();
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", RAN slice creation finished.");
 
-			// Step #2: create P&P slice.
-            boolean ppInstantiated = createPPslice();
 
-			// Step #3: LLmec slice creation
-			boolean llMecSliceInstantiated = createLlMecSlice();
+				// Step #2: create P&P slice.
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", P&P slice creation started.");
+				boolean ppInstantiated = createPPslice();
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", P&P slice creation finished.");
 
-			//Check step 1,2 and 3 result. The check is done before network service instantiation, because step #4 is the bottleneck of Network Slice instantiation
-			if(!ranInstantiated || !ppInstantiated || !llMecSliceInstantiated){
-				//instantiationRollback();
-				manageNsError("Error during the instantiation of either P&P or RAN or LLmec.");
-			}
 
-			// Step #4: proceed in instantiating nsds, if any
-			if (hasNstNfv()) {
-				instantiateNetworkService(msg);
-			}
-			else{
-				log.info("No embedded NSST with Nfv found into NST. The network slice is instantiated without any Network Services.");
-				this.internalStatus=NetworkSliceStatus.INSTANTIATED;
-				notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_CREATED, true,tenantId));
-			}
+				// Step #3: LLmec slice creation
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", LLMec slice creation started.");
+				boolean llMecSliceInstantiated = createLlMecSlice();
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", LLMec slice creation endend.");
+				//Check step 1,2 and 3 result. The check is done before network service instantiation, because step #4 is the bottleneck of Network Slice instantiation
+				if(!ranInstantiated || !ppInstantiated || !llMecSliceInstantiated){
+					//instantiationRollback();
+					manageNsError("Error during the instantiation of either P&P or RAN or LLmec.");
+				}
+
+				// Step #4: proceed in instantiating nsds, if any
+				if (hasNstNfv()) {
+					instantiateNetworkService(msg);
+				}
+				else{
+					log.info("No embedded NSST with Nfv found into NST. The network slice is instantiated without any Network Services.");
+					this.internalStatus=NetworkSliceStatus.INSTANTIATED;
+					notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_CREATED, true,tenantId));
+				}
 
 		} catch (Exception e) {
 			//instantiationRollback();
@@ -648,7 +655,6 @@ public class NsLcmManager {
 					}
 
 					case TERMINATING: {
-						log.info("KPI:"+Instant.now().toEpochMilli()+", Successful termination of NFV NS.");
 						log.debug("Successful termination of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceUuid);
 						//TODO: should we also remove the NS instance ID from the NFVO?
 						for (String soManagedNsiUuid : soNestedNsiUuids){
@@ -661,8 +667,8 @@ public class NsLcmManager {
 						log.debug("Sending notification about network slice termination.");
 
 						usageResourceUpdate.removeResourceUpdate(networkSliceInstanceUuid, tenantId);
+						log.info("KPI:"+Instant.now().toEpochMilli()+", Network service termination done.");
 						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_TERMINATED, true,tenantId));
-
 						break;
 					}
 
@@ -695,7 +701,7 @@ public class NsLcmManager {
 
 	private void processTerminateRequest(TerminateNsiRequestMessage msg) {
 		//termination steps. See below:
-
+		log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating network slice.");
 		//Step #0: Check the status of the network Slice
 		if (internalStatus != NetworkSliceStatus.INSTANTIATED) {
 			manageNsError("Received termination request in wrong status. Skipping message.");
@@ -705,8 +711,7 @@ public class NsLcmManager {
             return;
         }
 		log.debug("Terminating network slice " + networkSliceInstanceUuid);
-		log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating network slice.");
-
+		log.info("KPI:"+Instant.now().toEpochMilli()+", P&P network slice termination started.");
 		//Step #1: Terminate P&P Slice, if any.
 		boolean ppSliceCorrectlyTerminated=false;
 		if(hasNstPP()) {
@@ -721,10 +726,11 @@ public class NsLcmManager {
 			log.info("No P&P into network service template. P&P terminate request not sent.");
 			ppSliceCorrectlyTerminated= true;
 		}
+		log.info("KPI:"+Instant.now().toEpochMilli()+", P&P network slice termination done.");
 
 		//Step #2: Terminate RAN Slice, if any.
+		log.info("KPI:"+Instant.now().toEpochMilli()+", RAN network slice termination started.");
 		boolean ranSliceCorrectlyTerminated=false;
-
 		if(hasNstRAN()) {
 			log.info("Terminating slice component RAN.");
 			if(nsmfUtils.isRanSimulated()){
@@ -743,8 +749,9 @@ public class NsLcmManager {
 			log.info("No RAN available into Network Service Template. RAN terminate request not sent.");
 			ranSliceCorrectlyTerminated=true;
 		}
-
+		log.info("KPI:"+Instant.now().toEpochMilli()+", RAN network slice termination done.");
 		//Step #3: Terminate LLLEC Slice, if any.
+		log.info("KPI:"+Instant.now().toEpochMilli()+", LLmec network slice termination started.");
 		boolean llMecSliceTerminated;
 		if(!nsmfUtils.isLlMecSimulated()) {
 			HttpStatus httpStatus = llMecService.terminateLlMecSlice(UUID.fromString(networkSliceInstanceUuid));
@@ -754,11 +761,12 @@ public class NsLcmManager {
 			log.info("(Simulated) LlMec slice correctly terminated.");
 			llMecSliceTerminated = true;
 		}
-
+		log.info("KPI:"+Instant.now().toEpochMilli()+", LLmec network slice termination done.");
 		this.internalStatus = NetworkSliceStatus.TERMINATING;
 		nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.TERMINATING);
 
 		//Step #4: Terminate Network Service, if any.
+		log.info("KPI:"+Instant.now().toEpochMilli()+", Network service termination started.");
 		if(hasNstNfv()) {
 			log.debug("Sending request to terminate NFV network service " + nfvNsiInstanceId);
 			try {

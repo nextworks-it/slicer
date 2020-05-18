@@ -6,10 +6,7 @@ import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFeatureType;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -620,10 +620,12 @@ public class VsLcmManager {
     private boolean isValidStatus(VerticalServiceStatus status){
         if (status == VerticalServiceStatus.INSTANTIATED && internalStatus == VerticalServiceStatus.INSTANTIATING){
             log.debug("Instantiation procedure completed.");
+            log.info("KPI:"+ Instant.now().toEpochMilli()+", Vertical Service Instantiation process completed.");
             return true;
         }
         if (status == VerticalServiceStatus.TERMINATED && internalStatus == VerticalServiceStatus.TERMINATING) {
             log.debug("Termination procedure completed.");
+            log.info("KPI:"+ Instant.now().toEpochMilli()+", Vertical Service Termination process completed.");
             return true;
         }
         if(status == VerticalServiceStatus.MODIFIED && internalStatus == VerticalServiceStatus.UNDER_MODIFICATION) {
@@ -667,8 +669,9 @@ public class VsLcmManager {
                 case NSI_CREATED: {
                     nsiUuidNetworkSliceInfoMap.get(nsiId).setNetworkSliceStatusChange(NSI_CREATED);
                     boolean areAllNetworkSliceInstantiated = expectedStatusNetworkSlices(NSI_CREATED);
-                    if(areAllNetworkSliceInstantiated)
+                    if(areAllNetworkSliceInstantiated){
                         nsStatusChangeOperations(VerticalServiceStatus.INSTANTIATED);
+                    }
                     break;
                 }
                 case NSI_MODIFIED: {
@@ -678,8 +681,9 @@ public class VsLcmManager {
                 case NSI_TERMINATED: {
                     nsiUuidNetworkSliceInfoMap.get(nsiId).setNetworkSliceStatusChange(NSI_TERMINATED);
                     boolean areAllNetworkSliceTerminated = expectedStatusNetworkSlices(NSI_TERMINATED);
-                    if(areAllNetworkSliceTerminated)
+                    if(areAllNetworkSliceTerminated) {
                         nsStatusChangeOperations(VerticalServiceStatus.TERMINATED);
+                    }
                     break;
                 }
 
