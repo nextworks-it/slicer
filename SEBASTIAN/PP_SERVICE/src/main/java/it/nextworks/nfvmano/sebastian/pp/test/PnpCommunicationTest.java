@@ -1,10 +1,10 @@
-package it.nextworks.nfvmano.sebastian.nsmf.test;
+package it.nextworks.nfvmano.sebastian.pp.test;
 
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFeatureLevel;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFeatureType;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
-import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
+import it.nextworks.nfvmano.sebastian.pp.service.PnPCommunicationService;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-//@RunWith(SpringRunner.class)
-//@SpringBootTest
 public class PnpCommunicationTest {
 
     private PnPCommunicationService pnp = new PnPCommunicationService();
@@ -67,3 +65,4 @@ public class PnpCommunicationTest {
         System.out.println(httpStatus);
     }
 }
+

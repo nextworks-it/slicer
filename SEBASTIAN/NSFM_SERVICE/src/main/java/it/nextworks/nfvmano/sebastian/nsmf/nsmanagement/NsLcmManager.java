@@ -43,7 +43,6 @@ import it.nextworks.nfvmano.libs.ifa.templates.NstServiceProfile;
 import it.nextworks.nfvmano.libs.ifa.templates.SliceType;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
-import it.nextworks.nfvmano.nfvodriver.NfvoLcmAbstractDriver;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
 import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
 import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
@@ -56,10 +55,9 @@ import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.FlexRanService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.LlMecService;
-import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.RanQoSTranslator;
+import it.nextworks.nfvmano.sebastian.pp.service.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
-import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -106,8 +104,8 @@ public class NsLcmManager {
 	private NsmfUtils nsmfUtils;
 
 	private FlexRanService flexRanService;
+	//private PnPCommunicationServiceOLD pnPCommunicationServiceOLD;
 	private PnPCommunicationService pnPCommunicationService;
-
 	private SliceType sliceType;
 	private String nsDfId;
 

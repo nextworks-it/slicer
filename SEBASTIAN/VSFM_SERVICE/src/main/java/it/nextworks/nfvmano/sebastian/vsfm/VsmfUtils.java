@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
@@ -22,6 +23,9 @@ public class VsmfUtils {
 	private static final Logger log = LoggerFactory.getLogger(VsmfUtils.class);
 	
 	private NsmfLcmProviderInterface nsmfLcmProvider;
+
+	@Value("${plugAndPlay.hostname}")
+	private String plugAndPlayHostname;
 
 	public NetworkSliceInstance readNetworkSliceInstanceInformation (String nsiUuid, String tenantId)
     		throws FailedOperationException, NotExistingEntityException{
@@ -46,5 +50,7 @@ public class VsmfUtils {
 	public void setNsmfLcmProvider(NsmfLcmProviderInterface nsmfLcmProvider) {
 		this.nsmfLcmProvider = nsmfLcmProvider;
 	}
-	
+	public String getPlugAndPlayHostname() {
+		return plugAndPlayHostname;
+	}
 }

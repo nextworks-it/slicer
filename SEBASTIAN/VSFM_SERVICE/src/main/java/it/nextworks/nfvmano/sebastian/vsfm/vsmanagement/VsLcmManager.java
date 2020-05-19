@@ -33,6 +33,7 @@ import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
+import it.nextworks.nfvmano.sebastian.pp.service.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
@@ -47,10 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange.NSI_CREATED;
 import static it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange.NSI_TERMINATED;
@@ -75,6 +73,7 @@ public class VsLcmManager {
     private VsLcmService vsLcmService;
     private VirtualResourceCalculatorService virtualResourceCalculatorService;
     private DomainCatalogueService domainCatalogueService;
+    private PnPCommunicationService pnPCommunicationService;
     private VerticalServiceStatus internalStatus;
     private NsmfLcmProviderInterface nsmfLcmProvider;
     private VsmfUtils vsmfUtils;
@@ -118,6 +117,7 @@ public class VsLcmManager {
                         VsLcmService vsLcmService, 
                         VirtualResourceCalculatorService virtualResourceCalculatorService,
                         DomainCatalogueService domainCatalogueService,
+                        PnPCommunicationService pnPCommunicationService,
                         NsmfLcmProviderInterface nsmfLcmProvider,
                         VsmfUtils vsmfUtils,
                         Map<String, NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap
@@ -133,8 +133,11 @@ public class VsLcmManager {
         this.vsLcmService = vsLcmService;
         this.virtualResourceCalculatorService=virtualResourceCalculatorService;
         this.domainCatalogueService = domainCatalogueService;
-        this.nsmfLcmProvider = nsmfLcmProvider;
         this.vsmfUtils = vsmfUtils;
+        this.pnPCommunicationService = pnPCommunicationService;
+        pnPCommunicationService.setTargetUrl(vsmfUtils.getPlugAndPlayHostname());
+        this.nsmfLcmProvider = nsmfLcmProvider;
+
         this.domainIdNetworkSliceInternalInfoMap = domainIdNetworkSliceInternalInfoMap;
     }
 
@@ -286,6 +289,10 @@ public class VsLcmManager {
                 log.info("Network slice with UUID: " + nsiUuid + " has been created.");
             }
 
+            List<String> domainList = new ArrayList<String>();
+            domainList.add("slice "+vsiUuid);
+            pnPCommunicationService.deployTestFeature(UUID.fromString(vsiUuid), msg.getRequest().getName(), this.tenantId, domainList);
+            
             log.info("Performed successfully creation of  "  +nsiUuidNetworkSliceInfoMap.size() + " Network Slice Instance(s).\n");
             log.info("KPI:"+ Instant.now().toEpochMilli()+", Slice creation OK. Starting with Slice Instantiation Request.");
             log.info("Going to perform the network slice instantiation request(s)");
@@ -561,7 +568,7 @@ public class VsLcmManager {
         this.internalStatus = VerticalServiceStatus.TERMINATING;
         try {
             vsRecordService.setVsStatus(vsiUuid, VerticalServiceStatus.TERMINATING);
-
+            pnPCommunicationService.terminateSliceComponents(UUID.fromString(vsiUuid));
                 List<String> nsiUuidList=vsRecordService.getVsInstance(vsiUuid).getNetworkSlicesId();
                 for(String nsiUuid: nsiUuidList){
                     log.debug("Network slice " + nsiUuid + " must be terminated.");
@@ -586,6 +593,7 @@ public class VsLcmManager {
         log.debug("Terminating Vertical Service " + vsiUuid);
         log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating Vertical Service.");
         this.internalStatus = VerticalServiceStatus.TERMINATING;
+        pnPCommunicationService.terminateSliceComponents(UUID.fromString(vsiUuid));
         try {
             vsRecordService.setVsStatus(vsiUuid, VerticalServiceStatus.TERMINATING);
             List<VerticalServiceInstance> vsis = vsRecordService.getVsInstancesFromNetworkSlice(networkSliceUuid);

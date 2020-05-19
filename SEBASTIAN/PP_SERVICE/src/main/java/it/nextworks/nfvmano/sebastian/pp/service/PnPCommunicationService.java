@@ -1,3 +1,5 @@
+package it.nextworks.nfvmano.sebastian.pp.service;
+
 /*
  * Copyright (c) 2020 Nextworks s.r.l
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +15,14 @@
  * limitations under the License.
  */
 
-package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
+import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFeatureLevel;
+import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFeatureType;
+import it.nextworks.nfvmano.sebastian.pp.SbRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -32,7 +36,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class PnPCommunicationService extends NsmfSbRestClient {
+public class PnPCommunicationService extends SbRestClient {
     private static final Logger log = LoggerFactory.getLogger(PnPCommunicationService.class);
 
     private List<UUID> sliceIDs;
@@ -44,15 +48,64 @@ public class PnPCommunicationService extends NsmfSbRestClient {
         return sliceIDs.contains(sliceId);
     }
 
-    private ObjectNode buildNetworkSliceInfo(NST nst, UUID sliceId) {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode objectNode = mapper.createObjectNode();
-        objectNode.put("slice_id", sliceId.toString());
-        objectNode.put("slice_name", nst.getNstName());
-        objectNode.put("slice_owner", nst.getNstProvider());
-        objectNode.put("slice_domain_type", "single");
-        return objectNode;
+    //DSP-SIDE ONLY
+
+    public HttpStatus deployTestFeature(UUID sliceUuid, String sliceName, String sliceTenant, List<String> domainList){
+        try{
+            String url = this.getTargetUrl() + "/plug-and-play-manager/slice/" + sliceUuid +"/";
+            Object requestPayload = generatePayloadFeatureTest(sliceUuid, sliceName, sliceTenant, domainList);
+            log.info("Payload");
+            log.info(requestPayload.toString());
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(requestPayload, url, HttpMethod.POST);
+            sliceIDs.add(sliceUuid);
+            return httpResponse.getStatusCode();
+        } catch (RestClientResponseException e) {
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
     }
+
+    private ArrayNode buildDomainsList(List<String> domainList) {
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode domainsList = mapper.createArrayNode();
+        for(String domain: domainList){
+            domainsList.add(domain);
+        }
+        return domainsList;
+    }
+
+
+    private ObjectNode generatePayloadFeatureTest(UUID sliceId, String sliceName, String sliceTenant, List<String> domainList) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode networkSliceInfo = mapper.createObjectNode();
+        networkSliceInfo.put("slice_id", sliceId.toString());
+        networkSliceInfo.put("slice_name", sliceName);
+        networkSliceInfo.put("slice_tenant", sliceTenant);
+        networkSliceInfo.put("slice_domain_type", "single");
+        ArrayNode domainsList = buildDomainsList(domainList);
+        networkSliceInfo.putPOJO("domains", domainsList);
+
+        ObjectNode requiredFeatureJSON = mapper.createObjectNode();
+        requiredFeatureJSON.put("seq_id", 0);
+        requiredFeatureJSON.put("feature_id", "test_feature");
+        requiredFeatureJSON.put("feature_type", PpFeatureType.CONTROL.toString().toLowerCase());
+        requiredFeatureJSON.put("feature_level", PpFeatureLevel.SLICE.toString().toLowerCase());
+        ArrayNode reqComponentFeatureArray = mapper.createArrayNode();
+        reqComponentFeatureArray.add(requiredFeatureJSON);
+        networkSliceInfo.putPOJO("required_feature", reqComponentFeatureArray);
+
+        return networkSliceInfo;
+    }
+
+
+    //NSP-SIDE ONLY
+    private ObjectNode generateRequestPayload(NST nst, UUID sliceId) {
+        ObjectNode sliceInfoHeader = buildNetworkSliceInfo(nst, sliceId);
+        ArrayNode sliceInfoFeatures = buildRequiredComponentFeature(nst);
+        sliceInfoHeader.putPOJO("required_feature", sliceInfoFeatures);
+        return sliceInfoHeader;
+    }
+
 
     private ArrayNode buildRequiredComponentFeature(NST nst) {
         ObjectMapper mapper = new ObjectMapper();
@@ -70,20 +123,17 @@ public class PnPCommunicationService extends NsmfSbRestClient {
         return reqComponentFeatureArray;
     }
 
-    private ArrayNode buildDomainsList() {
+
+    private ObjectNode buildNetworkSliceInfo(NST nst, UUID sliceId) {
         ObjectMapper mapper = new ObjectMapper();
-        ArrayNode domainsList = mapper.createArrayNode();
-        return domainsList;
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.put("slice_id", sliceId.toString());
+        objectNode.put("slice_name", nst.getNstName());
+        objectNode.put("slice_owner", nst.getNstProvider());
+        objectNode.put("slice_domain_type", "single");
+        return objectNode;
     }
 
-    private ObjectNode generateRequestPayload(NST nst, UUID sliceId) {
-        ObjectNode sliceInfoHeader = buildNetworkSliceInfo(nst, sliceId);
-        ArrayNode sliceInfoFeatures = buildRequiredComponentFeature(nst);
-        sliceInfoHeader.putPOJO("required_feature", sliceInfoFeatures);
-        //ArrayNode domainsList = buildDomainsList(); //Only in DSP TODO
-        //sliceInfoHeader.putPOJO("domains", domainsList);
-        return sliceInfoHeader;
-    }
 
     public HttpStatus deploySliceComponents(UUID sliceUuid, NST nst){
         try{
@@ -106,7 +156,7 @@ public class PnPCommunicationService extends NsmfSbRestClient {
             sliceIDs.remove(sliceUuid);
             return httpResponse.getStatusCode();
         } catch (
-            RestClientResponseException e) {
+                RestClientResponseException e) {
             log.info("Message received: " + e.getMessage());
             return HttpStatus.valueOf(e.getRawStatusCode());
         }
@@ -114,3 +164,4 @@ public class PnPCommunicationService extends NsmfSbRestClient {
     }
 
 }
+

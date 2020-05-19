@@ -43,7 +43,7 @@ import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.UsageResourceUpdate;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.ActuationLcmService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.FlexRanService;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.LlMecService;
-import it.nextworks.nfvmano.sebastian.nsmf.sbi.PnPCommunicationService;
+import it.nextworks.nfvmano.sebastian.pp.service.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
@@ -99,6 +99,9 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 
     @Autowired
     private ArbitratorService arbitratorService;
+
+   // @Autowired
+   // private PnPCommunicationServiceOLD pnPCommunicationServiceOLD;
 
     @Autowired
     private PnPCommunicationService pnPCommunicationService;

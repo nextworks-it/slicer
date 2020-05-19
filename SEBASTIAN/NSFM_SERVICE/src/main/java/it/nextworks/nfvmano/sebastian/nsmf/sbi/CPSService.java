@@ -16,6 +16,7 @@
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
 
+import it.nextworks.nfvmano.sebastian.pp.SbRestClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +28,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 import java.util.UUID;
 
-public class CPSService extends NsmfSbRestClient {
+public class CPSService extends SbRestClient {
     private static final Logger log = LoggerFactory.getLogger(CPSService.class);
     private CPSTypes cspType;
 

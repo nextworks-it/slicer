@@ -43,6 +43,7 @@ import it.nextworks.nfvmano.sebastian.nstE2eComposer.repository.BucketRepository
 import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketOnlyPP;
 import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.BucketType;
 import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.NstAdvertisedInfo;
+import it.nextworks.nfvmano.sebastian.pp.service.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
 import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.*;
@@ -129,6 +130,9 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 
     @Autowired
 	private DomainCatalogueService domainCatalogueService;
+
+    @Autowired
+	private PnPCommunicationService pnPCommunicationService;
 
     //internal map of VS LCM Managers
     //each VS LCM Manager is created when a new VSI UUID is created and removed when the VSI UUID is removed
@@ -643,6 +647,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
         		this, 
         		virtualResourceCalculatorService,
         		domainCatalogueService,
+        		pnPCommunicationService,
         		nsmfLcmProvider,
         		vsmfUtils,
 				domainIdNetworkSliceInternalInfoMap);
