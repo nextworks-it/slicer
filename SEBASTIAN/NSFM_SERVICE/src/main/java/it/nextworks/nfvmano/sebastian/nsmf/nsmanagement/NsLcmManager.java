@@ -104,7 +104,6 @@ public class NsLcmManager {
 	private NsmfUtils nsmfUtils;
 
 	private FlexRanService flexRanService;
-	//private PnPCommunicationServiceOLD pnPCommunicationServiceOLD;
 	private PnPCommunicationService pnPCommunicationService;
 	private SliceType sliceType;
 	private String nsDfId;
@@ -114,6 +113,7 @@ public class NsLcmManager {
 	private List<String> operationsId;
 
 	private LlMecService llMecService;
+	private String networkSliceIdInstanciated;
 
 	public NsLcmManager(String networkSliceInstanceUuid,
 						String name,
@@ -361,9 +361,9 @@ public class NsLcmManager {
 			this.nsdInfoId = nsdInfo.getNsdId();// The NSD cannot be on boarded specifying its own ID, so the custom one is get from NSD
 			log.info("Set the NFVO Catalogue username into request: "+tenantIdOsm);
 
-			log.info("KPI:"+ Instant.now().toEpochMilli()+", Sending request to create Ns Identifier.");
+			log.info("KPI:"+ Instant.now().toEpochMilli()+", Sending request to create Ns Identifier for Network Slice with UUID "+msg.getRequest().getNsiId());
 			String nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-" + name, description, tenantIdOsm));
-			log.info("KPI:"+ Instant.now().toEpochMilli()+", Received response about creation of Ns Identifier.");
+			log.info("KPI:"+ Instant.now().toEpochMilli()+", Received response about creation of Ns Identifier for Network Slice with UUID "+msg.getRequest().getNsiId());
 			log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
 			this.nfvNsiInstanceId = nfvNsId;
 
@@ -427,7 +427,7 @@ public class NsLcmManager {
 			//Read configuration parameters
 			Map<String, String> additionalParamForNs = msg.getRequest().getUserData();
 			log.info("Nfv Ns id is: "+nfvNsId);
-			log.info("KPI:"+ Instant.now().toEpochMilli()+", Sending request to instantiate network slice.");
+			log.info("KPI:"+ Instant.now().toEpochMilli()+", Sending request to instantiate network slice for Network Slice with UUID "+msg.getRequest().getNsiId());
 			String operationId = nfvoLcmService.instantiateNs(new InstantiateNsRequest(nfvNsId,
 					dfId, 					//flavourId
 					sapData, 				//sapData
@@ -461,7 +461,7 @@ public class NsLcmManager {
 
 
 	private void processInstantiateRequest(InstantiateNsiRequestMessage msg) {
-		log.info("KPI:"+ Instant.now().toEpochMilli()+", Start processing instantiate Network Slice creation request.");
+		log.info("KPI:"+ Instant.now().toEpochMilli()+", Start processing instantiate Network Slice creation request for Network Slice with UUID "+msg.getRequest().getNsiId());
 		if (internalStatus != NetworkSliceStatus.NOT_INSTANTIATED) {
 			manageNsError("Received instantiation request in wrong status. Skipping message.");
 			return;
@@ -471,21 +471,22 @@ public class NsLcmManager {
 
 		try {
 				// Step #1: Instantiate RAN slice, if RAN available into NSST.
-				log.info("KPI:"+ Instant.now().toEpochMilli()+", RAN slice creation started.");
+				this.networkSliceIdInstanciated = msg.getRequest().getNsiId();
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", RAN slice creation started for Network Slice with UUID "+this.networkSliceIdInstanciated);
 				boolean ranInstantiated =  createRanSlice();
-				log.info("KPI:"+ Instant.now().toEpochMilli()+", RAN slice creation finished.");
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", RAN slice creation finished for Network Slice with UUID "+this.networkSliceIdInstanciated);
 
 
 				// Step #2: create P&P slice.
-				log.info("KPI:"+ Instant.now().toEpochMilli()+", P&P slice creation started.");
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", P&P slice creation started for Network Slice with UUID "+this.networkSliceIdInstanciated);
 				boolean ppInstantiated = createPPslice();
-				log.info("KPI:"+ Instant.now().toEpochMilli()+", P&P slice creation finished.");
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", P&P slice creation finished for Network Slice with UUID "+this.networkSliceIdInstanciated);
 
 
 				// Step #3: LLmec slice creation
-				log.info("KPI:"+ Instant.now().toEpochMilli()+", LLMec slice creation started.");
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", LLMec slice creation started for Network Slice with UUID "+this.networkSliceIdInstanciated);
 				boolean llMecSliceInstantiated = createLlMecSlice();
-				log.info("KPI:"+ Instant.now().toEpochMilli()+", LLMec slice creation endend.");
+				log.info("KPI:"+ Instant.now().toEpochMilli()+", LLMec slice creation endend for Network Slice with UUID "+this.networkSliceIdInstanciated);
 				//Check step 1,2 and 3 result. The check is done before network service instantiation, because step #4 is the bottleneck of Network Slice instantiation
 				if(!ranInstantiated || !ppInstantiated || !llMecSliceInstantiated){
 					//instantiationRollback();
@@ -609,7 +610,7 @@ public class NsLcmManager {
 							processNfvNsChangeNotification(newMsg);
 						}
 
-						log.info("KPI:"+ Instant.now().toEpochMilli()+", Successful instantiation of NFV NS and network slice.");
+						log.info("KPI:"+ Instant.now().toEpochMilli()+", Successful instantiation of NFV NS and network slice for Network Slice with UUID "+this.networkSliceIdInstanciated);
 						log.debug("Successful instantiation of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceUuid);
 						this.internalStatus=NetworkSliceStatus.INSTANTIATED;
 
@@ -665,7 +666,7 @@ public class NsLcmManager {
 						log.debug("Sending notification about network slice termination.");
 
 						usageResourceUpdate.removeResourceUpdate(networkSliceInstanceUuid, tenantId);
-						log.info("KPI:"+Instant.now().toEpochMilli()+", Network service termination done.");
+						log.info("KPI:"+Instant.now().toEpochMilli()+", Network service termination done. The related Network Slice has UUID "+this.networkSliceIdInstanciated);
 						notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_TERMINATED, true,tenantId));
 						break;
 					}
@@ -689,17 +690,23 @@ public class NsLcmManager {
 		}
 		ActuationRequest request = msg.getRequest();
 		boolean successful =actuationLcmService.processActuation(request);
-		NetworkSliceStatusChangeNotification networkSliceStatusChangeNotification =
-				new NetworkSliceStatusChangeNotification(request.getNsiId(),
-					NetworkSliceStatusChange.NSI_ACTUATED, successful);
-		networkSliceStatusChangeNotification.setTenantId(msg.getTenantId());
-		notificationDispatcher.notifyNetworkSliceActuation(networkSliceStatusChangeNotification, request.getNotificationEndpoint());
+
+		if(!request.getNotificationEndpoint().isEmpty()) {
+			NetworkSliceStatusChangeNotification networkSliceStatusChangeNotification =
+					new NetworkSliceStatusChangeNotification(request.getNsiId(),
+							NetworkSliceStatusChange.NSI_ACTUATED, successful);
+			networkSliceStatusChangeNotification.setTenantId(msg.getTenantId());
+			notificationDispatcher.notifyNetworkSliceActuation(networkSliceStatusChangeNotification, request.getNotificationEndpoint());
+		}
+		else{
+			log.info("Not going to send notification because notification endpoint is empty.");
+		}
 	}
 
 
 	private void processTerminateRequest(TerminateNsiRequestMessage msg) {
 		//termination steps. See below:
-		log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating network slice.");
+		log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating network slice for Network Slice with UUID "+msg.getRequest().getNsiId());
 		//Step #0: Check the status of the network Slice
 		if (internalStatus != NetworkSliceStatus.INSTANTIATED) {
 			manageNsError("Received termination request in wrong status. Skipping message.");
@@ -709,7 +716,7 @@ public class NsLcmManager {
             return;
         }
 		log.debug("Terminating network slice " + networkSliceInstanceUuid);
-		log.info("KPI:"+Instant.now().toEpochMilli()+", P&P network slice termination started.");
+		log.info("KPI:"+Instant.now().toEpochMilli()+", P&P network slice termination started for Network Slice with UUID "+msg.getRequest().getNsiId());
 		//Step #1: Terminate P&P Slice, if any.
 		boolean ppSliceCorrectlyTerminated=false;
 		if(hasNstPP()) {
@@ -724,10 +731,10 @@ public class NsLcmManager {
 			log.info("No P&P into network service template. P&P terminate request not sent.");
 			ppSliceCorrectlyTerminated= true;
 		}
-		log.info("KPI:"+Instant.now().toEpochMilli()+", P&P network slice termination done.");
+		log.info("KPI:"+Instant.now().toEpochMilli()+", P&P network slice termination done for Network Slice with UUID "+msg.getRequest().getNsiId());
 
 		//Step #2: Terminate RAN Slice, if any.
-		log.info("KPI:"+Instant.now().toEpochMilli()+", RAN network slice termination started.");
+		log.info("KPI:"+Instant.now().toEpochMilli()+", RAN network slice termination started for Network Slice with UUID "+msg.getRequest().getNsiId());
 		boolean ranSliceCorrectlyTerminated=false;
 		if(hasNstRAN()) {
 			log.info("Terminating slice component RAN.");
@@ -747,9 +754,9 @@ public class NsLcmManager {
 			log.info("No RAN available into Network Service Template. RAN terminate request not sent.");
 			ranSliceCorrectlyTerminated=true;
 		}
-		log.info("KPI:"+Instant.now().toEpochMilli()+", RAN network slice termination done.");
+		log.info("KPI:"+Instant.now().toEpochMilli()+", RAN network slice termination done for Network Slice with UUID "+msg.getRequest().getNsiId());
 		//Step #3: Terminate LLLEC Slice, if any.
-		log.info("KPI:"+Instant.now().toEpochMilli()+", LLmec network slice termination started.");
+		log.info("KPI:"+Instant.now().toEpochMilli()+", LLmec network slice termination started for Network Slice with UUID "+msg.getRequest().getNsiId());
 		boolean llMecSliceTerminated;
 		if(!nsmfUtils.isLlMecSimulated()) {
 			HttpStatus httpStatus = llMecService.terminateLlMecSlice(UUID.fromString(networkSliceInstanceUuid));
@@ -759,12 +766,12 @@ public class NsLcmManager {
 			log.info("(Simulated) LlMec slice correctly terminated.");
 			llMecSliceTerminated = true;
 		}
-		log.info("KPI:"+Instant.now().toEpochMilli()+", LLmec network slice termination done.");
+		log.info("KPI:"+Instant.now().toEpochMilli()+", LLmec network slice termination done for Network Slice with UUID "+msg.getRequest().getNsiId());
 		this.internalStatus = NetworkSliceStatus.TERMINATING;
 		nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.TERMINATING);
 
 		//Step #4: Terminate Network Service, if any.
-		log.info("KPI:"+Instant.now().toEpochMilli()+", Network service termination started.");
+		log.info("KPI:"+Instant.now().toEpochMilli()+", Network service termination started for Network Slice with UUID "+msg.getRequest().getNsiId());
 		if(hasNstNfv()) {
 			log.debug("Sending request to terminate NFV network service " + nfvNsiInstanceId);
 			try {
@@ -777,7 +784,7 @@ public class NsLcmManager {
 		else{
 			log.info("No Nfv available into network service template. Request to terminate Network service not sent.");
 			if(ppSliceCorrectlyTerminated && ranSliceCorrectlyTerminated && llMecSliceTerminated){
-				log.info("KPI:"+Instant.now().toEpochMilli()+", Successful termination of P&P, RAN and llMec.");
+				log.info("KPI:"+Instant.now().toEpochMilli()+", Successful termination of P&P, RAN and llMec for Network Slice with UUID "+msg.getRequest().getNsiId());
 				this.internalStatus=NetworkSliceStatus.TERMINATED;
 				nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.TERMINATED);
 				nsLcmService.removeNsLcmManager(networkSliceInstanceUuid);

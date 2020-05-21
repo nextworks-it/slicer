@@ -54,7 +54,7 @@ public class NsmfNotificationsRestController {
 	@RequestMapping(value = "/nsilcmchange", method = RequestMethod.POST)
 	public ResponseEntity<?> notifyNsiLcmChange(@RequestBody NetworkSliceStatusChangeNotification notification) {
 		log.debug("Received notification about network slice instance LCM change");
-		log.info("KPI:"+ Instant.now().toEpochMilli()+", Received notification about network slice instance LCM change." +notification.getStatusChange().toString());
+		//log.info("KPI:"+ Instant.now().toEpochMilli()+", Received notification about network slice instance LCM change." +notification.getStatusChange().toString() + "for VSI with UUID ");
 		vsLcmService.notifyNetworkSliceStatusChange(notification);
 		//TODO	remove NST from bucket used if the instantiation goes good
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -63,7 +63,7 @@ public class NsmfNotificationsRestController {
 	@RequestMapping(value = "/nsifailure", method = RequestMethod.POST)
 	public ResponseEntity<?> notifyNsiFailure(@RequestBody NetworkSliceFailureNotification notification) {
 		log.debug("Received notification about network slice instance failure");
-		log.info("KPI:"+ Instant.now().toEpochMilli()+", Received notification about network slice instance failure");
+		//log.info("KPI:"+ Instant.now().toEpochMilli()+", Received notification about network slice instance failure");
 		vsLcmService.notifyNetworkSliceFailure(notification);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}

@@ -273,7 +273,7 @@ public class VsLcmManager {
                 NsmfRestClient nsmfRestClient = new NsmfRestClient(BASE_URL, adminService);
                 String nsiUuid = null;
                 try {
-                    log.info("KPI:"+ Instant.now().toEpochMilli()+", Going to request Network Slice Creation.");
+                    log.info("KPI:"+ Instant.now().toEpochMilli()+", Going to request Network Slice Creation for Vertical Service instance with UUID "+vsiUuid);
                     nsiUuid = nsmfRestClient.createNetworkSliceIdentifier(request, tenantId);
                 } catch (Exception e) {
                     try {
@@ -287,14 +287,15 @@ public class VsLcmManager {
                 LocationInfo locationInfoVsi =domainIdNetworkSliceInternalInfoMap.get(domainId).getLocationInfo();
                 nsiUuidNetworkSliceInfoMap.put(nsiUuid, new NspNetworkSliceInteraction(nsmfRestClient,nstUuid,locationInfoVsi));
                 log.info("Network slice with UUID: " + nsiUuid + " has been created.");
+                log.info("KPI:"+ Instant.now().toEpochMilli()+", Network slice creation successfully done. Its UUID is "+nsiUuid+". Starting with Slice Instantiation Request for Vertical Service instance with UUID "+vsiUuid+" and name "+msg.getRequest().getName());
+
             }
 
             List<String> domainList = new ArrayList<String>();
             domainList.add("slice "+vsiUuid);
             pnPCommunicationService.deployTestFeature(UUID.fromString(vsiUuid), msg.getRequest().getName(), this.tenantId, domainList);
-            
+
             log.info("Performed successfully creation of  "  +nsiUuidNetworkSliceInfoMap.size() + " Network Slice Instance(s).\n");
-            log.info("KPI:"+ Instant.now().toEpochMilli()+", Slice creation OK. Starting with Slice Instantiation Request.");
             log.info("Going to perform the network slice instantiation request(s)");
 
             for(String nsiUuid: nsiUuidNetworkSliceInfoMap.keySet()){
@@ -311,7 +312,7 @@ public class VsLcmManager {
                     return;
                 }
                 try {
-                    log.info("KPI:"+ Instant.now().toEpochMilli()+", End of VSI request processing. Going to send Network slice instantiation request.");
+                    log.info("KPI:"+ Instant.now().toEpochMilli()+", End of VSI request processing. Going to send Network slice instantiation request for Vertical Service instance with UUID "+vsiUuid);
                     nsmfRestClient.instantiateNetworkSlice(instantiateNsiReq, tenantId);
                 } catch (Exception e) {
                     //rollbackInstantiation(); TODO to be implemented
@@ -564,7 +565,7 @@ public class VsLcmManager {
         }
 
         log.debug("Terminating Vertical Service " + vsiUuid);
-        log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating Vertical Service.");
+        log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating Vertical Service with UUID "+vsiUuid);
         this.internalStatus = VerticalServiceStatus.TERMINATING;
         try {
             vsRecordService.setVsStatus(vsiUuid, VerticalServiceStatus.TERMINATING);
@@ -591,7 +592,7 @@ public class VsLcmManager {
         }
 
         log.debug("Terminating Vertical Service " + vsiUuid);
-        log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating Vertical Service.");
+        log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating Vertical Service with UUID "+vsiUuid);
         this.internalStatus = VerticalServiceStatus.TERMINATING;
         pnPCommunicationService.terminateSliceComponents(UUID.fromString(vsiUuid));
         try {
@@ -628,12 +629,12 @@ public class VsLcmManager {
     private boolean isValidStatus(VerticalServiceStatus status){
         if (status == VerticalServiceStatus.INSTANTIATED && internalStatus == VerticalServiceStatus.INSTANTIATING){
             log.debug("Instantiation procedure completed.");
-            log.info("KPI:"+ Instant.now().toEpochMilli()+", Vertical Service Instantiation process completed.");
+            log.info("KPI:"+ Instant.now().toEpochMilli()+", Vertical Service Instantiation process completed. VSI ID "+vsiUuid);
             return true;
         }
         if (status == VerticalServiceStatus.TERMINATED && internalStatus == VerticalServiceStatus.TERMINATING) {
             log.debug("Termination procedure completed.");
-            log.info("KPI:"+ Instant.now().toEpochMilli()+", Vertical Service Termination process completed.");
+            log.info("KPI:"+ Instant.now().toEpochMilli()+", Vertical Service Termination process completed. VSI ID "+vsiUuid);
             return true;
         }
         if(status == VerticalServiceStatus.MODIFIED && internalStatus == VerticalServiceStatus.UNDER_MODIFICATION) {

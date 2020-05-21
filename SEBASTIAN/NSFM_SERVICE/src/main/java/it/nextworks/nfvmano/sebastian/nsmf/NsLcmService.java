@@ -118,6 +118,7 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     @Autowired
     LlMecService llMecService;
 
+
     //internal map of NS LCM Managers
     //each NS LCM Manager is created when a new NSI ID is created and removed when the NSI ID is removed
     private Map<String, NsLcmManager> nsLcmManagers = new HashMap<>();
@@ -210,7 +211,7 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     public void instantiateNetworkSlice(InstantiateNsiRequest request, String tenantId)
     		throws NotExistingEntityException, MalformattedElementException, NotPermittedOperationException {
     	log.debug("Processing request to instantiate a network slice instance");
-        log.info("KPI:"+ Instant.now().toEpochMilli()+", Processing request to instantiate a network slice instance");
+        log.info("KPI:"+ Instant.now().toEpochMilli()+", Processing request to instantiate a network slice instance with UUID "+request.getNsiId());
     	request.isValid();
     	String nsiUuid = request.getNsiId();
     	log.debug("Processing NSI instantiation request for NSI UUID " + nsiUuid);
@@ -422,6 +423,10 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 
     public void actuateNetworkSliceInstance(ActuationRequest request, String tenantId) throws MalformattedElementException {
         request.isValid();
+        if(nsmfUtils.getFakeNetworkSlice()) {
+            log.info("Faking network slice");
+            actuationLcmService.processActuation(request);
+        }
 
         String nsiUuid = request.getNsiId();
         ActuateNsiRequestMessage internalMessage = new ActuateNsiRequestMessage(request, tenantId);

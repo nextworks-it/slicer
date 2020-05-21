@@ -119,7 +119,7 @@ public class NsmfRestController {
 	@RequestMapping(value = "/nsi/{nsiUuid}/action/instantiate", method = RequestMethod.PUT)
 	public ResponseEntity<?> instantiateNsi(@PathVariable String nsiUuid, @RequestBody InstantiateNsiRequest request, Authentication auth) {
 		log.debug("Received request to instantiate network slice " + nsiUuid);
-		log.info("KPI:"+ Instant.now().toEpochMilli()+", Received request to instantiate network slice");
+		log.info("KPI:"+ Instant.now().toEpochMilli()+", Received request to instantiate network slice with UUID "+nsiUuid);
 		try {
 
 			String tenantId = getUserFromAuth(auth);
@@ -165,7 +165,7 @@ public class NsmfRestController {
 	@RequestMapping(value = "/nsi/{nsiUuid}/action/terminate", method = RequestMethod.PUT)
 	public ResponseEntity<?> terminateNsi(@PathVariable String nsiUuid, @RequestBody TerminateNsiRequest request, Authentication auth) {
 		log.debug("Received request to terminate network slice " + nsiUuid);
-		log.info("KPI:"+Instant.now().toEpochMilli()+", Received request to terminate network slice.");
+		log.info("KPI:"+Instant.now().toEpochMilli()+", Received request to terminate network slice with UUID "+nsiUuid);
 		try {
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.terminateNetworkSliceInstance(request, tenantId);
@@ -191,9 +191,10 @@ public class NsmfRestController {
 		try {
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.actuateNetworkSliceInstance(request, tenantId);
-			return new ResponseEntity<>("NSI actuation procedure started successfully",HttpStatus.OK);
+			return new ResponseEntity<>("NSI actuation procedure started successfully ",HttpStatus.OK);
 		} catch (Exception e) {
-			log.error("NS termination failed due to internal errors.");
+			log.error("Actuation failed due to internal errors.");
+			log.error(e.getMessage());
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

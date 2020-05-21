@@ -72,7 +72,7 @@ public class VsLcmBasicRestController {
 	@RequestMapping(value = "/vs", method = RequestMethod.POST)
 	public ResponseEntity<?> instantiateVs(@RequestBody InstantiateVsRequest request, Authentication auth) {
 		log.debug("Received request to instantiate a new Vertical Service.");
-		log.info("KPI:"+Instant.now().toEpochMilli()+", Instantiation request received.");
+		log.info("KPI:"+Instant.now().toEpochMilli()+", Instantiation request received with name "+request.getName());
 		try {
 			String username = getUserFromAuth(auth);
 			if (!request.getTenantId().equals(username)) {
@@ -142,7 +142,7 @@ public class VsLcmBasicRestController {
 	@RequestMapping(value = "/vs/{vsiUuid}/terminate", method = RequestMethod.POST)
 	public ResponseEntity<?> terminateVsInstance(@PathVariable String vsiUuid, Authentication auth) {
 		log.debug("Received request to terminate VS instance with ID " + vsiUuid);
-		log.info("KPI:"+Instant.now().toEpochMilli()+", Received request to terminate VS instance.");
+		log.info("KPI:"+Instant.now().toEpochMilli()+", Received request to terminate VS instance with UUID "+vsiUuid);
 		try {
 			String user = getUserFromAuth(auth);
 			vsLcmService.terminateVs(new TerminateVsRequest(vsiUuid, user));
@@ -213,7 +213,7 @@ public class VsLcmBasicRestController {
 	@RequestMapping(value = "/e2ens/{vsiId}/actuate", method = RequestMethod.POST)
 	public ResponseEntity<?> actuate(@PathVariable String vsiId, @RequestBody ActuationRequest request, Authentication auth) {
 		log.debug("Received request to actuate end-to-end Network Service Instance with UUID " + vsiId);
-		log.info("KPI:"+Instant.now().toEpochMilli()+", Received request to actuate end-to-end Network Service Instance.");
+		log.info("KPI:"+Instant.now().toEpochMilli()+", Received request to actuate end-to-end Network Service Instance with UUID "+vsiId);
 		try {
 			String user = getUserFromAuth(auth);
 			if(user.equals(adminTenant)){
