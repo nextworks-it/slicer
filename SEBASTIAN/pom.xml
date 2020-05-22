@@ -19,7 +19,8 @@
         <module>RecordServiceIM</module>
 <!--        <module>TranslatorService</module> -->
 <!--        <module>SecurityService</module> -->
-<!--        <module>VNComService</module>    -->
+       <module>VNComService</module>  
+       <module>PP_SERVICE</module>
         <module>VSFM_INTERFACES</module>
         <module>VSFM_SERVICE</module>
         <module>NSFM_INTERFACES</module>
