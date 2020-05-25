@@ -15,8 +15,6 @@
 
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
-import com.google.gson.JsonObject;
-import it.nextworks.nfvmano.libs.ifa.templates.SliceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -45,11 +43,47 @@ public class FlexRanService extends CPSService{
     @Value("${ranadapter.url}")
     private String ranAdapterUrl;
 
+    @Value("${flexran.enodeB}")
+    private String enodeB;
+
+    private boolean sliceZeroToOnePercent;
+
     public FlexRanService() {
         this.flxIdSliceId = new HashMap<>();
         this.availableRanId =  IntStream.range(1, 255)  //NOTE 1-255 taken from FlexRan API Doc
                 .boxed()
                 .collect(toList());
+        sliceZeroToOnePercent=false;
+    }
+
+
+    private Map<String, Object> buildJsonSliceOnePercentCreation(Integer sliceId){
+        Map<String, Object> onePercent = new HashMap<>();
+        onePercent.put("id", sliceId);
+        onePercent.put("percentage", "1");
+        Map<String, Object> json = new HashMap<>();
+        json.put("dl",onePercent);
+        json.put("ul",onePercent);
+        return json;
+    }
+
+    public HttpStatus setSliceZeroOnePercent(){
+        log.info("enodeB ID is "+getEnodeB());
+
+        if(isSliceZeroToOnePercent()==true){
+            log.warn("RAN Slice with ID 0 is already to one percent.");
+            return HttpStatus.OK;
+        }
+
+        Map<String, Object> json = buildJsonSliceOnePercentCreation(0);
+        String url = String.format("http://%s/slice/enb/%s", flexRanURL,getEnodeB());
+        try{
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(json, url, HttpMethod.POST);
+            return httpResponse.getStatusCode();
+        }catch (RestClientResponseException e){
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
     }
 
     public void setFlexRanURL(String flexRanURL) {
@@ -86,7 +120,7 @@ public class FlexRanService extends CPSService{
 
     public HttpStatus createRanSlice(UUID sliceId){
         Integer ranId  = getFirstAvailableRanId();
-        String url = String.format("http://%s/slice/enb/-1/slice/%d", flexRanURL, ranId);
+        String url = String.format("http://%s/slice/enb/%s/slice/%d", flexRanURL, getEnodeB(), ranId);
         try{
             ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.POST);
             this.setIdsMap(sliceId, ranId);
@@ -95,8 +129,23 @@ public class FlexRanService extends CPSService{
             log.info("Message received: " + e.getMessage());
             return HttpStatus.valueOf(e.getRawStatusCode());
         }
-
     }
+
+    public HttpStatus createSliceRanOnePercent(UUID sliceId){
+        String url = String.format("http://%s/slice/enb/%s", flexRanURL,getEnodeB());
+        Integer ranSliceId  = getFirstAvailableRanId();
+        Map<String, Object> json = buildJsonSliceOnePercentCreation(ranSliceId);
+        try{
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(json, url, HttpMethod.POST);
+            this.setIdsMap(sliceId, ranSliceId);
+            return httpResponse.getStatusCode();
+        }catch (RestClientResponseException e){
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
+    }
+
+
 
     /*slicenetid: "f5b01594-520e-11e9-8647-d663bd873d93"
              sid: "1"*/
@@ -115,7 +164,6 @@ public class FlexRanService extends CPSService{
         }catch (RestClientResponseException e){
             log.info("Message received: " + e.getMessage());
             return HttpStatus.valueOf(e.getRawStatusCode());
-
         }
     }
 
@@ -163,4 +211,20 @@ public class FlexRanService extends CPSService{
             return HttpStatus.valueOf(e.getRawStatusCode());
         }
     }
+
+    public boolean isSliceZeroToOnePercent() {
+        return sliceZeroToOnePercent;
+    }
+
+    public void setSliceZeroToOnePercent(boolean sliceZeroToOnePercent) {
+        this.sliceZeroToOnePercent = sliceZeroToOnePercent;
+    }
+
+    public String getEnodeB(){
+        if(enodeB==null || enodeB.isEmpty())
+            return "-1";
+        else
+            return this.enodeB;
+    }
+
 }

@@ -26,21 +26,22 @@ public class RanQoSTranslator {
         Map<String, String> rateParams =  new HashMap<>();
         List<JSONObject> jlist = new ArrayList<>();
         List<EMBBPerfReq> embbPerfReqs = nstServiceProfile.geteMBBPerfReq();
-        JSONArray payloadArray = new JSONArray();
         for(EMBBPerfReq req: embbPerfReqs){
 
-            dl = req.getExpDataRateDL();
-            ul = req.getExpDataRateUL();
-            rateParams.put("bandIncDir", "DL");
+            dl = req.getExpDataRateDL()/1000000; //It is expressed in bit/sec, so for Mbit\sec divide by one million.
+            ul = req.getExpDataRateUL()/1000000;
+            rateParams.put("bandIncDir", "dl");
             rateParams.put("bandIncVal", Integer.toString(dl));
             rateParams.put("bandUnitScale", "MB");
-            payloadArray.put(new JSONObject(rateParams));
-            rateParams.replace("bandIncDir", "UL");
+            jlist.add(new JSONObject(rateParams));
+            rateParams.replace("bandIncDir", "ul");
             rateParams.put("bandIncVal", Integer.toString(ul));
-            payloadArray.put(new JSONObject(rateParams));
+            log.info("Performance requirements:  "+dl+" MB download, "+ul+ " MB upload.");
+            jlist.add(new JSONObject(rateParams));
         }
         return jlist;
     }
+
 
     private List<JSONObject> urllcToQos(NstServiceProfile nstServiceProfile){
         int rate;
