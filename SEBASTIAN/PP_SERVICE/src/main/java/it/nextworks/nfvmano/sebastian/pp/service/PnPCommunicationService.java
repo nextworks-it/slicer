@@ -65,6 +65,22 @@ public class PnPCommunicationService extends SbRestClient {
         }
     }
 
+    public HttpStatus deployQoEFeature(UUID sliceUuid, String sliceName, String sliceTenant, List<String> domainList){
+        try{
+            String url = this.getTargetUrl() + "/plug-and-play-manager/slice/" + sliceUuid +"/";
+            //Object requestPayload = generatePayloadFeatureTest(sliceUuid, sliceName, sliceTenant, domainList);
+            Object requestPayload = generateQoEFeature(sliceUuid, sliceName, sliceTenant, domainList);
+            log.info("Payload");
+            log.info(requestPayload.toString());
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(requestPayload, url, HttpMethod.POST);
+            sliceIDs.add(sliceUuid);
+            return httpResponse.getStatusCode();
+        } catch (RestClientResponseException e) {
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
+    }
+
     private ArrayNode buildDomainsList(List<String> domainList) {
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode domainsList = mapper.createArrayNode();
@@ -97,6 +113,28 @@ public class PnPCommunicationService extends SbRestClient {
         return networkSliceInfo;
     }
 
+
+    private ObjectNode generateQoEFeature(UUID sliceId, String sliceName, String sliceTenant, List<String> domainList) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode networkSliceInfo = mapper.createObjectNode();
+        networkSliceInfo.put("slice_id", sliceId.toString());
+        networkSliceInfo.put("slice_name", sliceName);
+        networkSliceInfo.put("slice_tenant", sliceTenant);
+        networkSliceInfo.put("slice_domain_type", "single");
+        ArrayNode domainsList = buildDomainsList(domainList);
+        //networkSliceInfo.putPOJO("domains", domainsList);
+
+        ObjectNode requiredFeatureJSON = mapper.createObjectNode();
+        requiredFeatureJSON.put("seq_id", 0);
+        requiredFeatureJSON.put("feature_id", "qoe_man_feature");
+        requiredFeatureJSON.put("feature_type", PpFeatureType.MANAGEMENT.toString().toLowerCase());
+        requiredFeatureJSON.put("feature_level", PpFeatureLevel.SLICE.toString().toLowerCase());
+        ArrayNode reqComponentFeatureArray = mapper.createArrayNode();
+        reqComponentFeatureArray.add(requiredFeatureJSON);
+        networkSliceInfo.putPOJO("required_feature", reqComponentFeatureArray);
+
+        return networkSliceInfo;
+    }
 
     //NSP-SIDE ONLY
     private ObjectNode generateRequestPayload(NST nst, UUID sliceId) {
