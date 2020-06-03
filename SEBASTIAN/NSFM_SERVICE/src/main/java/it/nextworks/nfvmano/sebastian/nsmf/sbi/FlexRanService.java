@@ -15,6 +15,7 @@
 
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
+import it.nextworks.nfvmano.sebastian.record.elements.ImsiInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -146,6 +147,24 @@ public class FlexRanService extends CPSService{
     }
 
 
+
+    public HttpStatus mapImsiList(List<ImsiInfo> imsiInfoList, UUID networkSliceUuid){
+        Integer sliceId = flxIdSliceId.get(networkSliceUuid);
+        String url = String.format("http://%s/associate_ue_vnetwork/%s", flexRanURL, sliceId);
+        JSONArray payloadArray = new JSONArray();
+        try {
+            for (ImsiInfo imsiInfo : imsiInfoList) {
+                for(String imsi: imsiInfo.getImsis())
+                    payloadArray.put(Long.valueOf(imsi));
+            }
+            log.debug("IMSI payload: "+payloadArray.toString());
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(payloadArray.toString(), url, HttpMethod.POST);
+            return httpResponse.getStatusCode();
+        }catch (RestClientResponseException e){
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
+    }
 
     /*slicenetid: "f5b01594-520e-11e9-8647-d663bd873d93"
              sid: "1"*/

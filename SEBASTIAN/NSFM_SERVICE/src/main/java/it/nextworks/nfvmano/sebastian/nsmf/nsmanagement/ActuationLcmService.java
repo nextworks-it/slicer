@@ -28,6 +28,7 @@ public class ActuationLcmService {
     private final String UPDATE_PRIORITY ="UPDATE_PRIORITY";
     private final String HANDOVER = "HANDOVER";
     private final String RAN_CORE_CONSTRAINT = "RAN_CORE_CONSTRAINT";
+    private final String MIGRATE_AND_SCALE = "MIGRATE_AND_SCALE";
 
     @Value("${cpsrBaseUrl}")
     private String cpsrBaseUrl;
@@ -36,10 +37,18 @@ public class ActuationLcmService {
 
     }
 
+    public boolean isRedirectActuation(ActuationRequest request){
+        Map<String, Object> parametersActuation = request.getParameters();
+        if((parametersActuation.containsKey("routes") && parametersActuation.containsKey("ueIMSI")) || (parametersActuation.containsKey("VDU_NAME") && parametersActuation.containsKey("RESOURCE_ID") && parametersActuation.containsKey("VNF_MEMBER_INDEX")))
+            return true;
+
+        return false;
+    }
+
     private String getActuationType(ActuationRequest request) throws MalformattedElementException {
 
         Map<String, Object> parametersActuation = request.getParameters();
-        if(parametersActuation.containsKey("routes") && parametersActuation.containsKey("ueIMSI"))
+        if((parametersActuation.containsKey("routes") && parametersActuation.containsKey("ueIMSI")) || (parametersActuation.containsKey("VDU_NAME") && parametersActuation.containsKey("RESOURCE_ID") && parametersActuation.containsKey("VNF_MEMBER_INDEX")))
             return REDIRECT;
 
         if(parametersActuation.containsKey("ran_core_constraints") )

@@ -1,5 +1,9 @@
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -83,7 +87,8 @@ public class LlMecService extends CPSService{
 
     public HttpStatus mapIdsRemotely(UUID sliceId){
         Integer ranId = getRanId(sliceId);
-        String url = String.format("http://%s/ranadapter/all/v1/set_slice_mapping", llMecAdapterUrl);
+        //String url = String.format("http://%s/llmecadapter/all/v1/set_slice_mapping", llMecAdapterUrl);
+        String url = String.format("%s", llMecAdapterUrl);
         Map<String, String> slicePair = new HashMap<>();
         slicePair.put("slicenetid", sliceId.toString());
         slicePair.put("sid", ranId.toString());
@@ -145,5 +150,51 @@ public class LlMecService extends CPSService{
         }
     }
 
+    public boolean mapNetworkSliceWithLlmecSlice(String networkSliceUuid, String imsi){
+        String llMecSliceId =getLLmecSliceIdByImsi(imsi);
+        if(llMecSliceId==null) {
+            log.error("Cannot map slice ID with LLmec slice. ");
+            return false;
+        }
+        this.llMecSliceId.put(UUID.fromString(networkSliceUuid), Integer.valueOf(llMecSliceId));
+
+        return true;
+    }
+
+
+    private String getLLmecSliceIdByImsi(String imsi){
+        String url = String.format( "http://%s/stats", this.llMecAdapterUrl);
+        try{
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.GET);
+            JsonParser jsonParser = new JsonParser();
+            String rawResponse = httpResponse.getBody();
+            log.debug("Raw output: "+rawResponse);
+            JsonArray jsonArray= jsonParser.parse(rawResponse).getAsJsonArray();
+            log.info("Number of elements: "+jsonArray.size());
+
+            for(int i=0; i<jsonArray.size(); i++){
+                log.debug("Going to get json object");
+                JsonObject jsonObject=  jsonArray.get(i).getAsJsonObject();
+                log.debug("Going to get imsi");
+                String imsiGet = jsonObject.get("imsi").getAsString();
+                log.debug("Going to compare imsis");
+                if(imsi.equals(imsiGet)){
+                    log.info("Imsi found!");
+                    return jsonObject.get("slice_id").getAsString();
+                }
+            }
+            log.warn("Imsi not found!");
+            return null;
+        }catch (RestClientResponseException e){
+            log.info("Message received: " + e.getMessage());
+           return null;
+        }
+        catch (Exception e){
+            log.info(e.getMessage());
+            return null;
+        }
+        //log.error("Not found any sliceId for imsi: "+imsi);
+        //return null;
+    }
 
 }
