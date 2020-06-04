@@ -136,7 +136,7 @@ public class BasicArbitrator extends AbstractArbitrator {
 			Map<String, Boolean> existingNsiIds = new HashMap<>();
 
 			log.info("Going to compute resource usage");
-			VirtualResourceUsage requiredRes = virtualResourceCalculatorService.computeVirtualResourceUsageNew(nsInitInfo);
+			VirtualResourceUsage requiredRes = virtualResourceCalculatorService.computeVirtualResourceUsage(nsInitInfo);
 			log.debug("The total amount of required resources for the service is the following : " + requiredRes.toString());
 
 			log.debug("Reading info about active SLA and used resources for the given tenant.");
@@ -200,7 +200,7 @@ public class BasicArbitrator extends AbstractArbitrator {
 			//Compute resource usage for nsi
 			VirtualResourceUsage currentNsRes = virtualResourceCalculatorService.computeVirtualResourceUsage(nsi, true);
 			//Compute resoruce required for the scaled ns
-			VirtualResourceUsage requiredRes = virtualResourceCalculatorService.computeVirtualResourceUsageNew(nsInitInfo);
+			VirtualResourceUsage requiredRes = virtualResourceCalculatorService.computeVirtualResourceUsage(nsInitInfo);
 
 			//Retrieving SLA constraints and current resource usage for the tenant?
 			Tenant tenant = adminService.getTenant(tenantId);
