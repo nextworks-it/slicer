@@ -1,7 +1,6 @@
 package it.nextworks.nfvmano.sebastian.vsfm.sbi;
 
 
-import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

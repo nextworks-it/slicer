@@ -14,18 +14,6 @@
  */
 package it.nextworks.nfvmano.sebastian.nsmf;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueDriverType;
-import it.nextworks.nfvmano.nfvodriver.NfvoLcmDriverType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import it.nextworks.nfvmano.catalogue.template.elements.NsTemplateInfo;
 import it.nextworks.nfvmano.catalogues.template.services.NsTemplateCatalogueService;
 import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
@@ -34,6 +22,15 @@ import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceFailureNotification;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class for NSMF
@@ -54,9 +51,6 @@ public class NsmfUtils {
 
 	private NsmfLcmConsumerInterface notificationDispatcher;
 
-	@Value("${ssoNmroIntegration}")
-	private boolean isSsoNmroIntegrationScenario;
-
 	@Value("${nfvo.catalogue.username}")
 	private String nfvoCatalogueUsername;
 
@@ -66,7 +60,6 @@ public class NsmfUtils {
 	@Value("${nfvo.lcm.polling}")
 	private int nfvoLcmPolling;
 
-	//These configuration variables below were moved into related services but they were set to null. Placed here as workaround
 	@Value("${plugAndPlay.hostname}")
 	private String plugAndPlayHostname;
 
@@ -111,9 +104,6 @@ public class NsmfUtils {
 
 	public void setNotificationDispatcher(NsmfLcmConsumerInterface notificationDispatcher) {
 		this.notificationDispatcher = notificationDispatcher;
-	}
-	public boolean isSsoNmroIntegrationScenario(){
-		return isSsoNmroIntegrationScenario;
 	}
 
 	public boolean isNmroNfvoCatalogueType(){

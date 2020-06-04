@@ -36,15 +36,15 @@ public class ArbitratorRequest {
 	private String requestId;
 	private String tenantId;
 	private VsDescriptor vsd;
-	private Map<String, NfvNsInstantiationInfo> instantiationNsd = new HashMap<>();//TODO to be deleted ??
-	private NfvNsInstantiationInfo nfvNsInstantiationInfo;//TODO to be deleted ??
+	private Map<String, NfvNsInstantiationInfo> instantiationNsd = new HashMap<>();
+	private NfvNsInstantiationInfo nfvNsInstantiationInfo;
 	private String nstId;//Arbitrator NSMF side
 	/**
 	 * @param tenantId
 	 * @param vsd
 	 * @param instantiationNsd
 	 */
-	public ArbitratorRequest(String requestId, String tenantId, VsDescriptor vsd, Map<String, NfvNsInstantiationInfo> instantiationNsd) {//TODO to be deleted ??
+	public ArbitratorRequest(String requestId, String tenantId, VsDescriptor vsd, Map<String, NfvNsInstantiationInfo> instantiationNsd) {
 		this.requestId = requestId;
 		this.tenantId = tenantId;
 		this.vsd = vsd;
@@ -52,7 +52,7 @@ public class ArbitratorRequest {
 	}
 
 
-	public ArbitratorRequest(String requestId, String tenantId,  NfvNsInstantiationInfo nfvNsInstantiationInfo) {//TODO to be deleted ??
+	public ArbitratorRequest(String requestId, String tenantId,  NfvNsInstantiationInfo nfvNsInstantiationInfo) {
 		this.requestId = requestId;
 		this.tenantId = tenantId;
 		this.nfvNsInstantiationInfo= nfvNsInstantiationInfo;

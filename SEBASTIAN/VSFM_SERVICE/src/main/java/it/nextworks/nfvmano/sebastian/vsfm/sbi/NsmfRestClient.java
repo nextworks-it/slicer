@@ -202,7 +202,7 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 		String url = nsmfUrl + "/nsi/"+nsiUuid+"/actuate-sd";
 		log.info("URL to perform the request to: "+url);
 		ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.POST, tenantId);
-		String bodyResponse = manageHTTPResponse(httpResponse, "Error while sending actuation request to network slice", "Network slice termination correctly performed",HttpStatus.ACCEPTED);
+		manageHTTPResponse(httpResponse, "Error while sending actuation request to network slice", "Network slice termination correctly performed",HttpStatus.ACCEPTED);
 	}
 
 }

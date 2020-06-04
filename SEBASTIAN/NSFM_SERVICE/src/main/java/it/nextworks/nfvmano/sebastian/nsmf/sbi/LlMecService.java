@@ -87,8 +87,7 @@ public class LlMecService extends CPSService{
 
     public HttpStatus mapIdsRemotely(UUID sliceId){
         Integer ranId = getRanId(sliceId);
-        //String url = String.format("http://%s/llmecadapter/all/v1/set_slice_mapping", llMecAdapterUrl);
-        String url = String.format("%s", llMecAdapterUrl);
+        String url = String.format("http://%s/coreadapter/all/v1/set_slice_mapping", llMecAdapterUrl);
         Map<String, String> slicePair = new HashMap<>();
         slicePair.put("slicenetid", sliceId.toString());
         slicePair.put("sid", ranId.toString());
@@ -179,7 +178,7 @@ public class LlMecService extends CPSService{
                 String imsiGet = jsonObject.get("imsi").getAsString();
                 log.debug("Going to compare imsis");
                 if(imsi.equals(imsiGet)){
-                    log.info("Imsi found!");
+                    log.info("Imsi found.");
                     return jsonObject.get("slice_id").getAsString();
                 }
             }
@@ -193,8 +192,6 @@ public class LlMecService extends CPSService{
             log.info(e.getMessage());
             return null;
         }
-        //log.error("Not found any sliceId for imsi: "+imsi);
-        //return null;
     }
 
 }

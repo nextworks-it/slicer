@@ -288,21 +288,6 @@ public class NsLcmManager {
 					RanQoSTranslator ranQoSTranslator = new RanQoSTranslator();
 					log.info("RAN: Starting translation to QoS constraints");
 					List<JSONObject> qosConstraints = ranQoSTranslator.ranProfileToQoSConstraints(nsst);
-					/* NST Analysis */
-					//SliceType sliceType = networkSliceTemplate.getSliceType();
-//					switch (sliceType) {
-//						case URLLC:
-//							//TODO: translate stype info of the NST in Flexran attributes
-//							break;
-//
-//						case EMBB:
-//							//TODO: translate stype info of the NST in Flexran attributes
-//							break;
-//
-//						default:
-//							//TODO invoke rollback!
-//						break;
-//					}
 
 					//RAN-0 -> Setting to one percent the RAN Slice with ID 0.
 					log.info("RAN: Setting RAN Slice with ID 0 at one percent. ");
@@ -372,7 +357,7 @@ public class NsLcmManager {
 
 
 	private boolean createPPslice(){
-		boolean ppInstantiated = false;
+		boolean ppInstantiated;
 		if (hasNstPP()) {
 			// Do PnP stuff
 			HttpStatus httpStatusPpSlice = this.pnPCommunicationService.deploySliceComponents(UUID.fromString(networkSliceInstanceUuid), this.networkSliceTemplate);
@@ -412,7 +397,7 @@ public class NsLcmManager {
 			this.nsdInfoId = nsdInfo.getNsdInfoId();
 			this.nsd = nsdInfo.getNsd();
 
-			String tenantIdOsm=nsmfUtils.getNfvoCatalogueUsername();//TODO the mapping between the tenant on NSP and tenant on NFVO is missing. Get from config variable
+			String tenantIdOsm=nsmfUtils.getNfvoCatalogueUsername();
 			this.nsdInfoId = nsdInfo.getNsdId();// The NSD cannot be on boarded specifying its own ID, so the custom one is get from NSD
 			log.info("Set the NFVO Catalogue username into request: "+tenantIdOsm);
 
@@ -467,7 +452,7 @@ public class NsLcmManager {
 			List<String> nestedNfvNsId = new ArrayList<>();
 			nestedNfvNsId.add(nfvNsId);
 
-			//It looks like useless but not delete
+			//Do not delete below
                    /* for(String nsiUuid : msg.getRequest().getNsSubnetIds()){
 						NetworkSliceInstance nsi = nsRecordService.getNsInstance(nsiUuid);
 						nsRecordService.setNfvNsId(nsiUuid, nsst.getNstId(), nfvNsId);
@@ -639,11 +624,8 @@ public class NsLcmManager {
 
 			}
 			operationsId.clear();
-			return true;
 		}
-		else{
-			return true;
-		}
+		return true;
 	}
 
 	private void processNfvNsChangeNotification(NotifyNfvNsiStatusChange msg) {

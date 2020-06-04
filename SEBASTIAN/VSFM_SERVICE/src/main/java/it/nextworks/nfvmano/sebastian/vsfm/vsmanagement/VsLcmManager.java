@@ -293,7 +293,6 @@ public class VsLcmManager {
 
             List<String> domainList = new ArrayList<String>();
             domainList.add("slice "+vsiUuid);
-            //pnPCommunicationService.deployTestFeature(UUID.fromString(vsiUuid), msg.getRequest().getName(), this.tenantId, domainList);
             pnPCommunicationService.deployQoEFeature(UUID.fromString(vsiUuid), msg.getRequest().getName(), this.tenantId, domainList);
             log.info("Performed successfully creation of  "  +nsiUuidNetworkSliceInfoMap.size() + " Network Slice Instance(s).\n");
             log.info("Going to perform the network slice instantiation request(s)");
@@ -332,7 +331,7 @@ public class VsLcmManager {
         //From vsiUuid should be get the nsi associated.
         //From the nsi associated should be get the domains and the resulting Ip address, thus the URLs
         if (internalStatus != VerticalServiceStatus.INSTANTIATED) {
-            final String ERR_MSG = "Received actuation request in wrong status. The End-to-end slice must be instanTiated. Skip this check for now";
+            final String ERR_MSG = "Received actuation request in wrong status. The End-to-end slice must be instanciated. Skip this check for now";
             log.warn(ERR_MSG);
             //manageVsError(errorMessage);
             //return;

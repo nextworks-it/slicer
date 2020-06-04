@@ -51,7 +51,7 @@ public class NetworkSliceInstance {
 	private String nsiId;	//ID of the network slice
 	
 	private String nstId; //OLD;	//ID of the network slice template
-	
+
 	private String nsdId;//OLD	//ID of the descriptor of the NFV network service that implements the network slice
 
 	private String nsdVersion;//OLD	//version of the descriptor of the NFV network service that implements the network slice
@@ -108,30 +108,12 @@ public class NetworkSliceInstance {
 	 * @param tenantId owner of the slice
 	 */
 
-	/*public NetworkSliceInstance(String nsiId, String nstId, String nsdId, String nsdVersion, String dfId, String instantiationLevelId, String nfvNsId,
-			List<String> networkSliceSubnetInstances, String tenantId, String name, String description, boolean soManaged) {
-		this.nsiId = nsiId;
-		this.nstId = nstId;
-		this.nsdId = nsdId;
-		this.nsdVersion = nsdVersion;
-		this.dfId = dfId;
-		this.instantiationLevelId = instantiationLevelId;
-		this.nfvNsId = nfvNsId;
-		if (networkSliceSubnetInstances != null) this.networkSliceSubnetInstances = networkSliceSubnetInstances;
-		this.tenantId = tenantId;
-		this.status = NetworkSliceStatus.INSTANTIATING;
-		this.name = name;
-		this.description = description;
-		this.soManaged = soManaged;
-	}*/
-
 	public NetworkSliceInstance(String nsiId,
 								String nstId,
 								String tenantId,
 								String name,
 								String description,
 								boolean soManaged){
-								//List<ImsiInfo> imsiInfoList){
 		this.nsiId=nsiId;
 		this.nstId = nstId;
 		this.tenantId=tenantId;

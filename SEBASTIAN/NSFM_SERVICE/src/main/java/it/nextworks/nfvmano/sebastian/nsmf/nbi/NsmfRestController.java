@@ -37,9 +37,6 @@ public class NsmfRestController {
 	@Autowired
 	private NsLcmService nsLcmService;
 
-	@Value("${sebastian.admin}")
-	private String adminTenant;
-
 	private static String getUserFromAuth(Authentication auth) {
 		Object principal = auth.getPrincipal();
 		if (!UserDetails.class.isAssignableFrom(principal.getClass())) {

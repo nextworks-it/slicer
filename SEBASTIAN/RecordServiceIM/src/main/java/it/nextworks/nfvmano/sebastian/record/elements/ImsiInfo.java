@@ -2,11 +2,11 @@ package it.nextworks.nfvmano.sebastian.record.elements;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.hibernate.annotations.*;
-import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +17,7 @@ public class ImsiInfo {
     @JsonIgnore
     private UUID uuid; //FOR JPA
 
-    @Column(/*unique=true,*/ nullable=false)
+    @Column(nullable=false)
     private String id; //manually inserted
     private String name;
     private String plmn;

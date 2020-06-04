@@ -49,7 +49,6 @@ public class PnPCommunicationService extends SbRestClient {
     }
 
     //DSP-SIDE ONLY
-
     public HttpStatus deployTestFeature(UUID sliceUuid, String sliceName, String sliceTenant, List<String> domainList){
         try{
             String url = this.getTargetUrl() + "/plug-and-play-manager/slice/" + sliceUuid +"/";
@@ -65,10 +64,10 @@ public class PnPCommunicationService extends SbRestClient {
         }
     }
 
+    //DSP-SIDE ONLY
     public HttpStatus deployQoEFeature(UUID sliceUuid, String sliceName, String sliceTenant, List<String> domainList){
         try{
             String url = this.getTargetUrl() + "/plug-and-play-manager/slice/" + sliceUuid +"/";
-            //Object requestPayload = generatePayloadFeatureTest(sliceUuid, sliceName, sliceTenant, domainList);
             Object requestPayload = generateQoEFeature(sliceUuid, sliceName, sliceTenant, domainList);
             log.info("Payload");
             log.info(requestPayload.toString());

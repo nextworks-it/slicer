@@ -15,21 +15,15 @@
 
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
-import it.nextworks.nfvmano.sebastian.admin.AdminService;
-import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.nbi.VsmfRestClient;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Service

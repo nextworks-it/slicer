@@ -18,7 +18,6 @@ package it.nextworks.nfvmano.sebastian.arbitrator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.Basic;
 
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.sebastian.arbitrator.interfaces.ArbitratorInterface;

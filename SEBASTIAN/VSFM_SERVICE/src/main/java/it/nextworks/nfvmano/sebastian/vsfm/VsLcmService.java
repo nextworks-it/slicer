@@ -431,8 +431,6 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 	public void actuateNsiE2E(ActuationRequest request, String e2eNsi) throws MalformattedElementException {
 		log.debug("Received request to actuate an NSI E2E.");
 		request.isValid();
-		//TODO check on e2e nsi existence. Skipped for now
-		//TODO check if the requesting tenant is the same that has previously instantiated the e2e nsi
 		//Suppose vsiId is equal to E2ENsi
 		String topic = "lifecycle.actuatevs." + e2eNsi;
 		ActauteNsiMessage message = new ActauteNsiMessage(request);
@@ -729,14 +727,14 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 //    	try {
 //    		List<NetworkSliceInstance> nsis = nsmfLcmProvider.queryNetworkSliceInstance(request, tenantId);
 //    		if (nsis.isEmpty()) {
-//    			log.error("Network Slice " + nsiId + " not found in NSMF service");
-//    			throw new NotExistingEntityException("Network Slice " + nsiId + " not found in NSMF service");
-//    		}
-//    		return nsis.get(0);
-//    	} catch (Exception e) {
-//			log.error("Error while getting network slice instance " + nsiId + ": " + e.getMessage());
-//			throw new FailedOperationException("Error while getting network slice instance " + nsiId + ": " + e.getMessage());
-//		}
-//    }
+////    			log.error("Network Slice " + nsiId + " not found in NSMF service");
+////    			throw new NotExistingEntityException("Network Slice " + nsiId + " not found in NSMF service");
+////    		}
+////    		return nsis.get(0);
+////    	} catch (Exception e) {
+////			log.error("Error while getting network slice instance " + nsiId + ": " + e.getMessage());
+////			throw new FailedOperationException("Error while getting network slice instance " + nsiId + ": " + e.getMessage());
+////		}
+////    }
 
 }

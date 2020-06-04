@@ -15,17 +15,15 @@
 */
 package it.nextworks.nfvmano.sebastian.vsfm.messages;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import it.nextworks.nfvmano.libs.ifa.common.InterfaceMessage;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.sebastian.record.elements.ImsiInfo;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Request to instantiate a new Vertical Service instance.

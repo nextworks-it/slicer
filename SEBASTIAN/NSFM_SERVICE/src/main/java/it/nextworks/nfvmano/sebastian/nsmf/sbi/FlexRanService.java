@@ -69,7 +69,7 @@ public class FlexRanService extends CPSService{
     }
 
     public HttpStatus setSliceZeroOnePercent(){
-        log.info("enodeB ID is "+getEnodeB());
+        log.debug("enodeB ID is "+getEnodeB());
 
         if(isSliceZeroToOnePercent()==true){
             log.warn("RAN Slice with ID 0 is already to one percent.");
@@ -166,8 +166,8 @@ public class FlexRanService extends CPSService{
         }
     }
 
-    /*slicenetid: "f5b01594-520e-11e9-8647-d663bd873d93"
-             sid: "1"*/
+    /*E.g.: {slicenetid: "f5b01594-520e-11e9-8647-d663bd873d93",
+             sid: "1" }*/
     public HttpStatus mapIdsRemotely(UUID sliceId){
         Integer ranId = getRanId(sliceId);
         String url = String.format("http://%s/ranadapter/all/v1/set_slice_mapping", ranAdapterUrl);

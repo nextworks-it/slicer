@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +54,7 @@ public class VirtualResourceCalculatorService {
         int totalRam=0;
         int totalDisk=0;
         for(int i=0; i<nsi.getNfvNsInstantiationInfoList().size(); i++){
-            VirtualResourceUsage virtualResourceUsage =computeVirtualResourceUsageNew(nsi.getNfvNsInstantiationInfoList().get(i));
+            VirtualResourceUsage virtualResourceUsage = computeVirtualResourceUsage(nsi.getNfvNsInstantiationInfoList().get(i));
             totalCpu +=virtualResourceUsage.getvCPU();
             totalRam +=virtualResourceUsage.getMemoryRAM();
             totalDisk +=virtualResourceUsage.getDiskStorage();
@@ -152,7 +151,7 @@ public class VirtualResourceCalculatorService {
         return new VirtualResourceUsage(disk, vCPU, ram);
     }
 
-    public  VirtualResourceUsage computeVirtualResourceUsageNew(NfvNsInstantiationInfo nsInstantiationInfo) throws Exception {
+    public  VirtualResourceUsage computeVirtualResourceUsage(NfvNsInstantiationInfo nsInstantiationInfo) throws Exception {
         log.debug("Computing the amount of resources associated to a NS instantiation.");
         String nsdId = nsInstantiationInfo.getNfvNsdId();
         String nsdVersion = nsInstantiationInfo.getNsdVersion();
@@ -248,98 +247,5 @@ public class VirtualResourceCalculatorService {
 
         return new VirtualResourceUsage(disk, vCPU, ram);
     }
-
-    /*
-    public  VirtualResourceUsage computeVirtualResourceUsage( NfvNsInstantiationInfo nsInstantiationInfo) throws Exception {
-        log.debug("Computing the amount of resources associated to a NS instantiation.");
-
-        //TODO: parse the MEC app data when available
-
-        String nsdId = nsInstantiationInfo.getNfvNsdId();
-        String nsdVersion = nsInstantiationInfo.getNsdVersion();
-        String deploymentFlavourId = nsInstantiationInfo.getDeploymentFlavourId();
-        String instantiationLevelId = nsInstantiationInfo.getInstantiationLevelId();
-
-        int ram = 0;
-        int vCPU = 0;
-        int disk = 0;
-
-
-        QueryNsdResponse nsdResp;
-        if(nfvoCatalogueDriver.equals("NMRO")){
-            log.info("Querying NSD by Id " +nsdId +" only ");
-            Map<String, String> filterParams = new HashMap();
-            filterParams.put("NSD_ID", nsdId);
-            nsdResp = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(new Filter(filterParams), null));
-        }
-        else{
-            log.info("Querying NSD by Id " +nsdId +" and version " +nsdVersion);
-            nsdResp = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null));
-
-        }
-        Nsd nsd = nsdResp.getQueryResult().get(0).getNsd();
-
-        //return a map with key = VNFD_ID and value a map with keys = [VNFD_ID, VNF_DF_ID, VNF_INSTANCES, VNF_INSTANTIATION_LEVEL]
-        Map<String, Map<String, String>> vnfData = nsd.getVnfdDataFromFlavour(deploymentFlavourId, instantiationLevelId);
-
-        for (Map.Entry<String, Map<String, String>> e : vnfData.entrySet()) {
-            String vnfdId = e.getKey();
-            Map<String, String> vnfCharacteristics = e.getValue();
-            String vnfDfId = vnfCharacteristics.get("VNF_DF_ID");
-            int vnfInstancesNumber= Integer.parseInt(vnfCharacteristics.get("VNF_INSTANCES"));
-            String vnfInstantiationLevel = vnfCharacteristics.get("VNF_INSTANTIATION_LEVEL");
-
-            int vnfRam = 0;
-            int vnfVCpu = 0;
-            int vnfDisk = 0;
-
-            QueryOnBoardedVnfPkgInfoResponse vnfPkg = nfvoCatalogueService.queryVnfPackageInfo(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildVnfPackageInfoFilterFromVnfdId(vnfdId), null));
-            Vnfd vnfd = vnfPkg.getQueryResult().get(0).getVnfd();
-
-            VnfDf df = vnfd.getVnfDf(vnfDfId);
-            InstantiationLevel il = df.getInstantiationLevel(vnfInstantiationLevel);
-            List<VduLevel> vduLevel = il.getVduLevel();
-            for (VduLevel vdul : vduLevel) {
-                int vduInstancesNumber = vdul.getNumberOfInstances();
-                String vduId = vdul.getVduId();
-                Vdu vdu = vnfd.getVduFromId(vduId);
-                String computeDescriptorId = vdu.getVirtualComputeDesc();
-                VirtualComputeDesc vcd = vnfd.getVirtualComputeDescriptorFromId(computeDescriptorId);
-                int localRam = (vcd.getVirtualMemory().getVirtualMemSize()) * vduInstancesNumber;
-                int localVCpu = (vcd.getVirtualCpu().getNumVirtualCpu()) * vduInstancesNumber;
-                int localDisk = 0;
-                List<String> virtualStorageDescId = vdu.getVirtualStorageDesc();
-                for (String vsdId : virtualStorageDescId) {
-                    VirtualStorageDesc vsd = vnfd.getVirtualStorageDescriptorFromId(vsdId);
-                    localDisk += vsd.getSizeOfStorage();
-                }
-                localDisk = localDisk * vduInstancesNumber;
-
-                //update data for all the VDUs with a given ID in the single VNF
-                vnfRam += localRam;
-                vnfVCpu += localVCpu;
-                vnfDisk += localDisk;
-
-                log.debug("Values for all the VDUs with ID " + vduId + " - vCPU: " + localVCpu + "; RAM: " + localRam + "; Disk: " + localDisk);
-            }
-
-            //compute data for all the VNFs with a given Id
-            vnfRam = vnfRam * vnfInstancesNumber;
-            vnfVCpu = vnfVCpu * vnfInstancesNumber;
-            vnfDisk = vnfDisk * vnfInstancesNumber;
-
-            log.debug("Values for all the VNFs with ID " + vnfdId + " - vCPU: " + vnfVCpu + "; RAM: " + vnfRam + "; Disk: " + vnfDisk);
-
-            //update data for the entire NSD
-            ram += vnfRam;
-            vCPU += vnfVCpu;
-            disk += vnfDisk;
-        }
-
-        log.debug("Values for the whole NSD with ID " + nsdId + ", DF " + deploymentFlavourId + ", IL " + instantiationLevelId + "- vCPU: " + vCPU + "; RAM: " + ram + "; Disk: " + disk);
-
-        return new VirtualResourceUsage(disk, vCPU, ram);
-    }
-*/
 
 }

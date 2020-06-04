@@ -22,10 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-//Class used only for SS-O NMR-O integration purposes.
-//It on boards an existing NSD available on OSM.
-// Please consider to use only for this purpose.
-// It will be deleted once The catalogue interface to OSM (via NMR-O) will be implemented.
+//Class used when there is a dummy NFVO catalogue.
 
 @Service
 public class NsdOnboarder {
@@ -41,7 +38,7 @@ public class NsdOnboarder {
 
     public void onBoardCustomNsd(){
         if(!nfvoCatalogueType.equals("DUMMY")){
-            log.info("Nfvo catalogue type is not DUMMY. Going to NOT on board custom NSD");
+            log.debug("Nfvo catalogue type is not DUMMY. Going to NOT on board custom NSD");
             return;
         }
 

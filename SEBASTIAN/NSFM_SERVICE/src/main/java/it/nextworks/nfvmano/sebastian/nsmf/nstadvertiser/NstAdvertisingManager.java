@@ -1,7 +1,6 @@
 package it.nextworks.nfvmano.sebastian.nsmf.nstadvertiser;
 
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
-import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.sebastian.nsmf.nbi.VsmfNstAdvertiserRestClient;
 import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRemoveRequest;
 import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRequest;
@@ -17,6 +16,8 @@ public class NstAdvertisingManager implements Runnable {
     private VsmfNstAdvertiserRestClient vsmfNstAdvertiserRestClient;
     private final int MAX_TIMEOUT=60000;
     private static final Logger log = LoggerFactory.getLogger(NstAdvertisingManager.class);
+
+    //Every time either a new NST is successfully on boarded or it is deleted, this update is advertised to the VSMF.
 
     public NstAdvertisingManager(VsmfNstAdvertiserRestClient vsmfNstAdvertiserRestClient,
                                  BlockingQueue<Object> requests) {
@@ -52,6 +53,7 @@ public class NstAdvertisingManager implements Runnable {
             e.printStackTrace();
         }
     }
+
     @Override
     public void run() {
         log.info("Started NST Advertising manager.");

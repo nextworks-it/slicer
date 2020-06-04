@@ -1,16 +1,14 @@
 package it.nextworks.nfvmano.sebastian.nsmf.nsmanagement;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.QoSService;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -75,7 +73,7 @@ public class ActuationLcmService {
             final Map<String,Object> parameters = request.getParameters();
             JSONObject json;
             HttpStatus httpStatus;
-            //String url = "http://10.8.202.11:8080"; // CPSR base URL.
+            //String url = "http://10.8.202.11:8080"; // CPSR base URL example
             String url = cpsrBaseUrl;
             String nsiId = request.getNsiId();
             switch(actuationType)
