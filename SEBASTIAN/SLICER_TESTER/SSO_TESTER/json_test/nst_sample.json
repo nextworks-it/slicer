@@ -1,0 +1,59 @@
+{
+	"nst": {
+		"nstId": "nstId",
+		"nstName": "nstName",
+		"nstVersion": "nstVersion",
+		"nstProvider": "nstProvider",
+		"nsdId": "09f0f070-11a8-4fc3-8a47-253508673a99",
+		"geographicalAreaInfoList":[{
+			"lat": 51.894059789742435,
+			"lon": -8.500309558933717
+		},
+		{
+			"lat": 51.89935623919947,
+			"lon": -8.462568003691363
+		},
+		{
+			"lat": 51.90306338234132,
+			"lon": -8.408679508702354
+		},
+		{
+			"lat": 51.882299440324935,
+			"lon": -8.459476176200972
+		}],
+		"nsdVersion": "1.0",
+		"nsstIds": [
+			"1",
+			"2",
+			"3"
+		],
+		"nstServiceProfile": {
+			"pLMNIdList": [],
+			"coverageAreaTAList": [],
+			"eMBBPerfReq": [{
+					"expDataRateDL": 10220,
+					"expDataRateUL": 120,
+					"areaTrafficCapDL": 10220,
+					"areaTrafficCapUL": 210,
+					"userDensity": 22,
+					"activityFactor": 3220,
+					"uESpeed": 3220,
+					"coverage": "coverage1"
+				}],
+			"uRLLCPerfReq": [],
+			"availability": 99.9,
+			"latency": 10,
+			"maxNumberofUEs": 20000,
+			"resourceSharingLevel": false,
+			"sST": "EMBB",
+			"uEMobilityLevel": "STATIONARY"
+		},
+		"ppFunctionList": [
+			{
+				"ppFeatureName": "qos_ctrl_feature",
+				"ppFeatureLevel": "SLICE",
+				"ppFeatureType": "CONTROL"
+			}
+		]
+	}
+}

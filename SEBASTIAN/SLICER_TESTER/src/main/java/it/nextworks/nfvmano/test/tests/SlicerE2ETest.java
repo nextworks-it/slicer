@@ -29,23 +29,40 @@ import static org.junit.Assert.assertTrue;
 
 public class SlicerE2ETest {
 
-    private final String VSMF_IP = "10.30.8.54";
-    private final String NSMF_IP = "10.30.8.76";
-    private final String NSMF2_IP = "10.30.8.76";
+    private final String VSMF_IP;
+    private final String NSMF_IP;
+    private final String NSMF2_IP;
 
-    private final String VSMF_HOST = "http://"+VSMF_IP+":8081";
-    EndPointInteraction dspInteraction = new EndPointInteraction(VSMF_HOST, "DSP");
+    private final String VSMF_HOST;
 
-    private final String NSMF_HOST= "http://"+NSMF_IP+":8082";
-    EndPointInteraction nspInteraction = new EndPointInteraction(NSMF_HOST, "NSP A");
+    EndPointInteraction dspInteraction;
 
-    private final String NSMF_HOST2= "http://"+NSMF2_IP+":8082";
-    EndPointInteraction nspInteraction2 = new EndPointInteraction(NSMF_HOST2, "NSP B");
+    private final String NSMF_HOST;
+    EndPointInteraction nspInteraction;
 
+    private final String NSMF_HOST2;
+    EndPointInteraction nspInteraction2;
 
-
+    SlicerTestConfiguration slicerTestConfiguration;
 
     private static final Logger log = LoggerFactory.getLogger(SlicerE2ETest.class);
+
+
+    public SlicerE2ETest(SlicerTestConfiguration slicerTestConfiguration){
+        this.slicerTestConfiguration = slicerTestConfiguration;
+
+        VSMF_IP = slicerTestConfiguration.getDspAddress();
+        VSMF_HOST = "http://"+VSMF_IP+":8081";
+        dspInteraction = new EndPointInteraction(VSMF_HOST, "DSP");
+
+        NSMF_IP =slicerTestConfiguration.getNspOneAddress();
+        NSMF_HOST= "http://"+NSMF_IP+":8082";
+        nspInteraction = new EndPointInteraction(NSMF_HOST, "NSP A");
+
+        NSMF2_IP = slicerTestConfiguration.getNspTwoAddress();
+        NSMF_HOST2= "http://"+NSMF2_IP+":8082";
+        nspInteraction2 = new EndPointInteraction(NSMF_HOST2, "NSP B");
+    }
 
     private Object getObjectFromFile(Class classObjects, String fileName) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -132,9 +149,8 @@ public class SlicerE2ETest {
     }
 
 
-    public String onBoardVsbWithNstTransRules(String dspHost, String vsblueprintFilename,String nstUuid) {
+    public String onBoardVsbWithNstTransRules(String dspHost, String vsblueprintFilename) {
         final String ONBOARD_VSB_URL = "/portal/catalogue/vsblueprint";
-        log.info("The NST id on NSP side is "+nstUuid);
         OnBoardVsBlueprintRequest onBoardVsBlueprintRequestFromJSON = (OnBoardVsBlueprintRequest) getObjectFromFile(OnBoardVsBlueprintRequest.class, vsblueprintFilename);
 
         List<VsdNstTranslationRule> vsdNstTranslationRuleList = new ArrayList<>();
@@ -144,7 +160,7 @@ public class SlicerE2ETest {
             VsdNstTranslationRule vsdNstTranslationRuleFromJSON = onBoardVsBlueprintRequestFromJSON.getNstTranslationRules().get(i);
             VsdNstTranslationRule vsdNstTranslationRuleTmp = new VsdNstTranslationRule(
                     vsdNstTranslationRuleFromJSON.getInput(),
-                    nstUuid,null,null,null,
+                    "nstId fake",null,null,null,
                     vsdNstTranslationRuleFromJSON.getNsInstantiationLevelId()
             );
             vsdNstTranslationRuleList.add(vsdNstTranslationRuleTmp);
@@ -211,19 +227,20 @@ public class SlicerE2ETest {
     }
 
 
-    public String VSIinstantionTest(String vsdId, String filename) {
+    public String VSIinstantionTest(String vsdId, String filename, String vsiName) {
         final String VSI_INSTANTIATION_URL = "/vs/basic/vslcm/vs";
 
 
         InstantiateVsRequest vsifromJSON = (InstantiateVsRequest) getObjectFromFile(InstantiateVsRequest.class, filename);
         InstantiateVsRequest instantiateVsRequest = new InstantiateVsRequest(
-                vsifromJSON.getName(),
+                vsiName,
                 vsifromJSON.getDescription(),
                 vsdId,
                 dspInteraction.getTenant().getUsername(),
                 vsifromJSON.getNotificationUrl(),
                 vsifromJSON.getUserData(),
-                vsifromJSON.getLocationsConstraints());
+                vsifromJSON.getLocationsConstraints(),
+                vsifromJSON.getImsiInfoList());
         log.info("Going to request VSI instantiation with VSD ID equal to: "+vsdId+" with tenant username: "+ dspInteraction.getTenant().getUsername());
         log.info("VSI name is : "+instantiateVsRequest.getName());
         ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, instantiateVsRequest, VSMF_HOST + VSI_INSTANTIATION_URL, HttpMethod.POST, dspInteraction.getCookiesTenant());
@@ -277,8 +294,29 @@ public class SlicerE2ETest {
     }
 
 
-    public void onBoardVSBWithNstID(final int ITERATIONS){
+    private String onBoardNstBasedOnInstantiationScenario(InstantiationScenario instantiationScenario, EndPointInteraction endPointInteraction){
+        String nstUuid=null;
+        switch(instantiationScenario){
+            case ONLY_PP:
+                nstUuid =endPointInteraction.onBoardNST("./json_test/nst_sample_only_pp.json");
+                break;
 
+            case PP_NFV_NO_RAN:
+                nstUuid =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_pp_and_nfv_no_ran.json");
+                break;
+
+            case PP_NFV_RAN:
+                nstUuid =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_pp_nfv_ran.json");
+                //nstUuid =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_pp_nfv_ran.json_copy");
+                break;
+            default:
+                log.error("Specify a suitable scenario");
+                break;
+        }
+        return nstUuid;
+    }
+
+    public void testVerticalServiceInstanceLifeCycle() {
 
         //NSP1 SIDE
         nspInteraction.loginAdmin();
@@ -288,15 +326,16 @@ public class SlicerE2ETest {
         //nspInteraction.createSLANoResource();
         nspInteraction.loginTenant();
 
-
+        boolean multidomain = slicerTestConfiguration.isPerformMultidomainInstantiation();
         //NSP2 SIDE
-        //nspInteraction2.loginAdmin();
-        //nspInteraction2.createGroup("NSP_group");
-        //nspInteraction2.createTenant("./json_test/tenant_nsp_sample_b.json");
-        //nspInteraction2.createSLA();
-        //nspInteraction2.createSLANoResource();
-        // nspInteraction2.loginTenant();
-
+        if (multidomain) {
+            nspInteraction2.loginAdmin();
+            nspInteraction2.createGroup("NSP_group");
+            nspInteraction2.createTenant("./json_test/tenant_nsp_sample_b.json");
+            nspInteraction2.createSLA();
+            nspInteraction2.createSLANoResource();
+            nspInteraction2.loginTenant();
+        }
 
         //DSP SIDE
         dspInteraction.loginAdmin();
@@ -306,151 +345,221 @@ public class SlicerE2ETest {
         dspInteraction.createTenantExt2("./json_test/tenant_notif_sample_2.json");
 
         dspInteraction.loginTenant();
-        dspInteraction.createRemoteTenantInfo(nspInteraction.getTenant(),NSMF_HOST);
+        dspInteraction.createRemoteTenantInfo(nspInteraction.getTenant(), NSMF_HOST);
 
-        ArrayList<DomainLayer> domainLayerArrayList= new ArrayList<DomainLayer>();
+        ArrayList<DomainLayer> domainLayerArrayList = new ArrayList<DomainLayer>();
         domainLayerArrayList.add(new NspDomainLayer("nsp_a", NspNbiType.NEUTRAL_HOSTING));
         Domain domain = new Domain("nsp_a",
-                "nsp_a","nsp a description",
-                "nsp_a owner","nsp_a admin",
-                domainLayerArrayList,new HashSet<DomainAgreement>(),
+                "nsp_a", "nsp a description",
+                "nsp_a owner", "nsp_a admin",
+                domainLayerArrayList, new HashSet<DomainAgreement>(),
                 new DomainInterface(NSMF_IP,
-                8082,true, InterfaceType.HTTP));
+                        8082, true, InterfaceType.HTTP));
         domain.setDomainStatus(DomainStatus.ACTIVE);
 
-        ArrayList<DomainLayer> domainLayerArrayList2= new ArrayList<DomainLayer>();
+        ArrayList<DomainLayer> domainLayerArrayList2 = new ArrayList<DomainLayer>();
         domainLayerArrayList2.add(new NspDomainLayer("nsp_b", NspNbiType.NEUTRAL_HOSTING));
         Domain domainb = new Domain("nsp_b",
-                "nsp_b","nsp_b descr",
-                "nsp_b owner","nsp_b admin",
-                domainLayerArrayList2,new HashSet<DomainAgreement>(),
+                "nsp_b", "nsp_b descr",
+                "nsp_b owner", "nsp_b admin",
+                domainLayerArrayList2, new HashSet<DomainAgreement>(),
                 new DomainInterface(NSMF2_IP,
-                        8082,true, InterfaceType.HTTP));
+                        8082, true, InterfaceType.HTTP));
         domainb.setDomainStatus(DomainStatus.ACTIVE);
         dspInteraction.addDomainInfo(domain);
         dspInteraction.addDomainInfo(domainb);
 
-        //dspInteraction.createRemoteTenantInfo2(nspInteraction2.getTenant(),NSMF_HOST2);
+
+        if (multidomain)
+            dspInteraction.createRemoteTenantInfo2(nspInteraction2.getTenant(), NSMF_HOST2);
 
         dspInteraction.associateLocalTenantWithRemoteTenant();
-        //dspInteraction.associateLocalTenantWithRemoteTenant2();
+        if (multidomain)
+            dspInteraction.associateLocalTenantWithRemoteTenant2();
 
         //On NSP1
-        nspInteraction.createRemoteTenantInfo(dspInteraction.getTenantNot(),VSMF_HOST);
+        nspInteraction.createRemoteTenantInfo(dspInteraction.getTenantNot(), VSMF_HOST);
         nspInteraction.associateLocalTenantWithRemoteTenant();
 
-        //On NSP2
-        //nspInteraction2.createRemoteTenantInfo(dspInteraction.getTenantNot2(),VSMF_HOST);
-        // nspInteraction2.associateLocalTenantWithRemoteTenant();
-
+        if (multidomain) {
+            nspInteraction2.createRemoteTenantInfo(dspInteraction.getTenantNot2(), VSMF_HOST);
+            nspInteraction2.associateLocalTenantWithRemoteTenant();
+        }
 
         //ON NSP1
-        String nstUuid=nspInteraction.onBoardNST("./json_test/nst_sample.json");
-        String nstUuid2 =nspInteraction.onBoardNST("./json_test/nst_sample_Pisa.json");
-        //String nstUuid3 =nspInteraction.onBoardNST("./json_test/nst_sample_S_Piero.json");
-        String nstUrlccUuid =nspInteraction.onBoardNST("./json_test/nst_sample_urlcc.json");
-
+        InstantiationScenario instantiationScenario = slicerTestConfiguration.getInstantiationScenario();
+        String nstUuid = onBoardNstBasedOnInstantiationScenario(instantiationScenario, nspInteraction);
 
         //ON NSP2
-        //String nstUuid_2 =nspInteraction2.onBoardNST("./json_test/nst_sample_S_Piero.json");
-        //String nstUuid2_2 =nspInteraction2.onBoardNST("./json_test/nst_sample2.json");
-        //String nstUuid3_2 =nspInteraction2.onBoardNST("./json_test/nst_sample3.json");
-        //nspInteraction2.removeNST(nstUuid2_2);
-        //String nstUrlccUuid_2 =nspInteraction2.onBoardNST("./json_test/nst_sample_urlcc.json");
+        if (multidomain) {
+            String nstUuid2 = onBoardNstBasedOnInstantiationScenario(instantiationScenario, nspInteraction2);
+        }
+
+        //There is the waiting time after the NST on boarding because in the DELL testbed for networking reasons,
+        // it takes few seconds to advertise the just on boarded NST.
+        //In case this problem are not present, the below time can be set to a lower value.
+        try {
+            log.info("Waiting " + slicerTestConfiguration.getWaitingTimeAfterNstOnBoarding() + " second(s) after on boarding.");
+            Thread.sleep(slicerTestConfiguration.getWaitingTimeAfterNstOnBoarding() * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         //DSP side
-        //onBoardVsbWithNstTransRules(VSMF_HOST, "vsblueprint_osm_sample.json", nstUuid);
         log.info("Testing VSB and VSD streaming on boarding");
-        String vsbIdStreaming=onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_streaming.json", nstUuid);
-        String vsdStreamingId= testVSDOnBoarding(vsbIdStreaming,"./json_test/vsb_samples/vsd_streaming_one.json");
 
-        log.info("Testing VSB and VSDs streaming on boarding");
-        String vsbIdUrban=onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_urban.json", nstUuid);
-        String vsdUrbanId1= testVSDOnBoarding(vsbIdUrban,"./json_test/vsb_samples/vsd_urban_1.json");
+        String vsdId;
+        if (instantiationScenario == InstantiationScenario.ONLY_PP) {
+            String vsbOnlyPP = onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_only_pp.json");
+            vsdId = testVSDOnBoarding(vsbOnlyPP, "./json_test/vsb_samples/vsd_only_pp.json");
+        } else {
+            String vsbPpAndQos = onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_streaming_pp.json");
+            vsdId = testVSDOnBoarding(vsbPpAndQos, "./json_test/vsb_samples/vsd_streaming_with_pp.json");
+        }
+        final int instantiationTerminationIterations = slicerTestConfiguration.getNumberOfInstantiateTerminateIterations();
+        for (int i = 0; i < instantiationTerminationIterations; i++) {
 
-        for(int i=0; i<ITERATIONS; i++){
+            String vsiUuid = null;
+            //String vsiUuid2 = null;
+            if (instantiationScenario == InstantiationScenario.ONLY_PP || instantiationScenario == InstantiationScenario.PP_NFV_NO_RAN)
+                vsiUuid = VSIinstantionTest(vsdId, "./json_test/vsb_samples/vsi_sample_only_pp.json","test A");
 
-            String vsiUuid = VSIinstantionTest(vsdStreamingId,"./json_test/vsb_samples/vsi_sample_Pisa_San_Piero.json");
-
+            else {
+                vsiUuid = VSIinstantionTest(vsdId, "./json_test/vsb_samples/vsi_sample_Pisa_San_Piero.json","test A");
+             //   vsiUuid2 = VSIinstantionTest(vsdId, "./json_test/vsb_samples/vsi_sample_Pisa_San_Piero.json","test B");
+            }
             boolean isInstantiated = false;
 
-            while(!isInstantiated){
-                    ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
-                    QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
-                    log.info("Vertical service instance Status "+queryVsResponse.getStatus().toString());
-                    if(queryVsResponse.getStatus()== VerticalServiceStatus.INSTANTIATED){
-                        isInstantiated=true;
+            while (!isInstantiated) {
+                ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
+                QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
+                log.info("Vertical service instance Status " + queryVsResponse.getStatus().toString());
+                if (queryVsResponse.getStatus() == VerticalServiceStatus.INSTANTIATED) {
+                    isInstantiated = true;
+                } else {
+                    log.info("Vertical service instance not instantiated yet. Next check in 70 seconds");
+                    try {
+                        Thread.sleep(70000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                    else{
-                        log.info("Vertical service instance not instantiated yet. Next check in 60 seconds");
-                        try {
-                            Thread.sleep(60000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                }
+            }
+
+            //Update Qos
+            if (slicerTestConfiguration.isPerformQoSActuation()) {
+                log.info("Going to perform QoS actuation");
+                Map<String, Object> qosConstraints = new HashMap<>();
+                Map<String, Object> ranCoreContraint = new HashMap<>();
+                Map<String, Object> ranCoreContraint2 = new HashMap<>();
+                ranCoreContraint.put("bandIncDir", "DL");
+                ranCoreContraint.put("bandIncVal", "10");
+                ranCoreContraint.put("bandUnitScale", "MB");
+
+                ranCoreContraint2.put("bandIncDir", "UL");
+                ranCoreContraint2.put("bandIncVal", "10");
+                ranCoreContraint2.put("bandUnitScale", "MB");
+                List<Map<String, Object>> ranArray = new ArrayList<>();
+                ranArray.add(ranCoreContraint);
+
+                ranArray.add(ranCoreContraint2);
+                qosConstraints.put("ran_core_constraints", ranArray);
+                ActuationRequest actuationRequest = new ActuationRequest(vsiUuid, "updateQoS Actuation", "actuationDescription", qosConstraints, "");
             }
 
 
-            /*
+            //Redirect
+            if (slicerTestConfiguration.isPerformRedirectActuation()) {
+                log.info("Going to perform redirect actuation");
+                Map<String, String> qosRedirectParameters = new HashMap<>();
+                Map<String, Object> qosRedirectParametersParent = new HashMap<>();
+                qosRedirectParameters.put("FromServer", "192.168.100.6");
+                qosRedirectParameters.put("ToServer", "192.168.100.7");
+                qosRedirectParametersParent.put("routes", qosRedirectParameters);
+                qosRedirectParametersParent.put("ueIMSI", "208920100001103");
+                ActuationRequest actuationRequest = new ActuationRequest(vsiUuid, "actuationName", "actuationDescription", qosRedirectParametersParent, "");
+                ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuid + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+            }
 
-            //Update Qos
-            Map<String, Object> qosContraint = new HashMap<>();
-            Map<String, Object> ranCoreContraint = new HashMap<>();
-            Map<String, Object> ranCoreContraint2 = new HashMap<>();
-            ranCoreContraint.put("bandIncDir",  "DL");
-            ranCoreContraint.put("bandIncVal",  "10");
-            ranCoreContraint.put("bandUnitScale",  "MB");
+            //Traffic redirect
+            boolean trafficRedirect = false;
+            if (trafficRedirect) {
+                log.info("Going to perform traffic redirect");
+                Map<String, Object> trafficRedirectParams = new HashMap<>();
+                trafficRedirectParams.put("VDU_NAME", "my_vdu");
+                trafficRedirectParams.put("RESOURCE_ID", "208920100001103");
+                trafficRedirectParams.put("VNF_MEMBER_INDEX", "9999");
+                ActuationRequest actuationRequest = new ActuationRequest(vsiUuid, "trafficRedirection", "Traffic Redirection Actuation", trafficRedirectParams, "");
+                ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuid + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+            }
 
-            ranCoreContraint2.put("bandIncDir",  "UL");
-            ranCoreContraint2.put("bandIncVal",  "10");
-            ranCoreContraint2.put("bandUnitScale",  "MB");
-            List<Map<String, Object>> ranArray = new ArrayList<>();
-            ranArray.add(ranCoreContraint);
-
-            ranArray.add(ranCoreContraint2);
-            qosContraint.put("ran_core_constraints", ranArray);
-            ActuationRequest actuationRequest = new ActuationRequest(vsiUuid, "updateQoS Actuation", "actuationDescription",qosConstraints,"");
-*/
-
-        /*
-        //Redirect
-            Map<String, String> qosRedirectParameters = new HashMap<>();
-            Map<String, Object> qosRedirectParametersParent = new HashMap<>();
-            qosRedirectParameters.put("FromServer", "192.168.100.6");
-            qosRedirectParameters.put("ToServer", "192.168.100.7");
-            qosRedirectParametersParent.put("routes", qosRedirectParameters);
-            qosRedirectParametersParent.put("ueIMSI", "208920100001103");
-            ActuationRequest actuationRequest = new ActuationRequest(vsiUuid, "actuationName", "actuationDescription",qosRedirectParametersParent,"");
-            ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/"+vsiUuid+"/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
-*/
 
             //Handover
-            boolean performHandoverRequest = true;
-            if(performHandoverRequest) {
-                log.info("Sending actuation handover request.");
+            if (slicerTestConfiguration.isPerformHandoverActuation()) {
+                log.info("Going to perform handover actuation");
                 Map<String, Object> handoverParameters = new HashMap<>();
                 handoverParameters.put("sid", 1234567);
                 handoverParameters.put("ueid", "208950000000003");
                 handoverParameters.put("tid", 9876543);
-                ActuationRequest actuationRequest = new ActuationRequest(vsiUuid, "handoverActuation", "handoverActuation", handoverParameters, "");
-                ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuid + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+                ActuationRequest actuationRequestHandover = new ActuationRequest(vsiUuid, "handoverActuation", "handoverActuation", handoverParameters, "");
+                Util.performHttpRequest(String.class, actuationRequestHandover, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuid + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
             }
-            
-            boolean performTerminationRequest = true;
-            if(performTerminationRequest) {
+
+            if (slicerTestConfiguration.isPerformSetSliceRanPriorityActuation()) {
+                //Set ran slice priority
+                log.info("Going to perform Set ran slice priority");
+                Map<String, Object> ranSlicePriorityParams = new HashMap<>();
+                ranSlicePriorityParams.put("ul", 9);
+                ranSlicePriorityParams.put("dl", 1);
+                Map<String, Object> ranSlicePriorityParentParams = new HashMap<>();
+                ranSlicePriorityParentParams.put("ran_slice_priority", ranSlicePriorityParams);
+                ActuationRequest actuationRequestRanPriority = new ActuationRequest(vsiUuid, "ran priority actuation", "ran priority actuation", ranSlicePriorityParentParams, "");
+                Util.performHttpRequest(String.class, actuationRequestRanPriority, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuid + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+            }
+
+
+            if (slicerTestConfiguration.isPerformSetSliceRanPriorityActuation()) {
+                //Set ran slice priority
+                log.info("Going to perform Set ran slice priority");
+                Map<String, Object> ranSlicePriorityParams = new HashMap<>();
+                ranSlicePriorityParams.put("ul", 9);
+                ranSlicePriorityParams.put("dl", 1);
+                Map<String, Object> ranSlicePriorityParentParams = new HashMap<>();
+                ranSlicePriorityParentParams.put("ran_slice_priority", ranSlicePriorityParams);
+                ActuationRequest actuationRequestRanPr = new ActuationRequest(vsiUuid, "ran priority actuation", "ran priority actuation", ranSlicePriorityParentParams, "");
+                Util.performHttpRequest(String.class, actuationRequestRanPr, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuid + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+            }
+
+            if (slicerTestConfiguration.isPerformVerticalServiceTermination()) {
                 log.info("Going to terminate VSI");
                 VsiTerminationTest(vsiUuid);
+                //VsiTerminationTest(vsiUuid2);
                 //VSImodificationTest();
                 boolean isTerminated = false;
-                while (!isTerminated) {
-                    ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
-                    QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
-                    log.info("Vertical service instance Status " + queryVsResponse.getStatus().toString());
-                    if (queryVsResponse.getStatus() == VerticalServiceStatus.TERMINATED) {
-                        isTerminated = true;
-                    } else {
-                        log.info("Vertical service instance not terinated yet. Next check in 30 seconds");
+                boolean isTerminated2 = true;
+
+                while (!isTerminated || !isTerminated2) {
+                    if (!isTerminated) {
+                        ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
+                        QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
+                        log.info("Vertical service instance Status " + queryVsResponse.getStatus().toString());
+                        if (queryVsResponse.getStatus() == VerticalServiceStatus.TERMINATED) {
+                            log.info("VSI with UUID "+vsiUuid+"  has been terminated");
+                            isTerminated = true;
+                        }
+                    }
+                   /* if (!isTerminated2) {
+                        ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuid2, HttpMethod.GET, dspInteraction.getCookiesTenant());
+                        QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
+                        log.info("Vertical service instance Status " + queryVsResponse.getStatus().toString());
+                        if (queryVsResponse.getStatus() == VerticalServiceStatus.TERMINATED) {
+                            log.info("VSI with UUID "+vsiUuid2+"  has been terminated");
+                            isTerminated2 = true;
+                        }
+                    }
+                */
+                    if (!isTerminated || !isTerminated2) {
+                        log.info("One of the Vertical services instance not terminated yet. Next check in 30 seconds");
                         try {
                             Thread.sleep(30000);
                         } catch (InterruptedException e) {

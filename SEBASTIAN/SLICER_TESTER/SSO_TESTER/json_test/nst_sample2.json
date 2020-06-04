@@ -1,0 +1,65 @@
+{
+	"nst": {
+		"nstId": "nstId2",
+		"nstName": "nstName2",
+		"nstVersion": "nstVersio2n",
+		"nstProvider": "nstProvider2",
+		"nsdId": "09f0f070-11a8-4fc3-8a47-253508673a99",
+		"nsdVersion": "1.0",
+		"geographicalAreaInfoList":[{
+                        "lat": 52.894059789742435,
+                        "lon": -8.600309558933717
+                },
+                {
+                        "lat": 52.89935623919947,
+                        "lon": -8.662568003691363
+                }],
+		"nsstIds": [
+			"1",
+			"2",
+			"3"
+		],
+		"nstServiceProfile": {
+			"pLMNIdList": [
+				"pLMNId1",
+				"pLMNId2",
+				"pLMNId3"
+			],
+			"coverageAreaTAList": [
+				"coverageAreaTA1",
+				"coverageAreaTA2",
+				"coverageAreaTA3"
+			],
+			"eMBBPerfReq": [{
+					"expDataRateDL": 10000000,
+					"expDataRateUL": 12000000,
+					"areaTrafficCapDL": 10000000,
+					"areaTrafficCapUL": 20000000,
+					"userDensity": 3000,
+					"activityFactor": 30,
+					"uESpeed": 200,
+					"coverage": "coverage1"
+				}],
+			"uRLLCPerfReq": [],
+			"availability": 99.9,
+			"latency": 10,
+			"maxNumberofUEs": 20000,
+			"resourceSharingLevel": false,
+			"sST": "EMBB",
+			"uEMobilityLevel": "STATIONARY"
+		},
+		"ppFunctionList": [{
+				"ppFeatureName": "ElementControl",
+				"ppFeatureLevel": "ELEMENT",
+				"ppFeatureType": "CONTROL"
+			},
+			{
+				"ppFeatureName": "SliceMonitoring",
+				"ppFeatureLevel": "SLICE",
+				"ppFeatureType": "MONITORING"
+			}
+		]
+
+
+	}
+}

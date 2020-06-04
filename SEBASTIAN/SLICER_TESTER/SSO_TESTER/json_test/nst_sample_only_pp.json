@@ -1,0 +1,33 @@
+{
+	"nst": {
+		"nstId": "nstId",
+		"nstName": "nstName",
+		"nstVersion": "nstVersion",
+		"nstProvider": "nstProvider",
+		"nsdId": "",
+		"geographicalAreaInfoList":[],
+		"nsdVersion": "",
+		"nsstIds": [],
+		"nsst":[],
+		"nsstType":"NONE",
+		"nstServiceProfile": {
+			"pLMNIdList": [],
+			"coverageAreaTAList": [],
+			"eMBBPerfReq": [],
+			"uRLLCPerfReq": [],
+			"availability": 99.9,
+			"latency": 10,
+			"maxNumberofUEs": 20000,
+			"resourceSharingLevel": false,
+			"sST": "EMBB",
+			"uEMobilityLevel": "STATIONARY"
+		},
+		"ppFunctionList": [
+			{
+				"ppFeatureName": "qos_ctrl_feature",
+				"ppFeatureLevel": "SLICE",
+				"ppFeatureType": "CONTROL"
+			}
+		]
+	}
+}

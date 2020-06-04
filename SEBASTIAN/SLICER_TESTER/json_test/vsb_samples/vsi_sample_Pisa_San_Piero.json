@@ -5,15 +5,36 @@
     "tenantId":"tenantId",
     "userData": {},
     "locationsConstraints":[{
-        "latitude":"43.7202",
-        "longitude": "10.4012",
+        "latitude":"52.8902",
+        "longitude": "-8.60112",
         "range": "7000"
     },{
-	"latitude":"43.6809",
-        "longitude": "10.3387",
+	"latitude":"52.8809",
+        "longitude": "-8.6687",
         "range": "7000"
-    }]
-}
+    }],
+   "imsiInfoList":[{
+	"id": "5eb1c7fe82c8945de842d8cd",
+	"name": "aasdasd",
+	"plmn": "qweqweqw",
+	"slice": "",
+	"imsis": [
+		"12323",
+		"54564",
+		"51233",
+		"65654"
+		]},
+	{
+	"id": "5eb1c80d82c8945de842d8ce",
+	"name": "teaadhsjkd",
+	"plmn": "qidwuqoijjdka",
+	"slice": "",
+	"imsis": [
+		"13131",
+		"22312",
+		"32352"
+	]}
+]}
 
 ---------------------------------------------
 

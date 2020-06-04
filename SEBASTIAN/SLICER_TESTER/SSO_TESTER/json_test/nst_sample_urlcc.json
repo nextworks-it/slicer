@@ -1,0 +1,59 @@
+{
+	"nst": {
+		"nstId": "nstId_urlcc",
+		"nstName": "nstName_urlcc",
+		"nstVersion": "nstVersion_urlcc",
+		"nstProvider": "nstProvider_urllc",
+		"nsdId": "09f0f070-11a8-4fc3-8a47-253508673a99",
+		"nsdVersion": "1.0",
+		"nsstIds": [
+			"1",
+			"2",
+			"3"
+		],
+		"nstServiceProfile": {
+			"pLMNIdList": [
+				"pLMNId1",
+				"pLMNId2",
+				"pLMNId3"
+			],
+			"coverageAreaTAList": [
+				"coverageAreaTA1",
+				"coverageAreaTA2",
+				"coverageAreaTA3"
+			],
+			"eMBBPerfReq": [],
+			"uRLLCPerfReq": [{
+					"e2eLatency": 5,
+					"jitter": 0,
+					"survivalTime": 100,
+					"cSAvailability": 99.999,
+					"reliability": 99.9999,
+					"expDataRate": 10000,
+					"payloadSize": "Whatever",
+					"trafficDensity": 1000000,
+					"connDensity": 1000000,
+					"serviceAreaDimension": "Well"
+				}],
+			"availability": 99.9,
+			"latency": 10,
+			"maxNumberofUEs": 20000,
+			"resourceSharingLevel": false,
+			"sST": "URLLC",
+			"uEMobilityLevel": "STATIONARY"
+		},
+		"ppFunctionList": [{
+				"ppFeatureName": "ElementControl",
+				"ppFeatureLevel": "ELEMENT",
+				"ppFeatureType": "CONTROL"
+			},
+			{
+				"ppFeatureName": "SliceMonitoring",
+				"ppFeatureLevel": "SLICE",
+				"ppFeatureType": "MONITORING"
+			}
+		]
+
+
+	}
+}

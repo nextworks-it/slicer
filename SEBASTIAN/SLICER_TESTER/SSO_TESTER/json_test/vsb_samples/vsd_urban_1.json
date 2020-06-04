@@ -1,0 +1,19 @@
+{
+	"vsd": {
+		"name": "urban 1",
+		"version": "0.1",
+		"sst": "EMBB",
+		"vsBlueprintId": "vsb_id",
+		"managementType": "PROVIDER_MANAGED",
+		"qosParameters": {
+			"UrbanScenario": "URBAN_MACRO"
+		},
+		"serviceConstraints": [{
+			"sharable": false,
+			"canIncludeSharedElements": true,
+			"priority": "LOW"
+		}],
+		"sla": {}
+	},
+	"tenantId": "admin"
+}
