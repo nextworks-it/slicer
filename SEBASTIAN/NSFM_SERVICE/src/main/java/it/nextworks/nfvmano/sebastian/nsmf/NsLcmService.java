@@ -427,7 +427,6 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
             log.info("Faking network slice");
             actuationLcmService.processActuation(request);
         }
-
         String nsiUuid = request.getNsiId();
         ActuateNsiRequestMessage internalMessage = new ActuateNsiRequestMessage(request, tenantId);
         String topic = "nslifecycle.actuatensi." + nsiUuid;

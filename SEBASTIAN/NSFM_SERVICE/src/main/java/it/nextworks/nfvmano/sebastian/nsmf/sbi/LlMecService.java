@@ -162,7 +162,7 @@ public class LlMecService extends CPSService{
 
 
     private String getLLmecSliceIdByImsi(String imsi){
-        String url = String.format( "http://%s/stats", this.llMecAdapterUrl);
+        String url = String.format( "http://%s/stats", this.llMecUrl);
         try{
             ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.GET);
             JsonParser jsonParser = new JsonParser();

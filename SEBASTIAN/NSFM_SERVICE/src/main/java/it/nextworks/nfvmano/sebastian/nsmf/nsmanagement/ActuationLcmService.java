@@ -80,10 +80,18 @@ public class ActuationLcmService {
             {
                 case REDIRECT:
                     log.info("The actuation is a REDIRECT actuation request.");
-                    json = new JSONObject(parameters);
+                    log.debug("Getting the IP addresses");
+
+                    Map<String, String> qosRedirectParameters = new HashMap<>();
+                    Map<String, Object> qosRedirectParametersParent = new HashMap<>();
+                    qosRedirectParameters.put("FromServer", "10.202.2.21");
+                    qosRedirectParameters.put("ToServer", "10.8.105.16");
+                    qosRedirectParametersParent.put("routes", qosRedirectParameters);
+                    JSONObject json2 = new JSONObject(qosRedirectParametersParent);
+                    System.out.println(json2);
                     qoSService.setTargetUrl(url);
-                    httpStatus =qoSService.redirectTraffic(UUID.fromString(nsiId),
-                            "CORE", (String)parameters.get("ueIMSI"), json);
+                    httpStatus = qoSService.redirectTraffic(UUID.fromString(nsiId),
+                            "CORE", (String)parameters.get("RESOURCE_ID"), json2);
                     return httpStatus==HttpStatus.OK;
 
 
