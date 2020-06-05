@@ -1,9 +1,0 @@
-{
-    "name":"test_instance",
-    "description":"5gt service instance",
-    "vsdId":"vsdId",
-    "tenantId":"tenantId",
-    "userData": {}
-}
-
-
