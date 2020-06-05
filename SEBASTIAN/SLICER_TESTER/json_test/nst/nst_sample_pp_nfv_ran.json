@@ -34,6 +34,14 @@
 			"nsstIds": [],
 			"nsst": [],
 			"kpiList":["downloadRateEvery10Sec","uploadRateEvery10Sec","NumberofActiveUser"],
+			"actuationList":[{
+				"name":"redirect",
+				"description":"redirect",
+				"parameters":{
+					"key1":"value1",
+					"key2":"value2"
+					}
+			}],
 			"nstServiceProfile": {
 				"pLMNIdList": [],
 				"coverageAreaTAList": [],
