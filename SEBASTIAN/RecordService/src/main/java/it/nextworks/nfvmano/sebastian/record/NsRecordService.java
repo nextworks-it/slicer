@@ -22,6 +22,7 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 
 import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
+import it.nextworks.nfvmano.sebastian.record.elements.ImsiInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,6 +134,15 @@ public class NsRecordService {
 		nsInstanceRepository.saveAndFlush(nsi);
 		log.debug("Updated Network Slice instance " + nsiUuid + " in NSI DB record.");
 	}
+
+	public synchronized void setImsi(String nsiUuid, List<ImsiInfo> imsiInfoList) throws NotExistingEntityException {
+		log.debug("Setting Imsi info list for Network Slice instance " + nsiUuid + " in NSI DB record.");
+		NetworkSliceInstance nsi = getNsInstance(nsiUuid);
+		nsi.setImsiInfoList(imsiInfoList);
+		nsInstanceRepository.saveAndFlush(nsi);
+		log.debug("Updated Network Slice instance " + nsiUuid + " in NSI DB record with IMSI info.");
+	}
+
 
 	private void debugPrint(NetworkSliceInstance nsi){
 		log.info("nfvNsInstantiationInfo into NSI with ID "+nsi.getNsiId());

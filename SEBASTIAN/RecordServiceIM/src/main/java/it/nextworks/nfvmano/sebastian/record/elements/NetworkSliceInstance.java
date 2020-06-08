@@ -19,11 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.ElementCollection;
+import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 
 import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
 import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
@@ -31,6 +28,7 @@ import org.hibernate.annotations.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.hibernate.annotations.CascadeType;
 
 /*An NST may have zero to N NSST embedded.
 In the generic case of N NSST case, the network slice instance could refer to up to N nfvNsInstantiationInfoList and N nfvNsIdList,
@@ -99,6 +97,11 @@ public class NetworkSliceInstance {
 	@Fetch(FetchMode.SELECT)
 	@Cascade(org.hibernate.annotations.CascadeType.ALL)
 	private List<String> nfvNsIdList;
+
+	@OneToMany
+	@Cascade(org.hibernate.annotations.CascadeType.ALL)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	private List<ImsiInfo> imsiInfoList = new ArrayList<>();
 
 	public NetworkSliceInstance() {	}
 
@@ -394,7 +397,11 @@ public class NetworkSliceInstance {
 		return nfvNsIdList;
 	}
 
-	//public List<ImsiInfo> getImsiInfoList() {
-//		return imsiInfoList;
-//	}
+	public List<ImsiInfo> getImsiInfoList() {
+		return imsiInfoList;
+	}
+
+	public void setImsiInfoList(List<ImsiInfo> imsiInfoList) {
+		this.imsiInfoList = imsiInfoList;
+	}
 }

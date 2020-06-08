@@ -86,10 +86,10 @@ public class NsmfRestController {
 			}
 			return new ResponseEntity<NetworkSliceInstance>(nsis.get(0), HttpStatus.OK);
 		} catch (MalformattedElementException e) {
-			log.error("NS ID creation failed due to bad-formatted request.");
+			log.error("Network Slice getting information due to bad-formatted request.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
-			log.error("NS ID creation failed due to internal errors.");
+			log.error("Network Slice getting information failed due to internal errors.");
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

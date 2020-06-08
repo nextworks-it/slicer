@@ -338,7 +338,6 @@ public class NsLcmManager {
 						log.error("Cannot set IMSI to slice. Http code returned "+setImsiliceHttpCode);
 						return false;
 					}
-
 					// RAN-4 -> Apply QoS Constraints
 					log.info("RAN: Applying QoS");
 					HttpStatus httpStatusApplyQos = this.flexRanService.applyInitialQosConstraints(UUID.fromString(networkSliceInstanceUuid), qosConstraints);
@@ -524,7 +523,7 @@ public class NsLcmManager {
 				boolean ranInstantiated =  createRanSlice(msg.getRequest().getImsiInfoList());
 				log.info("KPI:"+ Instant.now().toEpochMilli()+", RAN slice creation finished for Network Slice with UUID "+this.networkSliceIdInstanciated);
 
-
+				nsRecordService.setImsi(networkSliceInstanceUuid, imsiInfoListRequest);
 				// Step #2: create P&P slice.
 				log.info("KPI:"+ Instant.now().toEpochMilli()+", P&P slice creation started for Network Slice with UUID "+this.networkSliceIdInstanciated);
 				boolean ppInstantiated = createPPslice();
