@@ -293,7 +293,7 @@ public class VsLcmManager {
 
             List<String> domainList = new ArrayList<String>();
             domainList.add("slice "+vsiUuid);
-            pnPCommunicationService.deployQoEFeature(UUID.fromString(vsiUuid), msg.getRequest().getName(), this.tenantId, domainList);
+            pnPCommunicationService.deployQoEFeature(UUID.fromString(vsiUuid), msg.getRequest().getName(), this.tenantId, vsd.getPpFunctionList(), domainList);
             log.info("Performed successfully creation of  "  +nsiUuidNetworkSliceInfoMap.size() + " Network Slice Instance(s).\n");
             log.info("Going to perform the network slice instantiation request(s)");
 

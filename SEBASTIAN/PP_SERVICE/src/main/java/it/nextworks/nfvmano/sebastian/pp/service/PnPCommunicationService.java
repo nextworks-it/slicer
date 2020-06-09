@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFeatureLevel;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFeatureType;
+import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import it.nextworks.nfvmano.sebastian.pp.SbRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,11 +65,12 @@ public class PnPCommunicationService extends SbRestClient {
         }
     }
 
+
     //DSP-SIDE ONLY
-    public HttpStatus deployQoEFeature(UUID sliceUuid, String sliceName, String sliceTenant, List<String> domainList){
+    public HttpStatus deployQoEFeature(UUID sliceUuid, String sliceName, String sliceTenant, List<PpFunction> ppFunctions, List<String> domainList){
         try{
             String url = this.getTargetUrl() + "/plug-and-play-manager/slice/" + sliceUuid +"/";
-            Object requestPayload = generateQoEFeature(sliceUuid, sliceName, sliceTenant, domainList);
+            Object requestPayload = generateQoEFeature(sliceUuid, sliceName, sliceTenant, domainList, ppFunctions);
             log.info("Payload");
             log.info(requestPayload.toString());
             ResponseEntity<String> httpResponse = this.performHTTPRequest(requestPayload, url, HttpMethod.POST);
@@ -113,7 +115,7 @@ public class PnPCommunicationService extends SbRestClient {
     }
 
 
-    private ObjectNode generateQoEFeature(UUID sliceId, String sliceName, String sliceTenant, List<String> domainList) {
+    private ObjectNode generateQoEFeature(UUID sliceId, String sliceName, String sliceTenant, List<String> domainList, List<PpFunction> ppFunctionList) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode networkSliceInfo = mapper.createObjectNode();
         networkSliceInfo.put("slice_id", sliceId.toString());
@@ -123,15 +125,18 @@ public class PnPCommunicationService extends SbRestClient {
         ArrayNode domainsList = buildDomainsList(domainList);
         //networkSliceInfo.putPOJO("domains", domainsList);
 
-        ObjectNode requiredFeatureJSON = mapper.createObjectNode();
-        requiredFeatureJSON.put("seq_id", 0);
-        requiredFeatureJSON.put("feature_id", "qoe_man_feature");
-        requiredFeatureJSON.put("feature_type", PpFeatureType.MANAGEMENT.toString().toLowerCase());
-        requiredFeatureJSON.put("feature_level", PpFeatureLevel.SLICE.toString().toLowerCase());
+        ObjectMapper mapper2 = new ObjectMapper();
         ArrayNode reqComponentFeatureArray = mapper.createArrayNode();
-        reqComponentFeatureArray.add(requiredFeatureJSON);
-        networkSliceInfo.putPOJO("required_feature", reqComponentFeatureArray);
 
+        for (int i = 0; i < ppFunctionList.size(); i++) {
+            ObjectNode objectNode = mapper2.createObjectNode();
+            objectNode.put("seq_id", ppFunctionList.get(i).getSeqId());
+            objectNode.put("feature_id", ppFunctionList.get(i).getPpFeatureName());
+            objectNode.put("feature_type", ppFunctionList.get(i).getPpFeatureType().toString().toLowerCase());
+            objectNode.put("feature_level", ppFunctionList.get(i).getPpFeatureLevel().toString().toLowerCase());
+            reqComponentFeatureArray.add(objectNode);
+        }
+        networkSliceInfo.putPOJO("required_feature", reqComponentFeatureArray);
         return networkSliceInfo;
     }
 
