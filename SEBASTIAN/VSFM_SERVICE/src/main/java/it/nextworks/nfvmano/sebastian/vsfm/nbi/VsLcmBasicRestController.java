@@ -15,6 +15,7 @@
 package it.nextworks.nfvmano.sebastian.vsfm.nbi;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 
 import it.nextworks.nfvmano.sebastian.admin.MgmtCatalogueUtilities;
@@ -137,8 +138,29 @@ public class VsLcmBasicRestController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
+
+	@RequestMapping(value = "/vsi/{vsiUuid}", method = RequestMethod.GET)
+	public ResponseEntity<?> getNetworkSlicesIdFromVsInstance(@PathVariable String vsiUuid, Authentication auth) {
+		log.debug("Received request to retrieve the Network Slice Id from Vertical Service UUID");
+		try {
+			String user = getUserFromAuth(auth);
+			if(!user.equals(adminTenant)){
+				log.error("Error: a NOT admin cannot perform actuation request.");
+				return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+			}
+			List<String> response = vsLcmService.getVsiNsiMappingInfo(vsiUuid);
+			log.info("Network Slice Ids associated to Vertical service Instances with UUID: "+vsiUuid+" "+Arrays.toString(response.toArray()));
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} catch (NotExistingEntityException e) {
+			log.error("VS instance not found");
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+		catch (Exception e) {
+			log.error("Internal exception");
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	@RequestMapping(value = "/vs/{vsiUuid}/terminate", method = RequestMethod.POST)
 	public ResponseEntity<?> terminateVsInstance(@PathVariable String vsiUuid, Authentication auth) {
 		log.debug("Received request to terminate VS instance with ID " + vsiUuid);

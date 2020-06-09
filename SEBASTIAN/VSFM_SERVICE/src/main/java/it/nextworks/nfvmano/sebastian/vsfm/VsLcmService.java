@@ -46,6 +46,7 @@ import it.nextworks.nfvmano.sebastian.nste2eComposer.IM.NstAdvertisedInfo;
 import it.nextworks.nfvmano.sebastian.pp.service.PnPCommunicationService;
 import it.nextworks.nfvmano.sebastian.record.VsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
+import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceStatus;
 import it.nextworks.nfvmano.sebastian.vsfm.engine.messages.*;
 import it.nextworks.nfvmano.sebastian.vsfm.interfaces.VsLcmProviderInterface;
 import it.nextworks.nfvmano.sebastian.vsfm.messages.*;
@@ -363,7 +364,22 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 			throw new MethodNotImplementedException("Received VSI query with attribute selector. Not supported at the moment.");
 		}
 	}
-		
+
+
+	public List<String> getVsiNsiMappingInfo(String vsiUuid)
+			throws NotExistingEntityException, NotPermittedOperationException {
+		log.debug("Received request to get Network Slice instances from Vertical Service instances.");
+		VerticalServiceInstance verticalServiceInstance = vsRecordService.getVsInstance(vsiUuid);
+		if(verticalServiceInstance.getStatus().toString().equals(VerticalServiceStatus.INSTANTIATED.toString()))
+			return verticalServiceInstance.getNetworkSlicesId();
+
+		final String ERR_STR = "The Vertical service instance is not into INSTANTIATED state yet.";
+		log.warn(ERR_STR);
+		ArrayList<String> arrayList = new ArrayList<String>();
+		arrayList.add(ERR_STR);
+		return arrayList;
+
+	}
 
 	@Override
 	public void terminateVs(TerminateVsRequest request) throws MethodNotImplementedException,
