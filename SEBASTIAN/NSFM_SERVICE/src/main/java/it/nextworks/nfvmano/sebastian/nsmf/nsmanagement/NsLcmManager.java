@@ -268,7 +268,7 @@ public class NsLcmManager {
 
 
 
-	private boolean createRanSlice(List<ImsiInfo> imsiInfoList){
+	private boolean createRanSlice(List<ImsiInfo> imsiInfoList) throws NotExistingEntityException {
 		if(hasNstRAN()) {
 			log.info("The Network Slice Template has at least one RAN slice to be instantiated.");
 			if(nsmfUtils.isRanSimulated()){
@@ -310,6 +310,7 @@ public class NsLcmManager {
 					// RAN-1 -> Slice creation on flexran (Setting one percent)
 					log.info("RAN: Starting creating slice");
 					HttpStatus createRanSliceHttpCode = this.flexRanService.createSliceRanOnePercent(UUID.fromString(networkSliceInstanceUuid));
+
 					if(createRanSliceHttpCode != HttpStatus.OK){
 						log.error("Cannot create RAN slice. Http code returned "+createRanSliceHttpCode);
 						return false;
@@ -346,6 +347,7 @@ public class NsLcmManager {
 						log.error("Cannot apply QoS constraint on RAN slice. Http code returned "+httpStatusApplyQos);
 						return false;
 					}
+					nsRecordService.setRanSliceID(networkSliceInstanceUuid,this.flexRanService.getRanId(UUID.fromString(networkSliceInstanceUuid)));
 				}
 			}
         }
@@ -711,6 +713,7 @@ public class NsLcmManager {
 							nsRecordService.setNsStatus(soManagedNsiUuid, NetworkSliceStatus.TERMINATED);
 						}
 						this.internalStatus=NetworkSliceStatus.TERMINATED;
+
 						nsRecordService.setNsStatus(networkSliceInstanceUuid, NetworkSliceStatus.TERMINATED);
 						log.debug("Removing NSLCM Manager from engine for network slice " + networkSliceInstanceUuid);
 						nsLcmService.removeNsLcmManager(networkSliceInstanceUuid);
@@ -763,7 +766,7 @@ public class NsLcmManager {
 	}
 
 
-	private void processTerminateRequest(TerminateNsiRequestMessage msg) {
+	private void processTerminateRequest(TerminateNsiRequestMessage msg) throws NotExistingEntityException {
 		//termination steps. See below:
 		log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating network slice for Network Slice with UUID "+msg.getRequest().getNsiId());
 		//Step #0: Check the status of the network Slice
@@ -806,6 +809,8 @@ public class NsLcmManager {
 					log.debug("Terminating RAN Slice for  " + networkSliceInstanceUuid);
 					HttpStatus httpStatus = flexRanService.terminateRanSlice(UUID.fromString(networkSliceInstanceUuid));
 					ranSliceCorrectlyTerminated = httpStatus == HttpStatus.OK;
+					if(ranSliceCorrectlyTerminated)
+						nsRecordService.setRanSliceID(networkSliceInstanceUuid,-1);//-1 means no slice mapped.
 				}
 			}
 		}

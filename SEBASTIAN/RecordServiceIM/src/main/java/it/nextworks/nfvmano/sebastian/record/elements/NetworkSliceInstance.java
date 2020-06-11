@@ -103,6 +103,8 @@ public class NetworkSliceInstance {
 	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<ImsiInfo> imsiInfoList = new ArrayList<>();
 
+	private Integer ranSliceId;
+
 	public NetworkSliceInstance() {	}
 
 	/**
@@ -126,6 +128,7 @@ public class NetworkSliceInstance {
 		this.nfvNsInstantiationInfoList=new ArrayList<NfvNsInstantiationInfo>();
 		this.nfvNsIdList = new ArrayList<String>();
 		this.networkSliceSubnetInstances=new ArrayList<String>();
+		this.ranSliceId=-1;
 		//if(imsiInfoList!=null) this.imsiInfoList = imsiInfoList;
 	}
 
@@ -403,5 +406,13 @@ public class NetworkSliceInstance {
 
 	public void setImsiInfoList(List<ImsiInfo> imsiInfoList) {
 		this.imsiInfoList = imsiInfoList;
+	}
+
+	public Integer getRanSliceId() {
+		return ranSliceId;
+	}
+
+	public void setRanSliceId(Integer ranSliceId) {
+		this.ranSliceId = ranSliceId;
 	}
 }
