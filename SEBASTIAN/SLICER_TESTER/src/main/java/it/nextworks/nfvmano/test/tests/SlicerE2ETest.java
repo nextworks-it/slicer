@@ -295,25 +295,28 @@ public class SlicerE2ETest {
 
 
     private String onBoardNstBasedOnInstantiationScenario(InstantiationScenario instantiationScenario, EndPointInteraction endPointInteraction){
-        String nstUuid=null;
+        String nstUuidA=null;
+        String nstUuidB=null;
+        String nstUuidC=null;
         switch(instantiationScenario){
             case ONLY_PP:
-                nstUuid =endPointInteraction.onBoardNST("./json_test/nst_sample_only_pp.json");
+                nstUuidA =endPointInteraction.onBoardNST("./json_test/nst_sample_only_pp.json");
                 break;
 
             case PP_NFV_NO_RAN:
-                nstUuid =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_pp_and_nfv_no_ran.json");
+                nstUuidA =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_pp_and_nfv_no_ran.json");
                 break;
 
             case PP_NFV_RAN:
-                nstUuid =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_pp_nfv_ran.json");
-                //nstUuid =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_pp_nfv_ran.json_copy");
+                nstUuidA =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_a.json");
+                nstUuidB =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_b.json");
+                nstUuidC =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_c.json");
                 break;
             default:
                 log.error("Specify a suitable scenario");
                 break;
         }
-        return nstUuid;
+        return nstUuidA;
     }
 
     public void testVerticalServiceInstanceLifeCycle() {
@@ -410,10 +413,11 @@ public class SlicerE2ETest {
 
         String vsdId;
         if (instantiationScenario == InstantiationScenario.ONLY_PP) {
-            String vsbOnlyPP = onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_only_pp.json");
+            String vsbOnlyPP = onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_sample_only_pp.json");
             vsdId = testVSDOnBoarding(vsbOnlyPP, "./json_test/vsb_samples/vsd_only_pp.json");
         } else {
-            String vsbPpAndQos = onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_streaming_pp.json");
+            String vsbPpAndQos = onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_eHealth_yes_pp.json");
+            //String vsbPpAndQos = onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_eHealth_no_pp.json");
             vsdId = testVSDOnBoarding(vsbPpAndQos, "./json_test/vsb_samples/vsd_streaming_with_pp.json");
         }
         final int instantiationTerminationIterations = slicerTestConfiguration.getNumberOfInstantiateTerminateIterations();

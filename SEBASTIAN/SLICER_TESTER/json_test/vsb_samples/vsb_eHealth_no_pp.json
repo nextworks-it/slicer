@@ -1,0 +1,100 @@
+{
+	"vsBlueprint": {
+		"version": "1.0",
+		"name": "eHealth BlueEye",
+		"description": "eHealth telestroke assessment service",
+		"parameters": [{
+				"parameterId": "MaximumNumberUsers",
+				"parameterName": "MaximumNumberUsers",
+				"parameterType": "number",
+				"parameterDescription": "Maximum number of users that should be supported by the service"
+			},
+			{
+				"parameterId": "BitrateMbpsUL",
+				"parameterName": "StreamingBitrateMbps",
+				"parameterType": "number",
+				"parameterDescription": "StreamingBitrateMbps"
+			}
+		],
+		"ppFunctionList": [],
+		"applicationMetrics": [{
+				"metricId": "downloadRateEvery10Sec",
+				"name": "download rate",
+				"metricCollectionType": "GAUGE",
+				"unit": "Mbps",
+				"interval": "10",
+				"topic": "topic1"
+			},
+			{
+				"metricId": "uploadRateEvery10Sec",
+				"name": "upload rate",
+				"metricCollectionType": "GAUGE",
+				"unit": "Mbps",
+				"interval": "10",
+				"topic": "topic2"
+			},
+			{
+				"metricId": "NumberofActiveUser",
+				"name": "Active user",
+				"metricCollectionType": "GAUGE",
+				"unit": "adimensional",
+				"interval": "30",
+				"topic": "topic3"
+			}
+		],
+		"atomicComponents": [
+				{
+				"componentId": "BlueEye",
+				"serversNumber": 0,
+				"endPointsIds": ["blueye_data"]
+				},{
+				"componentId": "Telestroke",
+				"serversNumber": 1,
+				"endPointsIds": ["telestroke_data"]
+				},
+{
+				"componentId": "vEPC",
+				"serversNumber": 1,
+				"endPointsIds": ["epc_data_ext"]
+				}
+],
+			"endPoints": [{
+				"endPointId": "vs_sap_data",
+				"external": true,
+				"management": true,
+				"ranConnection": true
+			}, {
+				"endPointId": "blueye_data",
+				"external": true,
+				"management": true,
+				"ranConnection": false
+			}, {
+				"endPointId": "telestroke_data",
+				"external": true,
+				"management": true,
+				"ranConnection": false
+			}, {
+				"endPointId": "epc_data_ext",
+				"external": true,
+				"management": true,
+				"ranConnection": false
+			}],
+			"connectivityServices": [{
+				"endPointIds": [
+					"vs_sap_data",
+					"blueye_data",
+					"telestroke_data",
+					"epc_data_ext"
+				],
+				"external": true
+			}]
+		},
+		"nstTranslationRules": [{
+			"nstId": "10",
+			"input": [{
+				"parameterId": "MaximumNumberUsers",
+				"minValue": 1,
+				"maxValue": 10
+			}]
+		}]
+	}

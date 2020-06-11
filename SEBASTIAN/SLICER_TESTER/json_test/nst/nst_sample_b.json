@@ -1,0 +1,103 @@
+{
+	"nst": {
+		"nstId": "nstId",
+		"nstName": "nstSample2",
+		"nstVersion": "nstVersion2",
+		"nstProvider": "nstProvider2",
+		"nsdId": "",
+		"nsdVersion": "",
+		"nsdName": "",
+		"nsdType": "",
+		"geographicalAreaInfoList": [],
+		"nsstIds": [],
+		"nsstType": "NONE",
+		"ppFunctionList": [{
+			"ppFeatureName": "qos_ctrl_feature",
+			"ppFeatureLevel": "SLICE",
+			"ppFeatureType": "CONTROL"
+		}],
+		"nstServiceProfile": {},
+		"nsst": [{
+			"nstId": "nstNoRanOnlyNfv",
+			"nstName": "nstNoRanOnlyNfv",
+			"nstVersion": "nstNoRanOnlyNfvVesion",
+			"nstProvider": "nsstProvider",
+			"nsdId": "7cbc5505-749c-4df3-894d-a8565634777f",
+			"nsdVersion": "1.0",
+			"nsstType": "CORE",
+			"nsToBeInstanciated":true,
+			"geographicalAreaInfoList":[],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":["downloadRateEvery10Sec"],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [{
+					"expDataRateDL": 4000000,
+					"expDataRateUL": 6000000,
+					"areaTrafficCapDL": 400000000,
+					"areaTrafficCapUL": 600000000,
+					"userDensity": 500,
+					"activityFactor": 20,
+					"uESpeed": 200,
+					"coverage": "coverage"
+				}],
+				"uRLLCPerfReq": [],
+				"availability": 99.9,
+				"latency": 10,
+				"maxNumberofUEs": 20000,
+				"resourceSharingLevel": false,
+				"sST": "EMBB",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": []
+		},{
+			"nstId": "nstOnlyRan",
+			"nstName": "nstOnlyRan",
+			"nstVersion": "nstOnlyRan",
+			"nstProvider": "nstOnlyRan",
+			"nsdId": "",
+			"nsdVersion": "",
+			"nsdName": "",
+			"nsdType": "",
+			"nsstType": "RAN",
+			"nsToBeInstanciated":false,
+			"geographicalAreaInfoList":[{
+                       		"lat": 52.894059789742435,
+                        	"lon": -8.600309558933717
+                	},
+                	{
+                        	"lat": 52.89935623919947,
+                        	"lon": -8.662568003691363
+                	}],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":["kpiRAN1","kpiRAN2","kpiRAN3"],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [{
+					"expDataRateDL": 1000000,
+					"expDataRateUL": 1000000,
+					"areaTrafficCapDL": 40000000,
+					"areaTrafficCapUL": 40000000,
+					"userDensity": 200,
+					"activityFactor": 20,
+					"uESpeed": 100,
+					"coverage": "coverage"
+				}],
+				"uRLLCPerfReq": [],
+				"availability": 99.9,
+				"latency": 10,
+				"maxNumberofUEs": 20000,
+				"resourceSharingLevel": false,
+				"sST": "EMBB",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": []
+		}]
+	}
+}
