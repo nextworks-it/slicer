@@ -41,6 +41,7 @@ import it.nextworks.nfvmano.libs.ifa.records.nsinfo.NsInfo;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.libs.ifa.templates.NstServiceProfile;
 import it.nextworks.nfvmano.libs.ifa.templates.SliceType;
+import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.NsstType;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
@@ -372,6 +373,16 @@ public class NsLcmManager {
 	private void instantiateNetworkService(InstantiateNsiRequestMessage msg) throws FailedOperationException, MalformattedElementException, NotExistingEntityException, MethodNotImplementedException {
 		log.info("Network Slice Template owns NSST with Nfv.");
 		for(NST nsst: networkSliceTemplate.getNsst()){
+			if(nsst.getNsstType().equals(NsstType.RAN)){
+				log.warn("NSST with UUID "+nsst.getNstId()+" is RAN type. Skipping network service instantiation.");
+				continue;
+			}
+
+			if(!nsst.isNsToBeInstanciated()){
+				log.warn("NSST with UUID "+nsst.getNstId()+" not needed to be instantiated. Skipping instantiation");
+				continue;
+			}
+
 			log.info("Instantiating NSST with ID "+nsst.getNstId());
 			String nsdId = nsst.getNsdId();
 			String nsdVersion = nsst.getNsdVersion();

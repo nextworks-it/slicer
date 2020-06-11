@@ -24,6 +24,7 @@ import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
+import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.NsstType;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmNotificationConsumerInterface;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
@@ -135,6 +136,15 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
         NST nsTemplate = nstInfo.getNST();
 
         for(NST nsst: nsTemplate.getNsst()){
+            if(nsst.getNsdId().isEmpty()){
+                log.warn("The NSST with ID "+nsst.getNstId()+" and NSST type "+nsst.getNsstType()+" has not nsd id. Skipping the arbitration for this NSST. ");
+                continue;
+            }
+
+            if(nsst.getNsstType().equals(NsstType.RAN)){
+                log.warn("The NSST with ID "+nsst.getNstId()+" and NSST has type "+nsst.getNsstType()+". Arbitration is skipped for this NSST. ");
+                continue;
+            }
             List<ArbitratorRequest> arbitratorRequests = new ArrayList<>();
             NfvNsInstantiationInfo nfvNsInstantiationInfo = new NfvNsInstantiationInfo(
                     nsst.getNsdId(),
