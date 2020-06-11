@@ -766,7 +766,7 @@ public class NsLcmManager {
 	}
 
 
-	private void processTerminateRequest(TerminateNsiRequestMessage msg) throws NotExistingEntityException {
+	private void processTerminateRequest(TerminateNsiRequestMessage msg) {
 		//termination steps. See below:
 		log.info("KPI:"+Instant.now().toEpochMilli()+", Terminating network slice for Network Slice with UUID "+msg.getRequest().getNsiId());
 		//Step #0: Check the status of the network Slice
@@ -809,8 +809,14 @@ public class NsLcmManager {
 					log.debug("Terminating RAN Slice for  " + networkSliceInstanceUuid);
 					HttpStatus httpStatus = flexRanService.terminateRanSlice(UUID.fromString(networkSliceInstanceUuid));
 					ranSliceCorrectlyTerminated = httpStatus == HttpStatus.OK;
-					if(ranSliceCorrectlyTerminated)
-						nsRecordService.setRanSliceID(networkSliceInstanceUuid,-1);//-1 means no slice mapped.
+					if(ranSliceCorrectlyTerminated){
+						try {
+							nsRecordService.setRanSliceID(networkSliceInstanceUuid,-1);//-1 means no slice mapped.
+						} catch (NotExistingEntityException e) {
+							e.printStackTrace();
+							log.error(e.getMessage());
+						}
+					}
 				}
 			}
 		}
