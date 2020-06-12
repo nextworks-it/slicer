@@ -1,0 +1,145 @@
+{
+	"nst": {
+		"nstId": "nstId",
+		"nstName": "Slice RAN, Core, blueye",
+		"nstVersion": "1.0",
+		"nstProvider": "NSP-1",
+		"nsdId": "",
+		"nsdVersion": "",
+		"nsdName": "",
+		"nsdType": "",
+		"geographicalAreaInfoList": [],
+		"nsstIds": [],
+		"nsstType": "NONE",
+		"ppFunctionList": [{
+			"ppFeatureName": "qos_ctrl_feature",
+			"ppFeatureLevel": "SLICE",
+			"ppFeatureType": "CONTROL"
+		}],
+		"nstServiceProfile": {},
+		"nsst": [{
+			"nstId": "nstNfv",
+			"nstName": "vEPC slice subnet",
+			"nstVersion": "1.0",
+			"nstProvider": "NSP-1",
+			"nsdId": "7cbc5505-749c-4df3-894d-a8565634777f",
+			"nsdName": "vEPC",
+			"nsdVersion": "1.0",
+			"nsdType": "vEPC",
+			"nsstType": "CORE",
+			"nsToBeInstanciated":true,
+			"geographicalAreaInfoList":[],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":["downloadRateEvery10Sec", "uploadRateEvery10Sec", "NumberofActiveUser"],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [{
+					"expDataRateDL": 10000000,
+					"expDataRateUL": 10000000,
+					"areaTrafficCapDL": 800000000,
+					"areaTrafficCapUL": 800000000,
+					"userDensity": 400,
+					"activityFactor": 20,
+					"uESpeed": 200,
+					"coverage": "coverage"
+				}],
+				"uRLLCPerfReq": [],
+				"availability": 99.9,
+				"latency": 20,
+				"maxNumberofUEs": 5000,
+				"resourceSharingLevel": false,
+				"sST": "EMBB",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": []
+		},{
+			"nstId": "nstOnlyRan",
+			"nstName": "RAN slice subnet",
+			"nstVersion": "1.0",
+			"nstProvider": "NSP-1",
+			"nsdId": "",
+			"nsdVersion": "",
+			"nsdName": "",
+			"nsdType": "",
+			"nsstType": "RAN",
+			"nsToBeInstanciated":false,
+			"geographicalAreaInfoList":[{
+                       		"lat": 52.894059789742435,
+                        	"lon": -8.600309558933717
+                	},
+                	{
+                        	"lat": 52.89935623919947,
+                        	"lon": -8.662568003691363
+                	}],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":["kpiRAN1","kpiRAN2","kpiRAN3"],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [{
+					"expDataRateDL": 1000000,
+					"expDataRateUL": 1000000,
+					"areaTrafficCapDL": 120000000,
+					"areaTrafficCapUL": 120000000,
+					"userDensity": 400,
+					"activityFactor": 30,
+					"uESpeed": 250,
+					"coverage": "coverage"
+				}],
+				"uRLLCPerfReq": [],
+				"availability": 99.9,
+				"latency": 10,
+				"maxNumberofUEs": 200,
+				"resourceSharingLevel": false,
+				"sST": "EMBB",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": []
+		},{
+			"nstId": "nsstApp",
+			"nstName": "blueye slice subnet",
+			"nstVersion": "1.0",
+			"nstProvider": "NSP-1",
+			"nsdId": "9a602f82-ac7e-11ea-bb37-0242ac130002",
+			"nsdVersion": "",
+			"nsdName": "blueye VNF",
+			"nsdType": "",
+			"nsstType": "APP",
+			"nsToBeInstanciated":false,
+			"geographicalAreaInfoList":[],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":[],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [{
+					"expDataRateDL": 3000000,
+					"expDataRateUL": 3000000,
+					"areaTrafficCapDL": 150000000,
+					"areaTrafficCapUL": 150000000,
+					"userDensity": 100,
+					"activityFactor": 50,
+					"uESpeed": 250,
+					"coverage": "coverage"
+				}],
+				"uRLLCPerfReq": [],
+				"availability": 99.9,
+				"latency": 10,
+				"maxNumberofUEs": 200,
+				"resourceSharingLevel": false,
+				"sST": "EMBB",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": []
+		}
+]
+	}
+}
+

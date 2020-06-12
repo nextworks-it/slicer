@@ -298,6 +298,9 @@ public class SlicerE2ETest {
         String nstUuidA=null;
         String nstUuidB=null;
         String nstUuidC=null;
+        String nstUuidTelestroke=null;
+        String nstUuidBlueEye;
+
         switch(instantiationScenario){
             case ONLY_PP:
                 nstUuidA =endPointInteraction.onBoardNST("./json_test/nst_sample_only_pp.json");
@@ -308,15 +311,19 @@ public class SlicerE2ETest {
                 break;
 
             case PP_NFV_RAN:
-                nstUuidA =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_a.json");
-                nstUuidB =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_b.json");
-                nstUuidC =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_c.json");
+                //nstUuidA =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_a.json");
+                //nstUuidB =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_b.json");
+                //nstUuidC =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_c.json");
+                nstUuidTelestroke =endPointInteraction.onBoardNST("./json_test/nst/demo/nst_sample_a_blue_eye.json");
+                nstUuidBlueEye = endPointInteraction.onBoardNST("./json_test/nst/demo/nst_sample_a_telestroke.json");
                 break;
+            case PP_RAN:
+                nstUuidA =endPointInteraction.onBoardNST("./json_test/nst/nst_sample_only_ran.json");
             default:
                 log.error("Specify a suitable scenario");
                 break;
         }
-        return nstUuidA;
+        return nstUuidTelestroke;
     }
 
     public void testVerticalServiceInstanceLifeCycle() {
@@ -411,31 +418,39 @@ public class SlicerE2ETest {
         //DSP side
         log.info("Testing VSB and VSD streaming on boarding");
 
-        String vsdId;
+        String vsdId=null;
+        String vsdIdBlueEye=null;
+        String vsdIdTelestroke=null;
         if (instantiationScenario == InstantiationScenario.ONLY_PP) {
             String vsbOnlyPP = onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_sample_only_pp.json");
             vsdId = testVSDOnBoarding(vsbOnlyPP, "./json_test/vsb_samples/vsd_only_pp.json");
         } else {
-            String vsbPpAndQos = onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_eHealth_yes_pp.json");
+            String vsbPpAndQosBlueEye = onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/demo/vsb_eHealth_Blue_eye_v1.json");
+            String vsbPpAndQosTelestroke = onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/demo/vsb_Telestroke_v1.json");
+
             //String vsbPpAndQos = onBoardVsbWithNstTransRules(VSMF_HOST, "./json_test/vsb_samples/vsb_eHealth_no_pp.json");
-            vsdId = testVSDOnBoarding(vsbPpAndQos, "./json_test/vsb_samples/vsd_streaming_with_pp.json");
+            vsdIdBlueEye = testVSDOnBoarding(vsbPpAndQosBlueEye, "./json_test/vsb_samples/demo/vsd_blueEye.json");
+            vsdIdTelestroke = testVSDOnBoarding(vsbPpAndQosTelestroke, "./json_test/vsb_samples/demo/vsd_Telestroke.json");
         }
         final int instantiationTerminationIterations = slicerTestConfiguration.getNumberOfInstantiateTerminateIterations();
         for (int i = 0; i < instantiationTerminationIterations; i++) {
 
-            String vsiUuid = null;
+            String vsiUuidBlueEye = null;
+            String vsiUuidTelestroke = null;
             //String vsiUuid2 = null;
             if (instantiationScenario == InstantiationScenario.ONLY_PP || instantiationScenario == InstantiationScenario.PP_NFV_NO_RAN)
-                vsiUuid = VSIinstantionTest(vsdId, "./json_test/vsb_samples/vsi_sample_only_pp.json","test A");
+                vsiUuidBlueEye = VSIinstantionTest(vsdIdBlueEye, "./json_test/vsb_samples/vsi_sample_only_pp.json","test A");
 
             else {
-                vsiUuid = VSIinstantionTest(vsdId, "./json_test/vsb_samples/vsi_sample_Pisa_San_Piero.json","test A");
-             //   vsiUuid2 = VSIinstantionTest(vsdId, "./json_test/vsb_samples/vsi_sample_Pisa_San_Piero.json","test B");
+                //vsiUuidBlueEye = VSIinstantionTest(vsdIdBlueEye, "./json_test/vsb_samples/demo/vsi_sample_Blue_eye.json","Blue Eye Vertical Service Instance");
+                vsiUuidTelestroke = VSIinstantionTest(vsdIdTelestroke, "./json_test/vsb_samples/demo/vsi_sample_Blue_eye.json","Telestroke Vertical Service Instance");
+
+                //   vsiUuid2 = VSIinstantionTest(vsdId, "./json_test/vsb_samples/vsi_sample_Pisa_San_Piero.json","test B");
             }
             boolean isInstantiated = false;
 
             while (!isInstantiated) {
-                ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
+                ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuidTelestroke, HttpMethod.GET, dspInteraction.getCookiesTenant());
                 QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
                 log.info("Vertical service instance Status " + queryVsResponse.getStatus().toString());
                 if (queryVsResponse.getStatus() == VerticalServiceStatus.INSTANTIATED) {
@@ -468,7 +483,7 @@ public class SlicerE2ETest {
 
                 ranArray.add(ranCoreContraint2);
                 qosConstraints.put("ran_core_constraints", ranArray);
-                ActuationRequest actuationRequest = new ActuationRequest(vsiUuid, "updateQoS Actuation", "actuationDescription", qosConstraints, "");
+                ActuationRequest actuationRequest = new ActuationRequest(vsiUuidTelestroke, "updateQoS Actuation", "actuationDescription", qosConstraints, "");
             }
 
 
@@ -481,8 +496,8 @@ public class SlicerE2ETest {
                 qosRedirectParameters.put("ToServer", "192.168.100.7");
                 qosRedirectParametersParent.put("routes", qosRedirectParameters);
                 qosRedirectParametersParent.put("ueIMSI", "208920100001103");
-                ActuationRequest actuationRequest = new ActuationRequest(vsiUuid, "actuationName", "actuationDescription", qosRedirectParametersParent, "");
-                ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuid + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+                ActuationRequest actuationRequest = new ActuationRequest(vsiUuidTelestroke, "actuationName", "actuationDescription", qosRedirectParametersParent, "");
+                ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuidTelestroke + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
             }
 
             //Traffic redirect
@@ -493,8 +508,8 @@ public class SlicerE2ETest {
                 trafficRedirectParams.put("VDU_NAME", "my_vdu");
                 trafficRedirectParams.put("RESOURCE_ID", "208920100001103");
                 trafficRedirectParams.put("VNF_MEMBER_INDEX", "9999");
-                ActuationRequest actuationRequest = new ActuationRequest(vsiUuid, "trafficRedirection", "Traffic Redirection Actuation", trafficRedirectParams, "");
-                ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuid + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+                ActuationRequest actuationRequest = new ActuationRequest(vsiUuidBlueEye, "trafficRedirection", "Traffic Redirection Actuation", trafficRedirectParams, "");
+                ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, actuationRequest, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuidBlueEye + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
             }
 
 
@@ -505,8 +520,8 @@ public class SlicerE2ETest {
                 handoverParameters.put("sid", 1234567);
                 handoverParameters.put("ueid", "208950000000003");
                 handoverParameters.put("tid", 9876543);
-                ActuationRequest actuationRequestHandover = new ActuationRequest(vsiUuid, "handoverActuation", "handoverActuation", handoverParameters, "");
-                Util.performHttpRequest(String.class, actuationRequestHandover, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuid + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+                ActuationRequest actuationRequestHandover = new ActuationRequest(vsiUuidTelestroke, "handoverActuation", "handoverActuation", handoverParameters, "");
+                Util.performHttpRequest(String.class, actuationRequestHandover, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuidTelestroke + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
             }
 
             if (slicerTestConfiguration.isPerformSetSliceRanPriorityActuation()) {
@@ -517,8 +532,8 @@ public class SlicerE2ETest {
                 ranSlicePriorityParams.put("dl", 1);
                 Map<String, Object> ranSlicePriorityParentParams = new HashMap<>();
                 ranSlicePriorityParentParams.put("ran_slice_priority", ranSlicePriorityParams);
-                ActuationRequest actuationRequestRanPriority = new ActuationRequest(vsiUuid, "ran priority actuation", "ran priority actuation", ranSlicePriorityParentParams, "");
-                Util.performHttpRequest(String.class, actuationRequestRanPriority, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuid + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+                ActuationRequest actuationRequestRanPriority = new ActuationRequest(vsiUuidTelestroke, "ran priority actuation", "ran priority actuation", ranSlicePriorityParentParams, "");
+                Util.performHttpRequest(String.class, actuationRequestRanPriority, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuidTelestroke + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
             }
 
 
@@ -530,13 +545,13 @@ public class SlicerE2ETest {
                 ranSlicePriorityParams.put("dl", 1);
                 Map<String, Object> ranSlicePriorityParentParams = new HashMap<>();
                 ranSlicePriorityParentParams.put("ran_slice_priority", ranSlicePriorityParams);
-                ActuationRequest actuationRequestRanPr = new ActuationRequest(vsiUuid, "ran priority actuation", "ran priority actuation", ranSlicePriorityParentParams, "");
-                Util.performHttpRequest(String.class, actuationRequestRanPr, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuid + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
+                ActuationRequest actuationRequestRanPr = new ActuationRequest(vsiUuidTelestroke, "ran priority actuation", "ran priority actuation", ranSlicePriorityParentParams, "");
+                Util.performHttpRequest(String.class, actuationRequestRanPr, VSMF_HOST + "/vs/basic/vslcm/e2ens/" + vsiUuidTelestroke + "/actuate", HttpMethod.POST, dspInteraction.getCookiesTenant());
             }
 
             if (slicerTestConfiguration.isPerformVerticalServiceTermination()) {
                 log.info("Going to terminate VSI");
-                VsiTerminationTest(vsiUuid);
+                VsiTerminationTest(vsiUuidTelestroke);
                 //VsiTerminationTest(vsiUuid2);
                 //VSImodificationTest();
                 boolean isTerminated = false;
@@ -544,11 +559,11 @@ public class SlicerE2ETest {
 
                 while (!isTerminated || !isTerminated2) {
                     if (!isTerminated) {
-                        ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuid, HttpMethod.GET, dspInteraction.getCookiesTenant());
+                        ResponseEntity<?> responseEntityQuery = Util.performHttpRequest(QueryVsResponse.class, null, VSMF_HOST + "/vs/basic/vslcm/vs/" + vsiUuidTelestroke, HttpMethod.GET, dspInteraction.getCookiesTenant());
                         QueryVsResponse queryVsResponse = (QueryVsResponse) responseEntityQuery.getBody();
                         log.info("Vertical service instance Status " + queryVsResponse.getStatus().toString());
                         if (queryVsResponse.getStatus() == VerticalServiceStatus.TERMINATED) {
-                            log.info("VSI with UUID "+vsiUuid+"  has been terminated");
+                            log.info("VSI with UUID "+vsiUuidTelestroke+"  has been terminated");
                             isTerminated = true;
                         }
                     }

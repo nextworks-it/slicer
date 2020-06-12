@@ -1,0 +1,67 @@
+{
+	"nst": {
+		"nstId": "nstId",
+		"nstName": "nstName",
+		"nstVersion": "nstVersion",
+		"nstProvider": "nstProvider",
+		"nsdId": "",
+		"nsdVersion": "",
+		"nsdName": "",
+		"nsdType": "",
+		"geographicalAreaInfoList": [],
+		"nsstIds": [],
+		"nsstType": "NONE",
+		"ppFunctionList": [{
+			"ppFeatureName": "qos_ctrl_feature",
+			"ppFeatureLevel": "SLICE",
+			"ppFeatureType": "CONTROL"
+		}],
+		"nstServiceProfile": {},
+		"nsst": [{
+			"nstId": "nstOnlyRan",
+			"nstName": "nstOnlyRan",
+			"nstVersion": "nstOnlyRan",
+			"nstProvider": "nstOnlyRan",
+			"nsdId": "",
+			"nsdVersion": "",
+			"nsdName": "",
+			"nsdType": "",
+			"nsstType": "RAN",
+			"nsToBeInstanciated":false,
+			"geographicalAreaInfoList":[{
+                       		"lat": 52.894059789742435,
+                        	"lon": -8.600309558933717
+                	},
+                	{
+                        	"lat": 52.89935623919947,
+                        	"lon": -8.662568003691363
+                	}],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":["downloadRateEvery10Sec", "uploadRateEvery10Sec", "NumberofActiveUser"],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [{
+					"expDataRateDL": 1000000,
+					"expDataRateUL": 1000000,
+					"areaTrafficCapDL": 120000000,
+					"areaTrafficCapUL": 120000000,
+					"userDensity": 400,
+					"activityFactor": 30,
+					"uESpeed": 250,
+					"coverage": "coverage"
+				}],
+				"uRLLCPerfReq": [],
+				"availability": 99.9,
+				"latency": 10,
+				"maxNumberofUEs": 200,
+				"resourceSharingLevel": false,
+				"sST": "EMBB",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": []
+		}]
+	}
+}
