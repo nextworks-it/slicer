@@ -262,11 +262,13 @@ public class NsLcmManager {
 	}
 
 	private boolean hasNstNfv(){
-		boolean hasNstNfv= networkSliceTemplate.getNsst().size()>0 && networkSliceTemplate.getNsdId() != null;
-		return hasNstNfv;
+		for(NST nsst: networkSliceTemplate.getNsst()){
+			if(!nsst.getNsdId().isEmpty()){
+				return true;
+			}
+		}
+		return false;
 	}
-
-
 
 	private boolean createRanSlice(List<ImsiInfo> imsiInfoList) throws NotExistingEntityException {
 		if(hasNstRAN()) {
@@ -373,10 +375,9 @@ public class NsLcmManager {
 	}
 
 	private void instantiateNetworkService(InstantiateNsiRequestMessage msg) throws FailedOperationException, MalformattedElementException, NotExistingEntityException, MethodNotImplementedException {
-		log.info("Network Slice Template owns NSST with Nfv.");
 		for(NST nsst: networkSliceTemplate.getNsst()){
-			if(nsst.getNsstType().equals(NsstType.RAN)){
-				log.warn("NSST with UUID "+nsst.getNstId()+" is RAN type. Skipping network service instantiation.");
+			if(nsst.getNsstType().equals(NsstType.RAN)) {
+				log.warn("NSST with UUID " + nsst.getNstId() + " is RAN type. Skipping network service instantiation.");
 				continue;
 			}
 

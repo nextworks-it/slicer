@@ -145,6 +145,12 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
                 log.warn("The NSST with ID "+nsst.getNstId()+" and NSST has type "+nsst.getNsstType()+". Arbitration is skipped for this NSST. ");
                 continue;
             }
+
+            if(nsst.isNsToBeInstanciated()==false){
+                log.warn("The NSST with ID "+nsst.getNstId()+" is not going to be instanciated. Skipping arbitration");
+                continue;
+            }
+
             List<ArbitratorRequest> arbitratorRequests = new ArrayList<>();
             NfvNsInstantiationInfo nfvNsInstantiationInfo = new NfvNsInstantiationInfo(
                     nsst.getNsdId(),
