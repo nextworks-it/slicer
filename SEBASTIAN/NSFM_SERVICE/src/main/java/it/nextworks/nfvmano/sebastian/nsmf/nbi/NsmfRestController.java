@@ -52,6 +52,10 @@ public class NsmfRestController {
 	public ResponseEntity<?> createNsId(@RequestBody CreateNsiUuidRequest request, Authentication auth) {
 		log.debug("Received request to create a new network slice instance ID.");
 		try {
+			if(auth==null) {
+				log.info("Auth is null. The cookie might be expired.");
+				return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);
+			}
 			String tenantId = getUserFromAuth(auth);
 			String nsiUuid = nsLcmService.createNetworkSliceIdentifier(request, tenantId);
 			if(nsiUuid==null){
@@ -74,6 +78,10 @@ public class NsmfRestController {
 	public ResponseEntity<?> getNsInstance(@PathVariable String nsiUuid, Authentication auth) {
 		log.debug("Received query for network slice instance with UUID " + nsiUuid);
 		try {
+			if(auth==null) {
+				log.info("Auth is null. The cookie might be expired.");
+				return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);
+			}
 			String tenantId = getUserFromAuth(auth);
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("NSI_ID", nsiUuid);
@@ -98,6 +106,10 @@ public class NsmfRestController {
 	public ResponseEntity<?> getNsInstance(Authentication auth) {
 		log.debug("Received query for all network slice instances.");
 		try {
+			if(auth==null) {
+				log.info("Auth is null. The cookie might be expired.");
+				return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);
+			}
 			String tenantId = getUserFromAuth(auth);
 			Map<String, String> parameters = new HashMap<String, String>();
 			Filter filter = new Filter(parameters);
@@ -118,7 +130,10 @@ public class NsmfRestController {
 		log.debug("Received request to instantiate network slice " + nsiUuid);
 		log.info("KPI:"+ Instant.now().toEpochMilli()+", Received request to instantiate network slice with UUID "+nsiUuid);
 		try {
-
+			if(auth==null) {
+				log.info("Auth is null. The cookie might be expired.");
+				return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);
+			}
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.instantiateNetworkSlice(request, tenantId);
 			return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -141,6 +156,10 @@ public class NsmfRestController {
 	public ResponseEntity<?> modifyNsi(@PathVariable String nsiUuid, @RequestBody ModifyNsiRequest request, Authentication auth) {
 		log.debug("Received request to modify network slice " + nsiUuid);
 		try {
+			if(auth==null) {
+				log.info("Auth is null. The cookie might be expired.");
+				return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);
+			}
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.modifyNetworkSlice(request, tenantId);
 			return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -164,6 +183,10 @@ public class NsmfRestController {
 		log.debug("Received request to terminate network slice " + nsiUuid);
 		log.info("KPI:"+Instant.now().toEpochMilli()+", Received request to terminate network slice with UUID "+nsiUuid);
 		try {
+			if(auth==null) {
+				log.info("Auth is null. The cookie might be expired.");
+				return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);
+			}
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.terminateNetworkSliceInstance(request, tenantId);
 			return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -186,6 +209,10 @@ public class NsmfRestController {
 	public ResponseEntity<?> actuateNsi(@PathVariable String nsiUuid, @RequestBody ActuationRequest request, Authentication auth) {
 		log.debug("Received request to actuate network slice with UUID " + nsiUuid);
 		try {
+			if(auth==null) {
+				log.info("Auth is null. The cookie might be expired.");
+				return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);
+			}
 			String tenantId = getUserFromAuth(auth);
 			nsLcmService.actuateNetworkSliceInstance(request, tenantId);
 			return new ResponseEntity<>("NSI actuation procedure started successfully ",HttpStatus.OK);

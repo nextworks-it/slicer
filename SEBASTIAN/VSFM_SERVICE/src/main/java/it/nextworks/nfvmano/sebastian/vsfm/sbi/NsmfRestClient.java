@@ -51,17 +51,32 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 	private String nsmfUrl;
 	private Authenticator authenticator;
 
+	private String baseUrl;
+	private AdminService adminService;
+
+	private final int MAX_LOGIN_ATTEMPTS=3;
+	private int failedLoginCount;
 
 	public NsmfRestClient(String baseUrl, AdminService adminService) {
+		this.baseUrl = baseUrl;
+		this.adminService= adminService;
+		resetAuthenticator();
+
 		this.nsmfUrl = baseUrl + "/ns/basic/nslcm";
 		this.restTemplate = new RestTemplate();
-		this.authenticator = new Authenticator(baseUrl, adminService);
+
+	}
+
+	private void resetAuthenticator(){
+		this.authenticator = new Authenticator(this.baseUrl, this.adminService);
 	}
 
 	private void performAuth(String tenantId){
+
 		authenticator.authenticate(tenantId);
 		if(authenticator.isAuthenticated()){
 			cookies=authenticator.getCookie();
+			failedLoginCount=0;
 		}
 	}
 
@@ -84,10 +99,16 @@ public class NsmfRestClient implements NsmfLcmProviderInterface {
 			ResponseEntity<String> httpResponse =
 					restTemplate.exchange(url, httpMethod, httpEntity, String.class);
 			HttpStatus code = httpResponse.getStatusCode();
-			//log.info("Response code: " + httpResponse.getStatusCode().toString());
+
 			return httpResponse;
 		} catch (RestClientException e) {
+			boolean isUnauthorized = e.getMessage().contains("401");
 			log.info("Message received: "+e.getMessage());
+			if(isUnauthorized && failedLoginCount <= MAX_LOGIN_ATTEMPTS) {
+				log.info("Attempt#: "+failedLoginCount+", 401 code returned. Cookie might be expired. Perform login again.");
+				resetAuthenticator();
+				performHTTPRequest(request, url, httpMethod, tenantId);
+			}
 			return null;
 		}
 	}
