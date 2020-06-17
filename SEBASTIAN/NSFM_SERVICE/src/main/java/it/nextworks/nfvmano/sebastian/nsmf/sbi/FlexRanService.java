@@ -15,6 +15,10 @@
 
 package it.nextworks.nfvmano.sebastian.nsmf.sbi;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import it.nextworks.nfvmano.sebastian.record.elements.ImsiInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -131,6 +135,63 @@ public class FlexRanService extends CPSService{
             return HttpStatus.valueOf(e.getRawStatusCode());
         }
     }
+
+    public int[] getRanSlicePercentageUsage(String ranSliceID){
+        String url = String.format("http://%s/stats", flexRanURL);
+        ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.GET);
+        JsonParser jsonParser = new JsonParser();
+        String rawResponse = httpResponse.getBody();
+        log.debug("RAN stats raw output: "+rawResponse);
+        JsonObject jsonObject= jsonParser.parse(rawResponse).getAsJsonObject();
+        /*
+        * the RAN stats is a JSON composed as follow:
+        *
+        * it is composed by zero to more eNB_Config.
+        * Each eNB_Config has the eNB field.
+        * The eNB field contains zero to more cellConfig.
+        * Each cellConfig contains the sliceConfig.
+        * The sliceConfig contains two arrays: dl (download info about the slices) and ul (ul info about the slices).
+        * dl and ul contains both the ranSliceID this function is looking for and the related usage in upload and download in percentage.
+        * */
+
+        int ulPercentage = -1;
+        int dlPercentage = -1;
+        JsonArray eNbConfigArray=jsonObject.get("eNB_config").getAsJsonArray();
+        if(eNbConfigArray.size()==0){
+            log.info("eNB_config has no element. The RAN might be down.");
+        }
+        for(int i=0; i<eNbConfigArray.size(); i++) {
+            JsonElement jsonEnb= eNbConfigArray.get(i).getAsJsonObject().get("eNB");
+            JsonArray cellConfigJsonArray=jsonEnb.getAsJsonObject().get("cellConfig").getAsJsonArray();
+            for(int j=0; j<cellConfigJsonArray.size(); j++){
+                JsonObject sliceConfig=cellConfigJsonArray.get(j).getAsJsonObject().get("sliceConfig").getAsJsonObject();
+                JsonArray jsonArrayUl= sliceConfig.get("ul").getAsJsonArray();
+                JsonArray jsonArrayDl= sliceConfig.get("dl").getAsJsonArray();
+                int ulSize = jsonArrayUl.size();
+                int dlSize = jsonArrayDl.size();
+                if(ulSize!=dlSize)
+                    log.warn("The number of slice in Upload ("+ulSize+") is different from the number of slice in download ("+dlSize+")");
+
+                for(int k=0; k<jsonArrayUl.size(); k++){
+                    if(jsonArrayUl.get(k).getAsJsonObject().get("id").getAsInt()==Integer.valueOf(ranSliceID)){
+                        ulPercentage=jsonArrayUl.get(k).getAsJsonObject().get("percentage").getAsInt();
+                    }
+                }
+                for(int k=0; k<jsonArrayDl.size(); k++){
+                    if(jsonArrayDl.get(k).getAsJsonObject().get("id").getAsInt()==Integer.valueOf(ranSliceID)){
+                        dlPercentage=jsonArrayDl.get(k).getAsJsonObject().get("percentage").getAsInt();
+                    }
+                }
+
+            }
+
+        }
+        if(ulPercentage==-1 && dlPercentage==-1){
+            log.warn("Not able to find upload and download percentages for ran Slice with ID "+ranSliceID);
+        }
+        return new int []{ulPercentage,dlPercentage};
+    }
+
 
     public HttpStatus createSliceRanOnePercent(UUID sliceId){
         String url = String.format("http://%s/slice/enb/%s", flexRanURL,getEnodeB());

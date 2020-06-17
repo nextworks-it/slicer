@@ -143,10 +143,12 @@ public class NsRecordService {
 		log.debug("Updated Network Slice instance " + nsiUuid + " in NSI DB record with IMSI info.");
 	}
 
-	public synchronized void setRanSliceID(String nsiUuid, Integer ranSliceId) throws NotExistingEntityException {
-		log.debug("Setting Ran Slice ID "+ranSliceId+" for Network Slice instance " + nsiUuid + " in NSI DB record.");
+	public synchronized void setRanSliceInfo(String nsiUuid, Integer ranSliceId, Integer dlPercentageUsage, Integer ulPercentalgeUsage) throws NotExistingEntityException {
+		log.debug("Setting Ran Slice Info for Network Slice instance " + nsiUuid + " in NSI DB record.");
 		NetworkSliceInstance nsi = getNsInstance(nsiUuid);
 		nsi.setRanSliceId(ranSliceId);
+		nsi.setRanSliceDlPercentage(dlPercentageUsage);
+		nsi.setRanSliceUlPercentage(ulPercentalgeUsage);
 		nsInstanceRepository.saveAndFlush(nsi);
 		log.debug("Updated Network Slice instance " + nsiUuid + " in NSI DB record with Ran Slice ID.");
 	}

@@ -23,12 +23,10 @@ import javax.persistence.*;
 import javax.persistence.Entity;
 
 import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
-import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import org.hibernate.annotations.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.hibernate.annotations.CascadeType;
 
 /*An NST may have zero to N NSST embedded.
 In the generic case of N NSST case, the network slice instance could refer to up to N nfvNsInstantiationInfoList and N nfvNsIdList,
@@ -86,12 +84,6 @@ public class NetworkSliceInstance {
     @LazyCollection(LazyCollectionOption.FALSE)
 	private List<NfvNsInstantiationInfo> nfvNsInstantiationInfoList;
 
-    /*
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	@ElementCollection(targetClass=ImsiInfo.class)
-	@LazyCollection(LazyCollectionOption.FALSE)
-	private List<ImsiInfo> imsiInfoList;*/
-
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	@ElementCollection(fetch=FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
@@ -104,6 +96,8 @@ public class NetworkSliceInstance {
 	private List<ImsiInfo> imsiInfoList = new ArrayList<>();
 
 	private Integer ranSliceId;
+    private Integer ranSliceUlPercentage;
+    private Integer ranSliceDlPercentage;
 
 	public NetworkSliceInstance() {	}
 
@@ -129,7 +123,6 @@ public class NetworkSliceInstance {
 		this.nfvNsIdList = new ArrayList<String>();
 		this.networkSliceSubnetInstances=new ArrayList<String>();
 		this.ranSliceId=-1;
-		//if(imsiInfoList!=null) this.imsiInfoList = imsiInfoList;
 	}
 
 
@@ -415,4 +408,20 @@ public class NetworkSliceInstance {
 	public void setRanSliceId(Integer ranSliceId) {
 		this.ranSliceId = ranSliceId;
 	}
+
+    public Integer getRanSliceUlPercentage() {
+        return ranSliceUlPercentage;
+    }
+
+    public void setRanSliceUlPercentage(Integer ranSliceUlPercentage) {
+        this.ranSliceUlPercentage = ranSliceUlPercentage;
+    }
+
+    public Integer getRanSliceDlPercentage() {
+        return ranSliceDlPercentage;
+    }
+
+    public void setRanSliceDlPercentage(Integer ranSliceDlPercentage) {
+        this.ranSliceDlPercentage = ranSliceDlPercentage;
+    }
 }

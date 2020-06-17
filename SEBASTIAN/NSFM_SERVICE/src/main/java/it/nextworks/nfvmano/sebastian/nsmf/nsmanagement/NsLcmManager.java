@@ -300,10 +300,18 @@ public class NsLcmManager {
 						return false;
 					}
 					log.info("Waiting Slice 0 to set to one percent");
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+					//Polling on ran stat every 1.5 sec to get ran slice zero percentage usage. Max 3 attempts
+					int [] ranSliceZeroUlDlUsage = flexRanService.getRanSlicePercentageUsage("0");
+					final int MAX_ATTEMPTS=3;
+					int numberAttempts=0;
+					while(ranSliceZeroUlDlUsage[0]>1 && ranSliceZeroUlDlUsage[1]>1 && numberAttempts<=MAX_ATTEMPTS) {
+						try {
+							Thread.sleep(1500);
+							ranSliceZeroUlDlUsage = flexRanService.getRanSlicePercentageUsage("0");
+							numberAttempts++;
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 
 					flexRanService.setSliceZeroToOnePercent(true);
@@ -349,7 +357,19 @@ public class NsLcmManager {
 						log.error("Cannot apply QoS constraint on RAN slice. Http code returned "+httpStatusApplyQos);
 						return false;
 					}
-					nsRecordService.setRanSliceID(networkSliceInstanceUuid,this.flexRanService.getRanId(UUID.fromString(networkSliceInstanceUuid)));
+
+					log.info("Waiting QoS to be actually applied");
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+
+					// RAN-5 -> Updating the Network Slice info with the RAN slice info
+					log.info("Getting DL and UL percentage usage");
+					Integer ranSliceId = Integer.valueOf(flexRanService.getRanId(UUID.fromString(networkSliceInstanceUuid)));
+					int [] ulDlPercentages = flexRanService.getRanSlicePercentageUsage(String.valueOf(ranSliceId));
+					nsRecordService.setRanSliceInfo(networkSliceInstanceUuid, ranSliceId,ulDlPercentages[0],ulDlPercentages[1]);
 				}
 			}
         }
@@ -812,7 +832,8 @@ public class NsLcmManager {
 					ranSliceCorrectlyTerminated = httpStatus == HttpStatus.OK;
 					if(ranSliceCorrectlyTerminated){
 						try {
-							nsRecordService.setRanSliceID(networkSliceInstanceUuid,-1);//-1 means no slice mapped.
+                            //-1 means no slice mapped, -1 no percentage assigned
+                            nsRecordService.setRanSliceInfo(networkSliceInstanceUuid, -1,-1,-1);
 						} catch (NotExistingEntityException e) {
 							e.printStackTrace();
 							log.error(e.getMessage());
