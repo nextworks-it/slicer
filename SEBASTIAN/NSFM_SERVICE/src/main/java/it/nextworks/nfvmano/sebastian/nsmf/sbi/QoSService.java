@@ -43,7 +43,12 @@ public class QoSService extends CPSService{
     public HttpStatus setQoS(UUID sliceId, JSONObject qosConstraints) throws Exception{
         try {
             String qosCpBaseURl = this.getQoSInfo(sliceId);
-            String url = String.format("%s/slicenet/ctrlplane/qos/v1/qos-instance/%s/qos_constraints?segment_id=ACCESS", qosCpBaseURl, sliceId.toString());
+            if(qosCpBaseURl==null){
+                log.error("Unable to retreive CPSR URI");
+                return null;
+            }
+            log.info("qosCpBaseURl is : "+qosCpBaseURl);
+            String url = String.format("%s/qos-instance/%s/qos_constraints?segment_id=ACCESS", qosCpBaseURl, sliceId.toString());
             ResponseEntity<String> httpResponse = this.performHTTPRequest(qosConstraints.toString(), url, HttpMethod.POST);
             System.out.println(httpResponse.getBody());
             return httpResponse.getStatusCode();
@@ -51,6 +56,7 @@ public class QoSService extends CPSService{
             log.info("Message received: "+e.getMessage());
             return HttpStatus.valueOf(e.getRawStatusCode());
         }
+
     }
     public HttpStatus setPriority(UUID sliceId, JSONObject qosConstraints) throws Exception{
         try {

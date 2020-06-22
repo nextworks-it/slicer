@@ -62,6 +62,8 @@ public class ActuationRequest {
     }
 
     public void isValid() throws MalformattedElementException {
+        if(nsiId == null)
+            throw new MalformattedElementException("Actuation request without Network Slice ID.");
         if (actuationName == null)
             throw new MalformattedElementException("Actuation request without actuation name.");
 
@@ -73,6 +75,9 @@ public class ActuationRequest {
 
         if (parameters.size() == 0)
             throw new MalformattedElementException("Actuation request has zero parameters.");
+
+        if (notificationEndpoint == null)
+            throw new MalformattedElementException("Actuation request has no notification endpoint.");
     }
 
     public String getActuationName() {

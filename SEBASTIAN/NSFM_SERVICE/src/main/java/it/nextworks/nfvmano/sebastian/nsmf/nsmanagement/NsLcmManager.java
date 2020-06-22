@@ -244,6 +244,8 @@ public class NsLcmManager {
 			manageNsError("Error in Json mapping: " + e.getMessage());
 		} catch(IOException e) {
 			manageNsError("IO error when receiving json message: " + e.getMessage());
+		} catch(Exception e) {
+			manageNsError("Generic exception caught: " + e.getMessage());
 		}
 	}
 
@@ -758,7 +760,7 @@ public class NsLcmManager {
 		}
 	}
 
-	private void processActuateRequest(ActuateNsiRequestMessage msg){
+	private void processActuateRequest(ActuateNsiRequestMessage msg) throws Exception{
 		if (internalStatus != NetworkSliceStatus.INSTANTIATED) {
 			manageNsError("Received actuation request in wrong status. Skipping message.");
 			return;
@@ -774,7 +776,15 @@ public class NsLcmManager {
 
 		boolean successful =actuationLcmService.processActuation(request);
 
-		if(!request.getNotificationEndpoint().isEmpty()) {
+		if(actuationLcmService.isRanCoreConstraintActuation(request) && successful){
+			Integer ranSliceId = flexRanService.getRanId(UUID.fromString(networkSliceInstanceUuid));
+			log.info("Updating  RAN Slice info for ran Slice with ID :"+ranSliceId+" assciated with network slice with ID "+networkSliceInstanceUuid);
+			int [] ulDlPercentages = flexRanService.getRanSlicePercentageUsage(String.valueOf(ranSliceId));
+			nsRecordService.setRanSliceInfo(networkSliceInstanceUuid, ranSliceId,ulDlPercentages[0],ulDlPercentages[1]);
+		}
+
+		log.info("Actuation request is successful: "+successful);
+		if(request.getNotificationEndpoint()!=null && !request.getNotificationEndpoint().isEmpty()) {
 			NetworkSliceStatusChangeNotification networkSliceStatusChangeNotification =
 					new NetworkSliceStatusChangeNotification(request.getNsiId(),
 							NetworkSliceStatusChange.NSI_ACTUATED, successful);

@@ -43,6 +43,13 @@ public class ActuationLcmService {
         return false;
     }
 
+    public boolean isRanCoreConstraintActuation(ActuationRequest request){
+        Map<String, Object> parametersActuation = request.getParameters();
+        if(parametersActuation.containsKey("bandIncDir") && parametersActuation.containsKey("bandIncVal") && parametersActuation.containsKey("bandUnitScale"))
+            return true;
+        return false;
+    }
+
     private String getActuationType(ActuationRequest request) throws MalformattedElementException {
 
         Map<String, Object> parametersActuation = request.getParameters();
@@ -129,10 +136,10 @@ public class ActuationLcmService {
                     jsonFatherRan.put("ran_core_constraints",paramsList);
                     json = new JSONObject(jsonFatherRan);
                     httpStatus =qoSService.setQoS(UUID.fromString(nsiId), json);
-                    return httpStatus==HttpStatus.OK;
+                    return httpStatus==HttpStatus.CREATED;
 
                 default:
-                    log.info("The actuation request has not the expected parameters.");
+                    log.info("The actuation request does not own the expected parameters.");
                     return false;
             }
 

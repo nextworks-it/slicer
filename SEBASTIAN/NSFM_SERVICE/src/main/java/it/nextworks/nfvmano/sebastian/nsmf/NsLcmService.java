@@ -439,10 +439,6 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 
     public void actuateNetworkSliceInstance(ActuationRequest request, String tenantId) throws MalformattedElementException {
         request.isValid();
-        if(nsmfUtils.getFakeNetworkSlice()) {
-            log.info("Faking network slice");
-            actuationLcmService.processActuation(request);
-        }
         String nsiUuid = request.getNsiId();
         ActuateNsiRequestMessage internalMessage = new ActuateNsiRequestMessage(request, tenantId);
         String topic = "nslifecycle.actuatensi." + nsiUuid;
