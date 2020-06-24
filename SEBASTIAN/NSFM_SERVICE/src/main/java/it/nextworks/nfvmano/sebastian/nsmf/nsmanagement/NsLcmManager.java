@@ -774,25 +774,27 @@ public class NsLcmManager {
             log.info("KPI:"+ Instant.now().toEpochMilli()+", LLMec slice creation endend for Network Slice with UUID "+this.networkSliceIdInstanciated);
         }
 
+		if(actuationLcmService.isNoisyNeighborActuation(request)){
+			log.debug("Setting network Service ID "+nfvNsiInstanceId+" for the actuation");
+			actuationLcmService.setNetwoekServiceId(nfvNsiInstanceId);
+		}
+
 		boolean successful =actuationLcmService.processActuation(request);
 
 		if(actuationLcmService.isRanCoreConstraintActuation(request) && successful){
 			Integer ranSliceId = flexRanService.getRanId(UUID.fromString(networkSliceInstanceUuid));
-			log.info("Updating  RAN Slice info for ran Slice with ID :"+ranSliceId+" assciated with network slice with ID "+networkSliceInstanceUuid);
+			log.info("Updating  RAN Slice info for ran Slice with ID :"+ranSliceId+" associated with network slice with ID "+networkSliceInstanceUuid);
 			int [] ulDlPercentages = flexRanService.getRanSlicePercentageUsage(String.valueOf(ranSliceId));
 			nsRecordService.setRanSliceInfo(networkSliceInstanceUuid, ranSliceId,ulDlPercentages[0],ulDlPercentages[1]);
 		}
 
-		log.info("Actuation request is successful: "+successful);
+	//	log.info("Actuation request is successful: "+successful);
 		if(request.getNotificationEndpoint()!=null && !request.getNotificationEndpoint().isEmpty()) {
-			NetworkSliceStatusChangeNotification networkSliceStatusChangeNotification =
-					new NetworkSliceStatusChangeNotification(request.getNsiId(),
-							NetworkSliceStatusChange.NSI_ACTUATED, successful);
-			networkSliceStatusChangeNotification.setTenantId(msg.getTenantId());
-			notificationDispatcher.notifyNetworkSliceActuation(networkSliceStatusChangeNotification, request.getNotificationEndpoint());
+//			NetworkSliceStatusChangeNotification networkSliceStatusChangeNotification = new NetworkSliceStatusChangeNotification(request.getNsiId(), NetworkSliceStatusChange.NSI_ACTUATED, successful);networkSliceStatusChangeNotification.setTenantId(msg.getTenantId());
+//			notificationDispatcher.notifyNetworkSliceActuation(networkSliceStatusChangeNotification, request.getNotificationEndpoint());
 		}
 		else{
-			log.info("Not going to send notification because notification endpoint is empty.");
+//			log.info("Not going to send notification because notification endpoint is empty.");
 		}
 	}
 

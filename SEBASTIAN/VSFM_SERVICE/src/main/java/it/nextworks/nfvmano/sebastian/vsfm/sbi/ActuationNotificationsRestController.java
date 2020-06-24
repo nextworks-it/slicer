@@ -29,7 +29,7 @@ public class ActuationNotificationsRestController {
     public ResponseEntity<?> notifyNsiLcmChange(@PathVariable String nsiId,
                                                 @RequestBody NetworkSliceStatusChangeNotification networkSliceStatusChangeNotification) {
         log.debug("Received notification about NSI actuation about NSI with ID "+nsiId);
-        log.info("The actuation request is successful "+ networkSliceStatusChangeNotification.isSuccessful());
+        //log.info("The actuation request is successful "+ networkSliceStatusChangeNotification.isSuccessful());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

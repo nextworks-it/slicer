@@ -3,12 +3,15 @@ package it.nextworks.nfvmano.sebastian.nsmf.nsmanagement;
 import it.nextworks.nfvmano.libs.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.sbi.QoSService;
+import it.nextworks.nfvmano.sebastian.pp.SbRestClient;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -26,10 +29,16 @@ public class ActuationLcmService {
     private final String UPDATE_PRIORITY ="UPDATE_PRIORITY";
     private final String HANDOVER = "HANDOVER";
     private final String RAN_CORE_CONSTRAINT = "RAN_CORE_CONSTRAINT";
+    private final String NOISY_NEIGHBOOR = "NOISY_NEIGHBOOR";
     private final String MIGRATE_AND_SCALE = "MIGRATE_AND_SCALE";
+
+    private String networkServiceId;
 
     @Value("${cpsrBaseUrl}")
     private String cpsrBaseUrl;
+
+    @Value("${nfvo.catalogue.address}")
+    private String nfvoCatalogueAddress;
 
     public ActuationLcmService(){
 
@@ -50,6 +59,17 @@ public class ActuationLcmService {
         return false;
     }
 
+    public boolean isNoisyNeighborActuation(ActuationRequest request){
+        Map<String, Object> parametersActuation = request.getParameters();
+        if(parametersActuation.containsKey("host"))
+            return true;
+        return false;
+    }
+
+    public void setNetwoekServiceId(String networkServiceId){
+        this.networkServiceId = networkServiceId;
+    }
+
     private String getActuationType(ActuationRequest request) throws MalformattedElementException {
 
         Map<String, Object> parametersActuation = request.getParameters();
@@ -68,6 +88,9 @@ public class ActuationLcmService {
         if(parametersActuation.containsKey("bandIncDir") && parametersActuation.containsKey("bandIncVal") && parametersActuation.containsKey("bandUnitScale"))
             return RAN_CORE_CONSTRAINT;
 
+        if(parametersActuation.containsKey("host") )
+            return NOISY_NEIGHBOOR;
+
         throw new MalformattedElementException("Error: check the request parameters.");
     }
 
@@ -83,10 +106,10 @@ public class ActuationLcmService {
             //String url = "http://10.8.202.11:8080"; // CPSR base URL example
             String url = cpsrBaseUrl;
             String nsiId = request.getNsiId();
+            log.info("The actuation is a "+actuationType+" actuation request.");
             switch(actuationType)
             {
                 case REDIRECT:
-                    log.info("The actuation is a REDIRECT actuation request.");
                     log.debug("Getting the IP addresses");
 
                     Map<String, String> qosRedirectParameters = new HashMap<>();
@@ -103,7 +126,6 @@ public class ActuationLcmService {
 
 
                 case UPDATE_QOS:
-                    log.info("The actuation is a UPDATE QOS actuation request.");
                     qoSService.setTargetUrl(url);
                     json = new JSONObject(parameters);
                     httpStatus =qoSService.setQoS(UUID.fromString(nsiId), json);
@@ -111,7 +133,6 @@ public class ActuationLcmService {
 
 
                 case UPDATE_PRIORITY:
-                    log.info("The actuation is a UPDATE priority actuation request.");
                     qoSService.setTargetUrl(url);
                     json = new JSONObject(parameters);
                     httpStatus =qoSService.setPriority(UUID.fromString(nsiId), json);
@@ -128,7 +149,6 @@ public class ActuationLcmService {
                     return httpStatus==HttpStatus.CREATED;
 
                 case RAN_CORE_CONSTRAINT:
-                    log.info("Received RAN CORE CONSTRAINT actuation request");
                     qoSService.setTargetUrl(url);
                     List<Map<String,Object>> paramsList = new ArrayList<>();
                     paramsList.add(parameters);
@@ -137,6 +157,12 @@ public class ActuationLcmService {
                     json = new JSONObject(jsonFatherRan);
                     httpStatus =qoSService.setQoS(UUID.fromString(nsiId), json);
                     return httpStatus==HttpStatus.CREATED;
+
+                case NOISY_NEIGHBOOR:
+                    SbRestClient sbRestClient = new SbRestClient();
+                    request.setNsiId(networkServiceId);
+                    ResponseEntity<String> responseEntity= sbRestClient.performHTTPRequest(request,"http://"+nfvoCatalogueAddress+":65106/nfvo/nsLifecycle/ns/"+networkServiceId+"/actuate", HttpMethod.PUT);
+                    return responseEntity.getStatusCode()==HttpStatus.OK;
 
                 default:
                     log.info("The actuation request does not own the expected parameters.");
