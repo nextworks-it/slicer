@@ -55,6 +55,8 @@ public class InstantiateNsiRequest implements InterfaceMessage {
 	@JsonProperty
 	private List<ImsiInfo> imsiInfoList = new ArrayList<>();
 
+	@JsonProperty
+	private boolean instanciateEaaS;
 	/**
 	 * Constructor
 	 * 
@@ -136,9 +138,18 @@ public class InstantiateNsiRequest implements InterfaceMessage {
 		return imsiInfoList;
 	}
 
+	public boolean isInstanciateEaaS() {
+		return instanciateEaaS;
+	}
+
+	public void setInstanciateEaaS(boolean instanciateEaaS) {
+		this.instanciateEaaS = instanciateEaaS;
+	}
+	
 	@Override
 	public void isValid() throws MalformattedElementException {
 		if (nsiId == null) throw new MalformattedElementException("Instantiate NS request without NS ID.");
 	}
+
 
 }

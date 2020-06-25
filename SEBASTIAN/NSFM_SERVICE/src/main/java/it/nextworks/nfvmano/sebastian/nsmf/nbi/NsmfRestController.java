@@ -135,6 +135,7 @@ public class NsmfRestController {
 				return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);
 			}
 			String tenantId = getUserFromAuth(auth);
+
 			nsLcmService.instantiateNetworkSlice(request, tenantId);
 			return new ResponseEntity<>(HttpStatus.ACCEPTED);
 		} catch (NotExistingEntityException e) {

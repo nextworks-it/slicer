@@ -91,6 +91,9 @@ public class NsLcmManager {
 	private NsLcmProviderInterface nsLcmProviderInterface;
 	private NsRecordService nsRecordService;
 	private String nfvNsiInstanceId;
+
+	private Map<String,Boolean> isNetworkServiceInstanciated;
+
 	private Nsd nsd;
 	private String nsdInfoId;
 	private NsLcmService nsLcmService;
@@ -160,6 +163,7 @@ public class NsLcmManager {
 		pnPCommunicationService.setTargetUrl(nsmfUtils.getPlugAndPlayHostname());
 		llMecService.setLlMecAdapterUrl(nsmfUtils.getLlMecAdapteHostname());
 		llMecService.setLlMecURL(nsmfUtils.getLlMecHostname());
+		isNetworkServiceInstanciated= new HashMap<String, Boolean>();
 	}
 	
 	
@@ -398,15 +402,21 @@ public class NsLcmManager {
 
 	private void instantiateNetworkService(InstantiateNsiRequestMessage msg) throws FailedOperationException, MalformattedElementException, NotExistingEntityException, MethodNotImplementedException {
 		for(NST nsst: networkSliceTemplate.getNsst()){
+			if(!msg.getRequest().isInstanciateEaaS() && nsst.getNsdType().equals("EaaS")){
+				nsst.setNsToBeInstanciated(false);
+				log.warn("NSST with UUID "+nsst.getNstId()+" and type "+nsst.getNsdType()+" flagged to not be instantiated. ");
+			}
+
 			if(nsst.getNsstType().equals(NsstType.RAN)) {
 				log.warn("NSST with UUID " + nsst.getNstId() + " is RAN type. Skipping network service instantiation.");
 				continue;
 			}
 
 			if(!nsst.isNsToBeInstanciated()){
-				log.warn("NSST with UUID "+nsst.getNstId()+" not needed to be instantiated. Skipping instantiation");
+				log.warn("NSST with UUID "+nsst.getNstId()+" not needed to be instantiated. Skipping instantiation.");
 				continue;
 			}
+
 
 			log.info("Instantiating NSST with ID "+nsst.getNstId());
 			String nsdId = nsst.getNsdId();
@@ -549,8 +559,8 @@ public class NsLcmManager {
 			manageNsError("Received instantiation request in wrong status. Skipping message.");
 			return;
 		}
+
 		internalStatus = NetworkSliceStatus.INSTANTIATING;
-		Map<String, String> nsdToInstantiate = null;
         imsiInfoListRequest = msg.getRequest().getImsiInfoList();
 		try {
 				// Step #1: Instantiate RAN slice, if RAN available into NSST.
@@ -637,7 +647,7 @@ public class NsLcmManager {
     //a second one (below implemented) about the config status
     //It has been done here and not in the nfvo polling manager because it would imply to modify the above interface and this could cause problems.
 
-	private boolean pollConfigStatusNetworkServices() throws InterruptedException, FailedOperationException, MalformattedElementException, NotExistingEntityException, MethodNotImplementedException {
+	private boolean pollConfigStatusNetworkServices(String networkServiceId) throws InterruptedException, FailedOperationException, MalformattedElementException, NotExistingEntityException, MethodNotImplementedException {
 		if(nfvoLcmService.getNfvoLcmDriver() instanceof NmroLcmDriver) {
 			int pollingTime = nsmfUtils.getNfvoLcmPolling();
 			log.info("Polling in "+pollingTime+" seconds the config status of Network Service(s).");
@@ -654,14 +664,18 @@ public class NsLcmManager {
 						log.error("Configuration status in failed status of operation ID "+operationId);
 						return false;
 					}
-					log.info("Current number of config status in successful status: "+configStatusSuccessfulCount);
+					log.info("Current number of config status in successful status: "+configStatusSuccessfulCount+"/"+operationsId.size());
 				}
 
 			}
+
 			operationsId.clear();
 		}
 		return true;
 	}
+	
+
+
 
 	private void processNfvNsChangeNotification(NotifyNfvNsiStatusChange msg) {
 		if (! ((internalStatus == NetworkSliceStatus.INSTANTIATING) || (internalStatus == NetworkSliceStatus.TERMINATING) || (internalStatus == NetworkSliceStatus.UNDER_MODIFICATION))) {
@@ -670,7 +684,7 @@ public class NsLcmManager {
 			return;
 		}
 		if (!(msg.getNfvNsiId().equals(nfvNsiInstanceId))) {
-			manageNsError("Received notification about NFV NS not associated to network slice.");
+			manageNsError("Received notification about NFV NS not associated to any Network Slice.");
 			return;
 		}
 		try{
@@ -678,7 +692,7 @@ public class NsLcmManager {
 				switch (internalStatus) {
 					case INSTANTIATING: {
 
-						if(pollConfigStatusNetworkServices()==false){
+						if(pollConfigStatusNetworkServices(msg.getNfvNsiId())==false){
 							NotifyNfvNsiStatusChange newMsg = new NotifyNfvNsiStatusChange(
 									msg.getNfvNsiId(),
 									NsStatusChange.NS_FAILED,
@@ -686,8 +700,10 @@ public class NsLcmManager {
 							processNfvNsChangeNotification(newMsg);
 						}
 
+
 						log.info("KPI:"+ Instant.now().toEpochMilli()+", Successful instantiation of NFV NS and network slice for Network Slice with UUID "+this.networkSliceIdInstanciated);
 						log.debug("Successful instantiation of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceUuid);
+
 						this.internalStatus=NetworkSliceStatus.INSTANTIATED;
 
 						//If the network slice includes slice subnets, update or create the related entries

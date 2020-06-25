@@ -227,6 +227,7 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     public void instantiateNetworkSlice(InstantiateNsiRequest request, String tenantId)
     		throws NotExistingEntityException, MalformattedElementException, NotPermittedOperationException {
     	log.debug("Processing request to instantiate a network slice instance");
+
         log.info("KPI:"+ Instant.now().toEpochMilli()+", Processing request to instantiate a network slice instance with UUID "+request.getNsiId());
     	request.isValid();
     	String nsiUuid = request.getNsiId();
@@ -241,6 +242,7 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
             String topic = "nslifecycle.instantiatens." + nsiUuid;
             nsLcmManagers.get(nsiUuid).getNsDfId();
             InstantiateNsiRequestMessage internalMessage = new InstantiateNsiRequestMessage(request, tenantId);
+            
             try {
                 sendMessageToQueue(internalMessage, topic);
             } catch (JsonProcessingException e) {

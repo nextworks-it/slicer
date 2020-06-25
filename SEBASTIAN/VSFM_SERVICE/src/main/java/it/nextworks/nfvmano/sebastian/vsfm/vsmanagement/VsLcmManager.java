@@ -88,6 +88,7 @@ public class VsLcmManager {
 
     //Key: network slice UUID. Value: object containing the nsmf client in order to interact with NSP and the NST used to create and then instantiate the network slice.
     private HashMap<String, NspNetworkSliceInteraction> nsiUuidNetworkSliceInfoMap = new HashMap<String, NspNetworkSliceInteraction>();
+    private boolean activateEaas;
     // the following is for the WAITING_FOR_RESOURCES status
     ArbitratorResponse storedResponse;
     NfvNsInstantiationInfo storedNfvNsInstantiationInfo;
@@ -120,7 +121,7 @@ public class VsLcmManager {
                         PnPCommunicationService pnPCommunicationService,
                         NsmfLcmProviderInterface nsmfLcmProvider,
                         VsmfUtils vsmfUtils,
-                        Map<String, NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap
+                        Map<String, NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap, boolean activateEaas
                         ) {
         this.vsiUuid = vsiUuid;
         this.vsiName=vsiName;
@@ -139,6 +140,7 @@ public class VsLcmManager {
         this.nsmfLcmProvider = nsmfLcmProvider;
 
         this.domainIdNetworkSliceInternalInfoMap = domainIdNetworkSliceInternalInfoMap;
+        this.activateEaas = activateEaas;
     }
 
     /**
@@ -305,6 +307,7 @@ public class VsLcmManager {
                         nsiUuidNetworkSliceInfoMap.get(nsiUuid).getLocationInfoVsi(),
                         msg.getRanEndpointId(), msg.getRequest().getImsiInfoList());
                 log.info("Performing request to instantiate network slice with UUID "+nsiUuid+".");
+                instantiateNsiReq.setInstanciateEaaS(activateEaas);
                 NsmfRestClient nsmfRestClient=nsiUuidNetworkSliceInfoMap.get(nsiUuid).getNsmfRestClient();
                 if(nsmfRestClient==null){
                     manageVsError("Unable to find suitable rest client for Network Slice Instance with UUID equal to "+nsiUuid);

@@ -196,7 +196,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 		if(nstAdvertisedInfoMapFiltered.size()==0)
 		{
 			log.warn("Unable to perform translation from VSD to NST: no suitable NST found.");
-			throw new FailedOperationException("No suitable NST found for Vertical Slice instantiation");
+			throw new FailedOperationException("No suitable NST found for Vertical Slice Instance request.");
 		}
 
 		HashMap<String,NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap=new HashMap<String,NetworkSliceInternalInfo>();
@@ -237,7 +237,10 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 			log.warn("No suitable NST found. Network slice will be not instantiated.");
 			throw new FailedOperationException("No suitable NST found for Vertical Slice instantiation");
 		}
-		initNewVsLcmManager(vsiUuid, request.getName(), domainIdNetworkSliceInternalInfoMap);
+
+		boolean activateEaaS = vsd.getQosParameters().get("trafficEncryption").equals("true");
+
+		initNewVsLcmManager(vsiUuid, request.getName(), domainIdNetworkSliceInternalInfoMap, activateEaaS);
 
 		if (!(tenantId.equals(adminTenant))) adminService.addVsiInTenant(vsiUuid, tenantId);
 		try {
@@ -649,7 +652,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
      *
      * @param vsiUuid ID of the VS instance for which the VS LCM Manager must be initialized
      */
-    private void initNewVsLcmManager(String vsiUuid, String vsiName, HashMap<String,NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap) {
+    private void initNewVsLcmManager(String vsiUuid, String vsiName, HashMap<String,NetworkSliceInternalInfo> domainIdNetworkSliceInternalInfoMap, boolean activateEaas) {
         log.debug("Initializing new VS LCM manager for VSI UUID " + vsiUuid);
         VsLcmManager vsLcmManager = new VsLcmManager(vsiUuid,
         		vsiName,
@@ -664,7 +667,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
         		pnPCommunicationService,
         		nsmfLcmProvider,
         		vsmfUtils,
-				domainIdNetworkSliceInternalInfoMap);
+				domainIdNetworkSliceInternalInfoMap,activateEaas);
         createQueue(vsiUuid, vsLcmManager);
         vsLcmManagers.put(vsiUuid, vsLcmManager);
         log.debug("VS LCM manager for VSI UUID " + vsiUuid + " initialized and added to the engine.");

@@ -18,8 +18,10 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
+import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.elements.LocationInfo;
 import it.nextworks.nfvmano.sebastian.admin.MgmtCatalogueUtilities;
 import it.nextworks.nfvmano.sebastian.common.ActuationRequest;
+import it.nextworks.nfvmano.sebastian.record.elements.ImsiInfo;
 import it.nextworks.nfvmano.sebastian.record.repo.VSICatalogueUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,9 +78,26 @@ public class VsLcmBasicRestController {
 		log.info("KPI:"+Instant.now().toEpochMilli()+", Instantiation request received with name "+request.getName());
 		try {
 			String username = getUserFromAuth(auth);
+
 			if (!request.getTenantId().equals(username)) {
 				return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
 			}
+			if(username.equals(adminTenant)) {
+				username = "tenant_dsp";
+				InstantiateVsRequest request2
+						= new InstantiateVsRequest(
+								request.getName(),
+						request.getDescription(),
+						request.getVsdId(),
+						username,
+						request.getNotificationUrl(),
+						request.getUserData(),
+						request.getLocationsConstraints(),
+						request.getImsiInfoList());
+				String vsUuid = vsLcmService.instantiateVs(request2);
+				return new ResponseEntity<>(vsUuid, HttpStatus.CREATED);
+			}
+
 			String vsUuid = vsLcmService.instantiateVs(request);
 			return new ResponseEntity<>(vsUuid, HttpStatus.CREATED);
 		} catch (NotExistingEntityException e) {
@@ -144,10 +163,8 @@ public class VsLcmBasicRestController {
 		log.debug("Received request to retrieve the Network Slice Id from Vertical Service UUID");
 		try {
 			String user = getUserFromAuth(auth);
-			if(!user.equals(adminTenant)){
-				log.error("Error: a NOT admin cannot perform actuation request.");
-				return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
-			}
+
+
 			List<String> response = vsLcmService.getVsiNsiMappingInfo(vsiUuid);
 			log.info("Network Slice Ids associated to Vertical service Instances with UUID: "+vsiUuid+" "+Arrays.toString(response.toArray()));
 			return new ResponseEntity<>(response, HttpStatus.OK);
@@ -239,8 +256,9 @@ public class VsLcmBasicRestController {
 		try {
 			String user = getUserFromAuth(auth);
 			if(user.equals(adminTenant)){
-				log.error("Error: the admin cannot perform actuation request.");
-				return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+				user = "tenant_dsp";
+				//log.error("Error: the admin cannot perform actuation request.");
+				//return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
 			}
 			vsLcmService.actuateNsiE2E(request,vsiId);
 			return new ResponseEntity<>(HttpStatus.OK);
