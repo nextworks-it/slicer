@@ -237,8 +237,9 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
 			log.warn("No suitable NST found. Network slice will be not instantiated.");
 			throw new FailedOperationException("No suitable NST found for Vertical Slice instantiation");
 		}
-
-		boolean activateEaaS = vsd.getQosParameters().get("trafficEncryption").equals("true");
+		boolean activateEaaS=false;
+		if(vsd.getQosParameters().get("trafficEncryption")!=null)
+		 	activateEaaS = vsd.getQosParameters().get("trafficEncryption").equals("true");
 
 		initNewVsLcmManager(vsiUuid, request.getName(), domainIdNetworkSliceInternalInfoMap, activateEaaS);
 
