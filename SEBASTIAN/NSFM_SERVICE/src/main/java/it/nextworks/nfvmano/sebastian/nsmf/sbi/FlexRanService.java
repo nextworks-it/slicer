@@ -136,6 +136,83 @@ public class FlexRanService extends CPSService{
         }
     }
 
+
+    private boolean isImsiInEnodeB(JsonObject ranStats, String imsi, Integer enodeB){
+        JsonArray eNbConfigArray=ranStats.get("eNB_config").getAsJsonArray();
+        if(eNbConfigArray.size()==0){
+            log.info("eNB_config has no element. The RAN might be down.");
+            return false;
+        }
+        for(int i=0; i<eNbConfigArray.size(); i++) {
+            JsonObject eNBconfig = eNbConfigArray.get(i).getAsJsonObject();
+            if(eNBconfig.get("bs_id").getAsInt()==enodeB){
+                log.info("bs_id "+enodeB);
+                JsonObject ueJSON = eNBconfig.get("UE").getAsJsonObject();
+                log.info("Get UE");
+                if(!ueJSON.has("ueConfig")){
+                    log.info("No ueConfig found into UE.");
+                    return false;
+                }
+                JsonArray ueConfigArray=ueJSON.get("ueConfig").getAsJsonArray();
+                log.info("Get ueConfig");
+                for(int j=0; j<ueConfigArray.size(); j++){
+                    log.info("Looking for IMSI");
+                    if(ueConfigArray.get(j).getAsJsonObject().get("imsi").getAsString().equals(imsi))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    public Map<String, Object> getHandoverRequestParams(String imsi){
+
+        String url = String.format("http://%s/stats", flexRanURL);
+        ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.GET);
+        String rawResponse = httpResponse.getBody();
+        JsonParser jsonParser = new JsonParser();
+        log.debug("RAN stats raw output: "+rawResponse);
+        JsonObject jsonObject= jsonParser.parse(rawResponse).getAsJsonObject();
+        JsonArray eNbConfigArray=jsonObject.get("eNB_config").getAsJsonArray();
+        if(eNbConfigArray.size()==0){
+            log.info("eNB_config has no element. The RAN might be down.");
+        }
+
+        ArrayList<Integer> enodeBlsit = new ArrayList<Integer>();
+        log.info("There are "+eNbConfigArray.size()+" enodeB");
+        for(int i=0; i<eNbConfigArray.size(); i++) {
+            Integer enodeBId = eNbConfigArray.get(i).getAsJsonObject().get("bs_id").getAsInt();
+            enodeBlsit.add(enodeBId);
+            log.info("EnodeB found with ID "+enodeBId);
+        }
+
+
+        Integer enodeBToMigrateFrom=null;
+        Integer enodeBToMigrateTo=null;
+        for(Integer enodeBId: enodeBlsit){
+            log.info("Looking for IMSI "+imsi+" into enodeB "+enodeBId);
+            if(isImsiInEnodeB(jsonObject,imsi,enodeBId)){
+                enodeBToMigrateFrom=enodeBId;
+                log.info("EnodeB with ID "+enodeBToMigrateFrom+" has the IMSI "+imsi);
+            }
+            if(!isImsiInEnodeB(jsonObject,imsi,enodeBId)){
+                enodeBToMigrateTo=enodeBId;
+                log.info("EnodeB with ID "+enodeBToMigrateTo+" has NOT the IMSI "+imsi);
+            }
+        }
+
+        if(enodeBToMigrateFrom==null || enodeBToMigrateTo==null){
+            log.info("Not able to find either the source or the destination of the IMSI");
+            return null;
+        }
+        HashMap <String,Object> hoParameters = new HashMap<>();
+        hoParameters.put("sid",enodeBToMigrateFrom);
+        hoParameters.put("ueid",Integer.valueOf(imsi));
+        hoParameters.put("tid",enodeBToMigrateTo);
+        return hoParameters;
+    }
+
     public int[] getRanSlicePercentageUsage(String ranSliceID){
         String url = String.format("http://%s/stats", flexRanURL);
         ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.GET);

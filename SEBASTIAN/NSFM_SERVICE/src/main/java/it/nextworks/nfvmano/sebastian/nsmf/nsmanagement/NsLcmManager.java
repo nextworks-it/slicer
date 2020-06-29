@@ -42,6 +42,7 @@ import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.libs.ifa.templates.NstServiceProfile;
 import it.nextworks.nfvmano.libs.ifa.templates.SliceType;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.NsstType;
+import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFeatureLevel;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
@@ -276,6 +277,7 @@ public class NsLcmManager {
 		return false;
 	}
 
+
 	private boolean createRanSlice(List<ImsiInfo> imsiInfoList) throws NotExistingEntityException {
 		if(hasNstRAN()) {
 			log.info("The Network Slice Template has at least one RAN slice to be instantiated.");
@@ -389,8 +391,8 @@ public class NsLcmManager {
 	private boolean createPPslice(){
 		boolean ppInstantiated;
 		if (hasNstPP()) {
-			// Do PnP stuff
-			HttpStatus httpStatusPpSlice = this.pnPCommunicationService.deploySliceComponents(UUID.fromString(networkSliceInstanceUuid), this.networkSliceTemplate);
+
+			HttpStatus httpStatusPpSlice = this.pnPCommunicationService.deploySliceComponents(UUID.fromString(networkSliceInstanceUuid), this.networkSliceTemplate,nsmfUtils.getIncludeFaaS());
 			ppInstantiated = httpStatusPpSlice == HttpStatus.OK;
 		}
 		else{
@@ -673,7 +675,7 @@ public class NsLcmManager {
 		}
 		return true;
 	}
-	
+
 
 
 
@@ -790,10 +792,19 @@ public class NsLcmManager {
             log.info("KPI:"+ Instant.now().toEpochMilli()+", LLMec slice creation endend for Network Slice with UUID "+this.networkSliceIdInstanciated);
         }
 
+
+
 		if(actuationLcmService.isNoisyNeighborActuation(request)){
 			log.debug("Setting network Service ID "+nfvNsiInstanceId+" for the actuation");
 			actuationLcmService.setNetwoekServiceId(nfvNsiInstanceId);
 		}
+
+		Map<String, Object> hoParams = new HashMap<String, Object>();
+		if(actuationLcmService.isHandoverActuation(request)){
+			log.info("Handover request received. Going to build the handover actuation request.");
+			hoParams = flexRanService.getHandoverRequestParams((String)request.getParameters().get("ueid"));
+			request.setParameters(hoParams);
+			}
 
 		boolean successful =actuationLcmService.processActuation(request);
 

@@ -75,8 +75,8 @@ public class NsmfUtils {
 	@Value("#{new Boolean('${simulateRan}')}")
 	private Boolean simulateRan;
 
-	@Value("#{new Boolean('${fakeNetworkSlice}')}")
-	private Boolean fakeNetworkSlice;
+	@Value("#{new Boolean('${includeFaaS}')}")
+	private Boolean includeFaaS;
 
 	public NsTemplateInfo getNsTemplateInfoFromCatalogue(String nstUuid)
 			throws NotExistingEntityException {
@@ -128,7 +128,7 @@ public class NsmfUtils {
 		return simulateRan;
 	}
 
-	public Boolean getFakeNetworkSlice() {
-		return fakeNetworkSlice;
+	public Boolean getIncludeFaaS() {
+		return includeFaaS;
 	}
 }

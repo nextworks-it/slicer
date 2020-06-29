@@ -44,6 +44,14 @@ public class ActuationLcmService {
 
     }
 
+    public boolean isHandoverActuation(ActuationRequest request){
+        Map<String, Object> parametersActuation = request.getParameters();
+        if(parametersActuation.containsKey("ueid"))
+            return true;
+        return false;
+    }
+
+
     public boolean isRedirectActuation(ActuationRequest request){
         Map<String, Object> parametersActuation = request.getParameters();
         if((parametersActuation.containsKey("routes") && parametersActuation.containsKey("ueIMSI")) || (parametersActuation.containsKey("VDU_NAME") && parametersActuation.containsKey("RESOURCE_ID") && parametersActuation.containsKey("VNF_MEMBER_INDEX")))

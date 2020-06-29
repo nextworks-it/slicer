@@ -135,16 +135,21 @@ public class PnPCommunicationService extends SbRestClient {
             objectNode.put("feature_type", ppFunctionList.get(i).getPpFeatureType().toString().toLowerCase());
             objectNode.put("feature_level", ppFunctionList.get(i).getPpFeatureLevel().toString().toLowerCase());
             reqComponentFeatureArray.add(objectNode);
+            reqComponentFeatureArray.add(objectNode);
         }
         networkSliceInfo.putPOJO("required_feature", reqComponentFeatureArray);
         return networkSliceInfo;
     }
 
     //NSP-SIDE ONLY
-    private ObjectNode generateRequestPayload(NST nst, UUID sliceId) {
+    private ObjectNode generateRequestPayload(NST nst, UUID sliceId, boolean isFaasIncluded) {
         ObjectNode sliceInfoHeader = buildNetworkSliceInfo(nst, sliceId);
         ArrayNode sliceInfoFeatures = buildRequiredComponentFeature(nst);
         sliceInfoHeader.putPOJO("required_feature", sliceInfoFeatures);
+        if(isFaasIncluded){
+            log.info("Adding required_faas");
+            sliceInfoHeader.putPOJO("required_faas",new ArrayList<>());
+        }
         return sliceInfoHeader;
     }
 
@@ -177,10 +182,10 @@ public class PnPCommunicationService extends SbRestClient {
     }
 
 
-    public HttpStatus deploySliceComponents(UUID sliceUuid, NST nst){
+    public HttpStatus deploySliceComponents(UUID sliceUuid, NST nst, boolean isFaasIncluded){
         try{
             String url = this.getTargetUrl() + "/plug-and-play-manager/slice/" + sliceUuid +"/";
-            Object requestPayload = generateRequestPayload(nst, sliceUuid);
+            Object requestPayload = generateRequestPayload(nst, sliceUuid, isFaasIncluded);
 
             ResponseEntity<String> httpResponse = this.performHTTPRequest(requestPayload, url, HttpMethod.POST);
             sliceIDs.add(sliceUuid);

@@ -51,7 +51,7 @@ public class PnpCommunicationTest {
         nst.setNstProvider("NXW");
         nst.setPpFunctionList(ppfl);
         pnp.setTargetUrl(url);
-        HttpStatus httpStatus = pnp.deploySliceComponents(sliceId, nst);
+        HttpStatus httpStatus = pnp.deploySliceComponents(sliceId, nst,false);
         System.out.println(httpStatus);
 
     }
