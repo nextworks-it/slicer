@@ -89,7 +89,11 @@ public class QoSService extends CPSService{
     public HttpStatus handover(UUID sliceId, JSONObject handoverParams){
         try {
             String baseUri= this.getTargetUrl();
-            String url = String.format("%s/slicenet/ctrlplane/qos/v1/qos-instance/%s/handover",baseUri, sliceId.toString());
+            String qosCpBaseURl = this.getQoSInfo(sliceId);
+            qosCpBaseURl = qosCpBaseURl.split("/slicenet/ctrlplane/qos/v1")[0];
+            log.info("Base path: "+qosCpBaseURl);
+            //String url = String.format("%s/slicenet/ctr;lplane/qos/v1/qos-instance/%s/handover",baseUri, sliceId.toString());
+            String url = String.format("%s/slicenet/ctrlplane/qos/v1/qos-instance/%s/handover?segment_id=ACCESS",qosCpBaseURl, sliceId.toString());
             log.info("Actuation JSON going to send");
             log.info(handoverParams.toString());
             ResponseEntity<String> httpResponse = this.performHTTPRequest(handoverParams.toString(), url, HttpMethod.POST);

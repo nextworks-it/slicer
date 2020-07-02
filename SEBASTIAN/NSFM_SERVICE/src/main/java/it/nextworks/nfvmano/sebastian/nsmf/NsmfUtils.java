@@ -78,6 +78,12 @@ public class NsmfUtils {
 	@Value("#{new Boolean('${includeFaaS}')}")
 	private Boolean includeFaaS;
 
+	@Value("#{new Boolean('${startFromRanSliceZero}')}")
+	private Boolean startFromRanSliceZero;
+
+	@Value("#{new Boolean('${skipQoS}')}")
+	private Boolean skipQos;
+
 	public NsTemplateInfo getNsTemplateInfoFromCatalogue(String nstUuid)
 			throws NotExistingEntityException {
 
@@ -130,5 +136,14 @@ public class NsmfUtils {
 
 	public Boolean getIncludeFaaS() {
 		return includeFaaS;
+	}
+
+	public Boolean getStartFromRanSliceZero() {
+		return startFromRanSliceZero;
+	}
+
+
+	public Boolean getSkipQos() {
+		return skipQos;
 	}
 }

@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -69,6 +70,26 @@ public class NSTe2eComposerRestController {
         }
         catch (AlreadyExistingEntityException e) {
             return new ResponseEntity<String>("NST already present.", HttpStatus.CONFLICT);
+        }
+        catch (Exception e) {
+            log.error("Internal exception");
+            log.error(e.getMessage());
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/nstAdvertising/{nstUuid}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateAdvertisedNst(@PathVariable String nstUuid, @RequestBody List<String> kpiList, Authentication auth) {
+
+        /*String user = getUserFromAuth(auth);
+
+        if (user.equals(adminTenant)) { //Admin CANNOT advertise nst.
+            log.warn("Request refused as tenant {} is admin.", user);
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }*/
+        try {
+            bucketService.updateKpi(nstUuid, kpiList);
+            return new ResponseEntity<String>("KPI of NST with UUID "+nstUuid+" correctly updated.", HttpStatus.CREATED);
         }
         catch (Exception e) {
             log.error("Internal exception");

@@ -132,6 +132,32 @@ public class BucketService {
     }
 
 
+    public void updateKpi(String nstUuid, List<String> kpiList) throws NotExistingEntityException, MalformattedElementException {
+        log.info("Going to update KPI list of NST with UUID "+nstUuid);
+        if(nstUuid==null)
+            throw new MalformattedElementException("No Nst UUID has been specified");
+
+        if(kpiList==null)
+            throw new MalformattedElementException("No KPI list has been specified");
+
+        List<Bucket> bucketList=bucketRepository.findAll();
+
+        for(Bucket bucket: bucketList){
+            log.info("Looking NST into "+bucket.getBucketType() +"bucket");
+            for(NstAdvertisedInfo nstAdvertisedInfo: bucket.getNstAdvertisedInfoList()){
+                log.info("Comparing "+nstAdvertisedInfo.getNstId()+" with "+nstUuid);
+                if(nstAdvertisedInfo.getNstId().contains(nstUuid)) {
+                    log.info("Updating KPI list");
+                    nstAdvertisedInfo.setKpiList(kpiList);
+                    bucketRepository.saveAndFlush(bucket);
+                   return;
+                }
+            }
+        }
+          log.info("NST advertised with UUID "+ nstUuid +" not found.");
+          throw new NotExistingEntityException("NST with UUID" + nstUuid + " not found");
+
+    }
     private boolean bucketizeNsst(String nstId, NST nsst, String domainId) throws MalformattedElementException, AlreadyExistingEntityException, FailedOperationException {
         SliceType sliceType= nsst.getNstServiceProfile().getsST();
         String nsstId = nsst.getNstId();

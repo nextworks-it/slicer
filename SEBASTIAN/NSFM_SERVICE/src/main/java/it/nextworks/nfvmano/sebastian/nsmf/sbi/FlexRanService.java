@@ -53,12 +53,15 @@ public class FlexRanService extends CPSService{
 
     private boolean sliceZeroToOnePercent;
 
+    private int currentSliceId;
+
     public FlexRanService() {
         this.flxIdSliceId = new HashMap<>();
         this.availableRanId =  IntStream.range(1, 255)  //NOTE 1-255 taken from FlexRan API Doc
                 .boxed()
                 .collect(toList());
         sliceZeroToOnePercent=false;
+        currentSliceId=0;
     }
 
 
@@ -137,11 +140,12 @@ public class FlexRanService extends CPSService{
     }
 
 
-    private boolean isImsiInEnodeB(JsonObject ranStats, String imsi, Integer enodeB){
+    //private boolean isImsiInEnodeB(JsonObject ranStats, String imsi, Integer enodeB){
+    private String isImsiInEnodeB(JsonObject ranStats, String imsi, Integer enodeB){
         JsonArray eNbConfigArray=ranStats.get("eNB_config").getAsJsonArray();
         if(eNbConfigArray.size()==0){
             log.info("eNB_config has no element. The RAN might be down.");
-            return false;
+            return null;
         }
         for(int i=0; i<eNbConfigArray.size(); i++) {
             JsonObject eNBconfig = eNbConfigArray.get(i).getAsJsonObject();
@@ -151,18 +155,22 @@ public class FlexRanService extends CPSService{
                 log.info("Get UE");
                 if(!ueJSON.has("ueConfig")){
                     log.info("No ueConfig found into UE.");
-                    return false;
+                    return null;
                 }
                 JsonArray ueConfigArray=ueJSON.get("ueConfig").getAsJsonArray();
                 log.info("Get ueConfig");
                 for(int j=0; j<ueConfigArray.size(); j++){
                     log.info("Looking for IMSI");
-                    if(ueConfigArray.get(j).getAsJsonObject().get("imsi").getAsString().equals(imsi))
-                        return true;
+                    if(ueConfigArray.get(j).getAsJsonObject().get("imsi").getAsString().equals(imsi)){
+                        String rnti = ueConfigArray.get(j).getAsJsonObject().get("rnti").getAsString();
+                        return rnti;
+                        //return true;
+                    }
                 }
             }
         }
-        return false;
+        return null;
+        //return false;
     }
 
 
@@ -172,6 +180,7 @@ public class FlexRanService extends CPSService{
         ResponseEntity<String> httpResponse = this.performHTTPRequest(null, url, HttpMethod.GET);
         String rawResponse = httpResponse.getBody();
         JsonParser jsonParser = new JsonParser();
+        //String rawResponse = "{\"date_time\":\"2020-06-26T17:06:25.130\",\"eNB_config\":[{\"bs_id\":10027,\"agent_info\":[{\"agent_id\":27,\"bs_id\":10027,\"capabilities\":[\"LOPHY\",\"HIPHY\",\"LOMAC\",\"HIMAC\",\"RLC\",\"PDCP\",\"SDAP\",\"RRC\"]}],\"eNB\":{\"header\":{\"version\":0,\"type\":8,\"xid\":0},\"cellConfig\":[{\"phyCellId\":1,\"puschHoppingOffset\":0,\"hoppingMode\":0,\"nSb\":1,\"phichResource\":0,\"phichDuration\":0,\"initNrPDCCHOFDMSym\":1,\"siConfig\":{\"sfn\":618,\"sib1Length\":17,\"siWindowLength\":5},\"dlBandwidth\":25,\"ulBandwidth\":25,\"ulCyclicPrefixLength\":0,\"dlCyclicPrefixLength\":0,\"antennaPortsCount\":1,\"duplexMode\":1,\"subframeAssignment\":0,\"specialSubframePatterns\":0,\"prachConfigIndex\":0,\"prachFreqOffset\":2,\"raResponseWindowSize\":7,\"macContentionResolutionTimer\":5,\"maxHARQMsg3Tx\":0,\"n1PUCCHAN\":0,\"deltaPUCCHShift\":1,\"nRBCqi\":0,\"srsSubframeConfig\":0,\"srsBwConfig\":0,\"srsMacUpPts\":0,\"enable64QAM\":0,\"carrierIndex\":0,\"dlFreq\":2685,\"ulFreq\":2565,\"eutraBand\":7,\"dlPdschPower\":-27,\"ulPuschPower\":-96,\"plmnId\":[{\"mcc\":208,\"mnc\":92,\"mncLength\":2}],\"sliceConfig\":{\"dl\":[{\"id\":0,\"label\":\"xMBB\",\"percentage\":100,\"isolation\":false,\"priority\":10,\"positionLow\":0,\"positionHigh\":25,\"maxmcs\":28,\"sorting\":[\"CR_ROUND\",\"CR_SRB12\",\"CR_HOL\",\"CR_LC\",\"CR_CQI\",\"CR_LCP\"],\"accounting\":\"POL_FAIR\",\"schedulerName\":\"schedule_ue_spec\"}],\"ul\":[{\"id\":0,\"label\":\"xMBB\",\"percentage\":100,\"isolation\":false,\"priority\":0,\"firstRb\":0,\"maxmcs\":20,\"accounting\":\"POLU_FAIR\",\"schedulerName\":\"schedule_ulsch_rnti\"}],\"intrasliceShareActive\":true,\"intersliceShareActive\":true},\"x2HoNetControl\":false}]},\"UE\":{\"ueConfig\":[{\"rnti\":52139,\"timeAlignmentTimer\":7,\"measGapConfigPattern\":4294967295,\"measGapConfigSfOffset\":4294967295,\"transmissionMode\":0,\"ueAggregatedMaxBitrateUL\":\"0\",\"ueAggregatedMaxBitrateDL\":\"0\",\"capabilities\":{\"halfDuplex\":0,\"intraSFHopping\":0,\"type2Sb1\":1,\"ueCategory\":4,\"resAllocType1\":1},\"ueTransmissionAntenna\":2,\"ttiBundling\":0,\"maxHARQTx\":4,\"betaOffsetACKIndex\":0,\"betaOffsetRIIndex\":0,\"betaOffsetCQIIndex\":8,\"ackNackSimultaneousTrans\":0,\"simultaneousAckNackCqi\":0,\"aperiodicCqiRepMode\":3,\"tddAckNackFeedback\":4294967295,\"ackNackRepetitionFactor\":0,\"extendedBsrSize\":4294967295,\"imsi\":\"0\",\"dlSliceId\":0,\"ulSliceId\":0,\"info\":{\"offsetFreqServing\":\"0\",\"offsetFreqNeighbouring\":\"0\",\"cellIndividualOffset\":[\"0\",\"0\"],\"filterCoefficientRsrp\":\"4\",\"filterCoefficientRsrq\":\"4\",\"event\":{\"a3\":{\"a3Offset\":\"0\",\"reportOnLeave\":1,\"hysteresis\":\"0\",\"timeToTrigger\":\"40\",\"maxReportCells\":\"2\"}}}}]},\"LC\":{\"header\":{\"version\":0,\"type\":12,\"xid\":0},\"lcUeConfig\":[{\"rnti\":18567,\"lcConfig\":[{\"lcid\":1,\"lcg\":0,\"direction\":2,\"qosBearerType\":0,\"qci\":1},{\"lcid\":2,\"lcg\":0,\"direction\":2,\"qosBearerType\":0,\"qci\":1},{\"lcid\":3,\"lcg\":1,\"direction\":1,\"qosBearerType\":0,\"qci\":1}]},{\"rnti\":50169,\"lcConfig\":[{\"lcid\":1,\"lcg\":0,\"direction\":2,\"qosBearerType\":0,\"qci\":1},{\"lcid\":2,\"lcg\":0,\"direction\":2,\"qosBearerType\":0,\"qci\":1},{\"lcid\":3,\"lcg\":1,\"direction\":1,\"qosBearerType\":0,\"qci\":1}]},{\"rnti\":14416,\"lcConfig\":[{\"lcid\":1,\"lcg\":0,\"direction\":2,\"qosBearerType\":0,\"qci\":1},{\"lcid\":2,\"lcg\":0,\"direction\":2,\"qosBearerType\":0,\"qci\":1},{\"lcid\":3,\"lcg\":1,\"direction\":1,\"qosBearerType\":0,\"qci\":1}]},{\"rnti\":52139,\"lcConfig\":[{\"lcid\":1,\"lcg\":0,\"direction\":2,\"qosBearerType\":0,\"qci\":1},{\"lcid\":2,\"lcg\":0,\"direction\":2,\"qosBearerType\":0,\"qci\":1},{\"lcid\":3,\"lcg\":1,\"direction\":1,\"qosBearerType\":0,\"qci\":1}]}]}},{\"bs_id\":10028,\"agent_info\":[{\"agent_id\":28,\"bs_id\":10028,\"capabilities\":[\"LOPHY\",\"HIPHY\",\"LOMAC\",\"HIMAC\",\"RLC\",\"PDCP\",\"SDAP\",\"RRC\"]}],\"eNB\":{\"header\":{\"version\":0,\"type\":8,\"xid\":0},\"cellConfig\":[{\"phyCellId\":0,\"puschHoppingOffset\":0,\"hoppingMode\":0,\"nSb\":1,\"phichResource\":0,\"phichDuration\":0,\"initNrPDCCHOFDMSym\":1,\"siConfig\":{\"sfn\":818,\"sib1Length\":17,\"siWindowLength\":5},\"dlBandwidth\":25,\"ulBandwidth\":25,\"ulCyclicPrefixLength\":0,\"dlCyclicPrefixLength\":0,\"antennaPortsCount\":1,\"duplexMode\":1,\"subframeAssignment\":0,\"specialSubframePatterns\":0,\"prachConfigIndex\":0,\"prachFreqOffset\":2,\"raResponseWindowSize\":7,\"macContentionResolutionTimer\":5,\"maxHARQMsg3Tx\":0,\"n1PUCCHAN\":0,\"deltaPUCCHShift\":1,\"nRBCqi\":0,\"srsSubframeConfig\":0,\"srsBwConfig\":0,\"srsMacUpPts\":0,\"enable64QAM\":0,\"carrierIndex\":0,\"dlFreq\":2685,\"ulFreq\":2565,\"eutraBand\":7,\"dlPdschPower\":-27,\"ulPuschPower\":-96,\"plmnId\":[{\"mcc\":208,\"mnc\":92,\"mncLength\":2}],\"sliceConfig\":{\"dl\":[{\"id\":0,\"label\":\"xMBB\",\"percentage\":1,\"isolation\":false,\"priority\":10,\"positionLow\":0,\"positionHigh\":25,\"maxmcs\":28,\"sorting\":[\"CR_ROUND\",\"CR_SRB12\",\"CR_HOL\",\"CR_LC\",\"CR_CQI\",\"CR_LCP\"],\"accounting\":\"POL_FAIR\",\"schedulerName\":\"schedule_ue_spec\"}],\"ul\":[{\"id\":0,\"label\":\"xMBB\",\"percentage\":1,\"isolation\":false,\"priority\":0,\"firstRb\":0,\"maxmcs\":20,\"accounting\":\"POLU_FAIR\",\"schedulerName\":\"schedule_ulsch_rnti\"}],\"intrasliceShareActive\":true,\"intersliceShareActive\":true},\"x2HoNetControl\":false}]},\"UE\":{},\"LC\":{}}],\"mac_stats\":[{\"bs_id\":10027,\"ue_mac_stats\":[{\"rnti\": 52139,\"mac_stats\":{\"rnti\":52139,\"bsr\":[0,0,0,0],\"phr\":40,\"rlcReport\":[{\"lcId\":1,\"txQueueSize\":0,\"txQueueHolDelay\":0,\"statusPduSize\":0},{\"lcId\":2,\"txQueueSize\":0,\"txQueueHolDelay\":0,\"statusPduSize\":0},{\"lcId\":3,\"txQueueSize\":0,\"txQueueHolDelay\":0,\"statusPduSize\":0}],\"pendingMacCes\":0,\"dlCqiReport\":{\"sfnSn\":6294,\"csiReport\":[{\"servCellIndex\":0,\"ri\":0,\"type\":\"FLCSIT_P10\",\"p10csi\":{\"wbCqi\":15}}]},\"ulCqiReport\":{\"sfnSn\":6294,\"cqiMeas\":[{\"type\":\"FLUCT_SRS\",\"servCellIndex\":0}],\"pucchDbm\":[{\"p0PucchDbm\":0,\"servCellIndex\":0}]},\"rrcMeasurements\":{\"measid\":5,\"pcellRsrp\":-65,\"pcellRsrq\":-3,\"neighMeas\":{\"eutraMeas\":[{\"physCellId\":0,\"measResult\":{\"rsrp\":-73,\"rsrq\":-8}},{\"physCellId\":341,\"measResult\":{\"rsrp\":-87,\"rsrq\":-19}}]}},\"pdcpStats\":{\"pktTx\":97,\"pktTxBytes\":15352,\"pktTxSn\":96,\"pktTxW\":0,\"pktTxBytesW\":0,\"pktTxAiat\":11099542,\"pktTxAiatW\":0,\"pktRx\":102,\"pktRxBytes\":13004,\"pktRxSn\":102,\"pktRxW\":0,\"pktRxBytesW\":0,\"pktRxAiat\":11099539,\"pktRxAiatW\":0,\"pktRxOo\":0,\"sfn\":\"12826771\"},\"macStats\":{\"tbsDl\":4,\"tbsUl\":63,\"prbRetxDl\":2,\"prbRetxUl\":0,\"prbDl\":2,\"prbUl\":0,\"mcs1Dl\":28,\"mcs2Dl\":0,\"mcs1Ul\":10,\"mcs2Ul\":10,\"totalBytesSdusUl\":4209695,\"totalBytesSdusDl\":271486,\"totalPrbDl\":255826,\"totalPrbUl\":1408237,\"totalPduDl\":127878,\"totalPduUl\":469374,\"totalTbsDl\":529342,\"totalTbsUl\":29580588,\"macSdusDl\":[{\"sduLength\":2,\"lcid\":1}],\"harqRound\":8},\"gtpStats\":[{\"eRabId\":5,\"teidEnb\":2063422212,\"teidSgw\":13}]},\"harq\":[\"ACK\",\"ACK\",\"ACK\",\"ACK\",\"ACK\",\"ACK\",\"ACK\",\"ACK\"]}]},{\"bs_id\":10028,\"ue_mac_stats\":[]}]}\n";
         log.debug("RAN stats raw output: "+rawResponse);
         JsonObject jsonObject= jsonParser.parse(rawResponse).getAsJsonObject();
         JsonArray eNbConfigArray=jsonObject.get("eNB_config").getAsJsonArray();
@@ -190,15 +199,20 @@ public class FlexRanService extends CPSService{
 
         Integer enodeBToMigrateFrom=null;
         Integer enodeBToMigrateTo=null;
+        String rntiToSet = null;
         for(Integer enodeBId: enodeBlsit){
-            log.info("Looking for IMSI "+imsi+" into enodeB "+enodeBId);
-            if(isImsiInEnodeB(jsonObject,imsi,enodeBId)){
+            //log.info("Looking for IMSI "+imsi+" into enodeB "+enodeBId);
+            String rnti = isImsiInEnodeB(jsonObject,"0",enodeBId);
+            if(rnti!=null){
                 enodeBToMigrateFrom=enodeBId;
-                log.info("EnodeB with ID "+enodeBToMigrateFrom+" has the IMSI "+imsi);
+                log.info("EnodeB with ID "+enodeBToMigrateTo+" has the IMSI you are looking for. The rnti is "+rnti );
+                //log.info("EnodeB with ID "+enodeBToMigrateFrom+" has the IMSI "+imsi);
+                rntiToSet=rnti;
             }
-            if(!isImsiInEnodeB(jsonObject,imsi,enodeBId)){
+            if(rnti==null){
                 enodeBToMigrateTo=enodeBId;
-                log.info("EnodeB with ID "+enodeBToMigrateTo+" has NOT the IMSI "+imsi);
+                log.info("EnodeB with ID "+enodeBToMigrateTo+" has NOT the IMSI you are looking for");
+                //log.info("EnodeB with ID "+enodeBToMigrateTo+" has NOT the IMSI "+imsi);
             }
         }
 
@@ -208,7 +222,7 @@ public class FlexRanService extends CPSService{
         }
         HashMap <String,Object> hoParameters = new HashMap<>();
         hoParameters.put("sid",enodeBToMigrateFrom);
-        hoParameters.put("ueid",Integer.valueOf(imsi));
+        hoParameters.put("ueid",rntiToSet);
         hoParameters.put("tid",enodeBToMigrateTo);
         return hoParameters;
     }
@@ -304,14 +318,38 @@ public class FlexRanService extends CPSService{
         }
     }
 
+
+
+    public HttpStatus mapSliceStartingFromZero(UUID sliceId) {
+        String url = String.format("http://%s/ranadapter/all/v1/set_slice_mapping", ranAdapterUrl);
+        Map<String, String> slicePair = new HashMap<>();
+
+        this.setIdsMap(sliceId, currentSliceId);
+        slicePair.put("slicenetid", sliceId.toString());
+        slicePair.put("sid", String.valueOf(currentSliceId));
+        try{
+            JSONObject payload = new JSONObject(slicePair);
+            JSONArray payloadArray = new JSONArray();
+            payloadArray.put(payload);
+            ResponseEntity<String> httpResponse = this.performHTTPRequest(payloadArray.toString(), url, HttpMethod.POST);
+            currentSliceId++;
+            return httpResponse.getStatusCode();
+        }catch (RestClientResponseException e){
+            log.info("Message received: " + e.getMessage());
+            return HttpStatus.valueOf(e.getRawStatusCode());
+        }
+    }
+
     /*E.g.: {slicenetid: "f5b01594-520e-11e9-8647-d663bd873d93",
              sid: "1" }*/
     public HttpStatus mapIdsRemotely(UUID sliceId){
+        
         Integer ranId = getRanId(sliceId);
         String url = String.format("http://%s/ranadapter/all/v1/set_slice_mapping", ranAdapterUrl);
         Map<String, String> slicePair = new HashMap<>();
         slicePair.put("slicenetid", sliceId.toString());
         slicePair.put("sid", ranId.toString());
+        //slicePair.put("sid", "0"); //FOR DELL
         try{
             JSONObject payload = new JSONObject(slicePair);
             JSONArray payloadArray = new JSONArray();
@@ -341,6 +379,10 @@ public class FlexRanService extends CPSService{
     public HttpStatus terminateRanSlice(UUID sliceId){
 
         Integer ranId = getRanId(sliceId);
+        if(ranId==0){
+            log.warn("Slice RAN with ID 0 cannot be removed.");
+            return HttpStatus.OK;
+        }
 
         String flexRanUrl = String.format("http://%s/slice/enb/-1/slice/%d", flexRanURL, ranId);
         try{
@@ -383,5 +425,7 @@ public class FlexRanService extends CPSService{
         else
             return this.enodeB;
     }
-
+    public int getCurrentSliceId() {
+        return currentSliceId;
+    }
 }

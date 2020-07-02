@@ -9,6 +9,7 @@ import it.nextworks.nfvmano.sebastian.nsmf.nbi.VsmfNstAdvertiserRestClient;
 import it.nextworks.nfvmano.sebastian.nsmf.nstadvertiser.NstAdvertisingManager;
 import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRemoveRequest;
 import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRequest;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +79,7 @@ public class NstOnboardingInterceptor implements HandlerInterceptor {
         final String NST_PATH = "ns/catalogue/nstemplate";
         String requestUrl = httpServletRequest.getRequestURL().toString();
 
+        //Case #1: A new NST has been created and it is advertized
         if (httpServletRequest.getMethod().equals("POST") &&
                 requestUrl.indexOf(NST_PATH) != -1 &&
                 httpServletResponse.getStatus() == HttpStatus.CREATED.value()) {
@@ -124,6 +126,7 @@ public class NstOnboardingInterceptor implements HandlerInterceptor {
             }
         }
 
+        //Case #2: An existing NST has been deleted, then it is dis-advertized
         if (httpServletRequest.getMethod().equals("DELETE") &&
                 requestUrl.indexOf(NST_PATH) != -1 &&
                 httpServletResponse.getStatus() == HttpStatus.OK.value()) {
@@ -132,6 +135,20 @@ public class NstOnboardingInterceptor implements HandlerInterceptor {
             try {
                 NstAdvertisementRemoveRequest nstAdvertisementRemoveRequest = new NstAdvertisementRemoveRequest(nstUUIDtoBeDeleted, domainName);
                 requests.put(nstAdvertisementRemoveRequest);
+            }  catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        if (httpServletRequest.getMethod().equals("PUT") &&
+                requestUrl.indexOf(NST_PATH+"/kpi/") != -1 &&
+                httpServletResponse.getStatus() == HttpStatus.OK.value()) {
+            log.info("Request url is "+requestUrl);
+            String nstUUIDtoBeUpdated = requestUrl.split(NST_PATH+"/kpi/")[1];
+            try {
+                List<String> kpiList = nsTemplateRepository.findByNstId(nstUUIDtoBeUpdated).get().getKpiList();
+                NstAdvertisementUpdate nstAdvertisementUpdate = new NstAdvertisementUpdate(nstUUIDtoBeUpdated,kpiList);
+                requests.put(nstAdvertisementUpdate);
             }  catch (InterruptedException ex) {
                 ex.printStackTrace();
             }

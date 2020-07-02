@@ -4,10 +4,12 @@ import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.sebastian.nsmf.nbi.VsmfNstAdvertiserRestClient;
 import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRemoveRequest;
 import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRequest;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
 
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 public class NstAdvertisingManager implements Runnable {
@@ -28,7 +30,6 @@ public class NstAdvertisingManager implements Runnable {
 
     private void processRequest(Object request) throws FailedOperationException, InterruptedException {
             if(request instanceof NstAdvertisementRequest){
-
                 NstAdvertisementRequest nstAdvertisementRequest = (NstAdvertisementRequest) request;
                 log.info("Going to advertise NST with UUID "+nstAdvertisementRequest.getNst().getNstId());
                 vsmfNstAdvertiserRestClient.advertiseNst(nstAdvertisementRequest);
@@ -37,6 +38,12 @@ public class NstAdvertisingManager implements Runnable {
                 NstAdvertisementRemoveRequest nstAdvertisementRemoveRequest = (NstAdvertisementRemoveRequest)request;
                 log.info("Going to remove advertising of NST with UUID "+nstAdvertisementRemoveRequest.getNstId());
                 vsmfNstAdvertiserRestClient.removeNstAdvertised(nstAdvertisementRemoveRequest);
+            }
+            else if(request instanceof NstAdvertisementUpdate){
+
+                NstAdvertisementUpdate nstAdvertisementUpdate = (NstAdvertisementUpdate)request;
+                log.info("Going to update KPI of NST with UUID "+nstAdvertisementUpdate.getNstUuid());
+                vsmfNstAdvertiserRestClient.updateKpi(nstAdvertisementUpdate);
             }
             else{
                 log.warn("Cannot process the request.");

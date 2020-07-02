@@ -42,7 +42,6 @@ import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.libs.ifa.templates.NstServiceProfile;
 import it.nextworks.nfvmano.libs.ifa.templates.SliceType;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.NsstType;
-import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFeatureLevel;
 import it.nextworks.nfvmano.libs.ifa.templates.plugAndPlay.PpFunction;
 import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
@@ -74,7 +73,7 @@ import java.util.*;
 /**
  * Entity in charge of managing the lifecycle
  * of a single network sub-slice instance
- * 
+ *
  * @author nextworks
  *
  */
@@ -104,9 +103,9 @@ public class NsLcmManager {
 	private NetworkSliceStatus internalStatus;
 
 	private String requestedInstantiationLevelId;
-	
+
 	private NST networkSliceTemplate;
-	
+
 	private NsmfUtils nsmfUtils;
 
 	private FlexRanService flexRanService;
@@ -166,9 +165,9 @@ public class NsLcmManager {
 		llMecService.setLlMecURL(nsmfUtils.getLlMecHostname());
 		isNetworkServiceInstanciated= new HashMap<String, Boolean>();
 	}
-	
-	
-	
+
+
+
 	public NetworkSliceStatus getInternalStatus() {
 		return internalStatus;
 	}
@@ -192,17 +191,17 @@ public class NsLcmManager {
 
 	/**
 	 * Method used to receive messages about NSI lifecycle from the Rabbit MQ
-	 * 
+	 *
 	 * @param message received message
 	 */
 	public void receiveMessage(String message) {
 		log.debug("Received message for NSI " + networkSliceInstanceUuid + "\n" + message);
-		
+
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			NsmfEngineMessage em = (NsmfEngineMessage) mapper.readValue(message, NsmfEngineMessage.class);
 			NsmfEngineMessageType type = em.getType();
-			
+
 			switch (type) {
 				case INSTANTIATE_NSI_REQUEST: {
 					log.debug("Processing NSI instantiation request.");
@@ -242,7 +241,7 @@ public class NsLcmManager {
 					break;
 				}
 			}
-			
+
 		} catch(JsonParseException e) {
 			manageNsError("Error while parsing message: " + e.getMessage());
 		} catch(JsonMappingException e) {
@@ -270,11 +269,118 @@ public class NsLcmManager {
 
 	private boolean hasNstNfv(){
 		for(NST nsst: networkSliceTemplate.getNsst()){
-			if(!nsst.getNsdId().isEmpty()){
+			if(!nsst.getNsdId().isEmpty() && nsst.isNsToBeInstanciated()){
 				return true;
 			}
 		}
 		return false;
+	}
+
+	private boolean createRanSliceFromZero(List<ImsiInfo> imsiInfoList) throws NotExistingEntityException {
+		if(!hasNstRAN()){
+			log.info("RAN slice instantiation skipped because no RAN available in NSST.");
+			return true;
+		}
+		if(nsmfUtils.isRanSimulated()){
+			log.info("(Simulated) Ran slice correctly instantiated.");
+			return true;
+		}
+
+
+		for(NST nsst: networkSliceTemplate.getNsst()) {
+			//The NSST taken into consideration are those with geographical area info. The other ones are skipped
+			if (nsst.getGeographicalAreaInfoList() == null || nsst.getGeographicalAreaInfoList().size() == 0) {
+				log.warn("NSST with UUID " + nsst.getNstId() + " has not geo info. Skipping RAN slice instantiation for this NSST");
+				continue;
+			}
+
+			NstServiceProfile nstServiceProfile = nsst.getNstServiceProfile();
+			this.sliceType = nstServiceProfile.getsST();
+			RanQoSTranslator ranQoSTranslator = new RanQoSTranslator();
+			log.info("RAN: Starting translation to QoS constraints");
+			List<JSONObject> qosConstraints = ranQoSTranslator.ranProfileToQoSConstraints(nsst);
+
+			int currentRanSliceId = flexRanService.getCurrentSliceId();
+			log.info("Current slice ID is "+currentRanSliceId);
+
+            if(flexRanService.getCurrentSliceId()==0) {
+                //RAN-0 -> Setting to one percent the RAN Slice with ID 0.
+                log.info("RAN: Setting RAN Slice with ID 0 at one percent. ");
+                HttpStatus sliceZeroOnePercentHttpStatus = flexRanService.setSliceZeroOnePercent();
+                if (sliceZeroOnePercentHttpStatus != HttpStatus.OK) {
+                    log.error("Cannot set to one percent the ran slice with ID 0. Http code returned " + sliceZeroOnePercentHttpStatus);
+                    return false;
+                }
+                log.info("Waiting Slice 0 to set to one percent");
+                //Polling on ran stat every 1.5 sec to get ran slice zero percentage usage. Max 3 attempts
+                int[] ranSliceZeroUlDlUsage = flexRanService.getRanSlicePercentageUsage("0");
+                final int MAX_ATTEMPTS = 3;
+                int numberAttempts = 0;
+                while (ranSliceZeroUlDlUsage[0] > 1 && ranSliceZeroUlDlUsage[1] > 1 && numberAttempts <= MAX_ATTEMPTS) {
+                    try {
+                        Thread.sleep(1500);
+                        ranSliceZeroUlDlUsage = flexRanService.getRanSlicePercentageUsage("0");
+                        numberAttempts++;
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                flexRanService.setSliceZeroToOnePercent(true);
+                log.info("RAN slice with ID 0 has been correctly set to one percent.");
+            }
+
+            // RAN-1 -> Slice creation on flexran (Setting one percent)
+			if(flexRanService.getCurrentSliceId()>0) {
+                log.info("RAN: Starting creating slice");
+                HttpStatus createRanSliceHttpCode = this.flexRanService.createSliceRanOnePercent(UUID.fromString(networkSliceInstanceUuid));
+
+                if (createRanSliceHttpCode != HttpStatus.OK) {
+                    log.error("Cannot create RAN slice. Http code returned " + createRanSliceHttpCode);
+                    return false;
+                }
+                log.info("RAN: Slice creation correctly performed ");
+            }
+
+			log.info("RAN: Mapping Slice remotely");
+			HttpStatus mapRanSliceHttpCode = this.flexRanService.mapSliceStartingFromZero(UUID.fromString(networkSliceInstanceUuid));
+			if(mapRanSliceHttpCode != HttpStatus.OK){
+				log.error("Cannot map RAN slice. Http code returned "+mapRanSliceHttpCode);
+				return false;
+			}
+			log.info("RAN: Network Slice with UUID : "+networkSliceInstanceUuid+ " mapped with RAN slice with ID "+flexRanService.getRanId(UUID.fromString(networkSliceInstanceUuid)));
+
+
+			// RAN-3 -> Setting IMSI
+			log.info("RAN: Setting IMSI to RAN slice");
+			HttpStatus setImsiliceHttpCode = this.flexRanService.mapImsiList(imsiInfoList, UUID.fromString(networkSliceInstanceUuid));
+			if(setImsiliceHttpCode != HttpStatus.OK){
+				log.error("Cannot set IMSI to slice. Http code returned "+setImsiliceHttpCode);
+				//return false;
+			}
+
+			// RAN-4 -> Apply QoS Constraints
+			log.info("RAN: Applying QoS");
+			HttpStatus httpStatusApplyQos = this.flexRanService.applyInitialQosConstraints(UUID.fromString(networkSliceInstanceUuid), qosConstraints);
+			if(httpStatusApplyQos != HttpStatus.CREATED){
+				log.error("Cannot apply QoS constraint on RAN slice. Http code returned "+httpStatusApplyQos);
+				return false;
+			}
+
+			log.info("Waiting QoS to be actually applied");
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			// RAN-5 -> Updating the Network Slice info with the RAN slice info
+			log.info("Getting DL and UL percentage usage");
+			Integer ranSliceId = Integer.valueOf(flexRanService.getRanId(UUID.fromString(networkSliceInstanceUuid)));
+			int [] ulDlPercentages = flexRanService.getRanSlicePercentageUsage(String.valueOf(ranSliceId));
+			nsRecordService.setRanSliceInfo(networkSliceInstanceUuid, ranSliceId,ulDlPercentages[0],ulDlPercentages[1]);
+		}
+	return false;
 	}
 
 
@@ -337,6 +443,7 @@ public class NsLcmManager {
 
 					// RAN-2 -> Map Slice UUID to FlexranID into the RANAdapter (it's crazy, I know)
 					log.info("RAN: Mapping ID remotely");
+
 					HttpStatus mapRanSliceHttpCode = this.flexRanService.mapIdsRemotely(UUID.fromString(networkSliceInstanceUuid));
 					if(mapRanSliceHttpCode != HttpStatus.OK){
 						log.error("Cannot map RAN slice. Http code returned "+mapRanSliceHttpCode);
@@ -390,7 +497,8 @@ public class NsLcmManager {
 
 	private boolean createPPslice(){
 		boolean ppInstantiated;
-		if (hasNstPP()) {
+
+		if (hasNstPP() && nsmfUtils.getSkipQos()==false) {
 
 			HttpStatus httpStatusPpSlice = this.pnPCommunicationService.deploySliceComponents(UUID.fromString(networkSliceInstanceUuid), this.networkSliceTemplate,nsmfUtils.getIncludeFaaS());
 			ppInstantiated = httpStatusPpSlice == HttpStatus.OK;
@@ -568,7 +676,13 @@ public class NsLcmManager {
 				// Step #1: Instantiate RAN slice, if RAN available into NSST.
 				this.networkSliceIdInstanciated = msg.getRequest().getNsiId();
 				log.info("KPI:"+ Instant.now().toEpochMilli()+", RAN slice creation started for Network Slice with UUID "+this.networkSliceIdInstanciated);
-				boolean ranInstantiated =  createRanSlice(msg.getRequest().getImsiInfoList());
+
+				boolean ranInstantiated;
+				if(nsmfUtils.getStartFromRanSliceZero())
+					ranInstantiated = createRanSliceFromZero(msg.getRequest().getImsiInfoList());
+				else
+					ranInstantiated =  createRanSlice(msg.getRequest().getImsiInfoList());
+
 				log.info("KPI:"+ Instant.now().toEpochMilli()+", RAN slice creation finished for Network Slice with UUID "+this.networkSliceIdInstanciated);
 
 				nsRecordService.setImsi(networkSliceInstanceUuid, imsiInfoListRequest);
@@ -589,7 +703,7 @@ public class NsLcmManager {
 					instantiateNetworkService(msg);
 				}
 				else{
-					log.info("No embedded NSST with Nfv found into NST. The network slice is instantiated without any Network Services.");
+					log.info("No embedded NSST with NFV to instanciate found into NST. The network slice is instantiated without any Network Services.");
 					this.internalStatus=NetworkSliceStatus.INSTANTIATED;
 					notificationDispatcher.notifyNetworkSliceStatusChange(new NetworkSliceStatusChangeNotification(networkSliceInstanceUuid, NetworkSliceStatusChange.NSI_CREATED, true,tenantId));
 				}
@@ -621,17 +735,17 @@ public class NsLcmManager {
 		try {
 			String newInstantiationLevelId="newInstantiationLevelId";//TODO to be get in some way
 			ScaleNsToLevelData scaleNsToLevelData = new ScaleNsToLevelData(newInstantiationLevelId, null);
-			ScaleNsData scaleNsData = new ScaleNsData(null, 
-					null, 
-					null, 
-					scaleNsToLevelData, 
-					null, 
-					null, 
+			ScaleNsData scaleNsData = new ScaleNsData(null,
+					null,
+					null,
+					scaleNsToLevelData,
+					null,
+					null,
 					null);
-			ScaleNsRequest scaleReq = new ScaleNsRequest(nfvNsiInstanceId, 
-					NsScaleType.SCALE_NS, 
-					scaleNsData, 
-					null, 
+			ScaleNsRequest scaleReq = new ScaleNsRequest(nfvNsiInstanceId,
+					NsScaleType.SCALE_NS,
+					scaleNsData,
+					null,
 					null);
 
 			String operationId = nfvoLcmService.scaleNs(scaleReq);
@@ -804,7 +918,7 @@ public class NsLcmManager {
 			log.info("Handover request received. Going to build the handover actuation request.");
 			hoParams = flexRanService.getHandoverRequestParams((String)request.getParameters().get("ueid"));
 			request.setParameters(hoParams);
-			}
+		}
 
 		boolean successful =actuationLcmService.processActuation(request);
 
@@ -845,8 +959,13 @@ public class NsLcmManager {
 			log.info("Terminating slice component P&P.");
 			if (pnPCommunicationService.isPnP(UUID.fromString(networkSliceInstanceUuid))) {
 				log.debug("Terminating P&P Functions for " + networkSliceInstanceUuid);
-				HttpStatus httpStatus = pnPCommunicationService.terminateSliceComponents(UUID.fromString(networkSliceInstanceUuid));
-				ppSliceCorrectlyTerminated = httpStatus == HttpStatus.OK;
+				if(nsmfUtils.getSkipQos()==false) {
+					HttpStatus httpStatus = pnPCommunicationService.terminateSliceComponents(UUID.fromString(networkSliceInstanceUuid));
+					ppSliceCorrectlyTerminated = httpStatus == HttpStatus.OK;
+				}
+				else{
+					ppSliceCorrectlyTerminated =true;
+				}
 			}
 		}
 		else{

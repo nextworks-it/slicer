@@ -5,11 +5,14 @@ import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.common.Authenticator;
 import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRemoveRequest;
 import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementRequest;
+import it.nextworks.nfvmano.sebastian.nstE2Ecomposer.messages.NstAdvertisementUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 public class VsmfNstAdvertiserRestClient {
 
@@ -64,6 +67,31 @@ public class VsmfNstAdvertiserRestClient {
     }
 
 
+    public void updateKpi(NstAdvertisementUpdate nstAdvertisementUpdate) throws FailedOperationException {
+        performAuth();
+        HttpHeaders header = new HttpHeaders();
+        header.add("Content-Type", "application/json");
+        if(this.cookies!=null){
+            header.add("Cookie", this.cookies);
+        }
+        String nstUuid = nstAdvertisementUpdate.getNstUuid();
+        List<String> kpiList = nstAdvertisementUpdate.getKpiList();
+        HttpEntity<?> httpEntity = new HttpEntity<>(kpiList, header);
+        log.debug("Sending HTTP request to update KPI of NST with UUID " +nstUuid+ " previously advertised.");
+        ResponseEntity<String> httpResponse =
+                restTemplate.exchange(VSMF_NST_ADVERTISMENT_URL+"/"+nstUuid, HttpMethod.PUT, httpEntity, String.class);
+
+        log.debug("Response code: " + httpResponse.getStatusCode().toString());
+        HttpStatus code = httpResponse.getStatusCode();
+        if (code.equals(HttpStatus.OK)) {
+            log.debug("KPI of NST correctly removed.");
+        } else {
+            log.debug("Error while updating KPI of NST advertised.");
+            throw new FailedOperationException("Error while updating KPI of NST advertised.");
+        }
+
+    }
+
     public void removeNstAdvertised(NstAdvertisementRemoveRequest nstAdvertisementRemoveRequest) throws FailedOperationException,RestClientException {
         performAuth();
         HttpHeaders header = new HttpHeaders();
@@ -73,7 +101,7 @@ public class VsmfNstAdvertiserRestClient {
         }
         HttpEntity<?> httpEntity = new HttpEntity<>(nstAdvertisementRemoveRequest, header);
 
-         log.debug("Sending HTTP request to remove NST with UIID " +nstAdvertisementRemoveRequest.getNstId()+ "previously advertised.");
+         log.debug("Sending HTTP request to remove NST with UUID " +nstAdvertisementRemoveRequest.getNstId()+ "previously advertised.");
          ResponseEntity<String> httpResponse =
                     restTemplate.exchange(VSMF_NST_ADVERTISMENT_URL, HttpMethod.DELETE, httpEntity, String.class);
 

@@ -70,4 +70,8 @@ public NstAdvertisedInfo(String nstId,
     public List<String> getKpiList() {
         return kpiList;
     }
+
+    public void setKpiList(List<String> kpiList){
+    this.kpiList=kpiList;
+    }
 }
