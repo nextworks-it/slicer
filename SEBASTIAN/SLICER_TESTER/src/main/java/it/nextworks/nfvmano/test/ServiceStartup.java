@@ -53,6 +53,8 @@ public class ServiceStartup {
     @Value( "${waitingTimeAfterNstOnBoarding}" )
     private int waitingTimeAfterNstOnBoarding;
 
+    @Value( "${isDellScenario}" )
+    private boolean isDellScenario;
     private static final Logger log = LoggerFactory.getLogger(ServiceStartup.class);
 
     @PostConstruct
@@ -87,7 +89,8 @@ public class ServiceStartup {
 
                 numberOfInstantiateAndTerminateCycles,
                 instantiationScenario,
-                waitingTimeAfterNstOnBoarding);
+                waitingTimeAfterNstOnBoarding,
+                isDellScenario);
        SlicerE2ETest slicerE2ETest = new SlicerE2ETest(slicerTestConfiguration);
 
         slicerE2ETest.testVerticalServiceInstanceLifeCycle();

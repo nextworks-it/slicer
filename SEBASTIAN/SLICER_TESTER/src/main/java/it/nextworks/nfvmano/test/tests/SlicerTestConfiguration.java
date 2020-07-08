@@ -21,6 +21,8 @@ public class SlicerTestConfiguration {
 
     private int waitingTimeAfterNstOnBoarding;
 
+    private boolean dellScenario;
+
     public SlicerTestConfiguration(String dspAddress,
                                    String nspOneAddress,
                                    String nspTwoAddress,
@@ -32,7 +34,8 @@ public class SlicerTestConfiguration {
                                    boolean performSetSliceRanPriorityActuation,
                                    int numberOfInstantiateTerminateIterations,
                                    InstantiationScenario instantiationScenario,
-                                   int waitingTimeAfterNstOnBoarding) {
+                                   int waitingTimeAfterNstOnBoarding,
+                                   boolean dellScenario) {
         this.dspAddress = dspAddress;
         this.nspOneAddress = nspOneAddress;
         this.nspTwoAddress = nspTwoAddress;
@@ -45,6 +48,7 @@ public class SlicerTestConfiguration {
         this.numberOfInstantiateTerminateIterations = numberOfInstantiateTerminateIterations;
         this.instantiationScenario = instantiationScenario;
         this.waitingTimeAfterNstOnBoarding = waitingTimeAfterNstOnBoarding;
+        this.dellScenario = dellScenario;
     }
 
     public String getDspAddress() {
@@ -91,5 +95,9 @@ public class SlicerTestConfiguration {
 
     public boolean isPerformSetSliceRanPriorityActuation() {
         return performSetSliceRanPriorityActuation;
+    }
+
+    public boolean isDellScenario() {
+        return dellScenario;
     }
 }

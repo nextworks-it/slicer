@@ -10,9 +10,9 @@
 			"BitrateMbpsUL": "10"
 		},
 		"ppFunctionList": [{
-			"ppFeatureName": "qos_ctrl_feature",
+			"ppFeatureName": "qoe_man_feature",
 			"ppFeatureLevel": "SLICE",
-			"ppFeatureType": "CONTROL"
+			"ppFeatureType": "MANAGEMENT"
 		}],
 		"serviceConstraints": [{
 			"sharable": false,

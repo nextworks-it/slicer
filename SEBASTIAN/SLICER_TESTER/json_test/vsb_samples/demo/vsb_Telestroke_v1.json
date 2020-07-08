@@ -17,9 +17,9 @@
 			}
 		],
 		"ppFunctionList": [{
-			"ppFeatureName": "qos_ctrl_feature",
+			"ppFeatureName": "qoe_man_feature",
 			"ppFeatureLevel": "SLICE",
-			"ppFeatureType": "CONTROL"
+			"ppFeatureType": "MANAGEMENT"
 		}],
 		"applicationMetrics": [{
 				"metricId": "downloadRateEvery10Sec",

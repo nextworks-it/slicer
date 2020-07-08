@@ -390,20 +390,31 @@ public class SlicerE2ETest {
         //On NSP1
         nspInteraction.createRemoteTenantInfo(dspInteraction.getTenantNot(), VSMF_HOST);
         nspInteraction.associateLocalTenantWithRemoteTenant();
-
+        InstantiationScenario instantiationScenario = slicerTestConfiguration.getInstantiationScenario();
         if (multidomain) {
             nspInteraction2.createRemoteTenantInfo(dspInteraction.getTenantNot2(), VSMF_HOST);
             nspInteraction2.associateLocalTenantWithRemoteTenant();
         }
 
-        //ON NSP1
-        InstantiationScenario instantiationScenario = slicerTestConfiguration.getInstantiationScenario();
-        String nstUuid = onBoardNstBasedOnInstantiationScenario(instantiationScenario, nspInteraction);
 
-        //ON NSP2
-        if (multidomain) {
-            String nstUuid2 = onBoardNstBasedOnInstantiationScenario(instantiationScenario, nspInteraction2);
+        if(slicerTestConfiguration.isDellScenario()){
+           nspInteraction2.onBoardNST("./json_test/nst/demo/nst_sample_a_telestroke.json");
+           nspInteraction.onBoardNST("./json_test/nst/demo/nst_sample_no_vEpc.json");
+
+           nspInteraction2.onBoardNST("./json_test/nst/demo/nst_sample_a_blue_eye.json");
         }
+        else {
+            //ON NSP1
+            instantiationScenario = slicerTestConfiguration.getInstantiationScenario();
+            String nstUuid = onBoardNstBasedOnInstantiationScenario(instantiationScenario, nspInteraction);
+
+
+            //ON NSP2
+            if (multidomain) {
+                String nstUuid2 = onBoardNstBasedOnInstantiationScenario(instantiationScenario, nspInteraction2);
+            }
+        }
+
 
         //There is the waiting time after the NST on boarding because in the DELL testbed for networking reasons,
         // it takes few seconds to advertise the just on boarded NST.

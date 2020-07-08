@@ -6,12 +6,11 @@
 		"vsBlueprintId": "vsb_id",
 		"managementType": "PROVIDER_MANAGED", 
 		"qosParameters": {},
-		"ppFunctionList": [
-			{
-				"ppFeatureName": "qos_ctrl_feature",
-				"ppFeatureLevel": "SLICE",
-				"ppFeatureType": "CONTROL"
-			}],
+		"ppFunctionList": [{
+			"ppFeatureName": "qoe_man_feature",
+			"ppFeatureLevel": "SLICE",
+			"ppFeatureType": "MANAGEMENT"
+		}],
 		"serviceConstraints": [{
 			"sharable": false,
 			"canIncludeSharedElements": true,

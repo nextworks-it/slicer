@@ -3,6 +3,7 @@ package it.nextworks.nfvmano.test.tests;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.catalogue.domainLayer.Domain;
 import it.nextworks.nfvmano.catalogue.template.messages.OnBoardNsTemplateRequest;
+import it.nextworks.nfvmano.libs.ifa.templates.NST;
 import it.nextworks.nfvmano.sebastian.admin.elements.RemoteTenantInfo;
 import it.nextworks.nfvmano.sebastian.admin.elements.Sla;
 import it.nextworks.nfvmano.sebastian.admin.elements.Tenant;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class EndPointInteraction {
     private String groupName;
@@ -160,6 +162,23 @@ public class EndPointInteraction {
         if(responseEntity!=null)
              return (String) responseEntity.getBody();
        return null;
+    }
+
+    public  String onBoardNST(String filename, boolean skipVepc) {
+        //Not going to test NST onboarding because already done in NST CATALOGUE APP, in blue-print repo
+        final String ONBOARD_NST_URL = "/ns/catalogue/nstemplate";
+        OnBoardNsTemplateRequest onBoardNsTemplateRequest = (OnBoardNsTemplateRequest) getObjectFromFile(OnBoardNsTemplateRequest.class, filename);
+        List<NST> nsstList = onBoardNsTemplateRequest.getNst().getNsst();
+        nsstList.get(0).setNsToBeInstanciated(skipVepc);
+
+        onBoardNsTemplateRequest.getNst().setNsst(nsstList);
+        log.info("Going to perform on board request of NST with name " + onBoardNsTemplateRequest.getNst().getNstName() + " and version " + onBoardNsTemplateRequest.getNst().getNstName());
+
+
+        ResponseEntity<?> responseEntity = Util.performHttpRequest(String.class, onBoardNsTemplateRequest, hostname + ONBOARD_NST_URL, HttpMethod.POST, cookiesAdmin);
+        if(responseEntity!=null)
+            return (String) responseEntity.getBody();
+        return null;
     }
 
     public void removeNST(String nstId){
