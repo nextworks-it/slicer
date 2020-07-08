@@ -1,0 +1,79 @@
+{
+	"vsBlueprint": {
+		"version": "1.0",
+		"name": "Smart city",
+		"description": "Smart city Vertical Service",
+		"parameters": [{
+				"parameterId": "MaximumNumberUsers",
+				"parameterName": "MaximumNumberUsers",
+				"parameterType": "number",
+				"parameterDescription": "Maximum number of users that should be supported by the service"
+			},
+			{
+				"parameterId": "BitrateMbpsUL",
+				"parameterName": "StreamingBitrateMbps",
+				"parameterType": "number",
+				"parameterDescription": "StreamingBitrateMbps"
+			}
+		],
+		"ppFunctionList": [{
+			"ppFeatureName": "qoe_man_feature",
+			"ppFeatureLevel": "SLICE",
+			"ppFeatureType": "MANAGEMENT"
+		}],
+		"applicationMetrics": [{
+				"metricId": "downloadRateEvery10Sec",
+				"name": "download rate",
+				"metricCollectionType": "GAUGE",
+				"unit": "Mbps",
+				"interval": "10",
+				"topic": "topic1"
+			},
+			{
+				"metricId": "uploadRateEvery10Sec",
+				"name": "upload rate",
+				"metricCollectionType": "GAUGE",
+				"unit": "Mbps",
+				"interval": "10",
+				"topic": "topic2"
+			},
+			{
+				"metricId": "NumberofActiveUser",
+				"name": "Active user",
+				"metricCollectionType": "GAUGE",
+				"unit": "adimensional",
+				"interval": "30",
+				"topic": "topic3"
+			}
+		],
+		"atomicComponents": [{
+				"componentId": "Smart city",
+				"serversNumber": 1,
+				"endPointsIds": ["iot_data"]
+			},
+			{
+				"componentId": "vEPC",
+				"serversNumber": 1,
+				"endPointsIds": ["epc_data_ext"]
+			}
+		],
+		"endPoints": [{
+			"endPointId": "iot_data",
+			"external": true,
+			"management": true,
+			"ranConnection": false
+		}, {
+			"endPointId": "epc_data_ext",
+			"external": true,
+			"management": true,
+			"ranConnection": false
+		}],
+		"connectivityServices": [{
+			"endPointIds": [
+				"iot_data",
+				"epc_data_ext"
+			],
+			"external": true
+		}]
+	}
+}

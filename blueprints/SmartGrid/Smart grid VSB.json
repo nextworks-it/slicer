@@ -1,0 +1,90 @@
+{
+	"vsBlueprint": {
+		"version": "1.0",
+		"name": "Smart Grid",
+		"description": "Smart Grid Vertical Service Blueprint",
+		"parameters": [{
+				"parameterId": "MaximumNumberUsers",
+				"parameterName": "MaximumNumberUsers",
+				"parameterType": "number",
+				"parameterDescription": "Maximum number of users that should be supported by the service"
+			},
+			{
+				"parameterId": "BitrateMbpsUL",
+				"parameterName": "Latency",
+				"parameterType": "number",
+				"parameterDescription": "Maximum latency (ms)"
+			},
+			{
+                "parameterId": "sharedvEPC",
+                "parameterName": "sharedVepc",
+                "parameterType": "boolean",
+                "parameterDescription": "Whether the virtual EPC is shared or not"
+            }],
+		"ppFunctionList": [{
+			"ppFeatureName": "qos_ctrl_feature",
+			"ppFeatureLevel": "SLICE",
+			"ppFeatureType": "CONTROL"
+		}],
+		"applicationMetrics": [{
+				"metricId": "downloadRateEvery10Sec",
+				"name": "download rate",
+				"metricCollectionType": "GAUGE",
+				"unit": "Mbps",
+				"interval": "10",
+				"topic": "topic1"
+			},
+			{
+				"metricId": "uploadRateEvery10Sec",
+				"name": "upload rate",
+				"metricCollectionType": "GAUGE",
+				"unit": "Mbps",
+				"interval": "10",
+				"topic": "topic2"
+			},
+			{
+				"metricId": "NumberofActiveUser",
+				"name": "Active user",
+				"metricCollectionType": "GAUGE",
+				"unit": "adimensional",
+				"interval": "30",
+				"topic": "topic3"
+			}
+		],
+		"atomicComponents": [{
+				"componentId": "Smart_Grid",
+				"serversNumber": 1,
+				"endPointsIds": ["smart_grid_data"]
+			},
+			{
+				"componentId": "vEPC",
+				"serversNumber": 1,
+				"endPointsIds": ["epc_data_ext"]
+			}
+		],
+		"endPoints": [{
+			"endPointId": "vs_sap_data",
+			"external": true,
+			"management": true,
+			"ranConnection": true
+		}, {
+			"endPointId": "smart_grid_data",
+			"external": true,
+			"management": true,
+			"ranConnection": false
+		}, {
+			"endPointId": "epc_data_ext",
+			"external": true,
+			"management": true,
+			"ranConnection": false
+		}],
+		"connectivityServices": [{
+			"endPointIds": [
+				"vs_sap_data",
+				"smart_grid_data",
+				"epc_data_ext"
+			],
+			"external": true
+		}]
+	}
+}

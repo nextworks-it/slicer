@@ -1,0 +1,152 @@
+{
+	"nst": {
+		"nstId": "nstId",
+		"nstName": "Slice RAN, Core, Smart Grid",
+		"nstVersion": "1.0",
+		"nstProvider": "NSP-1",
+		"sst": "URLLC",
+		"nsdId": "",
+		"nsdVersion": "",
+		"nsdName": "",
+		"nsdType": "",
+		"geographicalAreaInfoList": [],
+		"nsstIds": [],
+		"nsstType": "NONE",
+ 	    "ppFunctionList": [{
+ 			"ppFeatureName": "qos_ctrl_feature",
+ 			"ppFeatureLevel": "SLICE",
+ 			"ppFeatureType": "CONTROL"
+ 		}],
+		"sapList": [{
+			"name": "epc_sap",
+			"type": "external",
+			"nsps": ["NSP-2"]
+		}],
+		"nstServiceProfile": {},
+		"nsst": [{
+			"nstId": "nstNfv",
+			"nstName": "vEPC slice subnet Smart grid",
+			"nstVersion": "1.0",
+			"nstProvider": "NSP-1",
+			"nsdId": "4175c3cb-c2d8-4598-8096-90f14a8b227e",
+			"nsdName": "vEPC",
+			"nsdVersion": "1.0",
+			"nsdType": "vEPC",
+			"nsstType": "CORE",
+			"nsToBeInstanciated":true,
+			"geographicalAreaInfoList":[],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":["downloadRateEvery10Sec", "uploadRateEvery10Sec", "latency"],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [],
+				"uRLLCPerfReq": [{
+				    "e2eLatency": 20,
+					"jitter": 1,
+					"cSAvailability" : 99.999,
+					"reliability" : 99.99,
+					"expDataRate" : 10000000
+				}],
+				"availability": 99.9,
+				"latency": 20,
+				"maxNumberofUEs": 5000,
+				"resourceSharingLevel": false,
+				"sST": "URLLC",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": [],
+			"endPointList": [{
+				"name": "epc_sap",
+				"type": "external"
+			},{
+				"name": "ran",
+				"type": "internal"
+			}]
+		},{
+			"nstId": "nstOnlyRan",
+			"nstName": "RAN slice subnet Smart Grid",
+			"nstVersion": "1.0",
+			"nstProvider": "NSP-1",
+			"nsdId": "",
+			"nsdVersion": "",
+			"nsdName": "",
+			"nsdType": "",
+			"nsstType": "RAN",
+			"nsToBeInstanciated":false,
+			"geographicalAreaInfoList":[{
+                       		"lat": 52.894059789742435,
+                        	"lon": -8.600309558933717
+                	},
+                	{
+                        	"lat": 52.89935623919947,
+                        	"lon": -8.662568003691363
+                	}],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":["kpiRAN1","kpiRAN2","kpiRAN3"],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [],
+				"uRLLCPerfReq": [{
+				    "e2eLatency": 20,
+					"jitter": 1,
+					"cSAvailability" : 99.999,
+					"reliability" : 99.99,
+					"expDataRate" : 10000000
+				}],
+				"availability": 99.9,
+				"latency": 10,
+				"maxNumberofUEs": 200,
+				"resourceSharingLevel": false,
+				"sST": "URLLC",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": [],
+			"endPointList": [{
+				"name": "ran",
+				"type": "internal"
+			}]
+		},{
+			"nstId": "nsstApp",
+			"nstName": "Smart Grid slice subnet",
+			"nstVersion": "1.0",
+			"nstProvider": "NSP-1",
+			"nsdId": "0d2edf5c-c12b-11ea-b3de-0242ac130004",
+			"nsdVersion": "",
+			"nsdName": "smart grid Control VNF",
+			"nsdType": "",
+			"nsstType": "APP",
+			"nsToBeInstanciated":true,
+			"geographicalAreaInfoList":[],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":[],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [],
+				"uRLLCPerfReq": [{
+				    "e2eLatency": 20,
+					"jitter": 1,
+					"cSAvailability" : 99.999,
+					"reliability" : 99.99,
+					"expDataRate" : 10000000
+				}],
+				"availability": 99.9,
+				"latency": 10,
+				"maxNumberofUEs": 200,
+				"resourceSharingLevel": false,
+				"sST": "URLLC",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": []
+		}
+]
+	}
+}
