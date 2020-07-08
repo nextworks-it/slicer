@@ -1,37 +1,25 @@
 # Installation guide
 
 ### 0.Cloning
+The Service-Slice Orchestrator (SS-O) can be made up and running cloning the necessary dependencies. They can be cloned from:
 
-The Sebastian repo includes a submodule for the GUI template Gentelella.
-Please make sure to clone including submodules
-(`git clone --recurse-submodules <repo-url>`) or, if you have already cloned
-the repo, to initialize the submodule (`git submodule update --init --recursive`).
+- 5g-catalogue at branch master (https://github.com/nextworks-it/5g-catalogue)
+- blueprint-catalogue at branch slicenet_dev (https://github.com/nextworks-it/slicer-catalogue)
+- identity-management at branch master (https://github.com/nextworks-it/slicer-identity-mgmt)
+- nfv-ifa-libs at branch slicenet_dev (https://github.com/nextworks-it/nfv-ifa-libs)
+- nfv-sol-libs at branch master (https://github.com/nextworks-it/nfv-sol-libs)
+- nfvo-driver at branch slicenet_dev (https://github.com/nextworks-it/nfvo-drivers)
+- nmro-driver at branch master (https://gitlab.com/slicenet/nmro-driver)
+- qoe-rest-client at branch master (https://gitlab.com/slicenet/qoe-rest-client)
+- this repository at branch slicenet_dev
 
 ### 1.Setup dependencies
-
-Run the `dep_setup.sh` script. Please check that everything has been correctly installed.
-
-Then run the `install_libs.sh` script giving as argument the desired parent folder for the libs repo.
+Once downloaded all the dependencies at the correct branches, is needed to move the build_sso.sh script available into this repository, at the above directory.
 
 ### 2.Build the application
+The installation script, once executed, builds first the dependencies and eventually the SS-O.
+The built files are two jars: one is located under the NSMF_APP and the other one under the VSMF_APP. The former is the NSP, while the  latter the DSP. To exececute them is simply needed 'java -jar <name_file>. The DSP will listen on 8081 port, while the NSP on 8082 port. 
 
-In the `<repo-root>` folder, run 
-```mvn clean install```
-
-A jar file (`Sebastian-<version>-<release-type>.jar`) will be generated in the `<repo-root>/SEBASTIAN/target` folder.
-This is a portable jar, containing everything needed by the application, and can be used as-is, even on other systems.
-
-### 3.Start the application
-
-After building the application, in the `<repo-root>/SEBASTIAN/target` folder, run
-
-$ java -jar Sebastian-<version>-<release-type>.jar
-
-### 4.Credentials
-
-There is one pre-generated bootstrap user with credentials admin/admin.
+### 3.Credentials
+There is one pre-generated bootstrap user with credentials admin/admin for DSP and NSP. 
 Using this user, you can create more (basic-level) users.
-
-### 5.GUI
-
-See SEBASTIAN_WEB_GUI/README.md
