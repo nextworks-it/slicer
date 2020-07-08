@@ -4,14 +4,14 @@
 The Service-Slice Orchestrator (SS-O) can be made up and running cloning the necessary dependencies. They can be cloned from:
 
 - 5g-catalogue at branch master (https://github.com/nextworks-it/5g-catalogue)
-- blueprint-catalogue at branch slicenet_dev (https://github.com/nextworks-it/slicer-catalogue)
+- blueprint-catalogue at branch slicene (https://github.com/nextworks-it/slicer-catalogue)
 - identity-management at branch master (https://github.com/nextworks-it/slicer-identity-mgmt)
-- nfv-ifa-libs at branch slicenet_dev (https://github.com/nextworks-it/nfv-ifa-libs)
+- nfv-ifa-libs at branch slicenet (https://github.com/nextworks-it/nfv-ifa-libs)
 - nfv-sol-libs at branch master (https://github.com/nextworks-it/nfv-sol-libs)
-- nfvo-driver at branch slicenet_dev (https://github.com/nextworks-it/nfvo-drivers)
+- nfvo-driver at branch slicenet (https://github.com/nextworks-it/nfvo-drivers)
 - nmro-driver at branch master (https://gitlab.com/slicenet/nmro-driver)
 - qoe-rest-client at branch master (https://gitlab.com/slicenet/qoe-rest-client)
-- this repository at branch slicenet_dev
+- this repository at branch slicenet
 
 ### 1.Setup dependencies
 Once downloaded all the dependencies at the correct branches, is needed to move the build_sso.sh script available into this repository, at the above directory.
