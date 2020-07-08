@@ -170,8 +170,16 @@ public class RuntimeTranslator {
         bucketUrlccPerfReq.getReliability();
         bucketUrlccPerfReq.getPayloadSize();
         bucketUrlccPerfReq.getJitter();
-        bucketUrlccPerfReq.getE2eLatency();
-        //TODO complete
+       ;
+        if(Integer.valueOf(params.get("latency"))> bucketUrlccPerfReq.getE2eLatency()){
+            return false;
+        }
+        if(Integer.valueOf(params.get("trafficDensity"))> bucketUrlccPerfReq.getTrafficDensity()){
+            return false;
+        }
+        if(Integer.valueOf(params.get("reliability"))< bucketUrlccPerfReq.getReliability()){
+            return false;
+        }
         return true;
     }
 
