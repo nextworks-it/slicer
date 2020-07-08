@@ -1,0 +1,157 @@
+{
+	"nst": {
+		"nstId": "nstId",
+		"nstName": "Slice RAN, Core, smart grid best effort",
+		"nstVersion": "1.0",
+		"nstProvider": "NSP-1",
+	    "sst": "EMBB",
+		"nsdId": "",
+		"nsdVersion": "",
+		"nsdName": "",
+		"nsdType": "",
+		"geographicalAreaInfoList": [],
+		"nsstIds": [],
+		"nsstType": "NONE",
+		"ppFunctionList": [{
+			"ppFeatureName": "qos_ctrl_feature",
+			"ppFeatureLevel": "SLICE",
+			"ppFeatureType": "CONTROL"
+		}],
+		"nstServiceProfile": {},
+		"sapList": [{
+			"name": "epc_sap",
+			"type": "external",
+			"nsps": []
+		}],
+		"nsst": [{
+			"nstId": "nstNfv",
+			"nstName": "vEPC slice subnet Smart grid",
+			"nstVersion": "1.0",
+			"nstProvider": "NSP-1",
+			"nsdId": "4175c3cb-c2d8-4598-8096-90f14a8b227e",
+			"nsdName": "vEPC",
+			"nsdVersion": "1.0",
+			"nsdType": "vEPC",
+			"nsstType": "CORE",
+			"nsToBeInstanciated":true,
+			"geographicalAreaInfoList":[],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":["downloadRateEvery10Sec", "uploadRateEvery10Sec", "latency"],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [{
+					"expDataRateDL": 5000000,
+					"expDataRateUL": 5000000,
+					"areaTrafficCapDL": 40000000,
+					"areaTrafficCapUL": 40000000,
+					"userDensity": 100,
+					"activityFactor": 20,
+					"uESpeed": 200,
+					"coverage": "coverage"
+				}],
+				"uRLLCPerfReq": [],
+				"availability": 99.9,
+				"latency": 20,
+				"maxNumberofUEs": 5000,
+				"resourceSharingLevel": false,
+				"sST": "EMBB",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": [],
+			"endPointList": [{
+				"name": "epc_sap",
+				"type": "external"
+			},{
+				"name": "ran",
+				"type": "internal"
+			}]
+		}
+		,{
+			"nstId": "nstOnlyRan",
+			"nstName": "RAN slice subnet",
+			"nstVersion": "1.0",
+			"nstProvider": "NSP-1",
+			"nsdId": "",
+			"nsdVersion": "",
+			"nsdName": "",
+			"nsdType": "",
+			"nsstType": "RAN",
+			"nsToBeInstanciated":true,
+			"geographicalAreaInfoList":[{
+                       		"lat": 52.894059789742435,
+                        	"lon": -8.600309558933717
+                	},
+                	{
+                        	"lat": 52.89935623919947,
+                        	"lon": -8.662568003691363
+                	}],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":["downloadRateEvery10Sec", "uploadRateEvery10Sec", "NumberofActiveUser"],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [{
+					"expDataRateDL": 500000,
+					"expDataRateUL": 500000,
+					"areaTrafficCapDL": 60000000,
+					"areaTrafficCapUL": 60000000,
+					"userDensity": 100,
+					"activityFactor": 30,
+					"uESpeed": 250,
+					"coverage": "coverage"
+				}],
+				"uRLLCPerfReq": [],
+				"availability": 99.9,
+				"latency": 10,
+				"maxNumberofUEs": 200,
+				"resourceSharingLevel": false,
+				"sST": "EMBB",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": []
+		},{
+			"nstId": "nsstApp",
+			"nstName": "smart grid best effort slice subnet",
+			"nstVersion": "1.0",
+			"nstProvider": "NSP-1",
+			"nsdId": "9a602f82-ac7e-11ea-bb37-0242ac130002",
+			"nsdVersion": "",
+			"nsdName": "smart grid best effort VNF",
+			"nsdType": "",
+			"nsstType": "APP",
+			"nsToBeInstanciated":false,
+			"geographicalAreaInfoList":[],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":[],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [{
+					"expDataRateDL": 3000000,
+					"expDataRateUL": 3000000,
+					"areaTrafficCapDL": 150000000,
+					"areaTrafficCapUL": 150000000,
+					"userDensity": 100,
+					"activityFactor": 50,
+					"uESpeed": 250,
+					"coverage": "coverage"
+				}],
+				"uRLLCPerfReq": [],
+				"availability": 99.9,
+				"latency": 10,
+				"maxNumberofUEs": 200,
+				"resourceSharingLevel": false,
+				"sST": "EMBB",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": []
+		}]
+	}
+}

@@ -1,0 +1,117 @@
+{
+	"nst": {
+		"nstId": "nstId",
+		"nstName": "Slice RAN, E-health",
+		"nstVersion": "1.0",
+		"nstProvider": "NSP-2",
+		"sst": "EMBB",
+		"nsdId": "",
+		"nsdVersion": "",
+		"nsdName": "",
+		"nsdType": "",
+		"geographicalAreaInfoList": [],
+		"nsstIds": [],
+		"nsstType": "NONE",
+		"ppFunctionList": [{
+			"ppFeatureName": "qos_ctrl_feature",
+			"ppFeatureLevel": "SLICE",
+			"ppFeatureType": "CONTROL"
+		}],
+		"nstServiceProfile": {},
+		"sapList": [{
+			"name": "ran_sap",
+			"type": "external",
+			"nsps": ["NSP-1"]
+		}],
+		"nsst": [
+		{
+			"nstId": "nstOnlyRan",
+			"nstName": "RAN slice subnet E-health",
+			"nstVersion": "1.0",
+			"nstProvider": "NSP-2",
+			"nsdId": "",
+			"nsdVersion": "",
+			"nsdName": "",
+			"nsdType": "",
+			"nsstType": "RAN",
+			"nsToBeInstanciated":false,
+			"geographicalAreaInfoList":[{
+                       		"lat": 52.894059789742435,
+                        	"lon": -8.600309558933717
+                	},
+                	{
+                        	"lat": 52.89935623919947,
+                        	"lon": -8.662568003691363
+                	}],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":["downloadRateEvery10Sec", "uploadRateEvery10Sec", "latency"],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [{
+					"expDataRateDL": 1000000,
+					"expDataRateUL": 1000000,
+					"areaTrafficCapDL": 120000000,
+					"areaTrafficCapUL": 120000000,
+					"userDensity": 400,
+					"activityFactor": 30,
+					"uESpeed": 250,
+					"coverage": "coverage"
+				}],
+				"uRLLCPerfReq": [],
+				"availability": 99.9,
+				"latency": 10,
+				"maxNumberofUEs": 200,
+				"resourceSharingLevel": false,
+				"sST": "EMBB",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": [],
+			"endPointList": [{
+				"name": "ran_sap",
+				"type": "external"
+			}]
+		},{
+			"nstId": "nsstApp",
+			"nstName": "Telestroke slice subnet",
+			"nstVersion": "1.0",
+			"nstProvider": "NSP-2",
+			"nsdId": "9a602f82-ac7e-11ea-bb37-0242ac130002",
+			"nsdVersion": "",
+			"nsdName": "Telestroke VNF",
+			"nsdType": "",
+			"nsstType": "APP",
+			"nsToBeInstanciated":true,
+			"geographicalAreaInfoList":[],
+			"nsstIds": [],
+			"nsst": [],
+			"kpiList":[],
+			"actuationList":[],
+			"nstServiceProfile": {
+				"pLMNIdList": [],
+				"coverageAreaTAList": [],
+				"eMBBPerfReq": [{
+					"expDataRateDL": 3000000,
+					"expDataRateUL": 3000000,
+					"areaTrafficCapDL": 150000000,
+					"areaTrafficCapUL": 150000000,
+					"userDensity": 100,
+					"activityFactor": 50,
+					"uESpeed": 250,
+					"coverage": "coverage"
+				}],
+				"uRLLCPerfReq": [],
+				"availability": 99.9,
+				"latency": 10,
+				"maxNumberofUEs": 200,
+				"resourceSharingLevel": false,
+				"sST": "EMBB",
+				"uEMobilityLevel": "STATIONARY"
+			},
+			"ppFunctionList": []
+		}
+]
+	}
+}
