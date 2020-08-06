@@ -1,3 +1,4 @@
+set -e
 function usage {
     echo "USAGE: $0 FOLDER"
     echo "Arguments:"
@@ -10,11 +11,42 @@ if [[ -z "$1" ]]; then
     exit 1
 fi
 
-cd "$1" || ( echo "Invalid folder $1."; usage; exit 1 )
 
-echo "***  Cloning the repo in $1  ***"
+cd "$1" || ( echo "Invalid folder $1."; usage; exit 1 )
+deps_folder=$PWD
+
+echo "***  Cloning the NFV-LIBS repo in $1  ***"
 echo ""
-git clone https://github.com/nextworks-it/nfv-libs || ( echo "Could not clone the repo"; exit 1 )
+	git clone --branch feat-librefactor https://github.com/nextworks-it/nfv-libs 
+echo ""
+echo "***  Repo cloned.  ***"
+echo ""
+
+echo "***  Cloning the SLICER-IDENTITY-MGMT repo in $1  ***"
+echo ""
+	git clone https://github.com/nextworks-it/slicer-identity-mgmt 
+echo ""
+echo "***  Repo cloned.  ***"
+echo ""
+
+echo "***  Cloning the NFVO-SOL-LIBS repo in $1  ***"
+echo ""
+	git clone https://github.com/nextworks-it/nfv-sol-libs 
+echo ""
+echo "***  Repo cloned.  ***"
+echo ""
+
+
+echo "***  Cloning the NFVO-DRIVERS repo in $1  ***"
+echo ""
+	git clone https://github.com/nextworks-it/nfvo-drivers
+echo ""
+echo "***  Repo cloned.  ***"
+echo ""
+
+echo "***  Cloning the SLICER-CATALOGUE repo in $1  ***"
+echo ""
+	git clone --branch functional_split https://github.com/nextworks-it/slicer-catalogue 
 echo ""
 echo "***  Repo cloned.  ***"
 echo ""
@@ -22,7 +54,31 @@ echo ""
 echo "***  Installing the libs...  ***"
 echo ""
 
-cd nfv-libs
-mvn clean install || ( echo "Could not install the libs"; exit 1 )
+echo "*** INSTALLING nfv-libs ***"
+	cd $deps_folder/nfv-libs
+	mvn clean install 
 echo ""
-echo "***  All done!  ***"
+
+echo "*** INSTALLING slicer-indentity-mgmt ***"
+	cd $deps_folder/slicer-identity-mgmt
+	mvn clean install 
+echo ""
+
+echo "*** INSTALLING nfv-sol-libs ***"
+	cd $deps_folder/nfv-sol-libs
+ 	./install_nfv_sol_libs.sh 
+echo ""
+
+
+echo "*** INSTALLING nfvo-drivers ***"
+	cd $deps_folder/nfvo-drivers
+	mvn clean install 
+echo ""
+
+
+echo "*** INSTALLING slicer-catalogue ***"
+	cd $deps_folder/slicer-catalogue
+	mvn clean install 
+echo ""
+
+
