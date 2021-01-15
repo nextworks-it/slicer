@@ -1,0 +1,5248 @@
+swagger: '2.0'
+info:
+  description: Api Documentation
+  version: '1.0'
+  title: Api Documentation
+  termsOfService: 'urn:tos'
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0'
+host: '10.30.8.49:8083'
+basePath: /
+tags:
+  - name: Arbitrator notification API
+    description: Exernal Arbitrator Rest Controller
+  - name: Domain management API
+    description: Domain Catalogue Rest Controller
+  - name: NSD and VNFD query API
+    description: Nfvo Catalogue Rest Controller
+  - name: Network Slice LCM API
+    description: Nsmf Rest Controller
+  - name: Network Slice Template Management API
+    description: Ns Template Catalogue Rest Controller
+  - name: 'User, group and SLA management API'
+    description: Admin Rest Controller
+  - name: Vertical Service Blueprint Catalogue API
+    description: Vs Blueprint Catalogue Rest Controller
+  - name: Vertical Service Descriptor Catalogue API
+    description: Vs Descriptor Catalogue Rest Controller
+  - name: Vertical Service LCM Management API
+    description: Vs Lcm Basic Rest Controller
+  - name: domain-layer-catalogue-notification-rest-controller
+    description: Domain Layer Catalogue Notification Rest Controller
+  - name: nsmf-notifications-rest-controller
+    description: Nsmf Notifications Rest Controller
+  - name: security-rest-controller
+    description: Security Rest Controller
+paths:
+  '/arbitrator/notifyArbitrationResponse/{operationId}':
+    post:
+      tags:
+        - Arbitrator notification API
+      summary: notifyArbirationResponse
+      operationId: notifyArbirationResponseUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: operationId
+          in: path
+          description: operationId
+          required: true
+          type: string
+        - in: body
+          name: response
+          description: response
+          required: true
+          schema:
+            $ref: '#/definitions/ArbitratorResponse'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /domainLayer/catalogue:
+    get:
+      tags:
+        - Domain management API
+      summary: getAllDomain
+      operationId: getAllDomainUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - Domain management API
+      summary: createDomain
+      operationId: createDomainUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: domain
+          description: domain
+          required: true
+          schema:
+            $ref: '#/definitions/Domain'
+        - name: principal
+          in: query
+          required: false
+          type: object
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /domainLayer/catalogue/subscriptions:
+    get:
+      tags:
+        - Domain management API
+      summary: subscriptionsGet
+      operationId: subscriptionsGetUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - Domain management API
+      summary: subscriptionsPost
+      operationId: subscriptionsPostUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: body
+          description: body
+          required: true
+          schema:
+            $ref: '#/definitions/DomainCatalogueSubscriptionRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/domainLayer/catalogue/subscriptions/{subscriptionId}':
+    get:
+      tags:
+        - Domain management API
+      summary: subscriptionGet
+      operationId: subscriptionGetUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: subscriptionId
+          in: path
+          description: subscriptionId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - Domain management API
+      summary: subscriptionDelete
+      operationId: subscriptionDeleteUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: subscriptionId
+          in: path
+          description: subscriptionId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  '/domainLayer/catalogue/{domainId}':
+    get:
+      tags:
+        - Domain management API
+      summary: getDomain
+      operationId: getDomainUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: domainId
+          in: path
+          description: domainId
+          required: true
+          type: string
+        - name: principal
+          in: query
+          required: false
+          type: object
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - Domain management API
+      summary: deleteDomain
+      operationId: deleteDomainUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: domainId
+          in: path
+          description: domainId
+          required: true
+          type: string
+        - name: principal
+          in: query
+          required: false
+          type: object
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  /domainLayerCatalogue/notifications:
+    post:
+      tags:
+        - domain-layer-catalogue-notification-rest-controller
+      summary: notifyFromDomainLayerCatalogue
+      operationId: notifyFromDomainLayerCatalogueUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: notification
+          description: notification
+          required: true
+          schema:
+            $ref: '#/definitions/DomainCatalogueSubscriptionNotification'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /nfvo/queryNsd:
+    post:
+      tags:
+        - NSD and VNFD query API
+      summary: Get the available NSDs
+      operationId: queryNsdUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/GeneralizedQueryRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/QueryNsdResponse'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /nfvo/queryVnfp:
+    post:
+      tags:
+        - NSD and VNFD query API
+      summary: Get the available VNFDs
+      operationId: queryVnfPackageUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/GeneralizedQueryRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/QueryOnBoardedVnfPkgInfoResponse'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /ns/catalogue/nstemplate:
+    get:
+      tags:
+        - Network Slice Template Management API
+      summary: getAllNsTemplates
+      operationId: getAllNsTemplatesUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - Network Slice Template Management API
+      summary: createNsTemplate
+      operationId: createNsTemplateUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/OnBoardNsTemplateRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/ns/catalogue/nstemplate/{nstId}':
+    get:
+      tags:
+        - Network Slice Template Management API
+      summary: getNsTemplate
+      operationId: getNsTemplateUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: nstId
+          in: path
+          description: nstId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - Network Slice Template Management API
+      summary: deleteNsTemplate
+      operationId: deleteNsTemplateUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: nstId
+          in: path
+          description: nstId
+          required: true
+          type: string
+        - name: principal
+          in: query
+          required: false
+          type: object
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  /portal/catalogue/vsblueprint:
+    get:
+      tags:
+        - Vertical Service Blueprint Catalogue API
+      summary: Get ALL the Vertical Service Blueprints
+      operationId: getAllVsBlueprintsUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: id
+          in: query
+          description: id
+          required: false
+          type: string
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - name: site
+          in: query
+          description: site
+          required: false
+          type: string
+      responses:
+        '200':
+          description: List of all the Vertical Service Blueprints of the user
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/VsBlueprintInfo'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - Vertical Service Blueprint Catalogue API
+      summary: 'Onboard a new Vertical Service Blueprint, including the associated Network Service Descriptors and translation rules.'
+      operationId: createVsBlueprintUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/OnBoardVsBlueprintRequest'
+      responses:
+        '201':
+          description: The ID of the created Vertical Service Blueprint.
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/portal/catalogue/vsblueprint/{vsbId}':
+    get:
+      tags:
+        - Vertical Service Blueprint Catalogue API
+      summary: Get a Vertical Service Blueprint with a given ID
+      operationId: getVsBlueprintUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - name: vsbId
+          in: path
+          description: vsbId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Vertical Service Blueprint with the given ID
+          schema:
+            $ref: '#/definitions/VsBlueprintInfo'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - Vertical Service Blueprint Catalogue API
+      summary: Delete a Vertical Service Blueprint with a given ID
+      operationId: deleteVsBlueprintUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - name: vsbId
+          in: path
+          description: vsbId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: Empty
+          schema:
+            $ref: '#/definitions/ResponseEntity'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  /portal/catalogue/vsdescriptor:
+    get:
+      tags:
+        - Vertical Service Descriptor Catalogue API
+      summary: Query ALL the Vertical Service Descriptor
+      operationId: getAllVsDescriptorsUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+      responses:
+        '200':
+          description: List of all the Vertical Service Descriptor of the user.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/VsDescriptor'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - Vertical Service Descriptor Catalogue API
+      summary: Onboard a new Vertical Service Descriptor
+      operationId: createVsDescriptorUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/OnboardVsDescriptorRequest'
+      responses:
+        '201':
+          description: The ID of the created Vertical Service Descriptor.
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/portal/catalogue/vsdescriptor/{vsdId}':
+    get:
+      tags:
+        - Vertical Service Descriptor Catalogue API
+      summary: Query a Vertical Service Descriptor with a given ID
+      operationId: getVsDescriptorUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - name: vsdId
+          in: path
+          description: vsdId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Details of the Vertical Service Descriptor with the given ID
+          schema:
+            $ref: '#/definitions/VsDescriptor'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - Vertical Service Descriptor Catalogue API
+      summary: Delete a Vertical Service Descriptor with the given ID
+      operationId: deleteVsDescriptorUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - name: vsdId
+          in: path
+          description: vsdId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: Empty
+          schema:
+            $ref: '#/definitions/ResponseEntity'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  /vs/admin/group:
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getTenantGroups
+      operationId: getTenantGroupsUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/group/{groupName}/tenant':
+    post:
+      tags:
+        - 'User, group and SLA management API'
+      summary: createTenant
+      operationId: createTenantUsingPOST_1
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: groupName
+          in: path
+          description: groupName
+          required: true
+          type: string
+        - in: body
+          name: tenant
+          description: tenant
+          required: true
+          schema:
+            $ref: '#/definitions/Tenant'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/group/{groupName}/tenant/{tenantId}':
+    put:
+      tags:
+        - 'User, group and SLA management API'
+      summary: updateTenant
+      operationId: updateTenantUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: groupName
+          in: path
+          description: groupName
+          required: true
+          type: string
+        - in: body
+          name: remoteTenantInfoId
+          description: remoteTenantInfoId
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: tenantId
+          in: path
+          description: tenantId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/group/{groupName}/tenant/{tenantId}/remotetenant':
+    delete:
+      tags:
+        - 'User, group and SLA management API'
+      summary: deleteRemoteTenantEntry
+      operationId: deleteRemoteTenantEntryUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: groupName
+          in: path
+          description: groupName
+          required: true
+          type: string
+        - in: body
+          name: remoteTenantInfoId
+          description: remoteTenantInfoId
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: tenantId
+          in: path
+          description: tenantId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  '/vs/admin/group/{groupName}/tenant/{userName}/sla':
+    post:
+      tags:
+        - 'User, group and SLA management API'
+      summary: createTenant
+      operationId: createTenantUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: sla
+          description: sla
+          required: true
+          schema:
+            $ref: '#/definitions/Sla'
+        - name: userName
+          in: path
+          description: userName
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/group/{groupname}/tenant':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getTenantsInGroup
+      operationId: getTenantsInGroupUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: groupname
+          in: path
+          description: groupname
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/group/{groupname}/tenant/{username}':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: Get Tenant
+      operationId: getTenantUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Tenant
+          schema:
+            $ref: '#/definitions/Tenant'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - 'User, group and SLA management API'
+      summary: deleteTenant
+      operationId: deleteTenantUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  '/vs/admin/group/{groupname}/tenant/{username}/sla':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: Get user SLAs
+      operationId: getTenantSlasUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '200':
+          description: List of user SLAs
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Sla'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/group/{groupname}/tenant/{username}/sla/{slaId}':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getSla
+      operationId: getSlaUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: slaId
+          in: path
+          description: slaId
+          required: true
+          type: string
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - 'User, group and SLA management API'
+      summary: deleteSla
+      operationId: deleteSlaUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: slaId
+          in: path
+          description: slaId
+          required: true
+          type: string
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  '/vs/admin/group/{name}':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getGroup
+      operationId: getGroupUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: name
+          in: path
+          description: name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - 'User, group and SLA management API'
+      summary: createGroup
+      operationId: createGroupUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: name
+          in: path
+          description: name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - 'User, group and SLA management API'
+      summary: deleteGroup
+      operationId: deleteGroupUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: name
+          in: path
+          description: name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  /vs/admin/groups/tenants:
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getTenants
+      operationId: getTenantsUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    put:
+      tags:
+        - 'User, group and SLA management API'
+      summary: updateTenants
+      operationId: updateTenantsUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /vs/admin/policy:
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getPolicies
+      operationId: getPoliciesUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - 'User, group and SLA management API'
+      summary: createPolicy
+      operationId: createPolicyUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/TransferPolicyRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/policy/{policyid}':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getPolicy
+      operationId: getPolicyUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: policyid
+          in: path
+          description: policyid
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - 'User, group and SLA management API'
+      summary: deletePolicy
+      operationId: deletePolicyUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: policyid
+          in: path
+          description: policyid
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  /vs/admin/remotetenant:
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getRemoteTenantInfo
+      operationId: getRemoteTenantInfoUsingGET_1
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - 'User, group and SLA management API'
+      summary: createRemoteTenantInfo
+      operationId: createRemoteTenantInfoUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: remoteTenantInfo
+          description: remoteTenantInfo
+          required: true
+          schema:
+            $ref: '#/definitions/RemoteTenantInfo'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/remotetenant/{remoteTenantInfoId}':
+    delete:
+      tags:
+        - 'User, group and SLA management API'
+      summary: deleteRemoteTenantInfo
+      operationId: deleteRemoteTenantInfoUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: remoteTenantInfoId
+          in: path
+          description: remoteTenantInfoId
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  '/vs/admin/remotetenant/{remotetenantinfoid}':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getRemoteTenantInfo
+      operationId: getRemoteTenantInfoUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: remotetenantinfoid
+          in: path
+          description: remotetenantinfoid
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /vs/basic/nslcm/networksliceids:
+    get:
+      tags:
+        - Network Slice LCM API
+      summary: Get all the Network Slice Instance IDSs
+      operationId: getNsInstanceIdsUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+      responses:
+        '200':
+          description: The list of Network Slice Instances IDS.
+          schema:
+            type: array
+            items:
+              type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /vs/basic/nslcm/ns:
+    get:
+      tags:
+        - Network Slice LCM API
+      summary: Get all the Network Slice Instances
+      operationId: getNsInstanceUsingGET_1
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+      responses:
+        '200':
+          description: The list of Network Slice Instances.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/NetworkSliceInstance'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - Network Slice LCM API
+      summary: createNsId
+      operationId: createNsIdUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/CreateNsiIdRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/nslcm/ns/{nsiId}':
+    get:
+      tags:
+        - Network Slice LCM API
+      summary: 'Get the Network Slice Instance with the specified ID '
+      operationId: getNsInstanceUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: nsiId
+          in: path
+          description: nsiId
+          required: true
+          type: string
+        - name: principal
+          in: query
+          required: false
+          type: object
+      responses:
+        '200':
+          description: The Network Slice Instance.
+          schema:
+            $ref: '#/definitions/NetworkSliceInstance'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/nslcm/ns/{nsiId}/action/instantiate':
+    put:
+      tags:
+        - Network Slice LCM API
+      summary: instantiateNsi
+      operationId: instantiateNsiUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: nsiId
+          in: path
+          description: nsiId
+          required: true
+          type: string
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/InstantiateNsiRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/nslcm/ns/{nsiId}/action/modify':
+    put:
+      tags:
+        - Network Slice LCM API
+      summary: modifyNsi
+      operationId: modifyNsiUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: nsiId
+          in: path
+          description: nsiId
+          required: true
+          type: string
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/ModifyNsiRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/nslcm/ns/{nsiId}/action/terminate':
+    put:
+      tags:
+        - Network Slice LCM API
+      summary: terminateNsi
+      operationId: terminateNsiUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: nsiId
+          in: path
+          description: nsiId
+          required: true
+          type: string
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/TerminateNsiRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /vs/basic/vslcm/vs:
+    post:
+      tags:
+        - Vertical Service LCM Management API
+      summary: instantiateVs
+      operationId: instantiateVsUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/InstantiateVsRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/vslcm/vs/{vsiId}':
+    get:
+      tags:
+        - Vertical Service LCM Management API
+      summary: Get the Vertical Service Instance with the specified ID
+      operationId: getVsInstanceUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - name: vsiId
+          in: path
+          description: vsiId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: The Vertical Service Instance
+          schema:
+            $ref: '#/definitions/VerticalServiceInstance'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    put:
+      tags:
+        - Vertical Service LCM Management API
+      summary: modifyVsInstance
+      operationId: modifyVsInstanceUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/ModifyVsRequest'
+        - name: vsiId
+          in: path
+          description: vsiId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - Vertical Service LCM Management API
+      summary: purgeVsInstance
+      operationId: purgeVsInstanceUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - name: vsiId
+          in: path
+          description: vsiId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  '/vs/basic/vslcm/vs/{vsiId}/terminate':
+    post:
+      tags:
+        - Vertical Service LCM Management API
+      summary: terminateVsInstance
+      operationId: terminateVsInstanceUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - name: vsiId
+          in: path
+          description: vsiId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /vs/basic/vslcm/vsId:
+    get:
+      tags:
+        - Vertical Service LCM Management API
+      summary: Get the list of Vertical Service Instance IDs
+      operationId: getAllVsInstancesIdUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+      responses:
+        '200':
+          description: The Vertical Service Instance
+          schema:
+            type: array
+            items:
+              type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /vs/basic/vslcm/vsInstances:
+    post:
+      tags:
+        - Vertical Service LCM Management API
+      summary: Get the list of Vertical Service Instance matching the specified filter
+      operationId: getAllVsInstancesUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/GeneralizedQueryRequest'
+      responses:
+        '200':
+          description: The Vertical Service Instances matching the filter params
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/VerticalServiceInstance'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /vs/notifications/nsifailure:
+    post:
+      tags:
+        - nsmf-notifications-rest-controller
+      summary: notifyNsiFailure
+      operationId: notifyNsiFailureUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: notification
+          description: notification
+          required: true
+          schema:
+            $ref: '#/definitions/NetworkSliceFailureNotification'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /vs/notifications/nsilcmchange:
+    post:
+      tags:
+        - nsmf-notifications-rest-controller
+      summary: notifyNsiLcmChange
+      operationId: notifyNsiLcmChangeUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: notification
+          description: notification
+          required: true
+          schema:
+            $ref: '#/definitions/NetworkSliceStatusChangeNotification'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /vs/whoami:
+    get:
+      tags:
+        - security-rest-controller
+      summary: whoami
+      operationId: whoamiUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: credentials
+          in: query
+          required: false
+          type: object
+        - name: details
+          in: query
+          required: false
+          type: object
+        - name: principal
+          in: query
+          required: false
+          type: object
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+definitions:
+  AddressData:
+    type: object
+    properties:
+      addressType:
+        type: string
+        enum:
+          - MAC_ADDRESS
+          - IP_ADDRESS
+      floatingIpActivated:
+        type: boolean
+      iPAddressAssignment:
+        type: boolean
+      iPAddressType:
+        type: string
+        enum:
+          - IPv4
+          - IPv6
+      management:
+        type: boolean
+      numberOfIpAddress:
+        type: integer
+        format: int32
+    title: AddressData
+  AffinityOrAntiAffinityGroup:
+    type: object
+    properties:
+      affinityOrAntiAffinity:
+        type: string
+        enum:
+          - AFFINITY
+          - ANTI_AFFINITY
+      groupId:
+        type: string
+      scope:
+        type: string
+        enum:
+          - NFVI_NODE
+          - NFVI_POP
+          - ZONE
+          - ZONE_GROUP
+    title: AffinityOrAntiAffinityGroup
+  AffinityRule:
+    type: object
+    properties:
+      affinityOrAntiAffinity:
+        type: string
+        enum:
+          - AFFINITY
+          - ANTI_AFFINITY
+      scope:
+        type: string
+        enum:
+          - NFVI_NODE
+          - NFVI_POP
+          - ZONE
+          - ZONE_GROUP
+    title: AffinityRule
+  ApplicationMetric:
+    type: object
+    properties:
+      interval:
+        type: string
+      metricCollectionType:
+        type: string
+        enum:
+          - CUMULATIVE
+          - DELTA
+          - GAUGE
+      metricId:
+        type: string
+      name:
+        type: string
+      topic:
+        type: string
+      unit:
+        type: string
+    title: ApplicationMetric
+  ArbitratorResponse:
+    type: object
+    properties:
+      acceptableRequest:
+        type: boolean
+      existingCompositeSlice:
+        type: string
+      existingCompositeSliceToUpdate:
+        type: boolean
+      existingSliceSubnets:
+        type: object
+        additionalProperties:
+          type: boolean
+      impactedNetworkSliceInstances:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/NetworkSliceInstanceAction'
+      impactedVerticalServiceInstances:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/VsAction'
+      newSliceRequired:
+        type: boolean
+      requestId:
+        type: string
+    title: ArbitratorResponse
+  AutoscalingAction:
+    type: object
+    properties:
+      scaleNsToLevelData:
+        $ref: '#/definitions/ScaleNsToLevelData'
+      scaleType:
+        type: string
+        enum:
+          - SCALE_NS
+          - SCALE_VNF
+    title: AutoscalingAction
+  AutoscalingRuleCondition:
+    type: object
+    properties:
+      cooldownTime:
+        type: integer
+        format: int32
+      enabled:
+        type: boolean
+      initialInstantiationLevel:
+        type: string
+      name:
+        type: string
+      scaleInOperationType:
+        type: string
+        enum:
+          - AND
+          - OR
+      scaleOutOperationType:
+        type: string
+        enum:
+          - AND
+          - OR
+      scalingCriteria:
+        type: array
+        items:
+          $ref: '#/definitions/AutoscalingRuleCriteria'
+      scalingType:
+        type: string
+        enum:
+          - MANUAL_SCALING
+          - AUTOMATED_SCALING
+      thresholdTime:
+        type: integer
+        format: int32
+    title: AutoscalingRuleCondition
+  AutoscalingRuleCriteria:
+    type: object
+    properties:
+      name:
+        type: string
+      nsMonitoringParamRef:
+        type: string
+      scaleInRelationalOperation:
+        type: string
+        enum:
+          - GE
+          - LE
+          - GT
+          - LT
+          - EQ
+      scaleInThreshold:
+        type: integer
+        format: int32
+      scaleOutRelationalOperation:
+        type: string
+        enum:
+          - GE
+          - LE
+          - GT
+          - LT
+          - EQ
+      scaleOutThreshold:
+        type: integer
+        format: int32
+    title: AutoscalingRuleCriteria
+  ChangeExtVnfConnectivityOpConfig:
+    type: object
+    properties:
+      parameter:
+        type: array
+        items:
+          type: string
+    title: ChangeExtVnfConnectivityOpConfig
+  ChangeVnfFlavourOpConfig:
+    type: object
+    properties:
+      parameter:
+        type: array
+        items:
+          type: string
+    title: ChangeVnfFlavourOpConfig
+  ConnectivityType:
+    type: object
+    properties:
+      flowPattern:
+        type: string
+      layerProtocol:
+        type: string
+        enum:
+          - ETHERNET
+          - MPLS
+          - ODU2
+          - IPV4
+          - IPV6
+          - PSEUDO_WIRE
+          - OTSIA
+          - OCH
+          - OTU
+          - ODU
+          - SDM
+          - AROF
+          - NOT_SPECIFIED
+    title: ConnectivityType
+  CreateNsiIdRequest:
+    type: object
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      nstId:
+        type: string
+    title: CreateNsiIdRequest
+  Dependencies:
+    type: object
+    properties:
+      primaryId:
+        type: array
+        items:
+          type: string
+      secondaryId:
+        type: array
+        items:
+          type: string
+    title: Dependencies
+  Domain:
+    type: object
+    properties:
+      admin:
+        type: string
+      description:
+        type: string
+      domainId:
+        type: string
+      domainInterface:
+        $ref: '#/definitions/DomainInterface'
+      domainStatus:
+        type: string
+        enum:
+          - ACTIVE
+          - MAINTENANCE
+          - DISABLED
+      domainsAgreement:
+        type: array
+        items:
+          $ref: '#/definitions/DomainAgreement'
+      name:
+        type: string
+      ownedLayers:
+        type: array
+        items:
+          $ref: '#/definitions/DomainLayer'
+      owner:
+        type: string
+    title: Domain
+  DomainAgreement:
+    type: object
+    properties:
+      domainAgreeWithId:
+        type: string
+      domainLayersListAgreeWith:
+        type: array
+        items:
+          type: string
+    title: DomainAgreement
+  DomainCatalogueSubscriptionNotification:
+    type: object
+    properties:
+      domain:
+        $ref: '#/definitions/Domain'
+      notificationType:
+        type: string
+        enum:
+          - DOMAIN_ONBOARDING
+          - DOMAIN_REMOVAL
+    title: DomainCatalogueSubscriptionNotification
+  DomainCatalogueSubscriptionRequest:
+    type: object
+    properties:
+      callbackURI:
+        type: string
+      subscriptionType:
+        type: string
+        enum:
+          - DOMAIN_SUBSCRIPTION
+    title: DomainCatalogueSubscriptionRequest
+  DomainInterface:
+    type: object
+    properties:
+      auth:
+        type: boolean
+      interfaceType:
+        type: string
+        enum:
+          - HTTP
+          - RABBIT
+      port:
+        type: integer
+        format: int32
+      url:
+        type: string
+    title: DomainInterface
+  DomainLayer:
+    type: object
+    discriminator: type
+    properties:
+      domainLayerId:
+        type: string
+      domainLayerType:
+        type: string
+        enum:
+          - VERTICAL_SERVICE_PROVIDER
+          - NETWORK_SLICE_PROVIDER
+          - NETWORK_SERVICE_PROVIDER
+    title: DomainLayer
+  EMBBPerfReq:
+    type: object
+    properties:
+      activityFactor:
+        type: integer
+        format: int32
+      areaTrafficCapDL:
+        type: integer
+        format: int32
+      areaTrafficCapUL:
+        type: integer
+        format: int32
+      coverage:
+        type: string
+      expDataRateDL:
+        type: integer
+        format: int32
+      expDataRateUL:
+        type: integer
+        format: int32
+      uESpeed:
+        type: integer
+        format: int32
+      userDensity:
+        type: integer
+        format: int32
+    title: EMBBPerfReq
+  EMBBServiceParameters:
+    title: EMBBServiceParameters
+    allOf:
+      - $ref: '#/definitions/SliceServiceParameters'
+      - type: object
+        properties:
+          areaTrafficCapDL:
+            type: integer
+            format: int64
+          areaTrafficCapUL:
+            type: integer
+            format: int64
+          coverage:
+            type: string
+          expDataRateDL:
+            type: integer
+            format: int64
+          expDataRateUL:
+            type: integer
+            format: int64
+          uESpeed:
+            type: integer
+            format: int64
+          userDensity:
+            type: integer
+            format: int64
+        title: EMBBServiceParameters
+  Filter:
+    type: object
+    properties:
+      parameters:
+        type: object
+        additionalProperties:
+          type: string
+    title: Filter
+  GeneralizedQueryRequest:
+    type: object
+    properties:
+      attributeSelector:
+        type: array
+        items:
+          type: string
+      filter:
+        $ref: '#/definitions/Filter'
+    title: GeneralizedQueryRequest
+  GeographicalAreaInfo:
+    type: object
+    properties:
+      description:
+        type: string
+      lat:
+        type: number
+        format: double
+      lon:
+        type: number
+        format: double
+      used:
+        type: boolean
+    title: GeographicalAreaInfo
+  HealVnfOpConfig:
+    type: object
+    properties:
+      cause:
+        type: array
+        items:
+          type: string
+      parameter:
+        type: array
+        items:
+          type: string
+    title: HealVnfOpConfig
+  InstantiateNsiRequest:
+    type: object
+    properties:
+      dfId:
+        type: string
+      ilId:
+        type: string
+      locationConstraints:
+        $ref: '#/definitions/LocationInfo'
+      nsSubnetIds:
+        type: array
+        items:
+          type: string
+      nsiId:
+        type: string
+      nstId:
+        type: string
+      ranEndPointId:
+        type: string
+      sliceServiceParameters:
+        type: object
+      userData:
+        type: object
+        additionalProperties:
+          type: string
+    title: InstantiateNsiRequest
+  InstantiateVnfOpConfig:
+    type: object
+    properties:
+      parameter:
+        type: array
+        items:
+          type: string
+    title: InstantiateVnfOpConfig
+  InstantiateVsRequest:
+    type: object
+    properties:
+      description:
+        type: string
+      locationConstraints:
+        $ref: '#/definitions/LocationInfo'
+      name:
+        type: string
+      notificationUrl:
+        type: string
+      tenantId:
+        type: string
+      userData:
+        type: object
+        additionalProperties:
+          type: string
+      vsdId:
+        type: string
+    title: InstantiateVsRequest
+  InstantiationLevel:
+    type: object
+    properties:
+      description:
+        type: string
+      levelId:
+        type: string
+      scaleInfo:
+        type: array
+        items:
+          $ref: '#/definitions/ScaleInfo'
+      vduLevel:
+        type: array
+        items:
+          $ref: '#/definitions/VduLevel'
+    title: InstantiationLevel
+  LifeCycleManagementScript:
+    type: object
+    properties:
+      event:
+        type: array
+        items:
+          type: string
+          enum:
+            - START_VNF_INSTANTIATION
+            - END_VNF_INSTANTIATION
+            - START_VNF_SCALING
+            - END_VNF_SCALING
+            - START_VNF_HEALING
+            - END_VNF_HEALING
+            - START_VNF_TERMINATION
+            - END_VNF_TERMINATION
+            - START_VNF_FLAVOUR_CHANGE
+            - END_VNF_FLAVOUR_CHANGE
+            - START_VNF_OP_STATE_CHANGE
+            - END_VNF_OP_STATE_CHANGE
+            - START_CHANGE_VNF_EXTERNAL_CONNECTIVITY
+            - END_CHANGE_VNF_EXTERNAL_CONNECTIVITY
+            - RECEIVED_MSG_VNF_INSTANTIATE
+            - RECEIVED_MSG_VNF_SCALE
+            - RECEIVED_MSG_VNF_HEAL
+            - RECEIVED_MSG_VNF_TERMINATE
+            - RECEIVED_MSG_CHANGE_VNF_FLAVOUR
+            - RECEIVED_MSG_CHANGE_VNF_EXTERNAL_CONNECTIVITY
+            - RECEIVED_MSG_CHANGE_VNF_OP_STATE
+            - RECEIVED_MSG_VNF_CHANGE_INDICATION
+            - START_NS_INSTANTIATION
+            - END_NS_INSTANTIATION
+            - START_NS_SCALING
+            - END_NS_SCALING
+            - START_NS_HEALING
+            - END_NS_HEALING
+            - START_NS_TERMINATION
+            - END_NS_TERMINATION
+            - START_NS_UPDATE
+            - END_NS_UPDATE
+            - RECEIVED_MSG_NS_INSTANTIATE
+            - RECEIVED_MSG_NS_SCALE
+            - RECEIVED_MSG_NS_HEAL
+            - RECEIVED_MSG_NS_TERMINATE
+            - RECEIVED_MSG_NS_UPDATE
+      script:
+        type: string
+    title: LifeCycleManagementScript
+  LinkBitrateRequirements:
+    type: object
+    properties:
+      leaf:
+        type: string
+      root:
+        type: string
+    title: LinkBitrateRequirements
+  LocationInfo:
+    type: object
+    properties:
+      altitude:
+        type: number
+        format: float
+      latitude:
+        type: number
+        format: double
+      longitude:
+        type: number
+        format: double
+      range:
+        type: number
+        format: float
+    title: LocationInfo
+  ModifyNsiRequest:
+    type: object
+    properties:
+      dfId:
+        type: string
+      ilId:
+        type: string
+      nsiId:
+        type: string
+      nstId:
+        type: string
+      vsiId:
+        type: string
+    title: ModifyNsiRequest
+  ModifyVsRequest:
+    type: object
+    properties:
+      tenantId:
+        type: string
+      vsdId:
+        type: string
+      vsiId:
+        type: string
+    title: ModifyVsRequest
+  MonitoredData:
+    type: object
+    properties:
+      monitoringParameter:
+        $ref: '#/definitions/MonitoringParameter'
+      vnfIndicatorInfo:
+        $ref: '#/definitions/VnfIndicatorData'
+    title: MonitoredData
+  MonitoringParameter:
+    type: object
+    properties:
+      exporter:
+        type: string
+      monitoringParameterId:
+        type: string
+      name:
+        type: string
+      params:
+        type: object
+        additionalProperties:
+          type: string
+      performanceMetric:
+        type: string
+      type:
+        type: string
+    title: MonitoringParameter
+  NST:
+    type: object
+    properties:
+      geographicalAreaInfoList:
+        type: array
+        items:
+          $ref: '#/definitions/GeographicalAreaInfo'
+      nsdId:
+        type: string
+      nsdVersion:
+        type: string
+      nsst:
+        type: array
+        items:
+          $ref: '#/definitions/NST'
+      nsstIds:
+        type: array
+        items:
+          type: string
+      nsstType:
+        type: string
+        enum:
+          - NONE
+          - RAN
+          - CORE
+          - EHEALTH
+      nstId:
+        type: string
+      nstName:
+        type: string
+      nstProvider:
+        type: string
+      nstServiceProfile:
+        $ref: '#/definitions/NstServiceProfile'
+      nstVersion:
+        type: string
+    title: NST
+  NetworkSliceFailureNotification:
+    type: object
+    properties:
+      failureMessage:
+        type: string
+      nsiId:
+        type: string
+    title: NetworkSliceFailureNotification
+  NetworkSliceInstance:
+    type: object
+    properties:
+      description:
+        type: string
+      dfId:
+        type: string
+      errorMessage:
+        type: string
+      instantiationLevelId:
+        type: string
+      name:
+        type: string
+      networkSliceSubnetInstances:
+        type: array
+        items:
+          type: string
+      nfvNsId:
+        type: string
+      nfvNsUrl:
+        type: string
+      nsdId:
+        type: string
+      nsdVersion:
+        type: string
+      nsiId:
+        type: string
+      nstId:
+        type: string
+      soManaged:
+        type: boolean
+      status:
+        type: string
+        enum:
+          - NOT_INSTANTIATED
+          - INSTANTIATING
+          - INSTANTIATED
+          - UNDER_MODIFICATION
+          - TERMINATING
+          - TERMINATED
+          - FAILED
+          - UNKNOWN
+      tenantId:
+        type: string
+      vnfPlacement:
+        type: object
+        additionalProperties:
+          type: string
+    title: NetworkSliceInstance
+  NetworkSliceInstanceAction:
+    type: object
+    properties:
+      nsDf:
+        type: string
+      nsInstantiationLevel:
+        type: string
+      nsiActionType:
+        type: string
+        enum:
+          - SCALE
+      nsiId:
+        type: string
+    title: NetworkSliceInstanceAction
+  NetworkSliceStatusChangeNotification:
+    type: object
+    properties:
+      nsiId:
+        type: string
+      statusChange:
+        type: string
+        enum:
+          - NSI_CREATED
+          - NSI_TERMINATED
+          - NSI_MODIFIED
+          - NSI_FAILED
+          - NOT_SPECIFIED
+      successful:
+        type: boolean
+      tenantId:
+        type: string
+    title: NetworkSliceStatusChangeNotification
+  NetworkSliceSubnetInstance:
+    type: object
+    properties:
+      domainId:
+        type: string
+      nsDeploymentFlavorId:
+        type: string
+      nsInstantiationLevelId:
+        type: string
+      nssiId:
+        type: string
+      nsstId:
+        type: string
+      status:
+        type: string
+        enum:
+          - NOT_INSTANTIATED
+          - INSTANTIATING
+          - INSTANTIATED
+          - UNDER_MODIFICATION
+          - TERMINATING
+          - TERMINATED
+          - FAILED
+          - UNKNOWN
+      vnfPlacement:
+        type: object
+        additionalProperties:
+          type: string
+    title: NetworkSliceSubnetInstance
+  Nfpd:
+    type: object
+    properties:
+      cpd:
+        type: array
+        items:
+          type: string
+      nfpId:
+        type: string
+      nfpRule:
+        $ref: '#/definitions/Rule'
+      qos:
+        $ref: '#/definitions/QoS'
+    title: Nfpd
+  NfvNsInstantiationInfo:
+    type: object
+    properties:
+      deploymentFlavourId:
+        type: string
+      domainIds:
+        type: array
+        items:
+          type: string
+      instantiationLevelId:
+        type: string
+      nfvNsdId:
+        type: string
+      nsdVersion:
+        type: string
+      nsstDomain:
+        type: object
+        additionalProperties:
+          type: string
+      nstId:
+        type: string
+      sliceServiceParameters:
+        $ref: '#/definitions/SliceServiceParameters'
+    title: NfvNsInstantiationInfo
+  NfvoDomainLayer:
+    title: NfvoDomainLayer
+    allOf:
+      - $ref: '#/definitions/DomainLayer'
+      - type: object
+        discriminator: type
+        properties:
+          domainLayerId:
+            type: string
+          domainLayerType:
+            type: string
+            enum:
+              - VERTICAL_SERVICE_PROVIDER
+              - NETWORK_SLICE_PROVIDER
+              - NETWORK_SERVICE_PROVIDER
+          manoNbiType:
+            type: string
+            enum:
+              - RAN_CONTROL_DRIVER
+              - QOS_CONTROL_DRIVER
+              - NMRO_DRIVER
+              - OSM_DRIVER
+        title: NfvoDomainLayer
+  NsAutoscalingRule:
+    type: object
+    properties:
+      ruleActions:
+        type: array
+        items:
+          $ref: '#/definitions/AutoscalingAction'
+      ruleCondition:
+        $ref: '#/definitions/AutoscalingRuleCondition'
+      ruleId:
+        type: string
+    title: NsAutoscalingRule
+  NsDf:
+    type: object
+    properties:
+      affinityOrAntiAffinityGroup:
+        type: array
+        items:
+          $ref: '#/definitions/AffinityOrAntiAffinityGroup'
+      defaultNsInstantiationLevelId:
+        type: string
+      dependencies:
+        type: array
+        items:
+          $ref: '#/definitions/Dependencies'
+      flavourKey:
+        type: string
+      nsDfId:
+        type: string
+      nsInstantiationLevel:
+        type: array
+        items:
+          $ref: '#/definitions/NsLevel'
+      nsProfile:
+        type: array
+        items:
+          $ref: '#/definitions/NsProfile'
+      pnfProfile:
+        type: array
+        items:
+          $ref: '#/definitions/PnfProfile'
+      scalingAspect:
+        type: array
+        items:
+          $ref: '#/definitions/NsScalingAspect'
+      virtualLinkProfile:
+        type: array
+        items:
+          $ref: '#/definitions/VirtualLinkProfile'
+      vnfProfile:
+        type: array
+        items:
+          $ref: '#/definitions/VnfProfile'
+    title: NsDf
+  NsLevel:
+    type: object
+    properties:
+      description:
+        type: string
+      nsLevelId:
+        type: string
+      nsToLevelMapping:
+        type: array
+        items:
+          $ref: '#/definitions/NsToLevelMapping'
+      virtualLinkToLevelMapping:
+        type: array
+        items:
+          $ref: '#/definitions/VirtualLinkToLevelMapping'
+      vnfToLevelMapping:
+        type: array
+        items:
+          $ref: '#/definitions/VnfToLevelMapping'
+    title: NsLevel
+  NsProfile:
+    type: object
+    properties:
+      affinityOrAntiaffinityGroupId:
+        type: array
+        items:
+          type: string
+      maxNumberOfInstances:
+        type: integer
+        format: int32
+      minNumberOfInstances:
+        type: integer
+        format: int32
+      nsDfId:
+        type: string
+      nsInstantiationLevelId:
+        type: string
+      nsProfileId:
+        type: string
+      nsVirtualLinkConnectivity:
+        type: array
+        items:
+          $ref: '#/definitions/NsVirtualLinkConnectivity'
+      nsdId:
+        type: string
+    title: NsProfile
+  NsScaleInfo:
+    type: object
+    properties:
+      nsScaleLevelId:
+        type: string
+      nsScalingAspectId:
+        type: string
+    title: NsScaleInfo
+  NsScalingAspect:
+    type: object
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      nsScaleLevel:
+        type: array
+        items:
+          $ref: '#/definitions/NsLevel'
+      nsScalingAspectId:
+        type: string
+    title: NsScalingAspect
+  NsToLevelMapping:
+    type: object
+    properties:
+      nsProfileId:
+        type: string
+      numberOfInstances:
+        type: integer
+        format: int32
+    title: NsToLevelMapping
+  NsVirtualLinkConnectivity:
+    type: object
+    properties:
+      cpdId:
+        type: array
+        items:
+          type: string
+      virtualLinkProfileId:
+        type: string
+    title: NsVirtualLinkConnectivity
+  NsVirtualLinkDesc:
+    type: object
+    properties:
+      connectivityType:
+        $ref: '#/definitions/ConnectivityType'
+      description:
+        type: string
+      security:
+        $ref: '#/definitions/SecurityParameters'
+      testAccess:
+        type: array
+        items:
+          type: string
+      virtuaLinkDescVersion:
+        type: string
+      virtualLinkDescId:
+        type: string
+      virtualLinkDescProvider:
+        type: string
+      virtualLinkDf:
+        type: array
+        items:
+          $ref: '#/definitions/VirtualLinkDf'
+    title: NsVirtualLinkDesc
+  Nsd:
+    type: object
+    properties:
+      autoScalingRule:
+        type: array
+        items:
+          $ref: '#/definitions/NsAutoscalingRule'
+      designer:
+        type: string
+      lifeCycleManagementScript:
+        type: array
+        items:
+          $ref: '#/definitions/LifeCycleManagementScript'
+      monitoredInfo:
+        type: array
+        items:
+          $ref: '#/definitions/MonitoredData'
+      nestedNsdId:
+        type: array
+        items:
+          type: string
+      nsDf:
+        type: array
+        items:
+          $ref: '#/definitions/NsDf'
+      nsdIdentifier:
+        type: string
+      nsdInvariantId:
+        type: string
+      nsdName:
+        type: string
+      pnfdId:
+        type: array
+        items:
+          type: string
+      sapd:
+        type: array
+        items:
+          $ref: '#/definitions/Sapd'
+      security:
+        $ref: '#/definitions/SecurityParameters'
+      version:
+        type: string
+      virtualLinkDesc:
+        type: array
+        items:
+          $ref: '#/definitions/NsVirtualLinkDesc'
+      vnfdId:
+        type: array
+        items:
+          type: string
+      vnffgd:
+        type: array
+        items:
+          $ref: '#/definitions/Vnffgd'
+    title: Nsd
+  NsdInfo:
+    type: object
+    properties:
+      deletionPending:
+        type: boolean
+      designer:
+        type: string
+      name:
+        type: string
+      nsd:
+        $ref: '#/definitions/Nsd'
+      nsdId:
+        type: string
+      nsdInfoId:
+        type: string
+      onboardedVnfPkgInfoId:
+        type: array
+        items:
+          type: string
+      operationalState:
+        type: string
+        enum:
+          - ENABLED
+          - DISABLED
+      pnfdInfoId:
+        type: array
+        items:
+          type: string
+      previousNsdVersionId:
+        type: string
+      usageState:
+        type: string
+        enum:
+          - IN_USE
+          - NOT_IN_USE
+      userDefinedData:
+        type: object
+        additionalProperties:
+          type: string
+      version:
+        type: string
+    title: NsdInfo
+  NspDomainLayer:
+    title: NspDomainLayer
+    allOf:
+      - $ref: '#/definitions/DomainLayer'
+      - type: object
+        discriminator: type
+        properties:
+          domainLayerId:
+            type: string
+          domainLayerType:
+            type: string
+            enum:
+              - VERTICAL_SERVICE_PROVIDER
+              - NETWORK_SLICE_PROVIDER
+              - NETWORK_SERVICE_PROVIDER
+          nspNbiType:
+            type: string
+            enum:
+              - THREE_GPP
+              - SONATA
+              - NEUTRAL_HOSTING
+              - SEBASTIAN
+              - OSM
+          ranEnabled:
+            type: boolean
+        title: NspDomainLayer
+  NstServiceProfile:
+    type: object
+    properties:
+      availability:
+        type: number
+        format: float
+      coverageAreaTAList:
+        type: array
+        items:
+          type: string
+      eMBBPerfReq:
+        type: array
+        items:
+          $ref: '#/definitions/EMBBPerfReq'
+      latency:
+        type: integer
+        format: int32
+      maxNumberofUEs:
+        type: integer
+        format: int32
+      pLMNIdList:
+        type: array
+        items:
+          type: string
+      resourceSharingLevel:
+        type: boolean
+      sST:
+        type: string
+        enum:
+          - EMBB
+          - URLLC
+      serviceProfileId:
+        type: string
+      uEMobilityLevel:
+        type: string
+        enum:
+          - STATIONARY
+          - NOMADIC
+          - RESTRICTED_MOBILITY
+          - FULLY_MOBILITY
+      uRLLCPerfReq:
+        type: array
+        items:
+          $ref: '#/definitions/URLLCPerfReq'
+    title: NstServiceProfile
+  OnBoardNsTemplateRequest:
+    type: object
+    properties:
+      nsds:
+        type: array
+        items:
+          $ref: '#/definitions/Nsd'
+      nst:
+        $ref: '#/definitions/NST'
+      vnfPackages:
+        type: array
+        items:
+          $ref: '#/definitions/OnBoardVnfPackageRequest'
+    title: OnBoardNsTemplateRequest
+  OnBoardVnfPackageRequest:
+    type: object
+    properties:
+      checksum:
+        type: string
+      name:
+        type: string
+      provider:
+        type: string
+      userDefinedData:
+        type: object
+        additionalProperties:
+          type: string
+      version:
+        type: string
+      vnfPackagePath:
+        type: string
+    title: OnBoardVnfPackageRequest
+  OnBoardVsBlueprintRequest:
+    type: object
+    properties:
+      nsds:
+        type: array
+        items:
+          $ref: '#/definitions/Nsd'
+      nsts:
+        type: array
+        items:
+          $ref: '#/definitions/NST'
+      translationRules:
+        type: array
+        items:
+          $ref: '#/definitions/VsdNsdTranslationRule'
+      vnfPackages:
+        type: array
+        items:
+          $ref: '#/definitions/OnBoardVnfPackageRequest'
+      vsBlueprint:
+        $ref: '#/definitions/VsBlueprint'
+    title: OnBoardVsBlueprintRequest
+  OnboardVsDescriptorRequest:
+    type: object
+    properties:
+      nestedVsd:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/VsDescriptor'
+      tenantId:
+        type: string
+      vsd:
+        $ref: '#/definitions/VsDescriptor'
+    title: OnboardVsDescriptorRequest
+  OnboardedVnfPkgInfo:
+    type: object
+    properties:
+      additionalArtifact:
+        type: array
+        items:
+          $ref: '#/definitions/VnfPackageArtifactInformation'
+      checksum:
+        type: string
+      deletionPending:
+        type: boolean
+      onboardedVnfPkgInfoId:
+        type: string
+      operationalState:
+        type: string
+        enum:
+          - ENABLED
+          - DISABLED
+      softwareImage:
+        type: array
+        items:
+          $ref: '#/definitions/VnfPackageSoftwareImageInformation'
+      usageState:
+        type: string
+        enum:
+          - IN_USE
+          - NOT_IN_USE
+      userDefinedData:
+        type: object
+        additionalProperties:
+          type: string
+      vnfProductName:
+        type: string
+      vnfProvider:
+        type: string
+      vnfSoftwareVersion:
+        type: string
+      vnfd:
+        $ref: '#/definitions/Vnfd'
+      vnfdId:
+        type: string
+      vnfdVersion:
+        type: string
+    title: OnboardedVnfPkgInfo
+  PnfProfile:
+    type: object
+    properties:
+      pnfProfileId:
+        type: string
+      pnfVirtualLinkConnectivity:
+        type: array
+        items:
+          $ref: '#/definitions/NsVirtualLinkConnectivity'
+      pnfdId:
+        type: string
+    title: PnfProfile
+  Policy:
+    type: object
+    properties:
+      policyType:
+        type: string
+        enum:
+          - SER
+          - CST
+          - A_COV
+      policyValue:
+        type: string
+        enum:
+          - HIGH
+          - MEDIUM
+          - LOW
+    title: Policy
+  QoS:
+    type: object
+    properties:
+      latency:
+        type: integer
+        format: int32
+      packetDelayVariation:
+        type: integer
+        format: int32
+      packetLossRatio:
+        type: integer
+        format: int32
+      priority:
+        type: integer
+        format: int32
+    title: QoS
+  QueryNsdResponse:
+    type: object
+    properties:
+      queryResult:
+        type: array
+        items:
+          $ref: '#/definitions/NsdInfo'
+    title: QueryNsdResponse
+  QueryOnBoardedVnfPkgInfoResponse:
+    type: object
+    properties:
+      queryResult:
+        type: array
+        items:
+          $ref: '#/definitions/OnboardedVnfPkgInfo'
+    title: QueryOnBoardedVnfPkgInfoResponse
+  RemoteTenantInfo:
+    type: object
+    properties:
+      host:
+        type: string
+      remoteTenantName:
+        type: string
+      remoteTenantPwd:
+        type: string
+    title: RemoteTenantInfo
+  RequestedAdditionalCapabilityData:
+    type: object
+    properties:
+      minRequestedAdditionalCapabilityVersion:
+        type: string
+      preferredRequestedAdditionalCapabilityVersion:
+        type: string
+      requestedAdditionalCapabilityName:
+        type: string
+      supportMandatory:
+        type: boolean
+      targetPerformanceParameters:
+        type: string
+    title: RequestedAdditionalCapabilityData
+  ResponseEntity:
+    type: object
+    properties:
+      body:
+        type: object
+      statusCode:
+        type: string
+        enum:
+          - '100'
+          - '101'
+          - '102'
+          - '103'
+          - '200'
+          - '201'
+          - '202'
+          - '203'
+          - '204'
+          - '205'
+          - '206'
+          - '207'
+          - '208'
+          - '226'
+          - '300'
+          - '301'
+          - '302'
+          - '303'
+          - '304'
+          - '305'
+          - '307'
+          - '308'
+          - '400'
+          - '401'
+          - '402'
+          - '403'
+          - '404'
+          - '405'
+          - '406'
+          - '407'
+          - '408'
+          - '409'
+          - '410'
+          - '411'
+          - '412'
+          - '413'
+          - '414'
+          - '415'
+          - '416'
+          - '417'
+          - '418'
+          - '419'
+          - '420'
+          - '421'
+          - '422'
+          - '423'
+          - '424'
+          - '426'
+          - '428'
+          - '429'
+          - '431'
+          - '451'
+          - '500'
+          - '501'
+          - '502'
+          - '503'
+          - '504'
+          - '505'
+          - '506'
+          - '507'
+          - '508'
+          - '509'
+          - '510'
+          - '511'
+      statusCodeValue:
+        type: integer
+        format: int32
+    title: ResponseEntity
+  Rule:
+    type: object
+    title: Rule
+  Sapd:
+    type: object
+    properties:
+      addressData:
+        type: array
+        items:
+          $ref: '#/definitions/AddressData'
+      associatedCpdId:
+        type: string
+      cpRole:
+        type: string
+        enum:
+          - ROOT
+          - LEAF
+      cpdId:
+        type: string
+      description:
+        type: string
+      layerProtocol:
+        type: string
+        enum:
+          - ETHERNET
+          - MPLS
+          - ODU2
+          - IPV4
+          - IPV6
+          - PSEUDO_WIRE
+          - OTSIA
+          - OCH
+          - OTU
+          - ODU
+          - SDM
+          - AROF
+          - NOT_SPECIFIED
+      nsVirtualLinkDescId:
+        type: string
+      sapAddressAssignment:
+        type: boolean
+    title: Sapd
+  ScaleInfo:
+    type: object
+    properties:
+      aspectId:
+        type: string
+      scaleLevel:
+        type: integer
+        format: int32
+    title: ScaleInfo
+  ScaleNsToLevelData:
+    type: object
+    properties:
+      nsInstantiationLevel:
+        type: string
+      nsScaleInfo:
+        type: array
+        items:
+          $ref: '#/definitions/NsScaleInfo'
+    title: ScaleNsToLevelData
+  ScaleVnfOpConfig:
+    type: object
+    properties:
+      parameter:
+        type: array
+        items:
+          type: string
+      scalingByMoreThanOneStepSupported:
+        type: boolean
+    title: ScaleVnfOpConfig
+  ScaleVnfToLevelOpConfig:
+    type: object
+    properties:
+      arbitraryTargetLevelsSupported:
+        type: boolean
+      parameter:
+        type: array
+        items:
+          type: string
+    title: ScaleVnfToLevelOpConfig
+  ScalingAspect:
+    type: object
+    properties:
+      associatedGroup:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      maxScaleLevel:
+        type: integer
+        format: int32
+      name:
+        type: string
+    title: ScalingAspect
+  SecurityParameters:
+    type: object
+    properties:
+      algorithm:
+        type: string
+      certificate:
+        type: string
+      signature:
+        type: string
+    title: SecurityParameters
+  ServiceConstraints:
+    type: object
+    properties:
+      atomicComponentId:
+        type: string
+      canIncludeSharedElements:
+        type: boolean
+      nonPreferredProviders:
+        type: array
+        items:
+          type: string
+      preferredProviders:
+        type: array
+        items:
+          type: string
+      priority:
+        type: string
+        enum:
+          - LOW
+          - MEDIUM
+          - HIGH
+      prohibitedProviders:
+        type: array
+        items:
+          type: string
+      sharable:
+        type: boolean
+    title: ServiceConstraints
+  Sla:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      slaConstraints:
+        type: array
+        items:
+          $ref: '#/definitions/SlaVirtualResourceConstraint'
+      slaStatus:
+        type: string
+        enum:
+          - ENABLED
+          - DISABLED
+    title: Sla
+  SlaVirtualResourceConstraint:
+    type: object
+    properties:
+      location:
+        type: string
+      maxResourceLimit:
+        $ref: '#/definitions/VirtualResourceUsage'
+      scope:
+        type: string
+        enum:
+          - CLOUD_RESOURCE
+          - MEC_RESOURCE
+          - GLOBAL_VIRTUAL_RESOURCE
+    title: SlaVirtualResourceConstraint
+  SliceServiceParameters:
+    type: object
+    discriminator: type
+    title: SliceServiceParameters
+  SoftwareImageInformation:
+    type: object
+    properties:
+      checksum:
+        type: string
+      containerFormat:
+        type: string
+      createdAt:
+        type: string
+        format: date
+      diskFormat:
+        type: string
+      id:
+        type: string
+      minDisk:
+        type: integer
+        format: int32
+      minRam:
+        type: integer
+        format: int32
+      name:
+        type: string
+      provider:
+        type: string
+      size:
+        type: integer
+        format: int32
+      userMetadata:
+        type: object
+        additionalProperties:
+          type: string
+      version:
+        type: string
+    title: SoftwareImageInformation
+  SwImageDesc:
+    type: object
+    properties:
+      checksum:
+        type: string
+      containerFormat:
+        type: string
+      diskFormat:
+        type: string
+      id:
+        type: string
+      minDisk:
+        type: integer
+        format: int32
+      minRam:
+        type: integer
+        format: int32
+      name:
+        type: string
+      operatingSystem:
+        type: string
+      size:
+        type: integer
+        format: int32
+      supportedVirtualisationEnvironment:
+        type: string
+      swImage:
+        type: string
+      version:
+        type: string
+    title: SwImageDesc
+  Tenant:
+    type: object
+    properties:
+      allocatedResources:
+        $ref: '#/definitions/VirtualResourceUsage'
+      password:
+        type: string
+      remoteTenantInfos:
+        type: array
+        items:
+          $ref: '#/definitions/RemoteTenantInfo'
+      sla:
+        type: array
+        items:
+          $ref: '#/definitions/Sla'
+      username:
+        type: string
+      vsdId:
+        type: array
+        items:
+          type: string
+      vsiId:
+        type: array
+        items:
+          type: string
+    title: Tenant
+  TerminateNsiRequest:
+    type: object
+    properties:
+      nsiId:
+        type: string
+    title: TerminateNsiRequest
+  TerminateVnfOpConfig:
+    type: object
+    properties:
+      maxRecommendedGracefulStopTimeout:
+        type: string
+      minGracefulStopTimeout:
+        type: string
+    title: TerminateVnfOpConfig
+  TransferPolicyRequest:
+    type: object
+    properties:
+      designer:
+        type: string
+      name:
+        type: string
+      pfId:
+        type: string
+      policy:
+        $ref: '#/definitions/Policy'
+      version:
+        type: string
+    title: TransferPolicyRequest
+  URLLCPerfReq:
+    type: object
+    properties:
+      cSAvailability:
+        type: number
+        format: float
+      connDensity:
+        type: integer
+        format: int32
+      e2eLatency:
+        type: integer
+        format: int32
+      expDataRate:
+        type: integer
+        format: int32
+      jitter:
+        type: integer
+        format: int32
+      payloadSize:
+        type: string
+      reliability:
+        type: number
+        format: float
+      serviceAreaDimension:
+        type: string
+      survivalTime:
+        type: integer
+        format: int32
+      trafficDensity:
+        type: integer
+        format: int32
+    title: URLLCPerfReq
+  URLLCServiceParameters:
+    title: URLLCServiceParameters
+    allOf:
+      - $ref: '#/definitions/SliceServiceParameters'
+      - type: object
+        properties:
+          cSAvailability:
+            type: number
+            format: float
+          connDensity:
+            type: number
+            format: float
+          e2eKatency:
+            type: integer
+            format: int32
+          expDataRate:
+            type: integer
+            format: int32
+          jitter:
+            type: integer
+            format: int32
+          payloadSize:
+            type: integer
+            format: int32
+          reliability:
+            type: number
+            format: float
+          serviceDimension:
+            type: string
+          survivalTime:
+            type: integer
+            format: int32
+          trafficDensity:
+            type: string
+        title: URLLCServiceParameters
+  Vdu:
+    type: object
+    properties:
+      bootOrder:
+        type: object
+        additionalProperties:
+          type: string
+      configurableProperties:
+        $ref: '#/definitions/VnfcConfigurableProperties'
+      description:
+        type: string
+      intCpd:
+        type: array
+        items:
+          $ref: '#/definitions/VduCpd'
+      monitoringParameter:
+        type: array
+        items:
+          $ref: '#/definitions/MonitoringParameter'
+      name:
+        type: string
+      nfviConstraint:
+        type: array
+        items:
+          type: string
+      swImageDesc:
+        $ref: '#/definitions/SwImageDesc'
+      vduId:
+        type: string
+      virtualComputeDesc:
+        type: string
+      virtualStorageDesc:
+        type: array
+        items:
+          type: string
+    title: Vdu
+  VduCpd:
+    type: object
+    properties:
+      addressData:
+        type: array
+        items:
+          $ref: '#/definitions/AddressData'
+      bitrateRequirement:
+        type: integer
+        format: int32
+      cpRole:
+        type: string
+        enum:
+          - ROOT
+          - LEAF
+      cpdId:
+        type: string
+      description:
+        type: string
+      intVirtualLinkDesc:
+        type: string
+      layerProtocol:
+        type: string
+        enum:
+          - ETHERNET
+          - MPLS
+          - ODU2
+          - IPV4
+          - IPV6
+          - PSEUDO_WIRE
+          - OTSIA
+          - OCH
+          - OTU
+          - ODU
+          - SDM
+          - AROF
+          - NOT_SPECIFIED
+      virtualNetworkInterfaceRequirements:
+        type: array
+        items:
+          $ref: '#/definitions/VirtualNetworkInterfaceRequirements'
+    title: VduCpd
+  VduLevel:
+    type: object
+    properties:
+      numberOfInstances:
+        type: integer
+        format: int32
+      vduId:
+        type: string
+    title: VduLevel
+  VduProfile:
+    type: object
+    properties:
+      affinityOrAntiAffinityGroupId:
+        type: array
+        items:
+          type: string
+      localAffinityOrAntiAffinityRule:
+        type: array
+        items:
+          $ref: '#/definitions/AffinityRule'
+      maxNumberOfInstances:
+        type: integer
+        format: int32
+      minNumberOfInstances:
+        type: integer
+        format: int32
+      vduId:
+        type: string
+    title: VduProfile
+  VerticalDomainLayer:
+    title: VerticalDomainLayer
+    allOf:
+      - $ref: '#/definitions/DomainLayer'
+      - type: object
+        discriminator: type
+        properties:
+          domainLayerId:
+            type: string
+          domainLayerType:
+            type: string
+            enum:
+              - VERTICAL_SERVICE_PROVIDER
+              - NETWORK_SLICE_PROVIDER
+              - NETWORK_SERVICE_PROVIDER
+          dspType:
+            type: string
+            enum:
+              - VERTICAL_SERVICE
+              - EVE_PORTAL
+        title: VerticalDomainLayer
+  VerticalServiceInstance:
+    type: object
+    properties:
+      description:
+        type: string
+      domainId:
+        type: string
+      errorMessage:
+        type: string
+      locationConstraints:
+        $ref: '#/definitions/LocationInfo'
+      mappedInstanceId:
+        type: string
+      name:
+        type: string
+      nestedVsi:
+        type: array
+        items:
+          $ref: '#/definitions/VerticalServiceInstance'
+      networkSliceId:
+        type: string
+      nssis:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/NetworkSliceSubnetInstance'
+      status:
+        type: string
+        enum:
+          - INSTANTIATING
+          - INSTANTIATED
+          - UNDER_MODIFICATION
+          - WAITING_FOR_RESOURCES
+          - INSTANTIATING_REMOTE_VSS
+          - INSTANTIATING_LOCAL_VSS
+          - MODIFIED
+          - TERMINATING
+          - TERMINATED
+          - FAILED
+      tenantId:
+        type: string
+      userData:
+        type: object
+        additionalProperties:
+          type: string
+      vsdId:
+        type: string
+      vsiId:
+        type: string
+      vssis:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/VerticalSubserviceInstance'
+    title: VerticalServiceInstance
+  VerticalSubserviceInstance:
+    type: object
+    properties:
+      blueprintId:
+        type: string
+      descriptorId:
+        type: string
+      domainId:
+        type: string
+      instanceId:
+        type: string
+      parameters:
+        type: object
+        additionalProperties:
+          type: string
+      verticalServiceStatus:
+        type: string
+        enum:
+          - INSTANTIATING
+          - INSTANTIATED
+          - UNDER_MODIFICATION
+          - WAITING_FOR_RESOURCES
+          - INSTANTIATING_REMOTE_VSS
+          - INSTANTIATING_LOCAL_VSS
+          - MODIFIED
+          - TERMINATING
+          - TERMINATED
+          - FAILED
+    title: VerticalSubserviceInstance
+  VirtualComputeDesc:
+    type: object
+    properties:
+      complexityFactor:
+        type: string
+      logicalNode:
+        type: object
+        additionalProperties:
+          type: string
+      requestAdditionalCapabilities:
+        type: array
+        items:
+          $ref: '#/definitions/RequestedAdditionalCapabilityData'
+      virtualComputeDescId:
+        type: string
+      virtualCpu:
+        $ref: '#/definitions/VirtualCpuData'
+      virtualMemory:
+        $ref: '#/definitions/VirtualMemoryData'
+    title: VirtualComputeDesc
+  VirtualCpuData:
+    type: object
+    properties:
+      cpuArchitecture:
+        type: string
+      numVirtualCpu:
+        type: integer
+        format: int32
+      virtualCpuClock:
+        type: integer
+        format: int32
+      virtualCpuOversubscriptionPolicy:
+        type: string
+    title: VirtualCpuData
+  VirtualLinkDf:
+    type: object
+    properties:
+      flavourId:
+        type: string
+      qos:
+        $ref: '#/definitions/QoS'
+      serviceAvaibilityLevel:
+        type: string
+        enum:
+          - LEVEL_1
+          - LEVEL_2
+          - LEVEL_3
+    title: VirtualLinkDf
+  VirtualLinkProfile:
+    type: object
+    properties:
+      affinityOrAntiAffinityGroupId:
+        type: array
+        items:
+          type: string
+      flavourId:
+        type: string
+      localAffinityOrAntiAffinityRule:
+        type: array
+        items:
+          $ref: '#/definitions/AffinityRule'
+      maxBitrateRequirements:
+        $ref: '#/definitions/LinkBitrateRequirements'
+      minBitrateRequirements:
+        $ref: '#/definitions/LinkBitrateRequirements'
+      virtualLinkDescId:
+        type: string
+      virtualLinkProfileId:
+        type: string
+    title: VirtualLinkProfile
+  VirtualLinkToLevelMapping:
+    type: object
+    properties:
+      bitRateRequirements:
+        $ref: '#/definitions/LinkBitrateRequirements'
+      virtualLinkProfileId:
+        type: string
+    title: VirtualLinkToLevelMapping
+  VirtualMemoryData:
+    type: object
+    properties:
+      numaEnabled:
+        type: boolean
+      virtualMemOversubscriptionPolicy:
+        type: string
+      virtualMemSize:
+        type: integer
+        format: int32
+    title: VirtualMemoryData
+  VirtualNetworkInterfaceRequirements:
+    type: object
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      networkInterfaceRequirements:
+        type: string
+      nicIoRequirements:
+        type: string
+      supportMandatory:
+        type: boolean
+    title: VirtualNetworkInterfaceRequirements
+  VirtualResourceUsage:
+    type: object
+    properties:
+      diskStorage:
+        type: integer
+        format: int32
+      memoryRAM:
+        type: integer
+        format: int32
+      vCPU:
+        type: integer
+        format: int32
+    title: VirtualResourceUsage
+  VirtualStorageDesc:
+    type: object
+    properties:
+      id:
+        type: string
+      rdmaEnabled:
+        type: boolean
+      sizeOfStorage:
+        type: integer
+        format: int32
+      swImageDesc:
+        type: string
+      typeOfStorage:
+        type: string
+    title: VirtualStorageDesc
+  VnfConfigurableProperties:
+    type: object
+    properties:
+      additionalConfigurableProperty:
+        type: array
+        items:
+          type: string
+      autoHealable:
+        type: boolean
+      autoScalable:
+        type: boolean
+    title: VnfConfigurableProperties
+  VnfDf:
+    type: object
+    properties:
+      affinityOrAntiAffinityGroup:
+        type: array
+        items:
+          $ref: '#/definitions/AffinityOrAntiAffinityGroup'
+      defaultInstantiationLevelId:
+        type: string
+      description:
+        type: string
+      flavourId:
+        type: string
+      instantiationLevel:
+        type: array
+        items:
+          $ref: '#/definitions/InstantiationLevel'
+      monitoringParameter:
+        type: array
+        items:
+          $ref: '#/definitions/MonitoringParameter'
+      scalingAspect:
+        type: array
+        items:
+          $ref: '#/definitions/ScalingAspect'
+      supportedOperation:
+        type: array
+        items:
+          type: string
+          enum:
+            - INSTATIATE_VNF
+            - QUERY_VNF
+            - TERMINATE_VNF
+            - SCALE_IN_VNF
+            - SCALE_OUT_VNF
+            - SCALE_UP_VNF
+            - SCALE_DOWN_VNF
+            - SCALE_VNF_TO_LEVEL
+            - CHANGE_VNF_FLAVOUR
+            - OPERATE_VNF
+            - UPDATE_VNF
+            - MODIFY_VNF
+            - HEAL_VNF
+            - CHANGE_EXT_VNF_CONNECTIVITY
+      vduProfile:
+        type: array
+        items:
+          $ref: '#/definitions/VduProfile'
+      virtualLinkProfile:
+        type: array
+        items:
+          $ref: '#/definitions/VirtualLinkProfile'
+      vnfLcmOperationsConfiguration:
+        $ref: '#/definitions/VnfLcmOperationsConfiguration'
+    title: VnfDf
+  VnfExtCpd:
+    type: object
+    properties:
+      addressData:
+        type: array
+        items:
+          $ref: '#/definitions/AddressData'
+      cpRole:
+        type: string
+        enum:
+          - ROOT
+          - LEAF
+      cpdId:
+        type: string
+      description:
+        type: string
+      intCpd:
+        type: string
+      intVirtualLinkDesc:
+        type: string
+      layerProtocol:
+        type: string
+        enum:
+          - ETHERNET
+          - MPLS
+          - ODU2
+          - IPV4
+          - IPV6
+          - PSEUDO_WIRE
+          - OTSIA
+          - OCH
+          - OTU
+          - ODU
+          - SDM
+          - AROF
+          - NOT_SPECIFIED
+      virtualNetworkInterfaceRequirements:
+        type: array
+        items:
+          $ref: '#/definitions/VirtualNetworkInterfaceRequirements'
+    title: VnfExtCpd
+  VnfIndicator:
+    type: object
+    properties:
+      id:
+        type: string
+      indicatorValue:
+        type: string
+      name:
+        type: string
+      source:
+        type: string
+        enum:
+          - VNF
+          - EM
+          - BOTH_VNF_EM
+    title: VnfIndicator
+  VnfIndicatorData:
+    type: object
+    properties:
+      vnfIndicator:
+        type: string
+      vnfdId:
+        type: string
+    title: VnfIndicatorData
+  VnfInfoModifiableAttributes:
+    type: object
+    properties:
+      extension:
+        type: object
+        additionalProperties:
+          type: string
+      metadata:
+        type: object
+        additionalProperties:
+          type: string
+    title: VnfInfoModifiableAttributes
+  VnfLCMScripts:
+    type: object
+    properties:
+      target:
+        type: string
+    title: VnfLCMScripts
+  VnfLcmOperationsConfiguration:
+    type: object
+    properties:
+      changeExtVnfConnectivityOpConfig:
+        $ref: '#/definitions/ChangeExtVnfConnectivityOpConfig'
+      changeVnfFlavourOpConfig:
+        $ref: '#/definitions/ChangeVnfFlavourOpConfig'
+      healVnfOpConfig:
+        $ref: '#/definitions/HealVnfOpConfig'
+      instantiateVnfOpConfig:
+        $ref: '#/definitions/InstantiateVnfOpConfig'
+      operateVnfOpConfig:
+        $ref: '#/definitions/TerminateVnfOpConfig'
+      scaleVnfOpConfig:
+        $ref: '#/definitions/ScaleVnfOpConfig'
+      scaleVnfToLevelOpConfig:
+        $ref: '#/definitions/ScaleVnfToLevelOpConfig'
+      terminateVnfOpConfig:
+        $ref: '#/definitions/TerminateVnfOpConfig'
+    title: VnfLcmOperationsConfiguration
+  VnfPackageArtifactInformation:
+    type: object
+    properties:
+      metadata:
+        type: string
+      selector:
+        type: string
+    title: VnfPackageArtifactInformation
+  VnfPackageSoftwareImageInformation:
+    type: object
+    properties:
+      accessInformation:
+        type: string
+      softwareImageInformation:
+        $ref: '#/definitions/SoftwareImageInformation'
+    title: VnfPackageSoftwareImageInformation
+  VnfProfile:
+    type: object
+    properties:
+      affinityOrAntiAffinityGroupId:
+        type: array
+        items:
+          type: string
+      flavourId:
+        type: string
+      instantiationLevel:
+        type: string
+      localAffinityOrAntiAffinityRule:
+        type: array
+        items:
+          $ref: '#/definitions/AffinityRule'
+      maxNumberOfInstances:
+        type: integer
+        format: int32
+      minNumberOfInstances:
+        type: integer
+        format: int32
+      nsVirtualLinkConnectivity:
+        type: array
+        items:
+          $ref: '#/definitions/NsVirtualLinkConnectivity'
+      script:
+        type: array
+        items:
+          $ref: '#/definitions/VnfLCMScripts'
+      vnfProfileId:
+        type: string
+      vnfdId:
+        type: string
+    title: VnfProfile
+  VnfToLevelMapping:
+    type: object
+    properties:
+      numberOfInstances:
+        type: integer
+        format: int32
+      vnfProfileId:
+        type: string
+    title: VnfToLevelMapping
+  VnfVirtualLinkDesc:
+    type: object
+    properties:
+      connectivityType:
+        $ref: '#/definitions/ConnectivityType'
+      description:
+        type: string
+      monitoringParameter:
+        type: array
+        items:
+          $ref: '#/definitions/MonitoringParameter'
+      testAccess:
+        type: array
+        items:
+          type: string
+      virtualLinkDescFlavour:
+        type: array
+        items:
+          $ref: '#/definitions/VirtualLinkDf'
+      virtualLinkDescId:
+        type: string
+    title: VnfVirtualLinkDesc
+  VnfcConfigurableProperties:
+    type: object
+    title: VnfcConfigurableProperties
+  Vnfd:
+    type: object
+    properties:
+      autoscale:
+        type: array
+        items:
+          $ref: '#/definitions/Rule'
+      configurableProperties:
+        $ref: '#/definitions/VnfConfigurableProperties'
+      defaultLocalizationLanguage:
+        type: string
+      deploymentFlavour:
+        type: array
+        items:
+          $ref: '#/definitions/VnfDf'
+      elementGroup:
+        type: array
+        items:
+          $ref: '#/definitions/VnfdElementGroup'
+      intVirtualLinkDesc:
+        type: array
+        items:
+          $ref: '#/definitions/VnfVirtualLinkDesc'
+      lifeCycleManagementScript:
+        type: array
+        items:
+          $ref: '#/definitions/LifeCycleManagementScript'
+      localizationLanguage:
+        type: array
+        items:
+          type: string
+      modifiableAttributes:
+        $ref: '#/definitions/VnfInfoModifiableAttributes'
+      vdu:
+        type: array
+        items:
+          $ref: '#/definitions/Vdu'
+      virtualComputeDesc:
+        type: array
+        items:
+          $ref: '#/definitions/VirtualComputeDesc'
+      virtualStorageDesc:
+        type: array
+        items:
+          $ref: '#/definitions/VirtualStorageDesc'
+      vnfExtCpd:
+        type: array
+        items:
+          $ref: '#/definitions/VnfExtCpd'
+      vnfIndicator:
+        type: array
+        items:
+          $ref: '#/definitions/VnfIndicator'
+      vnfProductInfoDescription:
+        type: string
+      vnfProductInfoName:
+        type: string
+      vnfProductName:
+        type: string
+      vnfProvider:
+        type: string
+      vnfSoftwareVersion:
+        type: string
+      vnfdId:
+        type: string
+      vnfdVersion:
+        type: string
+      vnfmInfo:
+        type: array
+        items:
+          type: string
+    title: Vnfd
+  VnfdElementGroup:
+    type: object
+    properties:
+      description:
+        type: string
+      vdu:
+        type: array
+        items:
+          type: string
+      virtualLinkDesc:
+        type: array
+        items:
+          type: string
+      vnfdElementGroupId:
+        type: string
+    title: VnfdElementGroup
+  Vnffgd:
+    type: object
+    properties:
+      cpdPoolId:
+        type: array
+        items:
+          type: string
+      nfpd:
+        type: array
+        items:
+          $ref: '#/definitions/Nfpd'
+      pnfdId:
+        type: array
+        items:
+          type: string
+      virtualLinkDescId:
+        type: array
+        items:
+          type: string
+      vnfdId:
+        type: array
+        items:
+          type: string
+      vnffgdId:
+        type: string
+    title: Vnffgd
+  VsAction:
+    type: object
+    properties:
+      actionType:
+        type: string
+        enum:
+          - UPDATE
+          - TERMINATE
+      nsInstantiationInfo:
+        $ref: '#/definitions/NfvNsInstantiationInfo'
+      vsiId:
+        type: string
+    title: VsAction
+  VsBlueprint:
+    type: object
+    properties:
+      applicationMetrics:
+        type: array
+        items:
+          $ref: '#/definitions/ApplicationMetric'
+      atomicComponents:
+        type: array
+        items:
+          $ref: '#/definitions/VsComponent'
+      blueprintId:
+        type: string
+      configurableParameters:
+        type: array
+        items:
+          type: string
+      connectivityServices:
+        type: array
+        items:
+          $ref: '#/definitions/VsbLink'
+      description:
+        type: string
+      embbServiceCategory:
+        type: string
+        enum:
+          - URBAN_MACRO
+          - RURAL_MACRO
+          - INDOOR_HOTSPOT
+          - BROADBAND_ACCESS_IN_A_CROWD
+          - DENSE_URBAN
+          - BROADBAND_LIKE_SERVICES
+          - HIGH_SPEED_TRAIN
+          - HIGH_SPEED_VEHICLE
+          - AIRPLANES_CONNECTIVITY
+      endPoints:
+        type: array
+        items:
+          $ref: '#/definitions/VsbEndpoint'
+      interSite:
+        type: boolean
+      name:
+        type: string
+      parameters:
+        type: array
+        items:
+          $ref: '#/definitions/VsBlueprintParameter'
+      serviceSequence:
+        type: array
+        items:
+          $ref: '#/definitions/VsbForwardingPathHop'
+      sliceServiceType:
+        type: string
+        enum:
+          - NONE
+          - EMBB
+          - URLLC
+          - M_IOT
+          - ENTERPRISE
+          - NFV_IAAS
+      urllcServiceCategory:
+        type: string
+        enum:
+          - DISCRETE_AUTOMATION
+          - PROCESS_AUTOMATION_REMOTE_CONTROL
+          - PROCESS_AUTOMATION_MONITORING
+          - ELECTRICITY_DISTRIBUTION_HIGH_VOLTAGE
+          - ELECTRICITY_DISTRIBUTION_MEDIUM_VOLTAGE
+          - INTELLIGENT_TRANSPORT_SYSTEMS_INFRASTRUCTURE_BACKHAUL
+      version:
+        type: string
+    title: VsBlueprint
+  VsBlueprintInfo:
+    type: object
+    properties:
+      activeVsdId:
+        type: array
+        items:
+          type: string
+      name:
+        type: string
+      onBoardedMecAppPackageInfoId:
+        type: array
+        items:
+          type: string
+      onBoardedNsdInfoId:
+        type: array
+        items:
+          type: string
+      onBoardedVnfPackageInfoId:
+        type: array
+        items:
+          type: string
+      vsBlueprint:
+        $ref: '#/definitions/VsBlueprint'
+      vsBlueprintId:
+        type: string
+      vsBlueprintVersion:
+        type: string
+    title: VsBlueprintInfo
+  VsBlueprintParameter:
+    type: object
+    properties:
+      applicabilityField:
+        type: string
+      parameterDescription:
+        type: string
+      parameterId:
+        type: string
+      parameterName:
+        type: string
+      parameterType:
+        type: string
+    title: VsBlueprintParameter
+  VsComponent:
+    type: object
+    properties:
+      associatedVsbId:
+        type: string
+      compatibleSite:
+        type: string
+      componentId:
+        type: string
+      endPointsIds:
+        type: array
+        items:
+          type: string
+      imagesUrls:
+        type: array
+        items:
+          type: string
+      lifecycleOperations:
+        type: object
+        additionalProperties:
+          type: string
+      placement:
+        type: string
+        enum:
+          - EDGE
+          - CLOUD
+      serversNumber:
+        type: integer
+        format: int32
+      type:
+        type: string
+        enum:
+          - SERVICE
+          - FUNCTION
+          - OTHER
+    title: VsComponent
+  VsDescriptor:
+    type: object
+    properties:
+      associatedVsdId:
+        type: string
+      domainId:
+        type: string
+      managementType:
+        type: string
+        enum:
+          - PROVIDER_MANAGED
+          - TENANT_MANAGED
+      name:
+        type: string
+      nestedVsdIds:
+        type: object
+        additionalProperties:
+          type: string
+      qosParameters:
+        type: object
+        additionalProperties:
+          type: string
+      serviceConstraints:
+        type: array
+        items:
+          $ref: '#/definitions/ServiceConstraints'
+      sla:
+        $ref: '#/definitions/VsdSla'
+      sliceServiceParameters:
+        $ref: '#/definitions/SliceServiceParameters'
+      version:
+        type: string
+      vsBlueprintId:
+        type: string
+      vsDescriptorId:
+        type: string
+    title: VsDescriptor
+  VsbEndpoint:
+    type: object
+    properties:
+      endPointId:
+        type: string
+      external:
+        type: boolean
+      management:
+        type: boolean
+      ranConnection:
+        type: boolean
+    title: VsbEndpoint
+  VsbForwardingPathEndPoint:
+    type: object
+    properties:
+      endPointId:
+        type: string
+      vsComponentId:
+        type: string
+    title: VsbForwardingPathEndPoint
+  VsbForwardingPathHop:
+    type: object
+    properties:
+      hopEndPoints:
+        type: array
+        items:
+          $ref: '#/definitions/VsbForwardingPathEndPoint'
+    title: VsbForwardingPathHop
+  VsbLink:
+    type: object
+    properties:
+      connectivityProperties:
+        type: array
+        items:
+          type: string
+      endPointIds:
+        type: array
+        items:
+          type: string
+      external:
+        type: boolean
+      name:
+        type: string
+    title: VsbLink
+  VsdNsdTranslationRule:
+    type: object
+    properties:
+      blueprintId:
+        type: string
+      input:
+        type: array
+        items:
+          $ref: '#/definitions/VsdParameterValueRange'
+      nsFlavourId:
+        type: string
+      nsInstantiationLevelId:
+        type: string
+      nsdId:
+        type: string
+      nsdVersion:
+        type: string
+      nstId:
+        type: string
+    title: VsdNsdTranslationRule
+  VsdParameterValueRange:
+    type: object
+    properties:
+      maxValue:
+        type: integer
+        format: int32
+      minValue:
+        type: integer
+        format: int32
+      parameterId:
+        type: string
+    title: VsdParameterValueRange
+  VsdSla:
+    type: object
+    properties:
+      availabilityCoverage:
+        type: string
+        enum:
+          - AVAILABILITY_COVERAGE_HIGH
+          - AVAILABILITY_COVERAGE_MEDIUM
+          - UNDEFINED
+      lowCostRequired:
+        type: boolean
+      serviceCreationTime:
+        type: string
+        enum:
+          - SERVICE_CREATION_TIME_LOW
+          - SERVICE_CREATION_TIME_MEDIUM
+          - UNDEFINED
+    title: VsdSla
+
