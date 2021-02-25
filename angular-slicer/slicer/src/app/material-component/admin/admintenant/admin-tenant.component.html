@@ -1,0 +1,97 @@
+<div fxLayout="row wrap"> 
+  <div fxFlex.gt-lg="100" fxFlex.gt-md="100" fxFlex.gt-xs="100" fxFlex="100">
+      <mat-card>
+          <mat-card-content>
+            <div class="d-flex flex-wrap">
+              <div>
+                  <mat-card-title>Tenants</mat-card-title>
+               </div>
+              <div class="ml-auto">
+
+                <div class="dialog" style="text-align: right;margin-top: 0;">
+                  <button mat-raised-button (click)="showDialogAddTenant()" color="primary">Add Tenant</button>
+                </div>                      
+              </div>
+          </div>
+
+    <div style="float: left;width: 30%;" >
+        <h4>Selected Group</h4>
+        <mat-form-field appearance="fill">
+        <mat-select class="example-select" [(value)]="selected"  [(ngModel)]="sGroup" (ngModelChange)="onGroupSelection()">
+        <mat-option *ngFor="let group of selectedGroup" [value]="group.name">
+        {{group.name}}
+        </mat-option>
+        </mat-select>
+        </mat-form-field>
+      </div>
+        <table mat-table matSort aria-label="Elements" style="width: 100%;margin:0;" >
+          <ng-container matColumnDef="Username">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Username</th>
+
+            <td mat-cell *matCellDef="let row">
+           
+            {{row.username}}
+            </td>
+          </ng-container>
+          
+          <ng-container matColumnDef="UsedResources" >
+            
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <div *ngIf="sGroup!='admin'">Sla</div>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <div *ngIf="sGroup!='admin'">
+                 <button color="primary" style="color: blue;" mat-menu-item (click)="viewSla(sGroup,row.username)">view SLA</button>
+                </div>
+            </td>
+         
+          </ng-container>
+        
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <div *ngIf="sGroup!='admin'">Actions</div>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <div *ngIf="sGroup!='admin'">
+              <button mat-raised-button color="primary" [matMenuTriggerFor]="actions">Create SLAs</button>
+              <mat-menu #actions="matMenu" color="primary">
+               <!-- <button mat-menu-item [routerLink]="['/sla', sGroup,row.username]">view SLA</button>-->
+                <button mat-menu-item (click)="showSlaMecDialog(row.username,sGroup)">Create SLA for MEC Resources</button>
+                <button mat-menu-item (click)="showSlaCloudDialog(row.username,sGroup)">Create SLA for Cloud Resources</button>
+                <button mat-menu-item (click)="showSlaGlobalDialog(row.username,sGroup)">Create SLA for Global Resources</button>
+              </mat-menu>
+       
+              <button style="margin-left: 2%;" mat-raised-button color="primary" (click)="deleteTenant(sGroup,row.username)">Delete</button>
+            </div>
+            </td>
+          </ng-container>
+          <!--
+          <ng-container matColumnDef="delete">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header></th>
+            <td mat-cell *matCellDef="let row">
+              <button mat-raised-button color="primary" (click)="deleteTenant(sGroup,row.username)">Delete</button>
+            </td>
+          </ng-container>  
+          -->  
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+ 
+      <!--
+        <div *ngIf="dataSource.length === 0" class="no-records">
+          No records found
+        </div>
+      -->  
+        <mat-paginator #paginator
+            [length]="50"
+            [pageIndex]="0"
+            [pageSize]="50"
+            [pageSizeOptions]="[25, 50, 100, 250]"
+            class="blvs-table" style="width: 100%">
+        </mat-paginator>
+      
+          
+          </mat-card-content>
+      </mat-card>
+  </div>   
+</div>

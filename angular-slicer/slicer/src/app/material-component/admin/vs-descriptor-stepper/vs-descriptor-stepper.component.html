@@ -1,0 +1,63 @@
+<div fxLayout="row wrap" >
+    <div fxFlex.gt-lg="100" fxFlex.gt-md="100" fxFlex.gt-xs="100" fxFlex="100" style="background-color: white;padding: 30px">
+        <div class="d-flex flex-wrap">
+            <div style="margin-bottom:2%;">
+                <mat-card-title>Vertical Service Descriptor</mat-card-title>
+             </div>
+        </div>
+        <div>
+        <form [formGroup]="firstFormGroup" class="rules-form" fxFlex="100%" fxLayout.xs="column" fxLayout="column" fxLayoutAlign="left center">
+
+            <ng-template matStepLabel>Descriptor Metadata</ng-template>
+            <mat-form-field appearance="outline" color=primary class="rules-full-width">
+                <input matInput #descName placeholder="Name" formControlName="descName" required>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" color=primary class="rules-full-width">
+                <input matInput #descVersion placeholder="Version" formControlName="descVersion" required>
+            </mat-form-field> 
+
+            <mat-form-field appearance="outline" color=primary class="rules-full-width">
+                <mat-select formControlName="descSType" name="descSType" placeholder="Slice Service Type">
+                    <mat-option *ngFor="let type of ssTypes" [value]="type">
+                        {{type}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>    
+            
+            <mat-form-field appearance="outline" class="rules-full-width">                
+                <mat-select formControlName="blueprintId" name="blueprintId" placeholder="Blueprint" (selectionChange)="onExpBSelected($event);">
+                    <mat-option *ngFor="let vsb of vsBlueprintInfos" [value]="vsb.vsBlueprintId">
+                        {{vsb.name}}
+                    </mat-option>
+                </mat-select>                
+            </mat-form-field>
+            <mat-form-field appearance="outline" color=primary class="rules-full-width">
+                <mat-select formControlName="managementType" name="managementType" placeholder="managementType">
+                    <mat-option *ngFor="let mt of managementTypes" [value]="mt">
+                        {{mt}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            
+            <mat-expansion-panel style="width:40%;">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>QoS Parameters</mat-panel-title>
+                </mat-expansion-panel-header>
+                <div *ngFor="let param of vsBlueprint['parameters']; let i=index">                        
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{param.parameterId}}</mat-label>
+                        <input matInput [id]="'qos_' + param.parameterId" style="width: 100%;" formControlName="qosParam">
+                    </mat-form-field>                      
+                </div>
+            </mat-expansion-panel>
+            <div fxLayoutAlign="left left" style="margin-top: 2%;">
+                <mat-checkbox id="isPublic" name="isPublic" formControlName="isPublic">Public</mat-checkbox>
+            </div>
+            <div style="margin-top: 2%;">
+                <button mat-raised-button color="primary" class="margin-all" (click)="createOnBoardVsDescriptorRequest();">Submit</button>
+            </div>
+        </form>
+    </div>
+    </div>
+</div>

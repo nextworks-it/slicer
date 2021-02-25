@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Add Tenant</h2>
+<mat-dialog-content class="text">
+  <table>
+    <tr><td>
+      <div style="float: left;width: 340px" >
+        <mat-form-field appearance="fill">
+        <mat-select class="example-select" id="createTenant-group" placeholder="Group"  [(ngModel)]="selectedAdmin" >
+        <mat-option *ngFor="let group of selectedGroup" [value]="group.name">
+        {{group.name}}
+        </mat-option>
+        </mat-select>
+        </mat-form-field>
+      </div>
+    </td></tr>
+    <tr>
+      <td   style="width: 100%;">	
+        <mat-form-field appearance="fill"  >			
+        <input id="createTenant-username" matInput placeholder="username">
+      </mat-form-field>		
+      </td>
+    </tr>
+    <tr>
+      <td>			
+        <mat-form-field appearance="fill">				
+        <input id="createTenant-password" matInput type="password" placeholder="password" >
+      </mat-form-field>	
+      </td>
+    </tr>
+  </table>
+</mat-dialog-content>
+<mat-dialog-actions style="text-align: center;">
+  <button mat-raised-button [mat-dialog-close]="true">Cancel</button>
+
+  <button mat-raised-button (click)="addTenant('createTenant-username','createTenant-password','createTenant-group')" [mat-dialog-close]="true" color="primary">Submit</button>
+
+</mat-dialog-actions>

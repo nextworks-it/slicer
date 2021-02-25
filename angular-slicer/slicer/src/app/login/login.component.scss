@@ -1,0 +1,30 @@
+
+mat-card {
+    max-width: 400px;
+    margin: 2em auto;
+    text-align: center;
+  }
+  
+  mat-form-field {
+    display: block;
+  }
+  .my-form{
+    width: 100%;
+  }
+   
+  .full-width {
+    width: 100%;
+  }
+  @media (max-width: 400px) {
+
+    .login-container{
+        width: 80%;
+    }
+}
+@media (max-width: 800px) {
+
+  .login-container{
+      width: 80%;
+  }
+}
+

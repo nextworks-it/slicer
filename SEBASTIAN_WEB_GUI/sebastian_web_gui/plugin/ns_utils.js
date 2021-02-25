@@ -38,7 +38,7 @@ function readNSInstance(nsiId, params) {
 function getNSInstanceIds(elemId, callback) {
   // TODO url
   getJsonFromURLWithAuth(
-    'http://' + vsAddr + ':' + vsPort + '/vs/admin/nsmf/networksliceids',
+    'http://' + vsAddr + ':' + vsPort + '/vs/basic/nslcm/ns/networksliceids',
     callback,
     elemId
   );
@@ -47,7 +47,7 @@ function getNSInstanceIds(elemId, callback) {
 function getNSInstance(nsiId, params, callback) {
   // TODO url
   getJsonFromURLWithAuth(
-    'http://' + vsAddr + ':' + vsPort + '/vs/admin/nsmf/networkslice/' + nsiId,
+    'http://' + vsAddr + ':' + vsPort + '/vs/basic/nslcm/ns/' + nsiId,
     callback,
     params
   );

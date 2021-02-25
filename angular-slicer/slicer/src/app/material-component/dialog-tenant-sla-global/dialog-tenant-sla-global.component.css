@@ -1,0 +1,10 @@
+
+table {
+    width: 100%;
+  }
+  .dialog{
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    margin-top: 40px;
+    }

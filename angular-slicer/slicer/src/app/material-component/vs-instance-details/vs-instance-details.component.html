@@ -1,0 +1,56 @@
+<div fxLayout="row wrap">
+    <div fxFlex.gt-lg="100" fxFlex.gt-md="100" fxFlex.gt-xs="100" fxFlex="100">
+        <mat-card>
+            <mat-card-content>
+              <div class="d-flex flex-wrap">
+                <div>
+                    <mat-card-title>VS Instance Detail</mat-card-title>
+                 </div>
+            </div>
+  
+                    <div>
+                      <table mat-table  matSort aria-label="Elements" style="width: 100%;margin:0;" >
+                        
+                        <ng-container matColumnDef="vsdId">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Vsd Id</th>
+                          <td mat-cell *matCellDef="let row">
+                           {{row.vsdId}}
+                          </td>
+                        </ng-container>
+                        <ng-container matColumnDef="status">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                          <td mat-cell *matCellDef="let row">
+                           {{row.status}}
+                          </td>
+                        </ng-container>
+                        <ng-container matColumnDef="errorMessage">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Error Message</th>
+                            <td mat-cell *matCellDef="let row">
+                              <div *ngIf="row.errorMessage">
+                             {{row.errorMessage}}
+                            </div>
+                            <div *ngIf="!row.errorMessage">
+                              No Message
+                             </div>
+                            </td>
+                          </ng-container>
+                        
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                      </table>
+                      
+                      <mat-paginator #paginator
+                          [length]="50"
+                          [pageIndex]="0"
+                          [pageSize]="50"
+                          [pageSizeOptions]="[25, 50, 100, 250]"
+                           style="width: 100%;text-align: center;margin-top: 2%;display: none;">
+                      </mat-paginator>
+                    
+                    </div>
+            
+            </mat-card-content>
+        </mat-card>
+    </div>   
+  </div>
+  

@@ -1,6 +1,0 @@
-{
-	"name":"CDN_small",
-	"description":"CDN service for max 1000 users",
-	"vsdId":"9",
-	"tenantId":"ATOS"
-}

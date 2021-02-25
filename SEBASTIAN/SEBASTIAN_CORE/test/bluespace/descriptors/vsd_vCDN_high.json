@@ -1,0 +1,19 @@
+{
+  "vsd": {
+    "name": "VSD_TEST_HIGH",
+    "version": "0.1",
+    "vsBlueprintId": "9",
+    "sst": "EMBB",
+    "managementType": "PROVIDER_MANAGED",
+    "serviceConstraints": [
+      {
+        "priority": "HIGH"
+      }
+    ],
+    "qosParameters": {
+      "users": "50"
+    }
+  },
+  "tenantId": "NXW",
+  "isPublic": true
+}

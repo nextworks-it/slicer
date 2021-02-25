@@ -1,0 +1,18 @@
+h1
+{
+    text-align: center;
+}
+
+
+#users {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+
+  #users th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+ 
+  }

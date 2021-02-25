@@ -1,0 +1,8 @@
+{
+  "name": "CDN_big",
+  "description": "Bluespace CDN service",
+  "vsdId": "${current_VSD}",
+  "tenantId": "${vertical_tenant}",
+  "userData": {
+  }
+}

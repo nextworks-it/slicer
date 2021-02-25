@@ -1,0 +1,17 @@
+mat-grid-tile {
+ // background: linear-gradient(white,#024985)
+ //  background:radial-gradient(white,#024985)
+ background-color:#64b5f6;
+
+  }
+
+@media (max-width: 800px) {
+
+    .title-size {
+        font-size: 10px;
+        
+    }
+    .icon-size{
+        font-size: 20px;
+    }
+  }

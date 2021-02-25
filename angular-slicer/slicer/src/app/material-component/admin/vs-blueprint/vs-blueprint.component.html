@@ -1,0 +1,90 @@
+<div fxLayout="row wrap">
+  <!-- column -->    
+  <div fxFlex.gt-lg="100" fxFlex.gt-md="100" fxFlex.gt-xs="100" fxFlex="100">
+      <mat-card>
+          <mat-card-content>
+            <div class="d-flex flex-wrap">
+              <div>
+                  <mat-card-title>Vertical Service Blueprints</mat-card-title>
+               </div>
+              
+                 <div class="ml-auto">
+  
+                  <div class="dialog" style="text-align: right;margin-top: 0;" *ngIf="groupLogin=='ADMIN'">
+                    <button mat-raised-button  color="primary"  [routerLink]="['/onboarding']" >Add VS Blueprint</button>
+                  </div>                      
+    
+              
+            </div>
+          </div>
+                  <div>
+                    <table mat-table  matSort aria-label="Elements" style="width: 100%;margin:0;" >
+                    
+
+                        <ng-container matColumnDef="name">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+                          <td mat-cell *matCellDef="let row"><b>{{row.name}}</b></td>
+                        </ng-container>
+
+                      <ng-container matColumnDef="version">
+                        <th fxShow.xs="false" mat-header-cell *matHeaderCellDef mat-sort-header>Version</th>
+                        <td fxShow.xs="false" mat-cell *matCellDef="let row"><b>{{row.vsBlueprint.version}}</b></td>
+                      </ng-container>
+                  
+                      <ng-container matColumnDef="description">
+                        <th fxShow.xs="false" mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
+                        <td fxShow.xs="false" mat-cell *matCellDef="let row"><b>{{row.vsBlueprint.description}}</b></td>
+                        <!--
+                        <td mat-cell *matCellDef="let row">
+                        <tr *ngFor="let param of row.vsBlueprint"><td><b>{{param.description}}</b></td></tr>
+                       
+                        </td>
+                         -->
+                      </ng-container>
+                      <ng-container matColumnDef="vsds">
+                        <th fxShow.xs="false" mat-header-cell *matHeaderCellDef mat-sort-header>VSDs</th>
+                        <td fxShow.xs="false" mat-cell *matCellDef="let row">
+                          <div *ngIf="row.activeVsdId.length==0">No Active VSD Id</div>
+                          <div *ngIf="row.activeVsdId.length>0">
+                            <div *ngFor="let avsd of row.activeVsdId">
+                              {{avsd}}
+                            </div>
+                          </div>
+
+                        </td>
+                        <!--
+                        <td mat-cell *matCellDef="let row">
+                        <tr *ngFor="let param of row.vsBlueprint"><td><b>{{param.description}}</b></td></tr>
+                       
+                        </td>
+                         -->
+                      </ng-container>      
+                      <ng-container matColumnDef="details">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header></th>
+                        <td mat-cell *matCellDef="let row">
+                          <button color="primary" style="color: blue;" mat-menu-item  (click)="viewVsBlueprintGraph(row.vsBlueprintId)">View Details</button>
+                        </td>
+                      </ng-container>         
+                      <ng-container matColumnDef="action">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Action</th>
+                        <td mat-cell *matCellDef="let row">
+                          <button (click)="deleteVsBlueprint(row.vsBlueprintId,row.name)" mat-raised-button color="primary">Delete</button>
+                        </td>
+                      </ng-container>
+                  
+                      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    </table>
+                    <mat-paginator #paginator
+                        [length]="dataSource?.data.length"
+                        [pageIndex]="0"
+                        [pageSize]="50"
+                        [pageSizeOptions]="[25, 50, 100, 250]"
+                         style="width: 100%;text-align: center;margin-top: 2%;">
+                    </mat-paginator>
+                  </div>
+          
+          </mat-card-content>
+      </mat-card>
+  </div>   
+</div>

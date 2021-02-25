@@ -1,0 +1,23 @@
+<div fxFlex.gt-lg="100" fxFlex.gt-md="100" fxFlex.gt-xs="100" fxFlex="100" style="height: 100vh;">
+<mat-card style="margin-top:10%;width: 50%;">
+    <mat-card-content>
+      <form class="my-form" [formGroup]="loginFormGroup">
+        <img src="assets/images/logo_nextworks_150.png" width="150" alt="user">
+        <mat-form-field class="full-width-input">
+          <input matInput #username placeholder="username" formControlName="username" required>
+          <mat-error>
+            Please provide a valid email address
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="full-width-input">
+          <input matInput #password placeholder="password" type="password" formControlName="password" required>
+          <mat-error>
+            Please provide a valid password
+          </mat-error>
+        </mat-form-field>
+        <button mat-raised-button color="primary"  (click)="onSubmit();">Login</button>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

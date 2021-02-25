@@ -1,0 +1,309 @@
+
+<mat-horizontal-stepper [linear]="isLinear" #stepper class="full-width-table blvss-container full-width-table-md ">
+	<mat-step id="step-1" [stepControl]="firstFormGroup">
+		<form [formGroup]="firstFormGroup" id="vnfdForm">
+		  <ng-template matStepLabel>Create Domain</ng-template>
+		  <mat-form-field>
+			<input matInput id="domainId" placeholder="Domain Id" formControlName="domainId" >
+		   </mat-form-field>
+		   <mat-form-field>
+			<input matInput id="name" placeholder="Name" formControlName="name" >
+		   </mat-form-field>
+		   <mat-form-field>
+			<input matInput id="description" placeholder="Description" formControlName="description" >
+		   </mat-form-field>
+		   <mat-form-field>
+			<input matInput id="owner" placeholder="Owner" formControlName="owner" >
+		   </mat-form-field>
+		   <mat-form-field>
+			<input matInput id="admin" placeholder="Admin" formControlName="admin" >
+		   </mat-form-field>
+		   
+		   <mat-form-field class="select-size">
+			<mat-select class="example-select" id="domainStatus" placeholder="Domain status" formControlName="domainStatus">
+				<mat-option value="ACTIVE">
+				Active
+				</mat-option>
+				<mat-option value="DEACTIVE">
+				Deactive
+				</mat-option>
+			</mat-select>
+			<!--<input matInput id="domainStatus" placeholder="Domain status" formControlName="domainStatus" required >-->
+		   </mat-form-field>
+		   
+		  <div class="button-row" style="margin-top: 3%;">
+			<button mat-raised-button color="primary" matStepperPrevious>Back</button>
+			<button mat-raised-button color="primary" matStepperNext>Next</button>
+			</div>
+		</form>
+	  </mat-step>
+
+	  <mat-step id="step-2" [stepControl]="secondFormGroup">
+		<form [formGroup]="secondFormGroup">
+		  <ng-template matStepLabel>Create Domain Interface</ng-template>
+		  <mat-form-field>
+			<input matInput id="url" placeholder="url" formControlName="url" >
+		   </mat-form-field>
+		   <mat-form-field>
+			<input matInput id="port" placeholder="port" formControlName="port" >
+		   </mat-form-field>
+		   <mat-form-field class="select-size">
+			<mat-select id="interfaceType" class="example-select" placeholder="Interface Type" formControlName="interfaceType">
+				<mat-option value="HTTP">
+					HTTP 
+				</mat-option>
+				<mat-option value="RABBIT">
+					RABBIT
+				</mat-option>
+			</mat-select>		   
+		</mat-form-field>
+	
+			<br>
+	
+		   <mat-form-field class="select-size">
+			<mat-select class="example-select" id="auth" placeholder="auth" formControlName="auth">
+				<mat-option value="true">
+					True
+				</mat-option>
+				<mat-option value="false">
+					False
+				</mat-option>
+			</mat-select>
+		   </mat-form-field>
+		   <!--
+		   <mat-form-field>
+			<input matInput id="auth" placeholder="auth" formControlName="auth" required >
+		   </mat-form-field>
+		   -->
+
+		  <div class="button-row" style="margin-top: 3%;">
+			<button mat-raised-button color="primary" matStepperPrevious>Back</button>
+			<button mat-raised-button color="primary" matStepperNext>Next</button>
+			</div>
+		</form>
+	  </mat-step>
+    <mat-step [stepControl]="thirdFormGroup">
+        <form [formGroup]="thirdFormGroup" class="rules-form" >
+            <ng-template matStepLabel>Create Owned Layers</ng-template>
+			<mat-form-field appearance="outline" color=primary class="rules-full-width">
+				<mat-select multiple formControlName="type" name="type" placeholder="Owned Layer Types" >
+					<mat-option (onSelectionChange)="getValues($event)" *ngFor="let type of domainTypes" [value]="type">
+						{{type}}
+					</mat-option>
+				</mat-select>
+			</mat-form-field>   
+
+			<div class="button-row" style="margin-top: 3%;">
+				<button mat-raised-button color="primary" matStepperPrevious>Back</button>
+				<button mat-raised-button color="primary" matStepperNext>Next</button>
+				</div>
+        </form>
+    
+	</mat-step>
+	<mat-step [stepControl]="fourthFormGroup">
+        <form [formGroup]="fourthFormGroup" class="rules-form" >
+			<ng-template matStepLabel>Create Types</ng-template> 
+			<table class="rules-full-width" cellspacing="0" fxFlex="100%"  fxLayout.xs="column" fxLayout="column" >
+
+					<div *ngIf="this.typeValues" >
+
+						<div *ngFor="let val of typeValues">
+							<tr fxFlex="100%" fxLayout.xs="column" fxLayout="column"  style="width: 100%;">
+								<td>
+						<mat-card>
+							<mat-card-content>
+								<mat-accordion>
+									<mat-expansion-panel>
+										<mat-expansion-panel-header>
+											<mat-panel-title style="color: blue;">{{val}} </mat-panel-title>
+
+  											<ng-template matExpansionPanelContent>
+
+											<div *ngIf="val=='Sonata'">
+												<table class="rules-full-width" cellspacing="0" fxFlex="100%"  fxLayout.xs="column" fxLayout="column" >
+
+
+												<tr fxFlex="100%" fxLayout.xs="column" fxLayout="row">
+													<td fxFlex="50%" fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+														<mat-form-field appearance="outline" color=primary class="rules-full-width">
+															<input matInput placeholder="Domain Layer Id" id="sonataDomainLayerId" formControlName="sonataDomainLayerId"  >
+														</mat-form-field>
+													</td>
+												
+													<td fxFlex="50%" fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+														<mat-form-field appearance="outline">
+															Domain Layer Type
+															<input matInput placeholder="NETWORK_SLICE_PROVIDER" disabled >
+														</mat-form-field>
+													</td>
+												</tr>
+												<tr fxFlex="100%" fxLayout.xs="column" fxLayout="row">
+								
+													<td fxFlex="50%" fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+														<mat-form-field appearance="outline">
+															 NspNbi Type
+															<input matInput placeholder="SONATA">
+														</mat-form-field>
+													</td>
+													<td fxFlex="50%" fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+														<mat-form-field appearance="outline" color=primary class="rules-full-width">
+															<input matInput placeholder="Username" id="sonataUsername" formControlName="sonataUsername"  >
+														</mat-form-field>
+													</td>
+												</tr>
+												<tr fxFlex="100%"  fxLayout.xs="column" fxLayout="row">
+													<td fxFlex="50%"  fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+														<mat-form-field appearance="outline" color=primary class="rules-full-width">
+															<input matInput placeholder="Password" id="sonataPassword" formControlName="sonataPassword"  >
+														</mat-form-field>
+													</td>
+													<td fxFlex="50%"  fxLayout.xs="column" fxLayout="column">								
+														<mat-form-field>
+															<mat-select class="example-select" id="sonataRanenabled" placeholder="Ranenabled" formControlName="sonataRanenabled">
+																<mat-option value="true">
+																	True
+																</mat-option>
+																<mat-option value="false">
+																	False
+																</mat-option>
+															</mat-select>
+														   </mat-form-field>
+													</td>
+												</tr>
+												</table>
+												</div>
+												<div *ngIf="val=='NH'">
+													<table class="rules-full-width" cellspacing="0" fxFlex="100%"  fxLayout.xs="column" fxLayout="column" >
+														<tr fxFlex="100%" fxLayout.xs="column" fxLayout="row">
+															<td fxFlex="50%" fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+																<mat-form-field appearance="outline" color=primary class="rules-full-width">
+																	<input matInput placeholder="Domain Layer Id" id="nhDomainLayerId" formControlName="nhDomainLayerId"  >
+																</mat-form-field>
+															</td>
+														
+															<td fxFlex="50%" fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+																<mat-form-field appearance="outline">
+																	Domain Layer Type
+																	<input matInput placeholder="NETWORK_SLICE_PROVIDER" disabled >
+																</mat-form-field>
+															</td>
+														</tr>
+													<tr fxFlex="100%"  fxLayout.xs="column" fxLayout="row">
+									
+														<td fxFlex="50%" fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+															<mat-form-field appearance="outline">
+																NspNbi Type
+																<input matInput placeholder="NEUTRAL_HOSTING" disabled>
+															</mat-form-field>
+														</td>
+														<td fxFlex="50%"  fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+															<mat-form-field appearance="outline" color=primary class="rules-full-width">
+																<input matInput placeholder="User Id" id="nhUserId" formControlName="nhUserId" >
+															</mat-form-field>
+														</td>
+													</tr>
+													<tr fxFlex="100%"  fxLayout.xs="column" fxLayout="row">
+														<td fxFlex="50%"  fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+															<mat-form-field appearance="outline" color=primary class="rules-full-width">
+																<input matInput placeholder="Tenant Id" id="nhTenantId" formControlName="nhTenantId" >
+															</mat-form-field>
+														</td>
+														<td fxFlex="50%"  fxLayout.xs="column" fxLayout="column">								
+															<mat-form-field>
+																<mat-select class="example-select" id="nhRanenabled" placeholder="Ranenabled" formControlName="nhRanenabled">
+																	<mat-option value="true">
+																		True
+																	</mat-option>
+																	<mat-option value="false">
+																		False
+																	</mat-option>
+																</mat-select>
+															   </mat-form-field>
+														</td>
+													</tr>
+													</table>
+													</div>
+													<div *ngIf="val=='Osm'">
+
+														<tr fxFlex="100%"  fxLayout.xs="column" fxLayout="row">
+																	
+															<table class="rules-full-width" cellspacing="0" fxFlex="100%"  fxLayout.xs="column" fxLayout="column" >
+																<tr fxFlex="100%" fxLayout.xs="column" fxLayout="row">
+																	<td fxFlex="50%" fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+																		<mat-form-field appearance="outline" color=primary class="rules-full-width">
+																			<input matInput placeholder="Domain Layer Id" id="osmDomainLayerId" formControlName="osmDomainLayerId"  >
+																		</mat-form-field>
+																	</td>
+																
+																	<td fxFlex="50%" fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+																		<mat-form-field appearance="outline">
+																			
+																			<mat-select class="example-select" id="osmDomainLayerType" placeholder="Domain Layer Type" formControlName="osmDomainLayerType">
+																				<mat-option value="NETWORK_SERVICE_PROVIDER">
+																					NETWORK_SERVICE_PROVIDER
+																				</mat-option>
+																				<mat-option value="NETWORK_SLICE_PROVIDER">
+																					NETWORK_SLICE_PROVIDER
+																				</mat-option>
+																			</mat-select>
+																		</mat-form-field>
+																	</td>
+														</tr>
+														<tr fxFlex="100%" fxLayout.xs="column" fxLayout="row">
+															<td fxFlex="50%"  fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+																<mat-form-field appearance="outline">
+																	ManoNbi Type
+																	<input matInput placeholder="OSM_DRIVER" disabled >
+																</mat-form-field>
+															</td>
+															<td fxFlex="50%"  fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+																<mat-form-field appearance="outline" color=primary class="rules-full-width">
+																	<input matInput placeholder="Username" id="osmUsername" formControlName="osmUsername"  >
+																</mat-form-field>
+															</td>
+														</tr>
+														<tr fxFlex="100%" fxLayout.xs="column" fxLayout="row">
+															<td fxFlex="50%"  fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+																<mat-form-field appearance="outline" color=primary class="rules-full-width">
+																	<input matInput placeholder="Password" id="osmPassword" formControlName="osmPassword"  >
+																</mat-form-field>
+															</td>
+															<td fxFlex="50%"  fxLayout.xs="column" fxLayout="column" fxLayoutAlign="center center">
+																<mat-form-field appearance="outline" color=primary class="rules-full-width">
+																	<input matInput placeholder="Project" id="osmProject" formControlName="osmProject"  >
+																</mat-form-field>
+															</td>
+														</tr>
+													</table>
+														</div>
+											</ng-template>
+										</mat-expansion-panel-header>
+	
+									</mat-expansion-panel>
+								</mat-accordion>
+							</mat-card-content>
+						</mat-card>
+					</td>
+				</tr>
+					</div>
+				</div>	
+
+			<tr>
+				<td>
+					<div class="margin-top"  fxFlex="100%"  fxLayout.xs="row" fxLayout="row" style="margin-top: 5%;">
+						<button mat-raised-button matStepperPrevious color="primary" class="margin-all" style="margin-right: 2px;">Back</button>
+						<button mat-raised-button (click)="stepper.reset()" color="warn" class="margin-all" style="margin-right: 2px;">Reset</button>
+						<button mat-raised-button color="accent" class="margin-all" (click)="createDomains();">Submit</button>
+					</div>
+				</td>
+			</tr>
+		</table>
+
+        </form>
+    
+	</mat-step>
+	<div>
+
+		
+	</div>
+</mat-horizontal-stepper>

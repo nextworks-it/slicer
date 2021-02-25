@@ -1,0 +1,27 @@
+.selected{
+    background-color: #cccccc;
+  }
+  mat-nav-list{
+    padding-top:0px;
+  }
+  
+  .example-radio-group {
+    display: flex;
+    flex-direction: column;
+    margin: 15px 0;
+  }
+  
+  .example-radio-button {
+    margin: 5px;
+  }
+  
+  ::ng-deep .mat-step-label mat-icon{
+    display: none;
+  }
+  
+  ::ng-deep .mat-step-label-selected mat-icon{
+    display: inline-block;
+  }
+  // ::ng-deep .mat-vertical-stepper-header{
+  //     pointer-events: none !important;
+  // } 

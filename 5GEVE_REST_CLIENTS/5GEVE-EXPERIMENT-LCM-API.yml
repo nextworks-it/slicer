@@ -1,0 +1,533 @@
+swagger: '2.0'
+info:
+  description: The API of the 5GEVE Experiment Lifecycle Manager
+  version: '1.0'
+  title: 5GEVE Experiment LCM
+  contact:
+    name: Nextworks S.r.l.
+    url: 'http://www.nextworks.it'
+    email: info@nextworks.it
+  license:
+    name: Apache License Version 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0"'
+host: 'localhost:8083'
+basePath: /
+tags:
+  - name: elm-rest-controller
+    description: Elm Rest Controller
+paths:
+  /portal/elm/experiment:
+    get:
+      tags:
+        - elm-rest-controller
+      summary: Retrieve list of experiments
+      operationId: getAllExperimentsUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        
+        - name: expDId
+          in: query
+          description: expDId
+          required: false
+          type: string
+        - name: expId
+          in: query
+          description: expId
+          required: false
+          type: string
+       
+      responses:
+        '200':
+          description: List of experiments.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Experiment'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - elm-rest-controller
+      summary: Request experiment schedule
+      operationId: createExperimentUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/ExperimentSchedulingRequest'
+      responses:
+        '201':
+          description: The ID of the created experiment.
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/portal/elm/experiment/{expId}':
+    delete:
+      tags:
+        - elm-rest-controller
+      summary: Delete experiment
+      operationId: deleteExperimentUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        
+        - name: expId
+          in: path
+          description: expId
+          required: true
+          type: string
+       
+      responses:
+        '204':
+          description: No Content
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  '/portal/elm/experiment/{expId}/action/{action}':
+    post:
+      tags:
+        - elm-rest-controller
+      summary: Request experiment action
+      operationId: requestExperimentActionUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: action
+          in: path
+          description: action
+          required: true
+          type: string
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        
+        - name: expId
+          in: path
+          description: expId
+          required: true
+          type: string
+        
+        - in: body
+          name: request
+          description: request
+          required: false
+          schema:
+            $ref: '#/definitions/ExecuteExperimentRequest'
+      responses:
+        '201':
+          description: Created
+        '202':
+          description: Accepted
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/portal/elm/experiment/{expId}/status':
+    put:
+      tags:
+        - elm-rest-controller
+      summary: Update experiment status
+      operationId: updateExperimentStatusUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+      
+        - name: expId
+          in: path
+          description: expId
+          required: true
+          type: string
+        
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateExperimentStatusRequest'
+      responses:
+        '201':
+          description: Created
+        '202':
+          description: Accepted
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/portal/elm/experiment/{expId}/timeslot':
+    put:
+      tags:
+        - elm-rest-controller
+      summary: Update experiment timeslot
+      operationId: updateExperimentTimeslotUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+       
+        - name: expId
+          in: path
+          description: expId
+          required: true
+          type: string
+      
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/ModifyExperimentTimeslotRequest'
+      responses:
+        '201':
+          description: Created
+        '202':
+          description: Accepted
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+definitions:
+  ExecuteExperimentRequest:
+    type: object
+    properties:
+      executionName:
+        type: string
+      experimentId:
+        type: string
+      testCaseDescriptorConfiguration:
+        type: object
+        additionalProperties:
+          type: object
+          additionalProperties:
+            type: string
+    title: ExecuteExperimentRequest
+  ExecutionResult:
+    type: object
+    properties:
+      result:
+        type: string
+      resultCode:
+        type: string
+        enum:
+          - SUCCESSFUL
+          - FAILED
+      testCaseName:
+        type: string
+    title: ExecutionResult
+  Experiment:
+    type: object
+    properties:
+      currentExecutionId:
+        type: string
+      errorMessage:
+        type: string
+      executions:
+        type: array
+        items:
+          $ref: '#/definitions/ExperimentExecution'
+      experimentDescriptorId:
+        type: string
+      experimentId:
+        type: string
+      monitoringKpis:
+        type: array
+        items:
+          $ref: '#/definitions/MonitoringDataItem'
+      monitoringMetrics:
+        type: array
+        items:
+          $ref: '#/definitions/MonitoringDataItem'
+      name:
+        type: string
+      nfvNsInstanceId:
+        type: string
+      openTicketIds:
+        type: array
+        items:
+          type: string
+      sapInfo:
+        type: array
+        items:
+          $ref: '#/definitions/ExperimentSapInfo'
+      status:
+        type: string
+        enum:
+          - SCHEDULING
+          - ACCEPTED
+          - READY
+          - INSTANTIATING
+          - INSTANTIATED
+          - RUNNING_EXECUTION
+          - TERMINATING
+          - TERMINATED
+          - FAILED
+          - REFUSED
+          - ABORTED
+      targetSites:
+        type: array
+        items:
+          type: string
+          enum:
+            - ITALY_TURIN
+            - SPAIN_5TONIC
+            - FRANCE_PARIS
+            - FRANCE_NICE
+            - FRANCE_RENNES
+            - GREECE_ATHENS
+      timeslot:
+        $ref: '#/definitions/ExperimentExecutionTimeslot'
+      useCase:
+        type: string
+    title: Experiment
+  ExperimentExecution:
+    type: object
+    properties:
+      executionId:
+        type: string
+      executionName:
+        type: string
+      reportUrl:
+        type: string
+      state:
+        type: string
+        enum:
+          - INIT
+          - CONFIGURING
+          - RUNNING
+          - RUNNING_STEP
+          - PAUSED
+          - VALIDATING
+          - COMPLETED
+          - ABORTING
+          - ABORTED
+          - FAILED
+      testCaseDescriptorConfiguration:
+        type: array
+        items:
+          $ref: '#/definitions/TestCaseExecutionConfiguration'
+      testCaseResult:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/ExecutionResult'
+    title: ExperimentExecution
+  ExperimentExecutionTimeslot:
+    type: object
+    properties:
+      startTime:
+        type: string
+        format: date-time
+      stopTime:
+        type: string
+        format: date-time
+    title: ExperimentExecutionTimeslot
+  ExperimentSapInfo:
+    type: object
+    properties:
+      address:
+        type: string
+      description:
+        type: string
+      sapName:
+        type: string
+      sapdId:
+        type: string
+    title: ExperimentSapInfo
+  ExperimentSchedulingRequest:
+    type: object
+    properties:
+      experimentName:
+        type: string
+      experimentDescriptorId:
+        type: string
+      proposedTimeSlot:
+        $ref: '#/definitions/ExperimentExecutionTimeslot'
+      targetSites:
+        type: array
+        items:
+          type: string
+          enum:
+            - ITALY_TURIN
+            - SPAIN_5TONIC
+            - FRANCE_PARIS
+            - FRANCE_NICE
+            - FRANCE_RENNES
+            - GREECE_ATHENS
+      useCase:
+        type: string
+    title: ExperimentSchedulingRequest
+  'Map«string,string»':
+    type: object
+    title: 'Map«string,string»'
+    additionalProperties:
+      type: string
+  ModifyExperimentTimeslotRequest:
+    type: object
+    properties:
+      experimentId:
+        type: string
+      timeslot:
+        $ref: '#/definitions/ExperimentExecutionTimeslot'
+    title: ModifyExperimentTimeslotRequest
+  MonitoringDataItem:
+    type: object
+    properties:
+      dataItemString:
+        type: string
+      expId:
+        type: string
+      mdName:
+        type: string
+      mdt:
+        type: string
+        enum:
+          - APPLICATION_METRIC
+          - INFRASTRUCTURE_METRIC
+          - KPI
+          - RESULT
+      metricCollectionType:
+        type: string
+        enum:
+          - CUMULATIVE
+          - DELTA
+          - GAUGE
+      metricGraphType:
+        type: string
+        enum:
+          - LINE
+          - PIE
+          - COUNTER
+          - GAUGE
+      metricInterval:
+        type: string
+      metricName:
+        type: string
+      metricUnit:
+        type: string
+      site:
+        type: string
+        enum:
+          - ITALY_TURIN
+          - SPAIN_5TONIC
+          - FRANCE_PARIS
+          - FRANCE_NICE
+          - FRANCE_RENNES
+          - GREECE_ATHENS
+    title: MonitoringDataItem
+  TestCaseExecutionConfiguration:
+    type: object
+    properties:
+      execConfiguration:
+        type: object
+        additionalProperties:
+          type: string
+      tcDescriptorId:
+        type: string
+    title: TestCaseExecutionConfiguration
+  UpdateExperimentStatusRequest:
+    type: object
+    properties:
+      experimentId:
+        type: string
+      status:
+        type: string
+        enum:
+          - SCHEDULING
+          - ACCEPTED
+          - READY
+          - INSTANTIATING
+          - INSTANTIATED
+          - RUNNING_EXECUTION
+          - TERMINATING
+          - TERMINATED
+          - FAILED
+          - REFUSED
+          - ABORTED
+    title: UpdateExperimentStatusRequest
+

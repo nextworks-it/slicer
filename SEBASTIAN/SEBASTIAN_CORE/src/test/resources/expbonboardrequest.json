@@ -1,0 +1,931 @@
+{
+  "expBlueprint": {
+    "expBlueprintId": "vCDNStressTest_1",
+    "version": "0.1",
+    "name": "vCDNStressTest",
+    "description": "Experiment to test a vCDN under heavy traffic",
+    "vsBlueprintId": "1",
+    "ctxBlueprintIds": [
+    ],
+    "sites": [
+      {
+        "name": "test_site_1"
+      },
+      {
+        "name": "test_site_2"
+      }
+    ]
+  },
+  "onBoardVsBlueprintRequest": {
+    "vsBlueprint": {
+      "version": "0.1",
+      "name": "vCDN",
+      "description": "Entertainment vCDN service",
+      "parameters": [
+        {
+          "parameterId": "users",
+          "parameterName": "users",
+          "parameterType": "number",
+          "parameterDescription": "number of users",
+          "applicabilityField": "entertainment"
+        }
+      ],
+      "atomicComponents": [
+        {
+          "componentId": "vCacheMid_01",
+          "serversNumber": 1,
+          "imagesUrls": [],
+          "endPointsIds": [
+            "vCacheMid_mgmt_ext",
+            "vCacheMid_cache_ext",
+            "vCacheMid_origin_ext"
+          ],
+          "lifecycleOperations": {
+            "update": "scripts/update",
+            "heal": "scripts/heal",
+            "instantiate": "scripts/instantiate",
+            "terminate": "scripts/terminate"
+          }
+        },
+        {
+          "componentId": "pDNS_v01",
+          "serversNumber": 1,
+          "imagesUrls": [],
+          "endPointsIds": [
+            "dns_users"
+          ],
+          "lifecycleOperations": {
+            "update": "scripts/update",
+            "heal": "scripts/heal"
+          }
+        },
+        {
+          "componentId": "pCU_v01",
+          "serversNumber": 1,
+          "imagesUrls": [],
+          "endPointsIds": [
+            "cu_users"
+          ],
+          "lifecycleOperations": {
+            "update": "scripts/update",
+            "heal": "scripts/heal"
+          }
+        },
+        {
+          "componentId": "vCacheEdge_1_01",
+          "serversNumber": 2,
+          "imagesUrls": [],
+          "endPointsIds": [
+            "vCacheEdge_1_mgmt_ext",
+            "vCacheEdge_1_cache_ext",
+            "vCacheEdge_1_users_ext"
+          ],
+          "lifecycleOperations": {
+            "update": "scripts/update",
+            "heal": "scripts/heal",
+            "instantiate": "scripts/instantiate",
+            "terminate": "scripts/terminate"
+          }
+        },
+        {
+          "componentId": "pOrigin_v01",
+          "serversNumber": 1,
+          "imagesUrls": [],
+          "endPointsIds": [
+            "origin_caches"
+          ],
+          "lifecycleOperations": {
+            "update": "scripts/update",
+            "heal": "scripts/heal"
+          }
+        }
+      ],
+      "serviceSequence": [
+        {
+          "vsComponentId": "vCacheEdge_1_01",
+          "endPointId": "vCacheEdge_1_users_ext"
+        },
+        {
+          "vsComponentId": "vCacheEdge_1_01",
+          "endPointId": "vCacheEdge_1_cache_ext"
+        },
+        {
+          "vsComponentId": "vCacheMid_01",
+          "endPointId": "vCacheMid_cache_ext"
+        },
+        {
+          "vsComponentId": "vCacheMid_01",
+          "endPointId": "vCacheMid_origin_ext"
+        },
+        {
+          "vsComponentId": "pOrigin_v01",
+          "endPointId": "origin_caches"
+        }
+      ],
+      "endPoints": [
+        {
+          "endPointId": "vCacheEdge_1_users_ext",
+          "external": true,
+          "management": false,
+          "ranConnection": true
+        },
+        {
+          "endPointId": "vCacheEdge_1_cache_ext",
+          "external": false,
+          "management": false,
+          "ranConnection": false
+        },
+        {
+          "endPointId": "vCacheEdge_1_mgmt_ext",
+          "external": true,
+          "management": true,
+          "ranConnection": false
+        },
+        {
+          "endPointId": "vCacheMid_mgmt_ext",
+          "external": true,
+          "management": true,
+          "ranConnection": false
+        },
+        {
+          "endPointId": "vCacheMid_origin_ext",
+          "external": true,
+          "management": false,
+          "ranConnection": false
+        },
+        {
+          "endPointId": "vCacheMid_cache_ext",
+          "external": false,
+          "management": false,
+          "ranConnection": false
+        },
+        {
+          "endPointId": "origin_caches",
+          "external": true,
+          "management": true,
+          "ranConnection": false
+        },
+        {
+          "endPointId": "dns_users",
+          "external": true,
+          "management": true,
+          "ranConnection": true
+        },
+        {
+          "endPointId": "cu_users",
+          "external": true,
+          "management": true,
+          "ranConnection": true
+        }
+      ],
+      "connectivityServices": [
+        {
+          "endPointIds": [
+            "vCacheEdge_1_users_ext"
+          ],
+          "external": true
+        },
+        {
+          "endPointIds": [
+            "vCacheEdge_1_mgmt_ext",
+            "dns_users",
+            "vCacheMid_mgmt_ext",
+            "origin_caches"
+          ],
+          "external": true
+        },
+        {
+          "endPointIds": [
+            "vCacheEdge_1_caches_ext",
+            "vCacheMid_caches_ext"
+          ],
+          "external": false
+        },
+        {
+          "endPointIds": [
+            "vCacheMid_origin_ext"
+          ],
+          "external": true
+        }
+      ],
+      "configurableParameters": [
+        "uservnf.origin_fqdn",
+        "uservnf.origin_port",
+        "uservnf.rm_dns_hosts",
+        "uservnf.add_dns_hosts"
+      ]
+    },
+    "nsds": [
+      {
+        "nsdIdentifier": "vCDN_full_v01",
+        "designer": "NXW",
+        "version": "0.1",
+        "nsdName": "vCDN_TIMEO_BLUESPACE",
+        "nsdInvariantId": "vCDN_TIMEO_BLUESPACE_01",
+        "vnfdId": [
+          "vCacheMid_01",
+          "vCacheEdge_1_01",
+          "vCacheEdge_2_01",
+          "vEPC_01"
+        ],
+        "pnfdId": [
+          "pDNS_v01",
+          "pOrigin_v01",
+          "pCU_v01"
+        ],
+        "sapd": [
+          {
+            "cpdId": "sap_mgmt",
+            "description": "Management SAP for all the vCDN VNFs",
+            "layerProtocol": "IPV4",
+            "cpRole": "ROOT",
+            "addressData": [
+              {
+                "addressType": "IP_ADDRESS",
+                "iPAddressAssignment": false,
+                "floatingIpActivated": true,
+                "iPAddressType": "IPv4",
+                "numberOfIpAddress": 1
+              }
+            ],
+            "sapAddressAssignment": false,
+            "nsVirtualLinkDescId": "vl_mgmt"
+          },
+          {
+            "cpdId": "sap_users",
+            "description": "SAP interconnecting to the CDN clients",
+            "layerProtocol": "IPV4",
+            "cpRole": "ROOT",
+            "addressData": [
+              {
+                "addressType": "IP_ADDRESS",
+                "iPAddressAssignment": false,
+                "floatingIpActivated": true,
+                "iPAddressType": "IPv4",
+                "numberOfIpAddress": 1
+              }
+            ],
+            "sapAddressAssignment": false,
+            "nsVirtualLinkDescId": "vl_users"
+          },
+          {
+            "cpdId": "sap_origin",
+            "description": "SAP interconnecting to the CDN clients",
+            "layerProtocol": "IPV4",
+            "cpRole": "ROOT",
+            "addressData": [
+              {
+                "addressType": "IP_ADDRESS",
+                "iPAddressAssignment": false,
+                "floatingIpActivated": true,
+                "iPAddressType": "IPv4",
+                "numberOfIpAddress": 1
+              }
+            ],
+            "sapAddressAssignment": false,
+            "nsVirtualLinkDescId": "vl_origin"
+          }
+        ],
+        "virtualLinkDesc": [
+          {
+            "virtualLinkDescId": "vl_mgmt",
+            "virtualLinkDescProvider": "NXW",
+            "virtuaLinkDescVersion": "0.1",
+            "connectivityType": {
+              "layerProtocol": "IPV4"
+            },
+            "virtualLinkDf": [
+              {
+                "flavourId": "vl_df_mgmt",
+                "qos": {
+                  "latency": 0,
+                  "packetDelayVariation": 0,
+                  "packetLossRatio": 0,
+                  "priority": 0
+                },
+                "serviceAvaibilityLevel": "LEVEL_1"
+              }
+            ],
+            "description": "Management network"
+          },
+          {
+            "virtualLinkDescId": "vl_users",
+            "virtualLinkDescProvider": "NXW",
+            "virtuaLinkDescVersion": "0.1",
+            "connectivityType": {
+              "layerProtocol": "IPV4"
+            },
+            "virtualLinkDf": [
+              {
+                "flavourId": "vl_df_users",
+                "qos": {
+                  "latency": 0,
+                  "packetDelayVariation": 0,
+                  "packetLossRatio": 0,
+                  "priority": 0
+                },
+                "serviceAvaibilityLevel": "LEVEL_1"
+              }
+            ],
+            "description": "Network to connect to the users"
+          },
+          {
+            "virtualLinkDescId": "vl_cache",
+            "virtualLinkDescProvider": "NXW",
+            "virtuaLinkDescVersion": "0.1",
+            "connectivityType": {
+              "layerProtocol": "IPV4"
+            },
+            "virtualLinkDf": [
+              {
+                "flavourId": "vl_df_cache",
+                "qos": {
+                  "latency": 0,
+                  "packetDelayVariation": 0,
+                  "packetLossRatio": 0,
+                  "priority": 0
+                },
+                "serviceAvaibilityLevel": "LEVEL_1"
+              }
+            ],
+            "description": "Network for retrieving videos from CacheMid server"
+          },
+          {
+            "virtualLinkDescId": "vl_origin",
+            "virtualLinkDescProvider": "NXW",
+            "virtuaLinkDescVersion": "0.1",
+            "connectivityType": {
+              "layerProtocol": "IPV4"
+            },
+            "virtualLinkDf": [
+              {
+                "flavourId": "vl_df_origin",
+                "qos": {
+                  "latency": 0,
+                  "packetDelayVariation": 0,
+                  "packetLossRatio": 0,
+                  "priority": 0
+                },
+                "serviceAvaibilityLevel": "LEVEL_1"
+              }
+            ],
+            "description": "Network for retrieving videos from Origin server"
+          }
+        ],
+        "nsDf": [
+          {
+            "nsDfId": "df_vCDN",
+            "flavourKey": "df_vCDN",
+            "vnfProfile": [
+              {
+                "vnfProfileId": "vCacheMid_profile",
+                "vnfdId": "vCacheMid_01",
+                "flavourId": "df_vCacheMid",
+                "instantiationLevel": "il_vCacheMid",
+                "minNumberOfInstances": 1,
+                "maxNumberOfInstances": 1,
+                "nsVirtualLinkConnectivity": [
+                  {
+                    "virtualLinkProfileId": "vl_profile_mgmt",
+                    "cpdId": [
+                      "vCacheMid_mgmt_ext"
+                    ]
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_cache",
+                    "cpdId": [
+                      "vCacheMid_cache_ext"
+                    ]
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_origin",
+                    "cpdId": [
+                      "vCacheMid_origin_ext"
+                    ]
+                  }
+                ]
+              },
+              {
+                "vnfProfileId": "vCacheEdge_1_profile",
+                "vnfdId": "vCacheEdge_1_01",
+                "flavourId": "df_vCacheEdge_1",
+                "instantiationLevel": "il_vCacheEdge_1",
+                "minNumberOfInstances": 1,
+                "maxNumberOfInstances": 1,
+                "nsVirtualLinkConnectivity": [
+                  {
+                    "virtualLinkProfileId": "vl_profile_mgmt",
+                    "cpdId": [
+                      "vCacheEdge_1_mgmt_ext"
+                    ]
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_cache",
+                    "cpdId": [
+                      "vCacheEdge_1_cache_ext"
+                    ]
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_users",
+                    "cpdId": [
+                      "vCacheEdge_1_users_ext"
+                    ]
+                  }
+                ]
+              },
+              {
+                "vnfProfileId": "vCacheEdge_2_profile",
+                "vnfdId": "vCacheEdge_2_01",
+                "flavourId": "df_vCacheEdge_2",
+                "instantiationLevel": "il_vCacheEdge_2",
+                "minNumberOfInstances": 1,
+                "maxNumberOfInstances": 1,
+                "nsVirtualLinkConnectivity": [
+                  {
+                    "virtualLinkProfileId": "vl_profile_mgmt",
+                    "cpdId": [
+                      "vCacheEdge_2_mgmt_ext"
+                    ]
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_cache",
+                    "cpdId": [
+                      "vCacheEdge_2_cache_ext"
+                    ]
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_users",
+                    "cpdId": [
+                      "vCacheEdge_2_users_ext"
+                    ]
+                  }
+                ]
+              },
+              {
+                "vnfProfileId": "vEPC_profile",
+                "vnfdId": "vEPC_01",
+                "flavourId": "df_vEPC",
+                "instantiationLevel": "il_vEPC",
+                "minNumberOfInstances": 1,
+                "maxNumberOfInstances": 1,
+                "nsVirtualLinkConnectivity": [
+                  {
+                    "virtualLinkProfileId": "vl_profile_mgmt",
+                    "cpdId": [
+                      "vEPC_mgmt_ext"
+                    ]
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_users",
+                    "cpdId": [
+                      "vEPC_users_ext"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "pnfProfile": [
+              {
+                "pnfProfileId": "pDNS_profile",
+                "pnfdId": "pDNS_v01",
+                "pnfVirtualLinkConnectivity": [
+                  {
+                    "virtualLinkProfileId": "vl_profile_mgmt",
+                    "cpdId": [
+                      "dns_users"
+                    ]
+                  }
+                ]
+              },
+              {
+                "pnfProfileId": "pOrigin_profile",
+                "pnfdId": "pOrigin_v01",
+                "pnfVirtualLinkConnectivity": [
+                  {
+                    "virtualLinkProfileId": "vl_profile_mgmt",
+                    "cpdId": [
+                      "origin_caches"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "virtualLinkProfile": [
+              {
+                "virtualLinkProfileId": "vl_profile_mgmt",
+                "virtualLinkDescId": "vl_mgmt",
+                "flavourId": "vl_df_mgmt",
+                "maxBitrateRequirements": {
+                  "root": "1",
+                  "leaf": "1"
+                },
+                "minBitrateRequirements": {
+                  "root": "1",
+                  "leaf": "1"
+                }
+              },
+              {
+                "virtualLinkProfileId": "vl_profile_users",
+                "virtualLinkDescId": "vl_users",
+                "flavourId": "vl_df_users",
+                "maxBitrateRequirements": {
+                  "root": "1",
+                  "leaf": "1"
+                },
+                "minBitrateRequirements": {
+                  "root": "1",
+                  "leaf": "1"
+                }
+              },
+              {
+                "virtualLinkProfileId": "vl_profile_cache",
+                "virtualLinkDescId": "vl_cache",
+                "flavourId": "vl_df_cache",
+                "maxBitrateRequirements": {
+                  "root": "1",
+                  "leaf": "1"
+                },
+                "minBitrateRequirements": {
+                  "root": "1",
+                  "leaf": "1"
+                }
+              },
+              {
+                "virtualLinkProfileId": "vl_profile_origin",
+                "virtualLinkDescId": "vl_origin",
+                "flavourId": "vl_df_origin",
+                "maxBitrateRequirements": {
+                  "root": "1",
+                  "leaf": "1"
+                },
+                "minBitrateRequirements": {
+                  "root": "1",
+                  "leaf": "1"
+                }
+              }
+            ],
+            "nsInstantiationLevel": [
+              {
+                "nsLevelId": "il_vCDN_big",
+                "description": "Big instantiation level for the vCDN",
+                "vnfToLevelMapping": [
+                  {
+                    "vnfProfileId": "vCacheMid_profile",
+                    "numberOfInstances": 1
+                  },
+                  {
+                    "vnfProfileId": "vCacheEdge_1_profile",
+                    "numberOfInstances": 1
+                  },
+                  {
+                    "vnfProfileId": "vCacheEdge_2_profile",
+                    "numberOfInstances": 1
+                  },
+                  {
+                    "vnfProfileId": "vEPC_profile",
+                    "numberOfInstances": 1
+                  }
+                ],
+                "virtualLinkToLevelMapping": [
+                  {
+                    "virtualLinkProfileId": "vl_profile_mgmt",
+                    "bitRateRequirements": {
+                      "root": "1",
+                      "leaf": "1"
+                    }
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_users",
+                    "bitRateRequirements": {
+                      "root": "1",
+                      "leaf": "1"
+                    }
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_cache",
+                    "bitRateRequirements": {
+                      "root": "1",
+                      "leaf": "1"
+                    }
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_origin",
+                    "bitRateRequirements": {
+                      "root": "1",
+                      "leaf": "1"
+                    }
+                  }
+                ]
+              },
+              {
+                "nsLevelId": "il_vCDN_small",
+                "description": "Small instantiation level for the vCDN",
+                "vnfToLevelMapping": [
+                  {
+                    "vnfProfileId": "vCacheMid_profile",
+                    "numberOfInstances": 1
+                  },
+                  {
+                    "vnfProfileId": "vCacheEdge_1_profile",
+                    "numberOfInstances": 1
+                  },
+                  {
+                    "vnfProfileId": "vEPC_profile",
+                    "numberOfInstances": 1
+                  }
+                ],
+                "virtualLinkToLevelMapping": [
+                  {
+                    "virtualLinkProfileId": "vl_profile_mgmt",
+                    "bitRateRequirements": {
+                      "root": "1",
+                      "leaf": "1"
+                    }
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_users",
+                    "bitRateRequirements": {
+                      "root": "1",
+                      "leaf": "1"
+                    }
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_cache",
+                    "bitRateRequirements": {
+                      "root": "1",
+                      "leaf": "1"
+                    }
+                  },
+                  {
+                    "virtualLinkProfileId": "vl_profile_origin",
+                    "bitRateRequirements": {
+                      "root": "1",
+                      "leaf": "1"
+                    }
+                  }
+                ]
+              }
+            ],
+            "defaultNsInstantiationLevelId": "il_vCDN_big",
+            "nsProfile": [
+              {
+                "nsProfileId": "ns_profile_vCDN_big",
+                "nsdId": "vCDN_v01",
+                "nsDfId": "df_vCDN",
+                "nsInstantiationLevelId": "il_vCDN_big",
+                "minNumberOfInstances": 1,
+                "maxNumberOfInstances": 1
+              },
+              {
+                "nsProfileId": "ns_profile_vCDN_small",
+                "nsdId": "vCDN_v01",
+                "nsDfId": "df_vCDN",
+                "nsInstantiationLevelId": "il_vCDN_small",
+                "minNumberOfInstances": 1,
+                "maxNumberOfInstances": 1
+              }
+            ],
+            "dependencies": [
+              {
+                "primaryId": [
+                  "vEPC_profile"
+                ],
+                "secondaryId": [
+                  "vCacheMid_profile",
+                  "vCacheEdge_1_profile",
+                  "vCacheEdge_2_profile"
+                ]
+              },
+              {
+                "primaryId": [
+                  "vCacheMid_profile"
+                ],
+                "secondaryId": [
+                  "vCacheEdge_1_profile",
+                  "vCacheEdge_2_profile"
+                ]
+              },
+              {
+                "primaryId": [
+                  "vCacheEdge_1_profile"
+                ],
+                "secondaryId": [
+                  "vCacheEdge_2_profile"
+                ]
+              }
+            ]
+          }
+        ],
+        "security": {
+          "signature": "vCDN_NSD_SIGNATURE",
+          "algorithm": "vCDN_NSD_ALGORITHM",
+          "certificate": "vCDN_NSD_CERTIFICATE"
+        },
+        "monitoredInfo": [
+          {
+            "monitoringParameter": {
+              "monitoringParameterId": "mp_CurrentClientConnections.vCacheEdge_1_01",
+              "name": "CurrentClientConnections.vCacheEdge_1",
+              "performanceMetric": "CurrentClientConnections.vCacheEdge_1_01"
+            }
+          },
+          {
+            "monitoringParameter": {
+              "monitoringParameterId": "mp_CompletedRequests.vCacheEdge_1_01",
+              "name": "CurrentClientConnections.vCacheEdge_1",
+              "performanceMetric": "CompletedRequests.vCacheEdge_1_01"
+            }
+          },
+          {
+            "monitoringParameter": {
+              "monitoringParameterId": "mp_TotalHits.vCacheEdge_1_01",
+              "name": "TotalHits.vCacheEdge_1",
+              "performanceMetric": "TotalHits.vCacheEdge_1_01"
+            }
+          },
+          {
+            "monitoringParameter": {
+              "monitoringParameterId": "mp_CurrentClientConnections.vCacheEdge_2_01",
+              "name": "CurrentClientConnections.vCacheEdge_2",
+              "performanceMetric": "CurrentClientConnections.vCacheEdge_2_01"
+            }
+          },
+          {
+            "monitoringParameter": {
+              "monitoringParameterId": "mp_CompletedRequests.vCacheEdge_2_01",
+              "name": "CurrentClientConnections.vCacheEdge_1",
+              "performanceMetric": "CompletedRequests.vCacheEdge_2_01"
+            }
+          },
+          {
+            "monitoringParameter": {
+              "monitoringParameterId": "mp_TotalHits.vCacheEdge_2_01",
+              "name": "TotalHits.vCacheEdge_2",
+              "performanceMetric": "TotalHits.vCacheEdge_2_01"
+            }
+          }
+        ],
+        "autoScalingRule": [
+          {
+            "ruleId": "ar1",
+            "ruleCondition": {
+              "name": "cache1-overload",
+              "scalingType": "AUTOMATED_SCALING",
+              "enabled": true,
+              "thresholdTime": 20,
+              "cooldownTime": 60,
+              "initialInstantiationLevel": "il_vCDN_small",
+              "scalingCriteria": [
+                {
+                  "name": "cache-overload",
+                  "scaleOutThreshold": "3",
+                  "scaleOutRelationalOperation": "GT",
+                  "nsMonitoringParamRef": "mp_CurrentClientConnections.vCacheEdge_1_01"
+                }
+              ]
+            },
+            "ruleActions": [
+              {
+                "scaleType": "SCALE_NS",
+                "scaleNsToLevelData": {
+                  "nsInstantiationLevel": "il_vCDN_big"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "vnfPackages": [
+      {
+        "name": "CDN vCacheEdge_1",
+        "version": "0.1",
+        "provider": "NXW",
+        "checksum": "nn",
+        "vnfPackagePath": "http://localhost/vnfd/vnfd_vCacheEdge_1_v01.tar"
+      },
+      {
+        "name": "CDN vCacheEdge_2",
+        "version": "0.1",
+        "provider": "NXW",
+        "checksum": "nn",
+        "vnfPackagePath": "http://localhost/vnfd/vnfd_vCacheEdge_2_v01.tar"
+      },
+      {
+        "name": "CDN vCacheMid",
+        "version": "0.1",
+        "provider": "NXW",
+        "checksum": "nn",
+        "vnfPackagePath": "http://localhost/vnfd/vnfd_vCacheMid_v01.tar"
+      }
+    ],
+    "mecAppPackages": [],
+    "translationRules": [
+      {
+        "nsdId": "vCDN_pnf_v01",
+        "nsdVersion": "0.1",
+        "nsFlavourId": "df_vCDN",
+        "nsInstantiationLevelId": "il_vCDN_small",
+        "input": [
+          {
+            "parameterId": "users",
+            "minValue": "1",
+            "maxValue": "100"
+          }
+        ]
+      },
+      {
+        "nsdId": "vCDN_pnf_v01",
+        "nsdVersion": "0.1",
+        "nsFlavourId": "df_vCDN",
+        "nsInstantiationLevelId": "il_vCDN_big",
+        "input": [
+          {
+            "parameterId": "users",
+            "minValue": "101",
+            "maxValue": "100000"
+          }
+        ]
+      }
+    ]
+  },
+  "onboardCtxBlueprintRequests": [
+    {
+      "ctxBlueprint": {
+        "version": "0.1",
+        "name": "trafficGenerator",
+        "description": "TCP traffic generator",
+        "parameters": [
+          {
+            "parameterId": "bitrate",
+            "parameterName": "bitrate",
+            "parameterType": "number",
+            "parameterDescription": "Traffic bitrate",
+            "applicabilityField": "test"
+          }
+        ],
+        "atomicComponents": [
+          {
+            "componentId": "traffic_source",
+            "serversNumber": 1,
+            "imagesUrls": [],
+            "endPointsIds": [
+              "traffic_source_ext"
+            ],
+            "lifecycleOperations": {
+              "update": "scripts/update",
+              "heal": "scripts/heal",
+              "instantiate": "scripts/instantiate",
+              "terminate": "scripts/terminate"
+            }
+          },
+          {
+            "componentId": "traffic_sink",
+            "serversNumber": 1,
+            "imagesUrls": [],
+            "endPointsIds": [
+              "traffic_sink_ext"
+            ],
+            "lifecycleOperations": {
+              "update": "scripts/update",
+              "heal": "scripts/heal"
+            }
+          }
+        ],
+        "serviceSequence": [
+          {
+            "vsComponentId": "traffic_source",
+            "endPointId": "traffic_source_ext"
+          },
+          {
+            "vsComponentId": "traffic_sink",
+            "endPointId": "traffic_sink_ext"
+          }
+        ],
+        "endPoints": [
+          {
+            "endPointId": "traffic_source_ext",
+            "external": false,
+            "management": false,
+            "ranConnection": false
+          },
+          {
+            "endPointId": "traffic_sink_ext",
+            "external": false,
+            "management": false,
+            "ranConnection": false
+          }
+        ],
+        "configurableParameters": [
+        ]
+      },
+      "nsds": [
+      ],
+      "vnfPackages": [
+      ],
+      "mecAppPackages": [],
+      "translationRules": []
+    }
+  ]
+}
+

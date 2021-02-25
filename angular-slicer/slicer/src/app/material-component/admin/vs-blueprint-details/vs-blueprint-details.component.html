@@ -1,0 +1,65 @@
+
+    <!--
+    <div fxLayout="column" fxFlex="100" style="background-color: white;">
+
+                <div fxFlex="100%" fxLayout="column" fxLayoutAlign="left left" style="margin-bottom: 1%;margin-left: 1%;margin-top: 1%;">
+                    <mat-card-title>Vertical Service Blueprint Details</mat-card-title>
+                 </div>
+
+                <div fxFlex="100%" fxLayout="column" fxLayoutAlign="center center">
+                    <app-blueprint-graph [elements]="vsbDetailservice.graphData"   (select)="nodeChange($event)"></app-blueprint-graph>
+                </div>
+                <div fxFlex="100%" fxLayout="column" fxLayoutAlign="center center" style="margin-top: 1%;"><p style="color: black;"><b >Selected Node: </b>{{node_name}}</p></div> 
+            
+
+    </div>
+-->
+
+<mat-toolbar style="background-color: white;box-shadow: none;">
+    <span style="margin-left: 15px;"><h1 class="mat-h1">Vertical Service Blueprint Details</h1></span>
+</mat-toolbar>
+<div class="bvsd-container" style="background-color: white;" >
+    <div  fxFlex.gt-sm="50%" fxLayout.xs="row" fxLayout="column" fxLayoutAlign="center center">
+        <table mat-table matSort aria-label="Elements" class="full-width-table bvsd-table" style="width: 100%;">
+            <!-- KEY Column -->
+            <ng-container matColumnDef="key">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Field</th>
+                <td mat-cell *matCellDef="let row"><b>{{row.key}}</b></td>
+            </ng-container>
+
+            <!-- ExpD Column -->
+            <ng-container matColumnDef="value">
+                <th mat-header-cell *matHeaderCellDef>Value</th>
+                <td mat-cell *matCellDef="let row" ><tr *ngFor="let param of row.value"><td class="margin-all">{{param}}</td></tr></td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+<div style="display: none;visibility: hidden;">
+        <mat-paginator #paginator 
+            [length]="dataSource?.data.length"
+            [pageIndex]="0"
+            [pageSize]="50"
+            [pageSizeOptions]="[25, 50, 100, 250]"
+            class="bvsd-table"
+            >
+        </mat-paginator>
+    </div>
+
+<div  fxFlex.gt-sm="50%"  fxLayout="column" fxLayoutAlign="center center">
+    <div style="width: 100%;height:100%" >
+        <app-blueprint-graph [elements]="vsbDetailservice.graphData"   (select)="nodeChange($event)"></app-blueprint-graph>
+    </div>
+    <div fxFlex="100%" fxLayout="column" fxLayoutAlign="center center"><p style="color: black;"><b >Selected Node: </b>{{node_name}}</p></div> 
+
+</div>
+
+</div>
+
+
+
+
+
+

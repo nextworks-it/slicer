@@ -1,0 +1,5 @@
+{
+  "vsiId": "${VSI}",
+  "vsdId": "${big_VSD}",
+  "tenantId": "${vertical_tenant}"
+}
