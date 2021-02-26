@@ -7,35 +7,35 @@ mode: VSMF+NSMF
 #start: false
 
 #path to the folder that will contain the application
-slicer_folder: /home/jbrenes/test
+slicer_folder: $HOME/sebastian
 
 #path of the log directory
 slicer_log: /var/log/sebastian
 
 #nfv-ifa-libs
-ifa_libs_branch: feat-librefactor
-ifa_libs_path: git@gitlab.nextworks.it:kd_nextworks/nfv-ifa-libs.git
+ifa_libs_branch: master
+ifa_libs_path: https://github.com/nextworks-it/nfv-ifa-libs.git
 
 #identity-management
-identity_mangement_path: git@gitlab.nextworks.it:kd_nextworks/slicer-identity-mgmt
+identity_mangement_path: https://github.com/nextworks-it/slicer-identity-mgmt.git
 
 #blueprint-catalogue
 blueprint_catalogue_branch: master
-blueprint_catalogue_path: git@gitlab.nextworks.it:kd_nextworks/slicer-catalogue
+blueprint_catalogue_path: https://github.com/nextworks-it/slicer-catalogue.git
 
 #nfv-sol-libs
-sol_libs_path: git@gitlab.nextworks.it:kd_nextworks/nfv-sol-libs
+sol_libs_path: https://github.com/nextworks-it/nfv-sol-libs.git
 
 #5g-catalogue
-fiveg_catalogue_path: git://terrance.nextworks.it:/git/KD/5g-catalogue
+fiveg_catalogue_path: https://github.com/nextworks-it/5g-catalogue.git
 
 #timeo
-config_manager_client_path: git@gitlab.nextworks.it:kd_nextworks/config-manager-client
+config_manager_client_path: https://github.com/nextworks-it/config-manager-client.git
 
 #nfvo-driver
 nfvo_driver_branch: master
-nfvo_driver_path: git@gitlab.nextworks.it:kd_nextworks/nfvo-drivers
+nfvo_driver_path: https://github.com/nextworks-it/nfvo-drivers.git
 
 #slicer
 slicer_branch: master
-slicer_path: git@gitlab.nextworks.it:kd_nextworks/vertical-slicer
+slicer_path: https://github.com/nextworks-it/slicer.git
