@@ -13,7 +13,7 @@ slicer_folder: $HOME/sebastian
 slicer_log: /var/log/sebastian
 
 #nfv-ifa-libs
-ifa_libs_branch: master
+ifa_libs_branch: feat-5gzorro-hackathon
 ifa_libs_path: https://github.com/nextworks-it/nfv-ifa-libs.git
 
 #identity-management
@@ -33,7 +33,7 @@ fiveg_catalogue_path: https://github.com/nextworks-it/5g-catalogue.git
 config_manager_client_path: https://github.com/nextworks-it/config-manager-client.git
 
 #nfvo-driver
-nfvo_driver_branch: master
+nfvo_driver_branch: feat-5gzorro-hackathon
 nfvo_driver_path: https://github.com/nextworks-it/nfvo-drivers.git
 
 #slicer
