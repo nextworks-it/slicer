@@ -38,14 +38,14 @@ USER ubuntu
 #COPY ./git_cmd.sh /home/ubuntu/git_cmd.sh
 
 #RUN git -c http.sslVerify=false clone --branch feat-librefactor git@10.30.7.30:kd_nextworks/nfv-ifa-libs /home/ubuntu/nfv-ifa-libs
-RUN /home/ubuntu/git_cmd.sh nfv-ifa-libs /home/ubuntu/nfv-ifa-libs
-RUN /home/ubuntu/git_cmd.sh slicer-identity-mgmt /home/ubuntu/identity-management
-RUN /home/ubuntu/git_cmd.sh slicer-catalogue /home/ubuntu/blueprint-catalogue
-RUN /home/ubuntu/git_cmd.sh nfv-sol-libs /home/ubuntu/nfv-sol-libs
-RUN /home/ubuntu/git_cmd.sh nfvo-drivers /home/ubuntu/nfvo-driver
-RUN /home/ubuntu/git_cmd.sh slicer /home/ubuntu/slicer
-RUN /home/ubuntu/git_cmd.sh  5g-catalogue /home/ubuntu/5g-catalogue
-RUN /home/ubuntu/git_cmd.sh config-manager-client /home/ubuntu/config-manager-client
+RUN /home/ubuntu/git_cmd.sh nfv-ifa-libs /home/ubuntu/nfv-ifa-libs feat-5gzorro-hackathon
+RUN /home/ubuntu/git_cmd.sh slicer-identity-mgmt /home/ubuntu/identity-management master
+RUN /home/ubuntu/git_cmd.sh slicer-catalogue /home/ubuntu/blueprint-catalogue master
+RUN /home/ubuntu/git_cmd.sh nfv-sol-libs /home/ubuntu/nfv-sol-libs master
+RUN /home/ubuntu/git_cmd.sh nfvo-drivers /home/ubuntu/nfvo-driver feat-5gzorro-hackathon
+RUN /home/ubuntu/git_cmd.sh slicer /home/ubuntu/slicer master
+RUN /home/ubuntu/git_cmd.sh  5g-catalogue /home/ubuntu/5g-catalogue master
+RUN /home/ubuntu/git_cmd.sh config-manager-client /home/ubuntu/config-manager-client master
 COPY ./sebastian/sebastian_application.properties /home/ubuntu/slicer/sebastian_application.properties
 COPY ./environment/environments.ts /home/ubuntu/slicer/angular-slicer/slicer/src/app/environments/environments.ts
 

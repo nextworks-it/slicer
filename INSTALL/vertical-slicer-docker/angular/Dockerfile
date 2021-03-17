@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 COPY ./git_cmd.sh /root/git_cmd.sh
 RUN chmod +x /root/git_cmd.sh
 
-RUN /root/git_cmd.sh slicer /home/slicer
+RUN /root/git_cmd.sh slicer /home/slicer master
 WORKDIR /usr/src/app/app-ui
 RUN cp -r /home/slicer/angular-slicer/slicer/. .
 
