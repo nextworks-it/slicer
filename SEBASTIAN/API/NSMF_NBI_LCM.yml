@@ -1,0 +1,411 @@
+swagger: '2.0'
+info:
+  description: NSMF LCM Interface - Api Documentation
+  version: '1.0'
+  title: NSMF LCM Interface - Api Documentation
+  termsOfService: 'urn:tos'
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0'
+host: 'localhost:8082'
+
+paths:
+  '/vs/basic/nslcm/networksliceids':
+    get:
+      tags:
+        - Network Slice LCM API
+      summary: Get all the Network Slice Instance IDSs
+      operationId: getNsInstanceIdsUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: The list of Network Slice Instances IDS.
+          schema:
+            type: array
+            items:
+              type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/nslcm/ns':
+    get:
+      tags:
+        - Network Slice LCM API
+      summary: Get all the Network Slice Instances
+      operationId: getNsInstanceUsingGET_1
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: The list of Network Slice Instances.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/NetworkSliceInstance'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - Network Slice LCM API
+      summary: createNsId
+      operationId: createNsIdUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/CreateNsiIdRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/nslcm/ns/{nsiId}':
+    get:
+      tags:
+        - Network Slice LCM API
+      summary: 'Get the Network Slice Instance with the specified ID '
+      operationId: getNsInstanceUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: nsiId
+          in: path
+          description: nsiId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: The Network Slice Instance.
+          schema:
+            $ref: '#/definitions/NetworkSliceInstance'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/nslcm/ns/{nsiId}/action/instantiate':
+    put:
+      tags:
+        - Network Slice LCM API
+      summary: instantiateNsi
+      operationId: instantiateNsiUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: nsiId
+          in: path
+          description: nsiId
+          required: true
+          type: string
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/InstantiateNsiRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/nslcm/ns/{nsiId}/action/modify':
+    put:
+      tags:
+        - Network Slice LCM API
+      summary: modifyNsi
+      operationId: modifyNsiUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: nsiId
+          in: path
+          description: nsiId
+          required: true
+          type: string
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/ModifyNsiRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/nslcm/ns/{nsiId}/action/terminate':
+    put:
+      tags:
+        - Network Slice LCM API
+      summary: terminateNsi
+      operationId: terminateNsiUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: nsiId
+          in: path
+          description: nsiId
+          required: true
+          type: string
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/TerminateNsiRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+
+definitions:
+  NetworkSliceInstance:
+    type: object
+    properties:
+      description:
+        type: string
+      dfId:
+        type: string
+      errorMessage:
+        type: string
+      instantiationLevelId:
+        type: string
+      name:
+        type: string
+      networkSliceSubnetInstances:
+        type: array
+        items:
+          type: string
+      nfvNsId:
+        type: string
+      nfvNsUrl:
+        type: string
+      nsdId:
+        type: string
+      nsdVersion:
+        type: string
+      nsiId:
+        type: string
+      nstId:
+        type: string
+      soManaged:
+        type: boolean
+      status:
+        type: string
+        enum:
+          - NOT_INSTANTIATED
+          - INSTANTIATING
+          - INSTANTIATED
+          - CONFIGURING
+          - CONFIGURED
+          - UNDER_MODIFICATION
+          - MODIFIED
+          - TERMINATING
+          - TERMINATED
+          - FAILED
+          - UNKNOWN
+      tenantId:
+        type: string
+      vnfPlacement:
+        type: object
+        additionalProperties:
+          type: string
+    title: NetworkSliceInstance
+
+  CreateNsiIdRequest:
+    type: object
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      nstId:
+        type: string
+    title: CreateNsiIdRequest
+
+  InstantiateNsiRequest:
+    type: object
+    properties:
+      dfId:
+        type: string
+      ilId:
+        type: string
+      locationConstraints:
+        $ref: '#/definitions/LocationInfo'
+      nsSubnetIds:
+        type: array
+        items:
+          type: string
+      nsiId:
+        type: string
+      nstId:
+        type: string
+      ranEndPointId:
+        type: string
+      sliceServiceParameters:
+        type: object
+      userData:
+        type: object
+        additionalProperties:
+          type: string
+    title: InstantiateNsiRequest
+
+  ModifyNsiRequest:
+    type: object
+    properties:
+      dfId:
+        type: string
+      ilId:
+        type: string
+      nsiId:
+        type: string
+      nstId:
+        type: string
+      vsiId:
+        type: string
+    title: ModifyNsiRequest
+
+  TerminateNsiRequest:
+    type: object
+    properties:
+      nsiId:
+        type: string
+    title: TerminateNsiRequest
+
+  LocationInfo:
+    type: object
+    properties:
+      altitude:
+        type: number
+        format: float
+      latitude:
+        type: number
+        format: double
+      longitude:
+        type: number
+        format: double
+      range:
+        type: number
+        format: float
+    title: LocationInfo
+  

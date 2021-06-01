@@ -1,0 +1,746 @@
+swagger: '2.0'
+info:
+  description: VSMF LCM Interface - Api Documentation
+  version: '1.0'
+  title: VSMF LCM Interface - Api Documentation
+  termsOfService: 'urn:tos'
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0'
+host: 'localhost:8082'
+
+paths:
+  '/vs/basic/vslcm/nsi':
+    get:
+      tags:
+        - Vertical Service LCM Management API
+      summary: Get all NSI
+      operationId: getAllNsiUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: The list of NSI
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/NetworkSliceInstance'
+        '400':
+          description: The request contains elements impossible to process
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: User not allowed to perform the request.
+          schema:
+            $ref: '#/definitions/Error'
+        '403':
+          description: Forbidden
+        '404':
+          description: NSIs not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      deprecated: false
+  '/vs/basic/vslcm/nsi/{vsiId}':
+    get:
+      tags:
+        - Vertical Service LCM Management API
+      summary: Get NSI associated to a specific VSI
+      operationId: getAssociatedNsiForVsiUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: vsiId
+          in: path
+          description: vsiId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: NSI associated to a specific VSI
+          schema:
+            $ref: '#/definitions/NetworkSliceInstance'
+        '400':
+          description: The request contains elements impossible to process
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: User not allowed to perform the request.
+          schema:
+            $ref: '#/definitions/Error'
+        '403':
+          description: Forbidden
+        '404':
+          description: VSI or NSI not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      deprecated: false
+  '/vs/basic/vslcm/vs':
+    post:
+      tags:
+        - Vertical Service LCM Management API
+      summary: instantiateVs
+      operationId: instantiateVsUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/InstantiateVsRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/vslcm/vs/{vsiId}':
+    get:
+      tags:
+        - Vertical Service LCM Management API
+      summary: Get the Vertical Service Instance with the specified ID
+      operationId: getVsInstanceUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: vsiId
+          in: path
+          description: vsiId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: The Vertical Service Instance
+          schema:
+            $ref: '#/definitions/VerticalServiceInstance'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    put:
+      tags:
+        - Vertical Service LCM Management API
+      summary: modifyVsInstance
+      operationId: modifyVsInstanceUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/ModifyVsRequest'
+        - name: vsiId
+          in: path
+          description: vsiId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - Vertical Service LCM Management API
+      summary: purgeVsInstance
+      operationId: purgeVsInstanceUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: vsiId
+          in: path
+          description: vsiId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  '/vs/basic/vslcm/vs/{vsiId}/terminate':
+    post:
+      tags:
+        - Vertical Service LCM Management API
+      summary: terminateVsInstance
+      operationId: terminateVsInstanceUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - name: vsiId
+          in: path
+          description: vsiId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/vslcm/vsId':
+    get:
+      tags:
+        - Vertical Service LCM Management API
+      summary: Get the list of Vertical Service Instance IDs
+      operationId: getAllVsInstancesIdUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: The Vertical Service Instance
+          schema:
+            type: array
+            items:
+              type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/basic/vslcm/vsInstances':
+    post:
+      tags:
+        - Vertical Service LCM Management API
+      summary: Get the list of Vertical Service Instance matching the specified filter
+      operationId: getAllVsInstancesUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/GeneralizedQueryRequest'
+      responses:
+        '200':
+          description: The Vertical Service Instances matching the filter params
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/VerticalServiceInstance'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/notifications/nsifailure':
+    post:
+      tags:
+        - nsmf-notifications-rest-controller
+      summary: notifyNsiFailure
+      operationId: notifyNsiFailureUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: notification
+          description: notification
+          required: true
+          schema:
+            $ref: '#/definitions/NetworkSliceFailureNotification'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/notifications/nsilcmchange':
+    post:
+      tags:
+        - nsmf-notifications-rest-controller
+      summary: notifyNsiLcmChange
+      operationId: notifyNsiLcmChangeUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: notification
+          description: notification
+          required: true
+          schema:
+            $ref: '#/definitions/NetworkSliceStatusChangeNotification'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+
+definitions:
+  NetworkSliceInstance:
+    type: object
+    properties:
+      description:
+        type: string
+      dfId:
+        type: string
+      errorMessage:
+        type: string
+      instantiationLevelId:
+        type: string
+      name:
+        type: string
+      networkSliceSubnetInstances:
+        type: array
+        items:
+          type: string
+      nfvNsId:
+        type: string
+      nfvNsUrl:
+        type: string
+      nsdId:
+        type: string
+      nsdVersion:
+        type: string
+      nsiId:
+        type: string
+      nstId:
+        type: string
+      soManaged:
+        type: boolean
+      status:
+        type: string
+        enum:
+          - NOT_INSTANTIATED
+          - INSTANTIATING
+          - INSTANTIATED
+          - CONFIGURING
+          - CONFIGURED
+          - UNDER_MODIFICATION
+          - MODIFIED
+          - TERMINATING
+          - TERMINATED
+          - FAILED
+          - UNKNOWN
+      tenantId:
+        type: string
+      vnfPlacement:
+        type: object
+        additionalProperties:
+          type: string
+    title: NetworkSliceInstance
+
+  Error:
+    type: object
+    properties:
+      cause:
+        $ref: '#/definitions/Throwable'
+      localizedMessage:
+        type: string
+      message:
+        type: string
+      stackTrace:
+        type: array
+        items:
+          $ref: '#/definitions/StackTraceElement'
+      suppressed:
+        type: array
+        items:
+          $ref: '#/definitions/Throwable'
+    title: Error
+  
+  InstantiateVsRequest:
+    type: object
+    properties:
+      description:
+        type: string
+      locationConstraints:
+        $ref: '#/definitions/LocationInfo'
+      name:
+        type: string
+      notificationUrl:
+        type: string
+      tenantId:
+        type: string
+      userData:
+        type: object
+        additionalProperties:
+          type: string
+      vsdId:
+        type: string
+    title: InstantiateVsRequest
+
+  VerticalServiceInstance:
+    type: object
+    properties:
+      description:
+        type: string
+      domainId:
+        type: string
+      errorMessage:
+        type: string
+      locationConstraints:
+        $ref: '#/definitions/LocationInfo'
+      mappedInstanceId:
+        type: string
+      name:
+        type: string
+      nestedVsi:
+        type: array
+        items:
+          $ref: '#/definitions/VerticalServiceInstance'
+      networkSliceId:
+        type: string
+      nssis:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/NetworkSliceSubnetInstance'
+      status:
+        type: string
+        enum:
+          - INSTANTIATING
+          - INSTANTIATED
+          - UNDER_MODIFICATION
+          - WAITING_FOR_RESOURCES
+          - INSTANTIATING_REMOTE_VSS
+          - INSTANTIATING_LOCAL_VSS
+          - MODIFIED
+          - TERMINATING
+          - TERMINATED
+          - FAILED
+      tenantId:
+        type: string
+      userData:
+        type: object
+        additionalProperties:
+          type: string
+      vsdId:
+        type: string
+      vsiId:
+        type: string
+      vssis:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/VerticalSubserviceInstance'
+    title: VerticalServiceInstance
+
+  ModifyVsRequest:
+    type: object
+    properties:
+      tenantId:
+        type: string
+      vsdId:
+        type: string
+      vsiId:
+        type: string
+    title: ModifyVsRequest
+
+  GeneralizedQueryRequest:
+    type: object
+    properties:
+      attributeSelector:
+        type: array
+        items:
+          type: string
+      filter:
+        $ref: '#/definitions/Filter'
+    title: GeneralizedQueryRequest
+
+  NetworkSliceFailureNotification:
+    type: object
+    properties:
+      failureMessage:
+        type: string
+      nsiId:
+        type: string
+    title: NetworkSliceFailureNotification
+
+  NetworkSliceStatusChangeNotification:
+    type: object
+    properties:
+      nsiId:
+        type: string
+      statusChange:
+        type: string
+        enum:
+          - NSI_CREATED
+          - NSI_TERMINATED
+          - NSI_CONFIGURED
+          - NSI_MODIFIED
+          - NSI_FAILED
+          - NOT_SPECIFIED
+      successful:
+        type: boolean
+      tenantId:
+        type: string
+    title: NetworkSliceStatusChangeNotification
+
+  Throwable:
+    type: object
+    properties:
+      cause:
+        $ref: '#/definitions/Throwable'
+      localizedMessage:
+        type: string
+      message:
+        type: string
+      stackTrace:
+        type: array
+        items:
+          $ref: '#/definitions/StackTraceElement'
+      suppressed:
+        type: array
+        items:
+          $ref: '#/definitions/Throwable'
+    title: Throwable
+
+  StackTraceElement:
+    type: object
+    properties:
+      className:
+        type: string
+      fileName:
+        type: string
+      lineNumber:
+        type: integer
+        format: int32
+      methodName:
+        type: string
+      nativeMethod:
+        type: boolean
+    title: StackTraceElement
+
+  LocationInfo:
+    type: object
+    properties:
+      altitude:
+        type: number
+        format: float
+      latitude:
+        type: number
+        format: double
+      longitude:
+        type: number
+        format: double
+      range:
+        type: number
+        format: float
+    title: LocationInfo
+
+  NetworkSliceSubnetInstance:
+    type: object
+    properties:
+      domainId:
+        type: string
+      nsDeploymentFlavorId:
+        type: string
+      nsInstantiationLevelId:
+        type: string
+      nssiId:
+        type: string
+      nsstId:
+        type: string
+      status:
+        type: string
+        enum:
+          - NOT_INSTANTIATED
+          - INSTANTIATING
+          - INSTANTIATED
+          - CONFIGURING
+          - CONFIGURED
+          - UNDER_MODIFICATION
+          - MODIFIED
+          - TERMINATING
+          - TERMINATED
+          - FAILED
+          - UNKNOWN
+      vnfPlacement:
+        type: object
+        additionalProperties:
+          type: string
+    title: NetworkSliceSubnetInstance
+
+  VerticalSubserviceInstance:
+    type: object
+    properties:
+      blueprintId:
+        type: string
+      descriptorId:
+        type: string
+      domainId:
+        type: string
+      instanceId:
+        type: string
+      parameters:
+        type: object
+        additionalProperties:
+          type: string
+      verticalServiceStatus:
+        type: string
+        enum:
+          - INSTANTIATING
+          - INSTANTIATED
+          - UNDER_MODIFICATION
+          - WAITING_FOR_RESOURCES
+          - INSTANTIATING_REMOTE_VSS
+          - INSTANTIATING_LOCAL_VSS
+          - MODIFIED
+          - TERMINATING
+          - TERMINATED
+          - FAILED
+    title: VerticalSubserviceInstance
+  
+  Filter:
+    type: object
+    properties:
+      parameters:
+        type: object
+        additionalProperties:
+          type: string
+    title: Filter

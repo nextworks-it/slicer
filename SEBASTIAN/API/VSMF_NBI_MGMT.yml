@@ -1,0 +1,668 @@
+swagger: '2.0'
+info:
+  description: VSMF Management Interface - Api Documentation
+  version: '1.0'
+  title: VSMF Management Interface - Api Documentation
+  termsOfService: 'urn:tos'
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0'
+host: 'localhost:8082'
+
+paths:
+  '/vs/admin/group':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getTenantGroups
+      operationId: getTenantGroupsUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/group/{groupName}/tenant':
+    post:
+      tags:
+        - 'User, group and SLA management API'
+      summary: createTenant
+      operationId: createTenantUsingPOST_1
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: groupName
+          in: path
+          description: groupName
+          required: true
+          type: string
+        - in: body
+          name: tenant
+          description: tenant
+          required: true
+          schema:
+            $ref: '#/definitions/Tenant'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/group/{groupName}/tenant/{tenantId}':
+    put:
+      tags:
+        - 'User, group and SLA management API'
+      summary: updateTenant
+      operationId: updateTenantUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: groupName
+          in: path
+          description: groupName
+          required: true
+          type: string
+        - in: body
+          name: remoteTenantInfoId
+          description: remoteTenantInfoId
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: tenantId
+          in: path
+          description: tenantId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/group/{groupName}/tenant/{userName}/sla':
+    post:
+      tags:
+        - 'User, group and SLA management API'
+      summary: createTenant
+      operationId: createTenantUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: sla
+          description: sla
+          required: true
+          schema:
+            $ref: '#/definitions/Sla'
+        - name: userName
+          in: path
+          description: userName
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/group/{groupname}/tenant':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getTenantsInGroup
+      operationId: getTenantsInGroupUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: groupname
+          in: path
+          description: groupname
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/group/{groupname}/tenant/{username}':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: Get Tenant
+      operationId: getTenantUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Tenant
+          schema:
+            $ref: '#/definitions/Tenant'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - 'User, group and SLA management API'
+      summary: deleteTenant
+      operationId: deleteTenantUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  '/vs/admin/group/{groupname}/tenant/{username}/sla':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: Get user SLAs
+      operationId: getTenantSlasUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '200':
+          description: List of user SLAs
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Sla'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/group/{groupname}/tenant/{username}/sla/{slaId}':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getSla
+      operationId: getSlaUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: slaId
+          in: path
+          description: slaId
+          required: true
+          type: string
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - 'User, group and SLA management API'
+      summary: deleteSla
+      operationId: deleteSlaUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: slaId
+          in: path
+          description: slaId
+          required: true
+          type: string
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  '/vs/admin/group/{name}':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getGroup
+      operationId: getGroupUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: name
+          in: path
+          description: name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - 'User, group and SLA management API'
+      summary: createGroup
+      operationId: createGroupUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: name
+          in: path
+          description: name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - 'User, group and SLA management API'
+      summary: deleteGroup
+      operationId: deleteGroupUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: name
+          in: path
+          description: name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  '/vs/admin/groups/tenants':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getTenants
+      operationId: getTenantsUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    put:
+      tags:
+        - 'User, group and SLA management API'
+      summary: updateTenants
+      operationId: updateTenantsUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/policy':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getPolicies
+      operationId: getPoliciesUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - 'User, group and SLA management API'
+      summary: createPolicy
+      operationId: createPolicyUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/TransferPolicyRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/vs/admin/policy/{policyid}':
+    get:
+      tags:
+        - 'User, group and SLA management API'
+      summary: getPolicy
+      operationId: getPolicyUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: policyid
+          in: path
+          description: policyid
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - 'User, group and SLA management API'
+      summary: deletePolicy
+      operationId: deletePolicyUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: policyid
+          in: path
+          description: policyid
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  '/vs/whoami':
+    get:
+      tags:
+        - security-rest-controller
+      summary: whoami
+      operationId: whoamiUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: authenticated
+          in: query
+          required: false
+          type: boolean
+        - name: 'authorities[0].authority'
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+
+definitions:
+  Tenant:
+    type: object
+    properties:
+      allocatedResources:
+        $ref: '#/definitions/VirtualResourceUsage'
+      password:
+        type: string
+      sla:
+        type: array
+        items:
+          $ref: '#/definitions/Sla'
+      username:
+        type: string
+      vsdId:
+        type: array
+        items:
+          type: string
+      vsiId:
+        type: array
+        items:
+          type: string
+    title: Tenant
+
+  VirtualResourceUsage:
+    type: object
+    properties:
+      diskStorage:
+        type: integer
+        format: int32
+      memoryRAM:
+        type: integer
+        format: int32
+      vCPU:
+        type: integer
+        format: int32
+    title: VirtualResourceUsage
+
+  Sla:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      slaConstraints:
+        type: array
+        items:
+          $ref: '#/definitions/SlaVirtualResourceConstraint'
+      slaStatus:
+        type: string
+        enum:
+          - ENABLED
+          - DISABLED
+    title: Sla
+
+  SlaVirtualResourceConstraint:
+    type: object
+    properties:
+      location:
+        type: string
+      maxResourceLimit:
+        $ref: '#/definitions/VirtualResourceUsage'
+      scope:
+        type: string
+        enum:
+          - CLOUD_RESOURCE
+          - MEC_RESOURCE
+          - GLOBAL_VIRTUAL_RESOURCE
+    title: SlaVirtualResourceConstraint
+
+  TransferPolicyRequest:
+    type: object
+    properties:
+      designer:
+        type: string
+      name:
+        type: string
+      pfId:
+        type: string
+      policy:
+        $ref: '#/definitions/Policy'
+      version:
+        type: string
+    title: TransferPolicyRequest
+
+  Policy:
+    type: object
+    properties:
+      policyType:
+        type: string
+        enum:
+          - SER
+          - CST
+          - A_COV
+      policyValue:
+        type: string
+        enum:
+          - HIGH
+          - MEDIUM
+          - LOW
+    title: Policy
