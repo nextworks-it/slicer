@@ -207,7 +207,7 @@ public class NsmfInteractionHandler implements NsmfLcmProviderInterface {
         AbstractNsmfDriver nsmfRestClient;
         switch(nsmfType){
             case NSMF_3GPP_LIKE:
-                nsmfRestClient = new NsmfRestClient("defaultDomain", nsmfRestServerUrl, adminService);
+                nsmfRestClient = new NsmfRestClient("defaultDomain", nsmfRestServerUrl, adminService, nsmfLcmOperationPollingManager);
                 break;
             case OSM:
                 nsmfRestClient = new OsmRestClient("defaultDomain", nsmfRestServerUrl, username, password, project, vimAccount, osmTranslationInformationRepository, utils, nsmfLcmOperationPollingManager);
