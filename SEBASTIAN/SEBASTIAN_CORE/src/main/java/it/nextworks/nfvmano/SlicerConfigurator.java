@@ -19,6 +19,7 @@ import it.nextworks.nfvmano.sebastian.vsfm.sbi.vsmf.VsmfInteractionHandler;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.vsmf.drivers.EveVsmfDriver;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.vsmf.drivers.VsmfLevelLoggingDriver;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.vsmf.polling.VsmfLcmOperationPollingManager;
+import it.nextworks.nfvmano.sebastian.vsfm.sbi.NsmfLcmOperationPollingManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,6 +66,8 @@ public class SlicerConfigurator {
 
 	@Autowired
 	private VsmfInteractionHandler vsmfInteractionHandler;
+	@Autowired
+	private NsmfLcmOperationPollingManager nsmfLcmOperationPollingManager;
 
 	@Autowired
 	private VsmfLcmOperationPollingManager vsmfLcmOperationPollingManager;
@@ -110,6 +113,7 @@ public class SlicerConfigurator {
 		
 			nsmfInteractionHandler.setDefaultDriver(nsLcmService);
 			vsLcmService.setNsmfLcmProvider(nsmfInteractionHandler);
+		nsmfLcmOperationPollingManager.setNsmfLcmProvider(nsmfInteractionHandler);
 		
 	}
 
