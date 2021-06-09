@@ -158,7 +158,7 @@ public class NsmfInteractionHandler implements NsmfLcmProviderInterface {
                             }
                             log.info("Rest Client for SONATA NSP instantiated");
                         } else if (nspDomainLayer.getNspNbiType().equals(NspNbiType.THREE_GPP)) {
-                            restClient = new NsmfRestClient(domainId, completeUrl, adminService);
+                            restClient = new NsmfRestClient(domainId, completeUrl, adminService, nsmfLcmOperationPollingManager);
                             log.info("Rest Client for 3GPP like NSP instantiated");
                         } else if (nspDomainLayer.getNspNbiType().equals(NspNbiType.OSM)){
                             OsmNspDomainLayer osmNspDomainLayer = (OsmNspDomainLayer) domainLayer;

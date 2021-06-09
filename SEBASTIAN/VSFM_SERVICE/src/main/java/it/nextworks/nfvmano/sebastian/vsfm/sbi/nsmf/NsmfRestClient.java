@@ -16,9 +16,13 @@ package it.nextworks.nfvmano.sebastian.vsfm.sbi.nsmf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import it.nextworks.nfvmano.catalogue.domainLayer.NspNbiType;
+import it.nextworks.nfvmano.libs.ifa.common.enums.OperationStatus;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.common.Authenticator;
+import it.nextworks.nfvmano.sebastian.vsfm.sbi.NsmfLcmOperationPollingManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -55,13 +59,15 @@ public class NsmfRestClient extends AbstractNsmfDriver {
 
     private String nsmfUrl;
     private Authenticator authenticator;
+    private NsmfLcmOperationPollingManager pollingManager;
 
 
-    public NsmfRestClient(String domainId, String baseUrl, AdminService adminService) {
+    public NsmfRestClient(String domainId, String baseUrl, AdminService adminService, NsmfLcmOperationPollingManager pollingManager) {
         super(NsmfType.NSMF_3GPP_LIKE, domainId);
         this.nsmfUrl = baseUrl + "/vs/basic/nslcm";
         this.restTemplate = new RestTemplate();
         this.authenticator = new Authenticator(baseUrl, adminService);
+        this.pollingManager = pollingManager;
     }
 
     private void performAuth(String tenantId) {
@@ -136,6 +142,7 @@ public class NsmfRestClient extends AbstractNsmfDriver {
         String url = nsmfUrl + "/ns/" + request.getNsiId() + "/action/instantiate";
         ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.PUT, tenantId);
         String bodyResponse = manageHTTPResponse(httpResponse, "Error while instantiating network slice", "Network slice instantiation correctly performed", HttpStatus.ACCEPTED);
+        pollingManager.addOperation(UUID.randomUUID().toString(), OperationStatus.SUCCESSFULLY_DONE, request.getNsiId(), "NSI_CREATION", domainId, NspNbiType.THREE_GPP);
     }
 
     @Override
@@ -156,6 +163,7 @@ public class NsmfRestClient extends AbstractNsmfDriver {
         String url = nsmfUrl + "/ns/" + request.getNsiId() + "/action/terminate";
         ResponseEntity<String> httpResponse = performHTTPRequest(request, url, HttpMethod.PUT, tenantId);
         String bodyResponse = manageHTTPResponse(httpResponse, "Error while terminating network slice", "Network slice termination correctly performed", HttpStatus.ACCEPTED);
+        pollingManager.addOperation(UUID.randomUUID().toString(), OperationStatus.SUCCESSFULLY_DONE, request.getNsiId(), "NSI_TERMINATION", domainId, NspNbiType.THREE_GPP);
     }
 
     @Override
