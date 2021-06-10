@@ -280,6 +280,8 @@ public class NsLcmManager {
 
 			//Read configuration parameters
 			Map<String, String> additionalParamForNs = msg.getRequest().getUserData();
+			//added this for 5GZORRO to make the NFVO LCM driver aware of the slice instance ID
+			additionalParamForNs.put("nsi_id", this.networkSliceInstanceId);
 			InstantiateNsRequest newNsRequest = new InstantiateNsRequest(nfvNsId,
 					dfId, 					//flavourId
 					sapData, 				//sapData
