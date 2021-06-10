@@ -173,6 +173,7 @@ public class NsmfRestClient extends AbstractNsmfDriver {
         String url = nsmfUrl + "/ns/";
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
+
         performAuth(tenantId);
         if (this.cookies != null) {
             header.add("Cookie", this.cookies);

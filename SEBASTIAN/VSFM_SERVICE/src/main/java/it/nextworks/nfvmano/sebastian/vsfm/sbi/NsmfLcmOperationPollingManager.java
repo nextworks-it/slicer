@@ -108,6 +108,23 @@ public class NsmfLcmOperationPollingManager implements SchedulingConfigurer {
         log.info("Added operation " + operationId + " to the list of NSFM operations in polling. NsiId: " + nsiId + " - Expected status: " + expectedStatus.toString());
     }
 
+
+    //Kept original method for retro-compatibility
+    /**
+     * Adds a new TIMEO NFVO operation in the list of the operations to be polled
+     *
+     * @param operationId    ID of the NFVO operation to be polled
+     * @param expectedStatus expected status of the operation - when the operation reaches this status the listener is notified
+     * @param nsiId          ID of the network service instance the operation refers to
+     * @param operationType  type of operation
+     */
+    public synchronized void addOperation(String operationId, OperationStatus expectedStatus, String nsiId, String operationType, String domainId, NspNbiType domainType, String tenantId) {
+        PolledNsmfLcmOperation operation = new PolledNsmfLcmOperation(operationId, expectedStatus, nsiId, operationType, domainId, domainType, tenantId);
+        this.polledOperations.put(operationId, operation);
+        log.info("Added operation " + operationId + " to the list of NSFM operations in polling. NsiId: " + nsiId + " - Expected status: " + expectedStatus.toString());
+    }
+
+
     /**
      * Removes an operation with the given ID from the list of operations to be polled
      *

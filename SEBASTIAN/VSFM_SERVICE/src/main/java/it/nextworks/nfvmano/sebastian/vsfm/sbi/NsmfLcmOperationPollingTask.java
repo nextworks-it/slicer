@@ -112,7 +112,7 @@ public class NsmfLcmOperationPollingTask implements Runnable {
                 parameters.put("REQUEST_TYPE",  "NSI_CREATION");
                 filter = new Filter(parameters);
                 request = new GeneralizedQueryRequest(filter, new ArrayList<>());
-                nsiInstances = nsmfLcmProvider.queryNetworkSliceInstance(request, operation.getDomainId(), null);
+                nsiInstances = nsmfLcmProvider.queryNetworkSliceInstance(request, operation.getDomainId(), operation.getTenantId());
                 if (nsiInstances.size() == 1 && nsiInstances.get(0).getStatus().equals(NetworkSliceStatus.INSTANTIATED)) {
                     log.debug("Network slice instance {} successfully instantiated", operation.getNsiId());
                     notification = new NetworkSliceStatusChangeNotification(operation.getNsiId(), NetworkSliceStatusChange.NSI_CREATED, true);
