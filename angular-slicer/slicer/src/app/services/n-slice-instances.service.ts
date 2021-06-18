@@ -21,7 +21,7 @@ export class NsliceInstancesService {
   };
 
   getNsliceInstancesData(): Observable<NsliceInstancesInfo[]> {
-    return this.http.get<NsliceInstancesInfo[]>(environment.baseUrl+"vs​/basic​/nslcm​/ns", {withCredentials: true})
+	  return this.http.get<NsliceInstancesInfo[]>(environment.baseUrl+"vs/basic/nslcm/ns", {withCredentials: true})
     .pipe(
       tap(_ => console.log('fetched network slice instance - SUCCESS')),
       catchError(this.authService.handleError<NsliceInstancesInfo[]>('getNsliceInstancesData', []))
