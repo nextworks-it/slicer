@@ -30,21 +30,21 @@ export class NsliceInstancesService {
   }
   postNsliceInstancesData(NsliceInstancesRequest: Object): Observable<String> {
    
-    return this.http.post(environment.baseUrl+"vs​/basic​/nslcm​/ns",NsliceInstancesRequest,this.httpOptions)
+    return this.http.post(environment.baseUrl+"vs/basic/nslcm/ns",NsliceInstancesRequest,this.httpOptions)
     .pipe(
       tap((nid: String) => this.authService.log(`added network slice instance w/ id=${nid}`, 'SUCCESS', true)),
       catchError(this.authService.handleError<String>('postNsliceInstancesData'))
     );
   }
   postNsliceInstancesInstantiateData(NsliceInstancesInstantiateRequest: Object,nsiId): Observable<String> {
-    return this.http.put(environment.baseUrl+"vs​/basic​/nslcm​/ns​/"+nsiId+"/action/instantiate",NsliceInstancesInstantiateRequest,{withCredentials: true})
+    return this.http.put(environment.baseUrl+"vs/basic/nslcm/ns/"+nsiId+"/action/instantiate",NsliceInstancesInstantiateRequest,{withCredentials: true})
     .pipe(
       tap((nsiId: String) => this.authService.log(`instantiated network slice instance w/ id=${nsiId}`, 'SUCCESS', true)),
       catchError(this.authService.handleError<String>('postNsliceInstancesInstantiateData'))
     );
   }
   deleteNsliceInstancesData(nsiUuid): Observable<String> {
-    return this.http.put(environment.baseUrl+"vs​/basic​/nslcm​/ns​/"+nsiUuid+"/action/terminate",{withCredentials: true})
+    return this.http.put(environment.baseUrl+"vs/basic/nslcm/ns/"+nsiUuid+"/action/terminate",{withCredentials: true})
     .pipe(
       tap((result: String) => this.authService.log(`deleted network slice instance w/ id=${nsiUuid}`, 'SUCCESS', true)),
       catchError(this.authService.handleError<String>('deleteNsliceInstancesData'))
