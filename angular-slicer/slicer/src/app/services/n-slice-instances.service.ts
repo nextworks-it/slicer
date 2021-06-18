@@ -16,8 +16,8 @@ export class NsliceInstancesService {
   httpOptions = {
     headers: new HttpHeaders(
       { 'Content-Type': 'application/json'}),
-      withCredentials: true,
-      responseType: 'text' as 'json',
+      withCredentials: true
+    
   };
 
   getNsliceInstancesData(): Observable<NsliceInstancesInfo[]> {
