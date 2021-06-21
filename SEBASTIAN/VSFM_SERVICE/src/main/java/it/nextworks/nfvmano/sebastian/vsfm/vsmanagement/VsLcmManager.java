@@ -570,9 +570,10 @@ public class VsLcmManager {
 				    log.debug("Record updated with info about NSSI and VSI association.");
 
                     Map<String, String> userData = storedInstantiateVsiRequestMessage.getRequest().getUserData();
-                    if(!userData.containsKey("vsi_id")){
-                        userData.put("vsi_id", vsiId);
-                    }
+                    userData.put("vsi_id", vsiId);
+                    //if(!userData.containsKey("vsi_id")){
+                        //userData.put("vsi_id", vsiId);
+                    //}
 
 
 				    InstantiateNsiRequest instantiateNssiReq = new InstantiateNsiRequest(nssiId,
@@ -616,9 +617,10 @@ public class VsLcmManager {
 				        null ); //The VNF placement is retrieved from the SO once the network service has been instantiated
 				vsRecordService.addNssiInVsi(vsiId, nsi);
 				log.debug("Record updated with info about NSI and VSI association.");
-				if(!userData.containsKey("vsi_id")){
-                    userData.put("vsi_id", vsiId);
-                }
+                userData.put("vsi_id", vsiId);
+				//if(!userData.containsKey("vsi_id")){
+                //    userData.put("vsi_id", vsiId);
+                //}
 
 
 				InstantiateNsiRequest instantiateNsiReq = new InstantiateNsiRequest(nsiId,
