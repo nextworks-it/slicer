@@ -563,6 +563,11 @@ public class VsLcmManager {
 
 				    String nssiId = nsmfLcmProvider.createNetworkSliceIdentifier(request, nsstDomain, tenantId);
 				    log.debug("Network Slice Subnet ID " + nssiId + " created for VSI " + vsiId);
+                    if(nssiId == null){
+                        log.error("FAiled to create network slice subnet");
+                        manageVsError("FAiled to create network slice subnet");
+                        throw  new FailedOperationException("Failed to request network slice");
+                    }
 
 				    NetworkSliceSubnetInstance nsi = new NetworkSliceSubnetInstance(nssiId, nsstId, nsstDomain,null, null, NetworkSliceStatus.INSTANTIATING, null);
 				    vsRecordService.addNssiInVsi(vsiId, nsi );
