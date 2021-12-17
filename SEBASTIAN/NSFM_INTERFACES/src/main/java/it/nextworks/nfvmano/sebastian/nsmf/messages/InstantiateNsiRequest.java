@@ -72,9 +72,8 @@ public class InstantiateNsiRequest implements InterfaceMessage {
 	 * @param ranEndPointId ID of the service access point in the NFV NSD that must be attached to the RAN side
 	 */
 	public InstantiateNsiRequest(String nsiId, String nstId, String dfId, String ilId,
-			List<String> nsSubnetIds, Map<String, String> userData, LocationInfo locationConstraints,
-			String ranEndPointId ,
-								 Map<String, Object> sliceServiceParameters) {
+								 List<String> nsSubnetIds, Map<String, String> userData, LocationInfo locationConstraints,
+								 String ranEndPointId , Map<String, Object> sliceServiceParameters) {
 		this.nsiId = nsiId;
 		this.nstId = nstId;
 		this.dfId = dfId;
@@ -86,55 +85,39 @@ public class InstantiateNsiRequest implements InterfaceMessage {
 		if(sliceServiceParameters!=null) this.sliceServiceParameters=sliceServiceParameters;
 	}
 
-
 	public InstantiateNsiRequest(){}
+
 	public String getNsiId() {
 		return nsiId;
 	}
-
-
 
 	public String getNstId() {
 		return nstId;
 	}
 
-
-
 	public String getDfId() {
 		return dfId;
 	}
-
-
 
 	public String getIlId() {
 		return ilId;
 	}
 
-
-
 	public List<String> getNsSubnetIds() {
 		return nsSubnetIds;
 	}
-
-
 
 	public Map<String, String> getUserData() {
 		return userData;
 	}
 
-
-
 	public LocationInfo getLocationConstraints() {
 		return locationConstraints;
 	}
 
-
-
 	public String getRanEndPointId() {
 		return ranEndPointId;
 	}
-
-
 
 	@Override
 	public void isValid() throws MalformattedElementException {

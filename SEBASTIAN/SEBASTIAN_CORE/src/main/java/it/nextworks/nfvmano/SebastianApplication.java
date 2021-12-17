@@ -28,9 +28,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 })
 
-@EnableJpaRepositories(basePackages = "it.nextworks.nfvmano")
-
-@EntityScan(basePackages = "it.nextworks.nfvmano")
+@EnableJpaRepositories(basePackages = {"it.nextworks.nfvmano.sebastian", "it.nextworks.nfvmano.catalogue.blueprint", "it.nextworks.nfvmano.catalogue.template","it.nextworks.nfvmano.catalogues.template", "it.nextworks.nfvmano.catalogues.domainLayer","it.nextworks.nfvmano.nfvodriver"})
+@EntityScan(basePackages = {"it.nextworks.nfvmano.sebastian", "it.nextworks.nfvmano.catalogue.blueprint", "it.nextworks.nfvmano.catalogue.template","it.nextworks.nfvmano.catalogues.template", "it.nextworks.nfvmano.catalogues.domainLayer", "it.nextworks.nfvmano.catalogue.domainLayer","it.nextworks.nfvmano.nfvodriver","it.nextworks.nfvmano.libs.ifa.templates","it.nextworks.nfvmano.libs.ifa.policy.elements"})
 
 public class SebastianApplication {
 

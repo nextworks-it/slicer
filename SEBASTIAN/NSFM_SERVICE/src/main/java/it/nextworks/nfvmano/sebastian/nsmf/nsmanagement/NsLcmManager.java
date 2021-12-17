@@ -19,7 +19,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.messages.QueryNsdResponse;
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.messages.QueryNsdIfaResponse;
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.messages.QueryNsdSolResponse;
 
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.enums.NsdFormat;
 import it.nextworks.nfvmano.catalogue.template.messages.QueryNsTemplateResponse;
 import it.nextworks.nfvmano.catalogues.template.services.NsTemplateCatalogueService;
 import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
@@ -211,19 +215,25 @@ public class NsLcmManager {
 			nsRecordService.setNsStatus(networkSliceInstanceId, NetworkSliceStatus.INSTANTIATING);
 			
 			log.debug("Retrieving NSD");
-			NsdInfo nsdInfo = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null)).getQueryResult().get(0);
-			log.debug("Nsd retrieved");
-			this.nsdInfoId = nsdInfo.getNsdInfoId();
-			
-			this.nsd = nsdInfo.getNsd();
-			
+			QueryNsdResponse nsdResponse = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null));
+			List<Sapd> saps = new ArrayList<Sapd>();
+			if(nsdResponse.getNsdFormat()==NsdFormat.IFA){
+				NsdInfo nsdInfo = ((QueryNsdIfaResponse)nsdResponse).getQueryResult().get(0);
+				log.debug("Nsd retrieved");
+				this.nsdInfoId = nsdInfo.getNsdInfoId();
+				this.nsd = nsdInfo.getNsd();
+				saps = nsd.getSapd();
+			}else if(nsdResponse.getNsdFormat()==NsdFormat.SOL006){
+				this.nsdInfoId = ((QueryNsdSolResponse)nsdResponse).getQueryResult().get(0).getIdentifier().toString();
+			}
+
 			String nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-"+ name, description, tenantId));
 			log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
 			this.nfvNsiInstanceId = nfvNsId;
 			nsRecordService.setNfvNsiInNsi(networkSliceInstanceId, nfvNsId);
-			
+
 			log.debug("Building NFV NS instantiation request");
-			
+
 			String ranEndPointId = null;
 			LocationInfo locationInfo = msg.getRequest().getLocationConstraints();
 			if (locationInfo!=null&&locationInfo.isMeaningful()) {
@@ -231,8 +241,8 @@ public class NsLcmManager {
 			}else{
 				log.info("No location constraints received. Continuing");
 			}
-			
-			List<Sapd> saps = nsd.getSapd();
+
+
 			List<SapData> sapData = new ArrayList<>();
 			Map<String, Object> sliceParameters = msg.getRequest().getSliceServiceParameters();
 
@@ -248,7 +258,7 @@ public class NsLcmManager {
 				SapData sData = null;
 				if (sap.getCpdId().equals(ranEndPointId)) {
 					sData = new SapData(sap.getCpdId(), 								//SAPD ID
-							"SAP-" + name + "-" + sap.getCpdId(),						//name 
+							"SAP-" + name + "-" + sap.getCpdId(),						//name
 							"SAP " + sap.getCpdId() + " for Network Slice " + name, 	//description
 							null,														//address
 							locationInfo,
@@ -256,7 +266,7 @@ public class NsLcmManager {
 					log.debug("Set location constraints for SAP " + sap.getCpdId());
 				} else {
 					sData = new SapData(sap.getCpdId(), 							//SAPD ID
-						"SAP-" + name + "-" + sap.getCpdId(),						//name 
+						"SAP-" + name + "-" + sap.getCpdId(),						//name
 						"SAP " + sap.getCpdId() + " for Network Slice " + name, 	//description
 						null,														//address
 						null, null);														//locationInfo
@@ -265,7 +275,7 @@ public class NsLcmManager {
 			}
 			log.debug("Completed SAP Data");
 			//TODO: here manage service profile info
-			
+
 			//Read NFV_NS_IDs from nsSubnetIds and put in nestedNsInstanceId list
 			List<String> nestedNfvNsId = new ArrayList<>();
 			for(String nsiId : msg.getRequest().getNsSubnetIds()){
@@ -280,9 +290,6 @@ public class NsLcmManager {
 
 			//Read configuration parameters
 			Map<String, String> additionalParamForNs = msg.getRequest().getUserData();
-			//added this for 5GZORRO to make the NFVO LCM driver aware of the slice instance ID
-			additionalParamForNs.put("nsi_id", this.networkSliceInstanceId);
-			additionalParamForNs.put("tenant_id", this.tenantId);
 			InstantiateNsRequest newNsRequest = new InstantiateNsRequest(nfvNsId,
 					dfId, 					//flavourId
 					sapData, 				//sapData
@@ -298,7 +305,7 @@ public class NsLcmManager {
 					sliceType);
 
 			String operationId = nfvoLcmService.instantiateNs(newNsRequest);					//additionalAffinityOrAntiAffinityRule
-			
+
 			log.debug("Sent request to NFVO service for instantiating NFV NS " + nfvNsId + ": operation ID " + operationId);
 			log.debug(new ObjectMapper().writeValueAsString(newNsRequest));
 		} catch (Exception e) {

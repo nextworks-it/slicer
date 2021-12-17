@@ -16,6 +16,28 @@
 package it.nextworks.nfvmano.sebastian.nsmf;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import it.nextworks.nfvmano.catalogue.template.elements.NsTemplateInfo;
+import it.nextworks.nfvmano.catalogues.template.repo.ConfigurationRuleRepository;
+import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
+import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
+import it.nextworks.nfvmano.libs.ifa.templates.NST;
+import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
+import it.nextworks.nfvmano.nfvodriver.NfvoLcmNotificationConsumerInterface;
+import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
+import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
+import it.nextworks.nfvmano.sebastian.common.ConfigurationParameters;
+import it.nextworks.nfvmano.sebastian.common.Utilities;
+import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.*;
+import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
+import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
+import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.NsLcmManager;
+import it.nextworks.nfvmano.sebastian.record.NsRecordService;
+import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
+import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.BindingBuilder;
@@ -31,45 +53,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotPermittedOperationException;
-import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
-import it.nextworks.nfvmano.libs.ifa.templates.NST;
-import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
-import it.nextworks.nfvmano.nfvodriver.NfvoLcmNotificationConsumerInterface;
-import it.nextworks.nfvmano.nfvodriver.NfvoLcmService;
-import it.nextworks.nfvmano.nfvodriver.NsStatusChange;
-import it.nextworks.nfvmano.catalogue.template.elements.NsTemplateInfo;
-import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.MethodNotImplementedException;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
-import it.nextworks.nfvmano.sebastian.common.ConfigurationParameters;
-import it.nextworks.nfvmano.sebastian.common.Utilities;
-import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.InstantiateNsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.ModifyNsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.NotifyNfvNsiStatusChange;
-import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.NsmfEngineMessage;
-import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.TerminateNsiRequestMessage;
-import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
-import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiIdRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.NsLcmManager;
-import it.nextworks.nfvmano.sebastian.record.NsRecordService;
-import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
-import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 
 @Service
@@ -104,6 +91,9 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     private Map<String, NsLcmManager> nsLcmManagers = new HashMap<>();
     
     private NsmfLcmConsumerInterface notificationDispatcher;
+
+    @Autowired
+    private ConfigurationRuleRepository configurationRuleRepository;
 
     /********************************************************************************/
 
@@ -248,6 +238,11 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
     		throw new MalformattedElementException("Query filter not supported.");
     	}
     	return nsis;
+    }
+
+    @Override
+    public void configureNetworkSliceInstance(ConfigureNsiRequest request, String domainId, String tenantId) throws MethodNotImplementedException, FailedOperationException, MalformattedElementException{
+        log.debug("Day1 not yet implemented.");
     }
 
     /**

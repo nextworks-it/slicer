@@ -21,6 +21,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import it.nextworks.nfvmano.catalogue.blueprint.elements.VsdNsdTranslationRule;
 import it.nextworks.nfvmano.sebastian.admin.MgmtCatalogueUtilities;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.VerticalServiceInstance;
@@ -251,5 +252,67 @@ public class VsLcmBasicRestController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	//############# VSMF Network Slice Instance endpoint retrieval ###########
+
+	@ApiOperation(value = "Get all NSI")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "The list of NSI", response = NetworkSliceInstance.class, responseContainer = "Set"),
+			@ApiResponse(code = 400, message = "The request contains elements impossible to process", response = Error.class),
+			@ApiResponse(code = 401, message = "User not allowed to perform the request.", response = Error.class),
+			@ApiResponse(code = 404, message = "NSIs not found", response = Error.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = Error.class)
+	})
+	@RequestMapping(value = "/nsi", method = RequestMethod.GET)
+	public ResponseEntity<?> getAllNsi(Authentication auth) {
+			log.debug("Received request to retrieve all the VS instances ID.");
+			try {
+				String user = getUserFromAuth(auth);
+				List<NetworkSliceInstance> response = vsLcmService.queryVsForNsi(new GeneralizedQueryRequest(MgmtCatalogueUtilities.buildTenantFilter(user), null), null);
+				return new ResponseEntity<>(response, HttpStatus.OK);
+			} catch (MalformattedElementException e) {
+				log.error("Malformatted request",e);
+				return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			} catch (NotExistingEntityException e) {
+				log.error("VS instance not found",e);
+				return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+			} catch (Exception e) {
+				log.error("Internal exception",e);
+				return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+	}
+
+	@ApiOperation(value = "Get NSI associated to a specific VSI")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "NSI associated to a specific VSI", response = NetworkSliceInstance.class),
+			@ApiResponse(code = 400, message = "The request contains elements impossible to process", response = Error.class),
+			@ApiResponse(code = 401, message = "User not allowed to perform the request.", response = Error.class),
+			@ApiResponse(code = 404, message = "VSI or NSI not found", response = Error.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = Error.class)
+	})
+	@RequestMapping(value = "/nsi/{vsiId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getAssociatedNsiForVsi(@PathVariable String vsiId, Authentication auth) {
+		log.debug("Received request to retrieve NS instance associated to VS instance with ID " + vsiId);
+		try {
+			String user = getUserFromAuth(auth);
+			List<NetworkSliceInstance> response = vsLcmService.queryVsForNsi(new GeneralizedQueryRequest(VSICatalogueUtilities.buildVsInstanceFilter(vsiId, user), null), null);
+			return new ResponseEntity<>(response.get(0), HttpStatus.OK);
+		} catch (MalformattedElementException e) {
+			log.error("Malformatted request");
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		} catch (NotExistingEntityException e) {
+			log.error("VS instance not found",e);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (NotPermittedOperationException e) {
+			log.error("VS instance not visible for the given tenant.",e);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+		} catch (Exception e) {
+			log.error("Internal exception: {}", e.getClass().getSimpleName());
+			log.debug("Details: ", e);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
 		
 }

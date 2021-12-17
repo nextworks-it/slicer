@@ -19,7 +19,6 @@ import it.nextworks.nfvmano.sebastian.vsfm.sbi.vsmf.VsmfInteractionHandler;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.vsmf.drivers.EveVsmfDriver;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.vsmf.drivers.VsmfLevelLoggingDriver;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.vsmf.polling.VsmfLcmOperationPollingManager;
-import it.nextworks.nfvmano.sebastian.vsfm.sbi.NsmfLcmOperationPollingManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +30,8 @@ import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static it.nextworks.nfvmano.sebastian.vsfm.sbi.NsmfType.NSMF_3GPP_LIKE;
 
 /**
  * This class is used to link the different components of the slicer 
@@ -66,8 +67,6 @@ public class SlicerConfigurator {
 
 	@Autowired
 	private VsmfInteractionHandler vsmfInteractionHandler;
-	@Autowired
-	private NsmfLcmOperationPollingManager nsmfLcmOperationPollingManager;
 
 	@Autowired
 	private VsmfLcmOperationPollingManager vsmfLcmOperationPollingManager;
@@ -96,7 +95,6 @@ public class SlicerConfigurator {
 		//vsLcmService.setNsmfLcmProvider(nsLcmService);
 		vsmfUtils.setNsmfLcmProvider(nsLcmService);
 
-
 		//vsmfInteractionHandler.addDriver("test", new VsmfLevelLoggingDriver("5GEVE", CsmfType.LOGGING, vsmfLcmOperationPollingManager));
 		nsmfInteractionHandler.init();
 		vsmfInteractionHandler.init();
@@ -108,12 +106,8 @@ public class SlicerConfigurator {
 		//HERE we should configure the available domains. For the moment only the local domain is configures
 		
 		
-			
-
-		
-			nsmfInteractionHandler.setDefaultDriver(nsLcmService);
-			vsLcmService.setNsmfLcmProvider(nsmfInteractionHandler);
-		nsmfLcmOperationPollingManager.setNsmfLcmProvider(nsmfInteractionHandler);
+		nsmfInteractionHandler.setDefaultDriver(nsLcmService);
+		vsLcmService.setNsmfLcmProvider(nsmfInteractionHandler);
 		
 	}
 

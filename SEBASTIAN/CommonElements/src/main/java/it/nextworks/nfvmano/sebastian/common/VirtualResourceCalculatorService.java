@@ -1,10 +1,15 @@
 package it.nextworks.nfvmano.sebastian.common;
 
-import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.VnfPackageManagementProviderInterface;
-import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.NsdManagementProviderInterface;
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.VnfPackageManagementProviderInterface;
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.NsdManagementProviderInterface;
 import it.nextworks.nfvmano.catalogues.template.services.NsTemplateCatalogueService;
-import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.messages.QueryNsdResponse;
-import it.nextworks.nfvmano.libs.ifa.catalogues.interfaces.messages.QueryOnBoardedVnfPkgInfoResponse;
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.messages.QueryNsdResponse;
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.messages.QueryNsdIfaResponse;
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.messages.QueryOnBoardedVnfPkgInfoIfaResponse;
+
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.enums.NsdFormat;
+
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.messages.QueryOnBoardedVnfPkgInfoResponse;
 import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.ifa.descriptors.common.elements.VirtualComputeDesc;
@@ -78,7 +83,7 @@ public class VirtualResourceCalculatorService {
         int vCPU = 0;
         int disk = 0;
 
-        QueryNsdResponse nsdRep = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null));
+        QueryNsdIfaResponse nsdRep = (QueryNsdIfaResponse)nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsdId, nsdVersion), null));
         Nsd nsd = nsdRep.getQueryResult().get(0).getNsd();
 
         //return a map with key = VNFD_ID and value a map with keys = [VNFD_ID, VNF_DF_ID, VNF_INSTANCES, VNF_INSTANTIATION_LEVEL]
@@ -95,7 +100,7 @@ public class VirtualResourceCalculatorService {
             int vnfVCpu = 0;
             int vnfDisk = 0;
 
-            QueryOnBoardedVnfPkgInfoResponse vnfPkg = vnfPackageManagementProviderInterface.queryVnfPackageInfo(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildVnfPackageInfoFilterFromVnfdId(vnfdId), null));
+            QueryOnBoardedVnfPkgInfoIfaResponse vnfPkg = (QueryOnBoardedVnfPkgInfoIfaResponse)vnfPackageManagementProviderInterface.queryVnfPackageInfo(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildVnfPackageInfoFilterFromVnfdId(vnfdId), null));
             Vnfd vnfd = vnfPkg.getQueryResult().get(0).getVnfd();
 
             VnfDf df = vnfd.getVnfDf(vnfDfId);
@@ -158,7 +163,7 @@ public class VirtualResourceCalculatorService {
 
         // TODO: for the time being in 5GCroCo nested NSD are not considered
         // TODO: we are assuming only one InstantiationLevel and only one DeploymentFlavour
-        QueryNsdResponse response = nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsst_nfvNsdId, nsst_nsdVersion),null));
+        QueryNsdIfaResponse response = (QueryNsdIfaResponse)nfvoCatalogueService.queryNsd(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nsst_nfvNsdId, nsst_nsdVersion),null));
         Nsd nsd = response.getQueryResult().get(0).getNsd();
         String nsst_nsdInstantiationLevel = nsd.getNsDf().get(0).getDefaultNsInstantiationLevelId();
         String nsst_nsdDeploymentFlavour = nsd.getNsDf().get(0).getNsDfId();
@@ -183,7 +188,7 @@ public class VirtualResourceCalculatorService {
             int vnfVCpu = 0;
             int vnfDisk = 0;
 
-            QueryOnBoardedVnfPkgInfoResponse vnfPkg = vnfPackageManagementProviderInterface.queryVnfPackageInfo(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildVnfPackageInfoFilterFromVnfdId(vnfdId), null));
+            QueryOnBoardedVnfPkgInfoIfaResponse vnfPkg = (QueryOnBoardedVnfPkgInfoIfaResponse)vnfPackageManagementProviderInterface.queryVnfPackageInfo(new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildVnfPackageInfoFilterFromVnfdId(vnfdId), null));
             Vnfd vnfd = vnfPkg.getQueryResult().get(0).getVnfd();
 
             VnfDf df = vnfd.getVnfDf(vnfDfId);

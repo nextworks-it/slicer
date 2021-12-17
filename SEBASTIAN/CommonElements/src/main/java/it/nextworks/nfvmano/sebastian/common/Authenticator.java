@@ -29,10 +29,10 @@ public class Authenticator {
 
     public void authenticate(String tenantId){
         log.info("Going to perform authentication to "+this.hostname + ". Local tenant ID is "+tenantId);
-        //if(isAuthenticated==true){
-        //    log.info(tenantId+" already authenticated.");
-        //    return;
-        //}
+        if(isAuthenticated==true){
+            log.info(tenantId+" already authenticated.");
+            return;
+        }
 
         String username="";
         String password="";

@@ -20,11 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import it.nextworks.nfvmano.catalogue.translator.NfvNsInstantiationInfo;
 import org.hibernate.annotations.Cascade;
@@ -55,6 +51,10 @@ public class NetworkSliceInstance {
 	private String nsdVersion;	//version of the descriptor of the NFV network service that implements the network slice
 
 	private String dfId; 	//ID of the deployment flavour in the NFV network service
+
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	@OneToMany(mappedBy="networkSliceInstance")
+	private List<NsSapInfo> sapInfo = new ArrayList<>();
 
 	private String instantiationLevelId;	//ID of the instantiation level in the NFV network service
 
@@ -352,5 +352,11 @@ public class NetworkSliceInstance {
 		this.errorMessage = errorMessage;
 	}
 
+	public List<NsSapInfo> getSapInfo(){
+		return sapInfo;
+	}
 
+	public void setSapInfo(List<NsSapInfo> sapInfo){
+		this.sapInfo = sapInfo;
+	}
 }

@@ -117,6 +117,19 @@ public class ArbitratorService implements ArbitratorInterface {
 					 virtualResourceCalculatorService,
 					 null
 			 );
+		 }else if (arbitratorType.equals("NO_ARBITRATOR")) {
+				 log.debug("The Vertical Slicer is configured to operate with NO_ABRITRATOR arbitrator.");
+				 arbitrator = new NoArbitrator(
+						 adminService,
+						 vsRecordService,
+						 vsDescriptorCatalogueService,
+						 translatorService,
+						 nfvoCatalogueService,
+						 nsTemplateCatalogueService,
+						 virtualResourceCalculatorService,
+						 null
+				 );
+
 		 } else if(arbitratorType.equals("EXTERNAL")){
 			 log.debug("The Vertical Slicer is configured to operate with an EXTERNAL arbitrator.");
 			 arbitrator = new ExternalArbitrator(externalArbitratorService, externalArbitratorBaseUrl);

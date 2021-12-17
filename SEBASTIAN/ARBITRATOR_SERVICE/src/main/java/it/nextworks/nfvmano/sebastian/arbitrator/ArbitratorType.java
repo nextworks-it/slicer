@@ -19,6 +19,7 @@ public enum ArbitratorType {
 
     BASIC_ARBITRATOR,
     MULTI_DOMAIN_BASIC_ARBITRATOR,
+    NO_ARBITRATOR,
     EXERNAL
 
 }

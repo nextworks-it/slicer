@@ -177,7 +177,8 @@ public class VsRecordService {
 		VerticalServiceInstance vsi = getVsInstance(vsiId);
 		vsi.addNetworkSliceSubnetInstance(nssi);
 		vsInstanceRepository.saveAndFlush(vsi);
-		log.debug("Added NSSI with ID " + nssi.getNssiId() + " into VSI with ID ");
+		log.debug("Added NSSI with ID " + nssi.getNssiId() + " into VSI with ID " + vsiId);
+		log.debug("VSI: " + vsi);
 	}
 	
 	/**
@@ -193,7 +194,7 @@ public class VsRecordService {
 		VerticalServiceInstance vsi = getVsInstance(vsiId);
 		vsi.setNetworkSliceSubnetStatus(nssiId, status);
 		vsInstanceRepository.saveAndFlush(vsi);
-		log.debug("Updated status of NSSI with ID " + nssiId + " into VSI with ID ");
+		log.debug("Updated status of NSSI with ID " + nssiId + " into VSI with ID " + vsiId);
 	}
 
 	/**

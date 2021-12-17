@@ -21,6 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 import it.nextworks.nfvmano.catalogues.template.services.NsTemplateCatalogueService;
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.messages.QueryNsdResponse;
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.messages.QueryNsdIfaResponse;
+
+import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.enums.NsdFormat;
+
 import it.nextworks.nfvmano.libs.ifa.descriptors.nsd.Nsd;
 import it.nextworks.nfvmano.catalogue.blueprint.services.VsDescriptorCatalogueService;
 import it.nextworks.nfvmano.catalogue.blueprint.elements.ServiceConstraints;
@@ -148,66 +153,74 @@ public class BasicArbitrator extends AbstractArbitrator {
 			String nsdVersion = nsInitInfo.getNsdVersion();
 
 			//Nsd nsd = nfvoCatalogueService.queryNsdAssumingOne(nfvNsId, nsdVersion);
-			Nsd nsd = nfvoCatalogueService.queryNsdAssumingOne(BlueprintCatalogueUtilities.buildNsdFilter(nfvNsId,nsdVersion));
-			List<String> nestedNsdIds = nsd.getNestedNsdId();
-			Map<String, Boolean> existingNsiIds = null;
-			if (!nestedNsdIds.isEmpty()){
+			GeneralizedQueryRequest queryRequest = new GeneralizedQueryRequest(BlueprintCatalogueUtilities.buildNsdFilter(nfvNsId, nsdVersion), null);
+			QueryNsdResponse nsdResponse = nfvoCatalogueService.queryNsd(queryRequest);
+			if (nsdResponse.getNsdFormat() == NsdFormat.IFA) {
+				Nsd nsd = ((QueryNsdIfaResponse)nsdResponse).getQueryResult().get(0).getNsd();
+				List<String> nestedNsdIds = nsd.getNestedNsdId();
+				Map<String, Boolean> existingNsiIds = null;
+				if (!nestedNsdIds.isEmpty()) {
 
-				//Retrieve <DF, IL> from nsInitInfo
-				String instantiationLevelId = nsInitInfo.getInstantiationLevelId();
-				String deploymentFlavourID = nsInitInfo.getDeploymentFlavourId();
-				//Create NSIid sublist
-				existingNsiIds = new HashMap<>();
-				for(String nestedNsdId : nestedNsdIds) {
-					//Check existing NSI per id, tenant, IL, DF
-					List<NetworkSliceInstance> nsis = getUsableSlices(tenantId, nestedNsdId, nsdVersion, deploymentFlavourID, instantiationLevelId);
+					//Retrieve <DF, IL> from nsInitInfo
+					String instantiationLevelId = nsInitInfo.getInstantiationLevelId();
+					String deploymentFlavourID = nsInitInfo.getDeploymentFlavourId();
+					//Create NSIid sublist
+					existingNsiIds = new HashMap<>();
+					for (String nestedNsdId : nestedNsdIds) {
+						//Check existing NSI per id, tenant, IL, DF
+						List<NetworkSliceInstance> nsis = getUsableSlices(tenantId, nestedNsdId, nsdVersion, deploymentFlavourID, instantiationLevelId);
 
-					for (NetworkSliceInstance nsi : nsis) {
-						existingNsiIds.put(nsi.getNsiId(), false);
-						log.debug("Existing NSI found found: {}", nsi.getNsiId());
+						for (NetworkSliceInstance nsi : nsis) {
+							existingNsiIds.put(nsi.getNsiId(), false);
+							log.debug("Existing NSI found found: {}", nsi.getNsiId());
+						}
 					}
 				}
+
+				VirtualResourceUsage requiredRes = virtualResourceCalculatorService.computeVirtualResourceUsage(nsInitInfo);
+				log.debug("The total amount of required resources for the service is the following: " + requiredRes.toString());
+
+				log.debug("Reading info about active SLA and used resources for the given tenant.");
+
+				Tenant tenant = adminService.getTenant(tenantId);
+				Sla tenantSla = tenant.getActiveSla();
+				//TODO: At the moment we are considering only the SLA about global resource usage. MEC versus cloud still to be managed.
+				SlaVirtualResourceConstraint sc = tenantSla.getGlobalConstraint();
+				VirtualResourceUsage maxRes = sc.getMaxResourceLimit();
+				log.debug("The maximum amount of global virtual resources allowed for the tenant is the following: " + maxRes.toString());
+
+				VirtualResourceUsage usedRes = tenant.getAllocatedResources();
+				log.debug("The current resource usage for the tenant is the following: " + usedRes.toString());
+
+				boolean acceptableRequest = true;
+				if ((requiredRes.getDiskStorage() + usedRes.getDiskStorage()) > maxRes.getDiskStorage())
+					acceptableRequest = false;
+				if ((requiredRes.getMemoryRAM() + usedRes.getMemoryRAM()) > maxRes.getMemoryRAM())
+					acceptableRequest = false;
+				if ((requiredRes.getvCPU() + usedRes.getvCPU()) > maxRes.getvCPU()) acceptableRequest = false;
+
+				if (!acceptableRequest) impactedVerticalServiceInstances = generateImpactedVsList(tenantId);
+
+				ArbitratorResponse response = new ArbitratorResponse(requests.get(0).getRequestId(),
+						acceptableRequest,                    //acceptableRequest
+						true,                                //newSliceRequired,
+						null,                                //existingCompositeSlice,
+						false,                                //existingCompositeSliceToUpdate,
+						existingNsiIds,
+						impactedVerticalServiceInstances);
+				List<ArbitratorResponse> responses = new ArrayList<>();
+				responses.add(response);
+				return responses;
+			}else throw new FailedOperationException("NSD format not supported");
+
+			} catch(NotExistingEntityException e){
+				log.error("Info not found from NFVO or DB: " + e.getMessage());
+				throw new NotExistingEntityException("Error retrieving info at the arbitrator: " + e.getMessage());
+			} catch(Exception e){
+				log.error("Failure at the arbitrator: " + e.getMessage());
+				throw new FailedOperationException(e.getMessage());
 			}
 
-			VirtualResourceUsage requiredRes = virtualResourceCalculatorService.computeVirtualResourceUsage(nsInitInfo);
-			log.debug("The total amount of required resources for the service is the following: " + requiredRes.toString());
-			
-			log.debug("Reading info about active SLA and used resources for the given tenant.");
-			
-			Tenant tenant = adminService.getTenant(tenantId);
-			Sla tenantSla = tenant.getActiveSla();
-			//TODO: At the moment we are considering only the SLA about global resource usage. MEC versus cloud still to be managed.
-			SlaVirtualResourceConstraint sc = tenantSla.getGlobalConstraint();
-			VirtualResourceUsage maxRes = sc.getMaxResourceLimit();
-			log.debug("The maximum amount of global virtual resources allowed for the tenant is the following: " + maxRes.toString());
-			
-			VirtualResourceUsage usedRes = tenant.getAllocatedResources();
-			log.debug("The current resource usage for the tenant is the following: " + usedRes.toString());
-			
-			boolean acceptableRequest = true;
-			if ((requiredRes.getDiskStorage() + usedRes.getDiskStorage()) > maxRes.getDiskStorage()) acceptableRequest = false;
-			if ((requiredRes.getMemoryRAM() + usedRes.getMemoryRAM()) > maxRes.getMemoryRAM()) acceptableRequest = false;
-			if ((requiredRes.getvCPU() + usedRes.getvCPU()) > maxRes.getvCPU()) acceptableRequest = false;
-
-			if (!acceptableRequest) impactedVerticalServiceInstances = generateImpactedVsList(tenantId);
-
-			ArbitratorResponse response = new ArbitratorResponse(requests.get(0).getRequestId(), 
-					acceptableRequest,					//acceptableRequest 
-					true, 								//newSliceRequired, 
-					null, 								//existingCompositeSlice, 
-					false, 								//existingCompositeSliceToUpdate, 
-					existingNsiIds,
-					impactedVerticalServiceInstances);
-			List<ArbitratorResponse> responses = new ArrayList<>();
-			responses.add(response);
-			return responses;
-		} catch (NotExistingEntityException e) {
-			log.error("Info not found from NFVO or DB: " + e.getMessage());
-			throw new NotExistingEntityException("Error retrieving info at the arbitrator: " + e.getMessage()); 
-		} catch (Exception e) {
-			log.error("Failure at the arbitrator: " + e.getMessage());
-			throw new FailedOperationException(e.getMessage());
-		}
 	}
 
 	@Override
