@@ -24,14 +24,12 @@ public class PolledNsmfLcmOperation {
     OperationStatus expectedStatus;
     String nsiId;
 
-    //acceptable values for operation: NSI_CREATION, NSI_TERMINATION
+    //acceptable values for operation: NSI_CREATION, NSI_TERMINATION, NSI_CONFIGURATION
     String operationType;
 
     String domainId;
 
     NspNbiType domainType;
-
-    private String tenantId;
 
     /**
      * Constructor
@@ -53,35 +51,6 @@ public class PolledNsmfLcmOperation {
         this.operationType = operationType;
         this.domainId = domainId;
         this.domainType = domainType;
-        this.tenantId=null;
-    }
-
-    /**
-     * Constructor
-     *
-     * @param operationId    ID of the operation to be polled
-     * @param expectedStatus expected status of the operation
-     * @param nsiId          ID of the Network Slice instance this operation refers to
-     * @param operationType  ID of the type of operation to be polled. Acceptable values are: NSI_CREATION, NSI_TERMINATION
-     */
-    public PolledNsmfLcmOperation(String operationId,
-                                  OperationStatus expectedStatus,
-                                  String nsiId,
-                                  String operationType,
-                                  String domainId,
-                                  NspNbiType domainType,
-                                  String tenantId) {
-        this.operationId = operationId;
-        this.expectedStatus = expectedStatus;
-        this.nsiId = nsiId;
-        this.operationType = operationType;
-        this.domainId = domainId;
-        this.domainType = domainType;
-        this.tenantId = tenantId;
-    }
-
-    public String getTenantId() {
-        return tenantId;
     }
 
     /**

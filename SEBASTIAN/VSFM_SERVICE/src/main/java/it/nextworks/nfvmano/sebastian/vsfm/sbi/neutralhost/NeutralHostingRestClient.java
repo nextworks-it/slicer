@@ -5,14 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.catalogue.domainLayer.NspNbiType;
 import it.nextworks.nfvmano.catalogue.domainLayer.customDomainLayer.OsmNfvoDomainLayer;
 import it.nextworks.nfvmano.catalogue.template.elements.NsTemplateInfo;
+import it.nextworks.nfvmano.catalogues.template.repo.ConfigurationRuleRepository;
 import it.nextworks.nfvmano.libs.ifa.common.enums.OperationStatus;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiIdRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.AbstractNsmfDriver;
@@ -23,7 +21,9 @@ import java.util.*;
 
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.neutralhost.elements.*;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.neutralhost.repos.NHTranslationInformationRepository;
-import it.nextworks.nfvmano.sebastian.vsfm.sbi.sonata.elements.SonataTranslationInformation;
+import it.nextworks.nfvmano.sebastian.vsfm.sbi.osm.elements.OsmInfoObjectSimplified;
+import it.nextworks.nfvmano.sebastian.vsfm.sbi.osm.elements.OsmTokenRequest;
+import it.nextworks.nfvmano.sebastian.vsfm.sbi.osm.elements.OsmTokenSimplified;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.utils.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +48,11 @@ public class NeutralHostingRestClient extends AbstractNsmfDriver {
 
     private NHTranslationInformationRepository translationInformationRepository;
 
+    private ConfigurationRuleRepository configurationRuleRepository;
+
     private ObjectMapper mapper;
 
-    public NeutralHostingRestClient(String domainId, String url, String admin, String tenantId, OsmNfvoDomainLayer osmNfvoDomainLayer, NHTranslationInformationRepository repo, CommonUtils utils, NsmfLcmOperationPollingManager nsmfLcmOperationPollingManager) {
+    public NeutralHostingRestClient(String domainId, String url, String admin, String tenantId, OsmNfvoDomainLayer osmNfvoDomainLayer, NHTranslationInformationRepository repo, ConfigurationRuleRepository configurationRuleRepository, CommonUtils utils, NsmfLcmOperationPollingManager nsmfLcmOperationPollingManager) {
         super(NsmfType.NEUTRAL_HOSTING, domainId);
         this.baseUrl = url;
         this.smAdmin = admin;
@@ -64,12 +66,13 @@ public class NeutralHostingRestClient extends AbstractNsmfDriver {
         this.mapper = new ObjectMapper();
         this.translationInformationRepository = repo;
         this.pollingManager = nsmfLcmOperationPollingManager;
+        this.configurationRuleRepository = configurationRuleRepository;
     }
 
     public OsmTokenSimplified getAuthenticationToken() {
         OsmTokenRequest tokenReq = new OsmTokenRequest(osmUser, osmPassword, osmProject);
         String url = osmBaseUrl + "/admin/v1/tokens";
-        ResponseEntity<String> httpResponse = utils.performHTTPRequest(tokenReq, url, HttpMethod.POST, null);
+        ResponseEntity<String> httpResponse = utils.performHTTPRequest(tokenReq, url, HttpMethod.POST, null,null);
         String tokenResp = utils.manageHTTPResponse(httpResponse, "Cannot obtain OSM authentication token", "OSM authentication token correctly obtained", HttpStatus.OK);
         OsmTokenSimplified token = null;
         try {
@@ -103,7 +106,7 @@ public class NeutralHostingRestClient extends AbstractNsmfDriver {
         String nsdId = nsTemplate.getNsdId();
         verifyToken();
         String url = String.format("%s/nsd/v1/ns_descriptors?id=%s", osmBaseUrl, nsdId);
-        ResponseEntity<String> httpResponse = utils.performHTTPRequest(null, url, HttpMethod.GET, osmToken.getId());
+        ResponseEntity<String> httpResponse = utils.performHTTPRequest(null, url, HttpMethod.GET, null, osmToken.getId());
         String nsDescriptorResponse = utils.manageHTTPResponse(httpResponse, "Cannot obtain OSM NSD", "OSM NSD correctly obtained", HttpStatus.OK);
         if (nsDescriptorResponse == null)
             throw new FailedOperationException("Cannot create Network Slice Identifier");
@@ -130,7 +133,7 @@ public class NeutralHostingRestClient extends AbstractNsmfDriver {
         NHTranslationInformation translationInformation = getTranslationInformation(request.getNsiId());
         NeutralHostNSInstantiationRequest instantiationRequest = new NeutralHostNSInstantiationRequest(translationInformation.getNstName(), translationInformation.getNstName(), translationInformation.getOsmInfoId(), new ArrayList<>(), this.tenantId, false, smAdmin);
         String url = String.format("%s/api/v0.1/network_service_instance", baseUrl);
-        ResponseEntity<String> httpResponse = utils.performHTTPRequest(instantiationRequest, url, HttpMethod.POST, null);
+        ResponseEntity<String> httpResponse = utils.performHTTPRequest(instantiationRequest, url, HttpMethod.POST, null,null);
         String nsInstanceResponse = utils.manageHTTPResponse(httpResponse, "Cannot instantiate NS", "NS instantiation request correctly sent", HttpStatus.OK);
         if (nsInstanceResponse == null)
             throw new FailedOperationException("Cannot instantiate Network Slice");
@@ -162,7 +165,7 @@ public class NeutralHostingRestClient extends AbstractNsmfDriver {
         request.isValid();
         NHTranslationInformation translationInformation = getTranslationInformation(request.getNsiId());
         String url = String.format("%s/api/v0.1/network_service_instance/%s", baseUrl, translationInformation.getSmNsInstanceId());
-        ResponseEntity<String> httpResponse = utils.performHTTPRequest(null, url, HttpMethod.DELETE, null);
+        ResponseEntity<String> httpResponse = utils.performHTTPRequest(null, url, HttpMethod.DELETE, null,null);
         String nsDeleteResponse = utils.manageHTTPResponse(httpResponse, "Cannot terminate NS", "NS termination request correctly sent", HttpStatus.NO_CONTENT);
         if (nsDeleteResponse == null)
             throw new FailedOperationException("Cannot terminate Network Slice");
@@ -185,7 +188,7 @@ public class NeutralHostingRestClient extends AbstractNsmfDriver {
             url = String.format("%s/api/v0.1/network_service_instance/%s", baseUrl, translationInformation.getSmNsInstanceId());
         } else
             url = String.format("%s/api/v0.1/network_service_instance", baseUrl);
-        ResponseEntity<String> httpResponse = utils.performHTTPRequest(null, url, HttpMethod.GET, null);
+        ResponseEntity<String> httpResponse = utils.performHTTPRequest(null, url, HttpMethod.GET, null,null);
         String queryNSResponse = utils.manageHTTPResponse(httpResponse, "Cannot obtain Network Slice Instance information", "Network Slice Instance information correctly obtained", HttpStatus.OK);
         if (queryNSResponse == null)
             throw new FailedOperationException("Cannot obtain Network Slice Instance information");
@@ -204,6 +207,11 @@ public class NeutralHostingRestClient extends AbstractNsmfDriver {
         }
 
         return translateNeutralHostInstances(nsInstances);
+    }
+
+    @Override
+    public void configureNetworkSliceInstance(ConfigureNsiRequest request, String domainId, String tenantId) throws MethodNotImplementedException, FailedOperationException, MalformattedElementException{
+        throw new MethodNotImplementedException("Day1 configuration currently not supported");
     }
 
     private List<NetworkSliceInstance> translateNeutralHostInstances(List<NeutralHostNSInstance> NHNsInstances){

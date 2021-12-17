@@ -113,10 +113,12 @@ public class CommonUtils {
         return httpResponse.getBody().toString();
     }
 
-    public ResponseEntity<String> performHTTPRequest(Object request, String url, HttpMethod httpMethod, String token) {
+    public ResponseEntity<String> performHTTPRequest(Object request, String url, HttpMethod httpMethod, Map<String, String> additionalHeaders, String token) {
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         header.add("Accept", "application/json");
+        if(additionalHeaders != null)
+            additionalHeaders.forEach((key, value) -> header.add(key, value));
         if (token != null)
             header.add("Authorization", "Bearer " + token);
         HttpEntity<?> httpEntity = new HttpEntity<>(request, header);

@@ -1,11 +1,15 @@
 package it.nextworks.nfvmano.sebastian.vsfm.sbi.osm.elements;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 public class OsmTranslationInformation {
@@ -27,6 +31,11 @@ public class OsmTranslationInformation {
     private String instantiationOperationId;
     private String terminationOperationId;
     private NetworkSliceStatus status;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SELECT)
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    private Map<String, String> userData = new HashMap<>();
 
     public OsmTranslationInformation() {
 
@@ -146,5 +155,13 @@ public class OsmTranslationInformation {
 
     public void setStatus(NetworkSliceStatus status) {
         this.status = status;
+    }
+
+    public Map<String, String> getUserData() {
+        return userData;
+    }
+
+    public void setUserData(Map<String, String> userData) {
+        this.userData = userData;
     }
 }

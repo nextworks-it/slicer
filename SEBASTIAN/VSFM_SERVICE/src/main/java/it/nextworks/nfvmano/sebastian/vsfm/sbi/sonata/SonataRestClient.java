@@ -4,14 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.catalogue.domainLayer.NspNbiType;
 import it.nextworks.nfvmano.catalogue.template.elements.NsTemplateInfo;
+import it.nextworks.nfvmano.catalogues.template.repo.ConfigurationRuleRepository;
 import it.nextworks.nfvmano.libs.ifa.common.enums.OperationStatus;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.libs.ifa.templates.NST;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.CreateNsiIdRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.InstantiateNsiRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.ModifyNsiRequest;
-import it.nextworks.nfvmano.sebastian.nsmf.messages.TerminateNsiRequest;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.AbstractNsmfDriver;
@@ -40,10 +38,11 @@ public class SonataRestClient extends AbstractNsmfDriver {
     private NsmfLcmOperationPollingManager pollingManager;
 
     private SonataTranslationInformationRepository translationInformationRepository;
+    private ConfigurationRuleRepository configurationRuleRepository;
 
     private ObjectMapper mapper;
 
-    public SonataRestClient(String domainId, String url, String username, String password, SonataTranslationInformationRepository repo, CommonUtils utils, NsmfLcmOperationPollingManager nsmfLcmOperationPollingManager) {
+    public SonataRestClient(String domainId, String url, String username, String password, SonataTranslationInformationRepository repo, ConfigurationRuleRepository configurationRuleRepository, CommonUtils utils, NsmfLcmOperationPollingManager nsmfLcmOperationPollingManager) {
         super(NsmfType.SONATA, domainId);
         this.baseUrl = url + "/api/v3";
         this.username = username;
@@ -52,12 +51,13 @@ public class SonataRestClient extends AbstractNsmfDriver {
         this.mapper = new ObjectMapper();
         this.translationInformationRepository = repo;
         this.pollingManager = nsmfLcmOperationPollingManager;
+        this.configurationRuleRepository = configurationRuleRepository;
     }
 
     public SonataToken getAuthenticationToken() {
         SonataTokenRequest tokenReq = new SonataTokenRequest(username, password);
         String url = String.format("%s/users/sessions/", baseUrl);
-        ResponseEntity<String> httpResponse = utils.performHTTPRequest(tokenReq, url, HttpMethod.POST, null);
+        ResponseEntity<String> httpResponse = utils.performHTTPRequest(tokenReq, url, HttpMethod.POST, null,null);
         String tokenResp = utils.manageHTTPResponse(httpResponse, "Cannot obtain Sonata authentication token", "Sonata authentication token correctly obtained", HttpStatus.OK);
         SonataToken token = null;
         try {
@@ -101,7 +101,7 @@ public class SonataRestClient extends AbstractNsmfDriver {
         SonataNSInstantiationRequest instantiationRequest = new SonataNSInstantiationRequest(request.getNstId(), translationInformation.getNstName(), translationInformation.getNstName());
         String url = String.format("%s/requests", baseUrl);
         verifyToken();
-        ResponseEntity<String> httpResponse = utils.performHTTPRequest(instantiationRequest, url, HttpMethod.POST, sonataToken.getToken());
+        ResponseEntity<String> httpResponse = utils.performHTTPRequest(instantiationRequest, url, HttpMethod.POST, null, sonataToken.getToken());
         String nsInstanceResponse = utils.manageHTTPResponse(httpResponse, "Cannot instantiate NS", "NS instantiation request correctly sent", HttpStatus.CREATED);
         if (nsInstanceResponse == null)
             throw new FailedOperationException("Cannot instantiate Network Slice");
@@ -135,7 +135,7 @@ public class SonataRestClient extends AbstractNsmfDriver {
         String url = String.format("%s/requests", baseUrl);
         SonataNSTerminationRequest terminationRequest = new SonataNSTerminationRequest(translationInformation.getSonataInstanceId());
         verifyToken();
-        ResponseEntity<String> httpResponse = utils.performHTTPRequest(terminationRequest, url, HttpMethod.POST, sonataToken.getToken());
+        ResponseEntity<String> httpResponse = utils.performHTTPRequest(terminationRequest, url, HttpMethod.POST, null, sonataToken.getToken());
         String nsDeleteResponse = utils.manageHTTPResponse(httpResponse, "Cannot terminate NS", "NS termination request correctly sent", HttpStatus.CREATED);
         if (nsDeleteResponse == null)
             throw new FailedOperationException("Cannot terminate Network Slice");
@@ -164,7 +164,7 @@ public class SonataRestClient extends AbstractNsmfDriver {
         } else
             url = String.format("%s/slice-instances", baseUrl);
         verifyToken();
-        ResponseEntity<String> httpResponse = utils.performHTTPRequest(null, url, HttpMethod.GET, sonataToken.getToken());
+        ResponseEntity<String> httpResponse = utils.performHTTPRequest(null, url, HttpMethod.GET, null, sonataToken.getToken());
         String queryNSResponse = utils.manageHTTPResponse(httpResponse, "Cannot obtain Network Slice Instance information", "Network Slice Instance information correctly obtained", HttpStatus.OK);
         if (queryNSResponse == null)
             throw new FailedOperationException("Cannot obtain Network Slice Instance information");
@@ -186,6 +186,11 @@ public class SonataRestClient extends AbstractNsmfDriver {
         }
 
         return sonataInstanceId != null ? translateSonataNsInstances(nsInstances) : translateSonataRequestInstance(requestInstance, nsiId);
+    }
+
+    @Override
+    public void configureNetworkSliceInstance(ConfigureNsiRequest request, String domainId, String tenantId) throws MethodNotImplementedException, FailedOperationException, MalformattedElementException{
+        throw new MethodNotImplementedException("Day1 configuration currently not supported");
     }
 
     private List<NetworkSliceInstance> translateSonataNsInstances(List<NSI> sonataNsInstances) throws FailedOperationException {

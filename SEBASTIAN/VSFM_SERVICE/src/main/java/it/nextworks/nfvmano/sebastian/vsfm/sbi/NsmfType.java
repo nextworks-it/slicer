@@ -21,5 +21,6 @@ public enum NsmfType {
     SONATA,
     NEUTRAL_HOSTING,
     DUMMY,
+    SLICE_MANAGER,
     OSM
 }

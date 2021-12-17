@@ -1,10 +1,12 @@
 package it.nextworks.nfvmano.sebastian.vsfm.sbi.dummy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.nextworks.nfvmano.catalogues.template.repo.ConfigurationRuleRepository;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.*;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
+import it.nextworks.nfvmano.sebastian.record.elements.NsSapInfo;
 import it.nextworks.nfvmano.sebastian.vsfm.VsLcmService;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.AbstractNsmfDriver;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.NsmfType;
@@ -25,14 +27,16 @@ public class DummyRestClient extends AbstractNsmfDriver {
 
     private VsLcmService vsLcmService;
     private DummyTranslationInformationRepository dummyTranslationInformationRepository;
+    private ConfigurationRuleRepository configurationRuleRepository;
 
-    public DummyRestClient(String domainId, CommonUtils utils, VsLcmService vsLcmService, DummyTranslationInformationRepository dummyTranslationInformationRepository) {
+    public DummyRestClient(String domainId, CommonUtils utils, VsLcmService vsLcmService, DummyTranslationInformationRepository dummyTranslationInformationRepository, ConfigurationRuleRepository configurationRuleRepository) {
         super(NsmfType.DUMMY, domainId);
         this.utils = utils;
         this.mapper = new ObjectMapper();
 
         this.vsLcmService = vsLcmService;
         this.dummyTranslationInformationRepository = dummyTranslationInformationRepository;
+        this.configurationRuleRepository = configurationRuleRepository;
     }
 
     @Override
@@ -97,11 +101,24 @@ public class DummyRestClient extends AbstractNsmfDriver {
                 NetworkSliceInstance networkSliceInstance = new NetworkSliceInstance();
                 networkSliceInstance.setNsiId(dummyTranslationInformation.getNsiId());
                 networkSliceInstance.setSoManaged(false);
-
+                NsSapInfo nsSapInfo = new NsSapInfo(null,"prova",null,"0.0.0.0");
+                List<NsSapInfo> nsSapInfos = new ArrayList<>();
+                nsSapInfos.add(nsSapInfo);
+                networkSliceInstance.setSapInfo(nsSapInfos);
                 networkSliceInstances.add(networkSliceInstance);
             }
         }
 
         return networkSliceInstances;
+    }
+
+    @Override
+    public void configureNetworkSliceInstance(ConfigureNsiRequest request, String domainId, String tenantId) throws MethodNotImplementedException, FailedOperationException, MalformattedElementException{
+        //throw new MethodNotImplementedException("Day1 configuration currently not supported");
+        log.debug("Received configuration request\nnstId: " + request.getNsiId()
+        + "\nnsstId: " + request.getNsstId() + "\nparams: " + request.getParameters());
+
+        NetworkSliceStatusChangeNotification notification = new NetworkSliceStatusChangeNotification(request.getNsiId(), NetworkSliceStatusChange.NSI_CONFIGURED, true);
+        vsLcmService.notifyNetworkSliceStatusChange(notification);
     }
 }

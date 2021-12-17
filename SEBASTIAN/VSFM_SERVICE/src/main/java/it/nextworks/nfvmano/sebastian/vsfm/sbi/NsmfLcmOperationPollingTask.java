@@ -17,17 +17,14 @@ package it.nextworks.nfvmano.sebastian.vsfm.sbi;
 
 import it.nextworks.nfvmano.catalogue.domainLayer.NspNbiType;
 import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
-import it.nextworks.nfvmano.libs.ifa.common.enums.LcmNotificationType;
 import it.nextworks.nfvmano.libs.ifa.common.enums.OperationStatus;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MethodNotImplementedException;
-import it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest;
-import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.NsLcmProviderInterface;
-import it.nextworks.nfvmano.libs.ifa.osmanfvo.nslcm.interfaces.messages.NsLifecycleChangeNotification;
 
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
+import it.nextworks.nfvmano.sebastian.nsmf.messages.ConfigureNsiRequest;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChange;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.NetworkSliceStatusChangeNotification;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
@@ -40,7 +37,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 
@@ -85,7 +81,7 @@ public class NsmfLcmOperationPollingTask implements Runnable {
                         break;
                     }
                     default: {
-                        log.error("Expected status not supported for polled VNFM operation");
+                        log.error("Expected status not supported for polled NSMF operation");
                         break;
                     }
                 }
@@ -112,7 +108,7 @@ public class NsmfLcmOperationPollingTask implements Runnable {
                 parameters.put("REQUEST_TYPE",  "NSI_CREATION");
                 filter = new Filter(parameters);
                 request = new GeneralizedQueryRequest(filter, new ArrayList<>());
-                nsiInstances = nsmfLcmProvider.queryNetworkSliceInstance(request, operation.getDomainId(), operation.getTenantId());
+                nsiInstances = nsmfLcmProvider.queryNetworkSliceInstance(request, operation.getDomainId(), null);
                 if (nsiInstances.size() == 1 && nsiInstances.get(0).getStatus().equals(NetworkSliceStatus.INSTANTIATED)) {
                     log.debug("Network slice instance {} successfully instantiated", operation.getNsiId());
                     notification = new NetworkSliceStatusChangeNotification(operation.getNsiId(), NetworkSliceStatusChange.NSI_CREATED, true);
@@ -152,6 +148,23 @@ public class NsmfLcmOperationPollingTask implements Runnable {
                         vsLcmService.notifyNetworkSliceStatusChange(notification);
                         return true;
                     }
+                }
+            }else if (operation.getOperationType().equals("NSI_CONFIGURATION")) {
+                parameters.put("NSI_ID", operation.getNsiId());
+                parameters.put("REQUEST_TYPE",  "NSI_CONFIGURATION");
+                filter = new Filter(parameters);
+                request = new GeneralizedQueryRequest(filter, new ArrayList<>());
+                nsiInstances = nsmfLcmProvider.queryNetworkSliceInstance(request, operation.getDomainId(), null);
+                if (nsiInstances.size() == 1 && nsiInstances.get(0).getStatus().equals(NetworkSliceStatus.CONFIGURED)) {
+                    log.debug("Network slice instance {} successfully configured", operation.getNsiId());
+                    notification = new NetworkSliceStatusChangeNotification(operation.getNsiId(), NetworkSliceStatusChange.NSI_CONFIGURED, true);
+                    vsLcmService.notifyNetworkSliceStatusChange(notification);
+                    return true;
+                } else if (nsiInstances.size() == 1 && nsiInstances.get(0).getStatus().equals(NetworkSliceStatus.FAILED)) {
+                    log.debug("Network slice instance {} configuration failed", operation.getNsiId());
+                    notification = new NetworkSliceStatusChangeNotification(operation.getNsiId(), NetworkSliceStatusChange.NSI_FAILED, false);
+                    vsLcmService.notifyNetworkSliceStatusChange(notification);
+                    return true;
                 }
             }
         } catch (MethodNotImplementedException | FailedOperationException | MalformattedElementException e) {

@@ -1,8 +1,12 @@
 package it.nextworks.nfvmano.sebastian.vsfm.sbi.osm.elements;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 public class OsmNSInstantiationRequest {
+
     @JsonProperty("vimAccountId")
     private String vimAccountId;
     @JsonProperty("nsiName")
