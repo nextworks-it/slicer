@@ -26,6 +26,7 @@ import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceSubnetInstance
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -38,7 +39,10 @@ public class VirtualResourceCalculatorService {
 
     private static final Logger log = LoggerFactory.getLogger(VirtualResourceCalculatorService.class);
 
+    @Value("${enable_resource_calculation:false}")
+    private boolean enableResourceCalculation;
 
+    private String nfvoCatalogueUsername;
 
     private NsdManagementProviderInterface nfvoCatalogueService=null;
 
@@ -68,6 +72,9 @@ public class VirtualResourceCalculatorService {
     public VirtualResourceUsage computeVirtualResourceUsage(NfvNsInstantiationInfo nsInstantiationInfo) throws Exception {
         log.debug("Computing the amount of resources associated to a NS instantiation.");
 
+        if(!enableResourceCalculation){
+            return new VirtualResourceUsage(0,0,0);
+        }
         if(nfvoCatalogueService== null || vnfPackageManagementProviderInterface==null){
             log.debug("No nfvo catalogue  or vnf catalogue service set. returning 0 virtual resources ");
             return new VirtualResourceUsage(0,0,0);

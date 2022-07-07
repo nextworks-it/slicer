@@ -95,6 +95,8 @@ public class VsLcmManager {
     private boolean isMultidomain;
     private String networkSliceId;
 
+
+    private boolean enableNsmm;
     //Key: VSD ID; Value: VSD
     private Map<String, VsDescriptor> vsDescriptors = new HashMap<>();
     private String tenantId;
@@ -148,7 +150,8 @@ public class VsLcmManager {
                         VsmfUtils vsmfUtils,
                         VsLcmConsumerInterface vsLcmConsumerInterface,
                         TranslationRuleRepository translationRuleRepository,
-                        ConfigurationRuleRepository configurationRuleRepository
+                        ConfigurationRuleRepository configurationRuleRepository,
+                        boolean enableNsmm
 
     ) {
         this.vsiId = vsiId;
@@ -167,6 +170,7 @@ public class VsLcmManager {
         this.vsLcmConsumerInterface = vsLcmConsumerInterface;
         this.translationRuleRepository = translationRuleRepository;
         this.configurationRuleRepository = configurationRuleRepository;
+        this.enableNsmm= enableNsmm;
     }
 
     /**
@@ -593,7 +597,7 @@ public class VsLcmManager {
                     String nsstDomain = nsst.getValue();
 
                     request = new CreateNsiIdRequest(nsstId,
-                            "NS - " + vsiName + " - " + nsstDomain,
+                            vsiName,
                             "Network slice for VS " + vsiName + " in domain " + nsstDomain);
 
                     String nssiId = nsmfLcmProvider.createNetworkSliceIdentifier(request, nsstDomain, tenantId);
@@ -622,6 +626,7 @@ public class VsLcmManager {
                 request = new CreateNsiIdRequest(storedNfvNsInstantiationInfo.getNstId(),
                         "NS - " + vsiName,
                         "Network slice for VS " + vsiName);
+
                 String nsiId = nsmfLcmProvider.createNetworkSliceIdentifier(request, null, tenantId);
 
 				    /*String nsiId = vsRecordService.createNetworkSliceForVsi(vsiId, nsiInfo.getNfvNsdId(), nsiInfo.getVnfdVersion(), nsiInfo.getDeploymentFlavourId(),
@@ -635,6 +640,7 @@ public class VsLcmManager {
                 Map<String, VsComponentPlacement> vnfPlacement = retrieveVsBlueprintVnfPlacement(vsBlueprint);
                 Map<String, NetworkSliceVnfPlacement> nsVnfPlacements = getNetworkSliceVnfPlacements(vnfPlacement);
                 Map<String, String> userDataPlacements = getUserDataVnfPlacement(nsVnfPlacements);
+
                 userData.putAll(userDataPlacements);
                 NetworkSliceSubnetInstance nsi = new NetworkSliceSubnetInstance(nsiId, request.getNstId(),
                         null,
@@ -644,7 +650,10 @@ public class VsLcmManager {
                         null); //The VNF placement is retrieved from the SO once the network service has been instantiated
                 vsRecordService.addNssiInVsi(vsiId, nsi);
                 log.debug("Record updated with info about NSI and VSI association.");
-
+                if(storedInstantiateVsiRequestMessage.getRequest().getUserData().containsKey("edge_resource_instance")){
+                    VerticalServiceInstance resourceInstance  = vsRecordService.getVsInstance(storedInstantiateVsiRequestMessage.getRequest().getUserData().get("edge_resource_instance"));
+                    userData.put("vim-id", resourceInstance.getVimId());
+                }
                 InstantiateNsiRequest instantiateNsiReq = new InstantiateNsiRequest(nsiId,
                         storedNfvNsInstantiationInfo.getNstId(),
                         storedNfvNsInstantiationInfo.getDeploymentFlavourId(),
@@ -910,6 +919,35 @@ public class VsLcmManager {
     //TODO: manage the multi-domain case
     private void nsStatusChangeOperations(NetworkSliceStatus status, String nsiId) throws NotExistingEntityException, Exception {
         VerticalServiceInstance vsi = vsRecordService.getVsInstance(vsiId);
+
+        NetworkSliceSubnetInstance nssiEnd= vsi.getNssis().get(nsiId);
+        if(nssiEnd!=null){
+            String domain = nssiEnd.getDomainId();
+
+            Map<String, String> filterParams = new HashMap<>();
+            filterParams.put("NSI_ID", nsiId);
+            Filter filterNsi = new Filter(filterParams);
+            GeneralizedQueryRequest queryNsiRequest = new GeneralizedQueryRequest(filterNsi, null);
+            NetworkSliceInstance nsi = nsmfLcmProvider.queryNetworkSliceInstance(queryNsiRequest, domain, this.tenantId).get(0);
+            if(status==NetworkSliceStatus.INSTANTIATED){
+                log.debug("Retrieving data from Network Slice Instance");
+                log.debug("Updating VIM: "+ nsi.getVimId());
+                vsRecordService.updateVimId(this.vsiId, nsi.getVimId());
+
+                log.debug("Updating VPN external GW: "+ nsi.getVimId());
+                vsRecordService.updateVsiExternalGw(this.vsiId, nsi.getExternalGwAddress());
+
+                log.debug("Updating VPN allocated networks: "+ nsi.getAllocatedVlSubnets());
+                vsRecordService.updateVsiAllocatedNetworks(this.vsiId, nsi.getAllocatedVlSubnets());
+
+                log.debug("Updating VPN internal subnet: "+ nsi.getInternalVpnSubnets());
+                vsRecordService.updateVsiInternalVpnNetworks(this.vsiId, nsi.getInternalVpnSubnets());
+
+
+            }
+        }
+
+
         if (isMultidomain) {
             Map<String, NetworkSliceSubnetInstance> nssis = vsi.getNssis();
             for (Map.Entry<String, NetworkSliceSubnetInstance> nssiEntry : nssis.entrySet()) {
@@ -1012,8 +1050,8 @@ public class VsLcmManager {
                 }
             }
         } else {
-            NetworkSliceInstance nsi = vsmfUtils.readNetworkSliceInstanceInformation(networkSliceId, null, tenantId);
-            //NetworkSliceInstance nsi = vsRecordService.getNsInstance(networkSliceId);
+
+            NetworkSliceInstance nsi = vsmfUtils.readNetworkSliceInstanceInformation(nsiId, null, tenantId);
             VirtualResourceUsage resourceUsage = virtualResourceCalculatorService.computeVirtualResourceUsage(nsi, true);
             if (status == NetworkSliceStatus.INSTANTIATED && internalStatus == VerticalServiceStatus.INSTANTIATING) {
                 log.debug("Updating Vertical service instance internal network slice subnet");
@@ -1042,6 +1080,7 @@ public class VsLcmManager {
                     log.error("Invalid VSi to NSI mapping. This should not happen");
                     manageVsError("Invalid VSi to NSI mapping. This should not happen");
                 }
+
             } else if (status == NetworkSliceStatus.CONFIGURED && internalStatus == VerticalServiceStatus.INSTANTIATING) {
                 log.debug("Updating Vertical service instance internal network slice subnet");
                 //In the single domain case, a NetworkSliceSubnet was added to store the information about
@@ -1274,6 +1313,10 @@ public class VsLcmManager {
                 vsRecordService.addNssiInVsi(vsiId, currentNssi);
             }
             vsRecordService.updateVsiNsiVnfPlacement(this.vsiId, nssiId, currentNsi.getVnfPlacement());
+            if(currentNsi.getVimId()!=null){
+                log.debug("Updating VIM information from NS");
+                vsRecordService.updateVimId(this.vsiId, currentNsi.getVimId());
+            }
             if (currentNsi.getNetworkSliceSubnetInstances() != null) {
                 for (String subNssiId : currentNsi.getNetworkSliceSubnetInstances()) {
                     retrieveNssiTree(subNssiId, domain);

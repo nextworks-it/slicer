@@ -16,6 +16,8 @@ package it.nextworks.nfvmano;
 
 import javax.annotation.PostConstruct;
 
+import it.nextworks.nfvmano.catalogue.blueprint.services.VsBlueprintCatalogueService;
+import it.nextworks.nfvmano.catalogues.template.services.NsTemplateCatalogueService;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.NsmfLcmOperationPollingManager;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.NsmfType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,12 @@ public class VsmfConfigurator {
 
     @Autowired
     private NsmfInteractionHandler nsmfInteractionHandler;
+
+    @Autowired
+    private NsTemplateCatalogueService nsTemplateCatalogueService;
+
+    @Autowired
+    private VsBlueprintCatalogueService vsBlueprintCatalogueService;
 
     @Autowired
     private NsmfLcmOperationPollingManager nsmfLcmOperationPollingManager;
@@ -73,6 +81,7 @@ public class VsmfConfigurator {
         vsLcmService.setNsmfLcmProvider(nsmfInteractionHandler);
         vsmfUtils.setNsmfLcmProvider(nsmfInteractionHandler);
         nsmfLcmOperationPollingManager.setNsmfLcmProvider(nsmfInteractionHandler);
+        vsBlueprintCatalogueService.setNsTemplateCatalogueService(nsTemplateCatalogueService);
     }
 
 

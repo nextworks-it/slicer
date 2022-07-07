@@ -283,7 +283,31 @@ public class NsRecordService {
 		return nsInstanceRepository.findAll();
 	}
 
+	//NSMM integration
+	public void updateNsiAllocatedSubnets(String nsiId, Map<String, String> allocatedSubnets) throws NotExistingEntityException {
+		NetworkSliceInstance nsi = getNsInstance(nsiId);
+		nsi.setAllocatedVlSubnets(allocatedSubnets);
+		nsInstanceRepository.saveAndFlush(nsi);
+	}
 
+	//NSMM integration
+	public void updateNsiExternalGw(String nsiId, String externalGw) throws NotExistingEntityException {
+		NetworkSliceInstance nsi = getNsInstance(nsiId);
+		nsi.setExternalGwAddress(externalGw);
+		nsInstanceRepository.saveAndFlush(nsi);
+	}
+
+	public void updateNsiExternalGwSubnet(String nsiId, String externalGwSubnet) throws NotExistingEntityException {
+		NetworkSliceInstance nsi = getNsInstance(nsiId);
+		nsi.setExternalGwSubnet(externalGwSubnet);
+		nsInstanceRepository.saveAndFlush(nsi);
+	}
+
+	public void updateNsiInternalVpnSubnet(String nsiId, List<String> internalVpnSubnets) throws NotExistingEntityException {
+		NetworkSliceInstance nsi = getNsInstance(nsiId);
+		nsi.setInternalVpnSubnets(internalVpnSubnets);
+		nsInstanceRepository.saveAndFlush(nsi);
+	}
 
 	public void updateNsiVnfPlacement(String nsiId, Map<String, NetworkSliceVnfPlacement> vnfPlacement) throws NotExistingEntityException {
 		NetworkSliceInstance nsi = getNsInstance(nsiId);

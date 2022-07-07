@@ -44,6 +44,18 @@ public class QueryVsResponse implements InterfaceMessage {
 	private String errorMessage;
 	private List<SapInfo> externalInterconnections = new ArrayList<>();
 
+	//5GZORRO SM integrastiong
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String vimId;
+
+	//5GZORRO NSMM integration
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String externalGwAddress;
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private Map<String, String> allocatedVlSubnets = new HashMap<>();
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private List<String> internalVpnSubnets;
+
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String monitoringUrl;
 
@@ -109,6 +121,37 @@ public class QueryVsResponse implements InterfaceMessage {
 		);
 	}
 
+	public String getVimId() {
+		return vimId;
+	}
+
+	public void setVimId(String vimId) {
+		this.vimId = vimId;
+	}
+
+	public String getExternalGwAddress() {
+		return externalGwAddress;
+	}
+
+	public void setExternalGwAddress(String externalGwAddress) {
+		this.externalGwAddress = externalGwAddress;
+	}
+
+	public Map<String, String> getAllocatedVlSubnets() {
+		return allocatedVlSubnets;
+	}
+
+	public void setAllocatedVlSubnets(Map<String, String> allocatedVlSubnets) {
+		this.allocatedVlSubnets = allocatedVlSubnets;
+	}
+
+	public List<String> getInternalVpnSubnets() {
+		return internalVpnSubnets;
+	}
+
+	public void setInternalVpnSubnets(List<String> internalVpnSubnets) {
+		this.internalVpnSubnets = internalVpnSubnets;
+	}
 
 	/**
 	 * @return the vsiId

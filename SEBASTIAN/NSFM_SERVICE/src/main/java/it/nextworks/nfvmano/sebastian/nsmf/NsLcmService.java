@@ -35,6 +35,7 @@ import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmProviderInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
 import it.nextworks.nfvmano.sebastian.nsmf.nsmanagement.NsLcmManager;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.nsmm.NsmmService;
 import it.nextworks.nfvmano.sebastian.record.NsRecordService;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceStatus;
@@ -85,6 +86,13 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
 
     @Autowired
     private NfvoLcmService nfvoLcmService;
+
+    @Autowired
+    private NsmmService nsmmService;
+
+    @Value("${nsmf.nsmm.enable:false}")
+    private boolean enableNsmm;
+
 
     //internal map of VS LCM Managers
     //each VS LCM Manager is created when a new VSI ID is created and removed when the VSI ID is removed
@@ -290,7 +298,8 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
                     networkSliceTemplate,
                     nsmfUtils,
                     NetworkSliceStatus.INSTANTIATED,
-                    nfvNsInstanceId);
+                    nfvNsInstanceId,
+                    enableNsmm, nsmmService);
             createQueue(nsiId, nsLcmManager);
             nsLcmManagers.put(nsiId, nsLcmManager);
             log.debug("NS LCM manager for Network Slice Instance ID " + nsiId + " initialized and added to the engine.");
@@ -314,7 +323,7 @@ public class NsLcmService implements NsmfLcmProviderInterface, NfvoLcmNotificati
                 networkSliceTemplate,
                 nsmfUtils,
                 NetworkSliceStatus.NOT_INSTANTIATED,
-                null);
+                null, enableNsmm, nsmmService);
         createQueue(nsiId, nsLcmManager);
         nsLcmManagers.put(nsiId, nsLcmManager);
         log.debug("NS LCM manager for Network Slice Instance ID " + nsiId + " initialized and added to the engine.");

@@ -15,18 +15,14 @@
 package it.nextworks.nfvmano.sebastian.nsmf.nsmanagement;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.messages.QueryNsdResponse;
 import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.messages.QueryNsdIfaResponse;
 import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.messages.QueryNsdSolResponse;
 
 import it.nextworks.nfvmano.libs.ifasol.catalogues.interfaces.enums.NsdFormat;
-import it.nextworks.nfvmano.catalogue.template.messages.QueryNsTemplateResponse;
-import it.nextworks.nfvmano.catalogues.template.services.NsTemplateCatalogueService;
-import it.nextworks.nfvmano.libs.ifa.common.elements.Filter;
 import it.nextworks.nfvmano.libs.ifa.common.enums.NsScaleType;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
@@ -48,6 +44,8 @@ import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.NsmfEngineMessageType
 import it.nextworks.nfvmano.sebastian.nsmf.engine.messages.TerminateNsiRequestMessage;
 import it.nextworks.nfvmano.sebastian.nsmf.interfaces.NsmfLcmConsumerInterface;
 import it.nextworks.nfvmano.sebastian.nsmf.messages.*;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.nsmm.NsmmService;
+import it.nextworks.nfvmano.sebastian.nsmf.sbi.nsmm.messages.NsmmAllocationResponse;
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceInstance;
 
 import it.nextworks.nfvmano.sebastian.record.elements.NetworkSliceVnfPlacement;
@@ -103,8 +101,15 @@ public class NsLcmManager {
 	
 	private NsmfUtils nsmfUtils;
 
+	private boolean enableNsmm;
+	//The address of the remote GW of the VPN.
+	private String nsmmRemoteGw;
+	private String nsmmAllocatedSubnet;
+	private String nsmmRemoteVpnNet;
 
-	
+
+	private NsmmService nsmmService;
+	private Integer nsmmId;
 	public NsLcmManager(String networkSliceInstanceId,
 						String name,
 						String description,
@@ -117,7 +122,9 @@ public class NsLcmManager {
 						NST networkSliceTemplate, 
 						NsmfUtils nsmfUtils,
 						NetworkSliceStatus networkSliceStatus,
-						String nfvNsiInstanceId
+						String nfvNsiInstanceId,
+						boolean enableNsmm,
+						NsmmService nsmmService
 						) {
 		this.networkSliceInstanceId = networkSliceInstanceId;
 		this.name = name;
@@ -132,7 +139,8 @@ public class NsLcmManager {
 		this.networkSliceTemplate = networkSliceTemplate;
 		this.nsmfUtils = nsmfUtils;
 		this.nfvNsiInstanceId=nfvNsiInstanceId;
-
+		this.enableNsmm=enableNsmm;
+		this.nsmmService = nsmmService;
 	}
 	
 	
@@ -207,6 +215,9 @@ public class NsLcmManager {
 		String nsdVersion = networkSliceTemplate.getNsdVersion();
 		String dfId = msg.getRequest().getDfId();
 		String ilId = msg.getRequest().getIlId();
+
+
+
 		log.debug("Creating NFV NSI ID for NFV NS with NSD ID " + nsdId);
 		
 		try {
@@ -227,7 +238,36 @@ public class NsLcmManager {
 				this.nsdInfoId = ((QueryNsdSolResponse)nsdResponse).getQueryResult().get(0).getIdentifier().toString();
 			}
 
-			String nfvNsId = nfvoLcmService.createNsIdentifier(new CreateNsIdentifierRequest(nsdInfoId, "NFV-NS-"+ name, description, tenantId));
+			Map<String, String> vlMapping = new HashMap<>();
+			if(enableNsmm){
+				log.debug("Triggering NSMM Network Allocation");
+				if(msg.getRequest().getUserData().containsKey("nsmm.allocated_subnet")){
+					log.debug("Received NSMM allocated subnets");
+					this.nsmmAllocatedSubnet= msg.getRequest().getUserData().get("nsmm.allocated_subnet");
+				}
+				NsmmAllocationResponse allocation = nsmmService.provisionNetworkServiceMeshNetworking(nsdId, nsdVersion, this.networkSliceInstanceId, this.nsmmAllocatedSubnet);
+				this.nsmmId = allocation.getNsmmAllocationId();
+
+				vlMapping= allocation.getAllocatedVlNetworks();
+				nsRecordService.updateNsiAllocatedSubnets(networkSliceInstanceId, allocation.getAllocatedVlSubnets());
+				nsRecordService.updateNsiExternalGwSubnet(this.networkSliceInstanceId, allocation.getExternalGwSubnet());
+				nsRecordService.updateNsiInternalVpnSubnet(this.networkSliceInstanceId, allocation.getInternalVpnNetworks());
+				if(msg.getRequest().getUserData().containsKey("nsmm.remote_gw_address")){
+					log.debug("Received NSMM external GW address");
+					this.nsmmRemoteGw=msg.getRequest().getUserData().get("nsmm.remote_gw_address");
+				}
+				if(msg.getRequest().getUserData().containsKey("nsmm.vpn_net")){
+					log.debug("Received NSMM external GW address");
+					this.nsmmRemoteVpnNet=msg.getRequest().getUserData().get("nsmm.vpn_net");
+				}
+
+			}
+
+			CreateNsIdentifierRequest nsiIdRequest =  new CreateNsIdentifierRequest(nsdInfoId, name, description, tenantId);
+			if(msg.getRequest().getUserData().containsKey("vim-id")){
+				nsiIdRequest.setVimId(msg.getRequest().getUserData().get("vim-id"));
+			}
+			String nfvNsId = nfvoLcmService.createNsIdentifier(nsiIdRequest);
 			log.debug("Created NFV NS instance ID on NFVO: " + nfvNsId);
 			this.nfvNsiInstanceId = nfvNsId;
 			nsRecordService.setNfvNsiInNsi(networkSliceInstanceId, nfvNsId);
@@ -303,8 +343,8 @@ public class NsLcmManager {
 					ilId,					//nsInstantiationLevelId
 					null,
 					sliceType);
-
-			String operationId = nfvoLcmService.instantiateNs(newNsRequest);					//additionalAffinityOrAntiAffinityRule
+			newNsRequest.setVlMapping(vlMapping);
+			String operationId = nfvoLcmService.instantiateNs(newNsRequest);
 
 			log.debug("Sent request to NFVO service for instantiating NFV NS " + nfvNsId + ": operation ID " + operationId);
 			log.debug(new ObjectMapper().writeValueAsString(newNsRequest));
@@ -367,6 +407,18 @@ public class NsLcmManager {
 						log.debug("Successful instantiation of NFV NS " + msg.getNfvNsiId() + " and network slice " + networkSliceInstanceId);
 						this.internalStatus=NetworkSliceStatus.INSTANTIATED;
 
+						if(enableNsmm){
+							log.debug("Triggering NSSM floating IP allocation");
+							String externalGw = nsmmService.allocateFloatingIp(this.nsmmId);
+
+							nsRecordService.updateNsiExternalGw(networkSliceInstanceId, externalGw);
+
+							nsmmService.configureVpnGw(nsmmId, this.nfvNsiInstanceId);
+							if(nsmmRemoteGw!=null && !nsmmRemoteGw.isEmpty()){
+								log.debug("Allocating VPN Tunnel");
+								nsmmService.provisionNetworkServiceMeshManagerVpn(this.nsmmId, nsmmRemoteGw, this.nsmmRemoteVpnNet);
+							}
+						}
 						//If the network slice includes slice subnets, update or create the related entries
 						//Note that some subnets can be explicit (i.e. VS-managed, so already available in db) or implicit (i.e. SO-managed, so you need to create a new entry in this phase if not yet present)
 						//You need to read the NS info from the NFVO

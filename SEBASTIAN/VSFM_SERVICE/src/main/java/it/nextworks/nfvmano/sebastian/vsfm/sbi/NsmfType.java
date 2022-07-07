@@ -22,5 +22,6 @@ public enum NsmfType {
     NEUTRAL_HOSTING,
     DUMMY,
     SLICE_MANAGER,
-    OSM
+    OSM,
+    SLICE_MANAGER_FSM,
 }

@@ -342,6 +342,12 @@ public class VsRecordService {
 		return vsi.allVerticalSubserviceInStatus(status);
 	}
 
+	public synchronized void updateVimId(String vsiId, String vimId) throws NotExistingEntityException {
+		VerticalServiceInstance vsi = getVsInstance(vsiId);
+		vsi.setVimId(vimId);
+		vsInstanceRepository.saveAndFlush(vsi);
+	}
+
     public synchronized void updateNssiNfvInstantiationInfoInVsi(String vsiId, String networkSliceInstanceId, String domain, String dfId, String instantiationLevelId) throws NotExistingEntityException {
 		VerticalServiceInstance vsi = getVsInstance(vsiId);
 		NetworkSliceSubnetInstance nsi = vsi.getNssis().get(networkSliceInstanceId);
@@ -417,6 +423,22 @@ public class VsRecordService {
 //	}
 
 
+	//NSMM integration
+	public void updateVsiExternalGw(String vsiId, String externalGw) throws NotExistingEntityException {
+		VerticalServiceInstance vsi = getVsInstance(vsiId);
+		vsi.setExternalGwAddress(externalGw);
+		vsInstanceRepository.saveAndFlush(vsi);
+	}
+	public void updateVsiAllocatedNetworks(String vsiId, Map<String, String> allocatedNetworks) throws NotExistingEntityException {
+		VerticalServiceInstance vsi = getVsInstance(vsiId);
+		vsi.setAllocatedVlSubnets(allocatedNetworks);
+		vsInstanceRepository.saveAndFlush(vsi);
+	}
 
+    public void updateVsiInternalVpnNetworks(String vsiId, List<String> internalVpnSubnets) throws NotExistingEntityException {
 
+		VerticalServiceInstance vsi = getVsInstance(vsiId);
+		vsi.setInternalVpnSubnets(internalVpnSubnets);
+		vsInstanceRepository.saveAndFlush(vsi);
+    }
 }

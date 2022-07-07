@@ -14,6 +14,7 @@ import it.nextworks.nfvmano.nfvodriver.NfvoCatalogueService;
 import it.nextworks.nfvmano.sebastian.admin.AdminService;
 import it.nextworks.nfvmano.sebastian.common.VirtualResourceCalculatorService;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.NsmfInteractionHandler;
+import it.nextworks.nfvmano.sebastian.vsfm.sbi.NsmfLcmOperationPollingManager;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.vsmf.CsmfType;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.vsmf.VsmfInteractionHandler;
 import it.nextworks.nfvmano.sebastian.vsfm.sbi.vsmf.drivers.EveVsmfDriver;
@@ -86,6 +87,8 @@ public class SlicerConfigurator {
 	@Value("${nsmf.local_domain_id:LOCAL}")
 	private String localDomainId;
 
+	@Autowired
+	private NsmfLcmOperationPollingManager nsmfLcmOperationPollingManager;
 
 	
 	@PostConstruct
@@ -104,8 +107,8 @@ public class SlicerConfigurator {
 		virtualResourceCalculatorService.setVnfPackageManagementProviderInterface(nfvoCatalogueService);
 		log.debug("Adding local Sebastian NSP domain");
 		//HERE we should configure the available domains. For the moment only the local domain is configures
-		
-		
+
+		nsmfLcmOperationPollingManager.setNsmfLcmProvider(nsmfInteractionHandler);
 		nsmfInteractionHandler.setDefaultDriver(nsLcmService);
 		vsLcmService.setNsmfLcmProvider(nsmfInteractionHandler);
 		

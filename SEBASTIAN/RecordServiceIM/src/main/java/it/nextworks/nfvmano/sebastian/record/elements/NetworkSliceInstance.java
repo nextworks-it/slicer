@@ -52,6 +52,25 @@ public class NetworkSliceInstance {
 
 	private String dfId; 	//ID of the deployment flavour in the NFV network service
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String externalGwAddress;
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String externalGwSubnet;
+
+
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@ElementCollection(fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@Cascade(org.hibernate.annotations.CascadeType.ALL)
+	private List<String> internalVpnSubnets;
+
+	@ElementCollection(fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@Cascade(org.hibernate.annotations.CascadeType.ALL)
+	private Map<String, String> allocatedVlSubnets = new HashMap<>();
+
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	@OneToMany(mappedBy="networkSliceInstance")
 	private List<NsSapInfo> sapInfo = new ArrayList<>();
@@ -86,6 +105,8 @@ public class NetworkSliceInstance {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String nfvNsUrl;
 
+
+	private String vimId; //This is used for the integration with I2CAT slice manager
 	public NetworkSliceInstance() {	}
 
 	/**
@@ -137,9 +158,39 @@ public class NetworkSliceInstance {
 			new ArrayList<String>(),
 			new HashMap<String, String>(), null);
 	}
-	
-	
 
+	public String getExternalGwAddress() {
+		return externalGwAddress;
+	}
+
+	public void setExternalGwAddress(String externalGwAddress) {
+		this.externalGwAddress = externalGwAddress;
+	}
+
+	public Map<String, String> getAllocatedVlSubnets() {
+		return allocatedVlSubnets;
+	}
+
+	public void setAllocatedVlSubnets(Map<String, String> allocatedVlSubnets) {
+		this.allocatedVlSubnets = allocatedVlSubnets;
+	}
+
+	public String getVimId() {
+		return vimId;
+	}
+
+	public void setVimId(String vimId) {
+		this.vimId = vimId;
+	}
+
+
+	public List<String> getInternalVpnSubnets() {
+		return internalVpnSubnets;
+	}
+
+	public void setInternalVpnSubnets(List<String> internalVpnSubnet) {
+		this.internalVpnSubnets = internalVpnSubnet;
+	}
 	/**
 	 * @return the name
 	 */
@@ -358,5 +409,13 @@ public class NetworkSliceInstance {
 
 	public void setSapInfo(List<NsSapInfo> sapInfo){
 		this.sapInfo = sapInfo;
+	}
+
+	public String getExternalGwSubnet() {
+		return externalGwSubnet;
+	}
+
+	public void setExternalGwSubnet(String externalGwSubnet) {
+		this.externalGwSubnet = externalGwSubnet;
 	}
 }

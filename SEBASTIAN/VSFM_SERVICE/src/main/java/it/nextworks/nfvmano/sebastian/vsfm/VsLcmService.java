@@ -120,6 +120,9 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
     @Value("${sebastian.admin}")
     private String adminTenant;
 
+    @Value("${nsmf.nsmm.enable:false}")
+    private boolean enableNsmm;
+
     private NsmfLcmProviderInterface nsmfLcmProvider;
 
     @Autowired
@@ -307,7 +310,8 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
                             log.debug("The Network Slice is not associated to any NFV Network Service. No interconnection info available.");
                     } else
                         log.debug("The VS is not associated to any Network Slice. No interconnection info available.");
-                    return new QueryVsResponse(
+
+                    QueryVsResponse response = new QueryVsResponse(
                             vsiId,
                             vsi.getName(),
                             vsi.getDescription(),
@@ -318,6 +322,20 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
                             vsi.getErrorMessage(),
                             monitoringUrl
                     );
+                    if(vsi.getExternalGwAddress()!=null){
+                        response.setExternalGwAddress(vsi.getExternalGwAddress());
+                    }
+                    if(vsi.getInternalVpnSubnets()!=null){
+                        response.setInternalVpnSubnets(vsi.getInternalVpnSubnets());
+                    }
+                    if(vsi.getAllocatedVlSubnets()!=null){
+                        response.setAllocatedVlSubnets(vsi.getAllocatedVlSubnets());
+                    }
+                    if(vsi.getVimId()!=null){
+                        response.setVimId(vsi.getVimId());
+                    }
+
+                    return response;
                 } else {
                     log.error("The tenant has not access to the given VSI");
                     throw new NotPermittedOperationException("Tenant " + tenantId + " has not access to VSI with ID " + vsiId);
@@ -912,7 +930,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
                 vsmfUtils,
                 this,
                 translationRuleRepository,
-                configurationRuleRepository);
+                configurationRuleRepository, enableNsmm);
         createQueue(vsiId, vsLcmManager);
         vsLcmManagers.put(vsiId, vsLcmManager);
         log.debug("VS LCM manager for VSI ID " + vsiId + " initialized and added to the engine.");
@@ -986,7 +1004,7 @@ public class VsLcmService implements VsLcmProviderInterface, NsmfLcmConsumerInte
      * @param vsiManager VSI Manager in charge of processing the queue messages
      */
     private void createQueue(String vsiId, VsLcmManager vsiManager) {
-        String queueName = ConfigurationParameters.engineQueueNamePrefix + vsiId;
+        String queueName = ConfigurationParameters.engineQueueNamePrefix +"-vs-"+ vsiId;
         log.debug("Creating new Queue " + queueName + " in rabbit host " + rabbitHost);
         CachingConnectionFactory cf = new CachingConnectionFactory();
         cf.setAddresses(rabbitHost);

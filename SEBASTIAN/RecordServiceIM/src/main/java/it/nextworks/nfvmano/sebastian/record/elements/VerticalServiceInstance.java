@@ -52,6 +52,8 @@ public class VerticalServiceInstance {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String mappedInstanceId;
 	private VerticalServiceStatus status;
+
+	private String vimId; //This is used for the integration with I2CAT slice manager
 	
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	@ElementCollection(fetch=FetchType.EAGER)
@@ -77,6 +79,7 @@ public class VerticalServiceInstance {
 
 
 
+
 	@OneToMany(fetch = FetchType.EAGER)
 	@LazyCollection(LazyCollectionOption.FALSE)
 	@MapKey(name="instanceId")
@@ -89,7 +92,25 @@ public class VerticalServiceInstance {
 	@OneToMany
 	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<VerticalServiceInstance> nestedVsi;
-	
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String externalGwAddress;
+
+	@ElementCollection(fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@Cascade(org.hibernate.annotations.CascadeType.ALL)
+	private Map<String, String> allocatedVlSubnets = new HashMap<>();
+
+
+
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@ElementCollection(fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@Cascade(org.hibernate.annotations.CascadeType.ALL)
+	private List<String> internalVpnSubnets;
+
+
 	private String errorMessage; //this field gets a value only in case of failure
 	
 	public VerticalServiceInstance() {}
@@ -137,6 +158,14 @@ public class VerticalServiceInstance {
 
 	public String getMappedInstanceId() {
 		return mappedInstanceId;
+	}
+
+	public String getVimId() {
+		return vimId;
+	}
+
+	public void setVimId(String vimId) {
+		this.vimId = vimId;
 	}
 
 	/**
@@ -304,6 +333,13 @@ public class VerticalServiceInstance {
 		}
 		return true;
 	}
+	public List<String> getInternalVpnSubnets() {
+		return internalVpnSubnets;
+	}
+
+	public void setInternalVpnSubnets(List<String> internalVpnSubnets) {
+		this.internalVpnSubnets = internalVpnSubnets;
+	}
 
 	/**
 	 *
@@ -329,5 +365,20 @@ public class VerticalServiceInstance {
 		this.status = VerticalServiceStatus.FAILED;
 		this.errorMessage = errorMessage;
 	}
-	
+
+	public String getExternalGwAddress() {
+		return externalGwAddress;
+	}
+
+	public void setExternalGwAddress(String externalGwAddress) {
+		this.externalGwAddress = externalGwAddress;
+	}
+
+	public Map<String, String> getAllocatedVlSubnets() {
+		return allocatedVlSubnets;
+	}
+
+	public void setAllocatedVlSubnets(Map<String, String> allocatedVlSubnets) {
+		this.allocatedVlSubnets = allocatedVlSubnets;
+	}
 }
