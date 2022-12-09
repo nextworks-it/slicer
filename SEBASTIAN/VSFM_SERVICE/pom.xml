@@ -172,7 +172,11 @@
             <version>0.0.2-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>mda-client</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
 

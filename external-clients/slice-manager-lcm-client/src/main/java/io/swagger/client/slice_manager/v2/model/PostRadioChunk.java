@@ -42,7 +42,7 @@ public class PostRadioChunk {
   private String ranControllerId = null;
   
   @JsonProperty("chunk_topology")
-  private Object chunkTopology = null;
+  private RadioChunkTopology chunkTopology = null;
   
   public PostRadioChunk name(String name) {
     this.name = name;
@@ -134,7 +134,7 @@ public class PostRadioChunk {
     this.ranControllerId = ranControllerId;
   }
   
-  public PostRadioChunk chunkTopology(Object chunkTopology) {
+  public PostRadioChunk chunkTopology(RadioChunkTopology chunkTopology) {
     this.chunkTopology = chunkTopology;
     return this;
   }
@@ -145,10 +145,10 @@ public class PostRadioChunk {
   * @return chunkTopology
   **/
   @ApiModelProperty(value = "")
-  public Object getChunkTopology() {
+  public RadioChunkTopology getChunkTopology() {
     return chunkTopology;
   }
-  public void setChunkTopology(Object chunkTopology) {
+  public void setChunkTopology(RadioChunkTopology chunkTopology) {
     this.chunkTopology = chunkTopology;
   }
   

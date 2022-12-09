@@ -119,6 +119,18 @@ public class NsmfInteractionHandler implements NsmfLcmProviderInterface {
     @Value("${vsmf.notifications.url}")
     private String notificationCallbackUri;
 
+
+    @Value("${domain_id:local}")
+    private String businessDomainId;
+
+    @Value("${sm.cellularMonitoringUrl:local}")
+    private String smCellularMonitoringUrl;
+
+    @Value("${sm.enableCellularMonitoring:false}")
+    private boolean smEnableCellularMonitoring;
+
+    @Value("${externalMonitoringAddress:http://local}")
+    private String externalMonitoringAddress;
     /**
      * This method initializes the NSMF interaction handler with the drivers to interact
      * with the different NSMFs.
@@ -196,7 +208,13 @@ public class NsmfInteractionHandler implements NsmfLcmProviderInterface {
                             SliceManagerFsmNspDomainLayer smNspDomainLayer = (SliceManagerFsmNspDomainLayer) domainLayer;
                             if (!dummyMultidomainMode) {
                                 restClient = new SliceManagerFsmNsmfDriver(domainId, domainInterface.getUrl(),
-                                        smFsmTranslationInformationRepository, nsmfLcmOperationPollingManager, nsTemplateCatalogueService);
+                                        smFsmTranslationInformationRepository,
+                                        nsmfLcmOperationPollingManager,
+                                        nsTemplateCatalogueService,
+                                        smEnableCellularMonitoring,
+                                        externalMonitoringAddress,
+                                        smCellularMonitoringUrl,
+                                        businessDomainId);
                             } else {
                                 restClient = new DummyRestClient(domainId, utils, vsLcmService, dummyTranslationInformationRepository, configurationRuleRepository);
                             }
