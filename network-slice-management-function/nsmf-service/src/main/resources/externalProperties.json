@@ -1,0 +1,118 @@
+{
+  "externalProperties": [
+    {
+      "nodeId": 1,
+      "position": {
+        "X": 0.0,
+        "Y": 500.0
+      },
+      "processingInfra": {
+        "cores": 8.0,
+        "GFLOPS": 440.0,
+        "IdlePow": 5.5
+      }
+    },
+    {
+      "nodeId": 2,
+      "position": {
+        "X": 317.0731,
+        "Y": 329.959
+      },
+      "processingInfra":{
+        "cores":10.0,
+        "GFLOPS": 550.0,
+        "IdlePow": 7.0
+      }
+    },
+    {
+      "nodeId": 3,
+      "position": {
+        "X": 202.4335,
+        "Y": 301.7651
+      },
+      "processingInfra": {
+        "cores": 8.0,
+        "GFLOPS": 440.0,
+        "IdlePow": 5.5
+      }
+    },
+    {
+      "nodeId": 4,
+      "position": {
+        "X": 304.8611,
+        "Y": 347.1526
+      },
+      "processingInfra": {
+        "cores": 64.0,
+        "GFLOPS": 3520.0,
+        "IdlePow": 7.0
+      }
+    },
+    {
+      "nodeId": 5,
+      "position": {
+        "X": 261.6536,
+        "Y": 425.9471
+      },
+      "processingInfra": {
+        "cores": 48.0,
+        "GFLOPS": 2640.0,
+        "IdlePow": 7.0
+      }
+    },
+    {
+      "nodeId": 6,
+      "position": {
+        "X": 352.2497,
+        "Y": 633.5754
+      },
+      "processingInfra": {
+        "cores": 24.0,
+        "GFLOPS": 1320.0,
+        "IdlePow": 7.0
+      }
+    }
+  ],
+  "pnfParameters": {
+    "BW_BH": 200000000.0,
+    "Delta_P_gNB": 4.7,
+    "Delta_P_SC": 4.0,
+    "Delta_P_BH": 100.0,
+    "P_idle_gNB": 130.0,
+    "P_idle_SC": 4.0,
+    "P_idle_BH": 3.9,
+    "P_max_gNB": 1.0,
+    "P_max_SC": 1.0,
+    "NumgNBPRBs": 100.0,
+    "NumSCPRBs": 100.0,
+    "NumAntgNB": 8.0,
+    "NumAntSC": 4.0,
+    "P_idle_switch": 315.0
+  },
+  "port_power": [
+    {
+      "Rate" : 1000000000,
+      "Power" : 7
+    },
+    {
+      "Rate" : 10000000000,
+      "Power" : 38
+    },
+    {
+      "Rate" : 40000000000,
+      "Power" : 105
+    },
+    {
+      "Rate" : 100000000000,
+      "Power" : 205
+    },
+    {
+      "Rate" : 400000000000,
+      "Power" : 560
+    },
+    {
+      "Rate" : 1000000000000,
+      "Power" : 1100
+    }
+  ]
+}

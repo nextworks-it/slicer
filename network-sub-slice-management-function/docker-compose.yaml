@@ -1,0 +1,171 @@
+#
+# Application-Aware Network Slice Manager
+# Copyright (C) 2022 Int5Gent (https://5g-ppp.eu/int5gent/)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+  #vsmf:
+  #  container_name: vsmf
+  #  image: ghcr.io/nextworks-it/vertical-service-management-function/vsmf/5g-complete:0.0.1
+  #  restart: always
+  #  ports:
+  #    - '8099:8099'
+  #  command: >
+  #    bash -c "/usr/bin/java -jar /home/ubuntu/VsmfCore-0.0.2-SNAPSHOT.jar"
+  #  environment:
+  #    - spring.datasource.url=jdbc:postgresql://postgres:5432/vsmf
+  #    - spring.datasource.username=postgres
+  #    - spring.datasource.password=postgres
+  #    - spring.rabbitmq.host=rabbit
+  #    - server.port=8099
+  #    - nsmf.restnbi.url=https://nsmf:8083
+  #    - nsmf.lcm.type=NSMF_3GPP_LIKE
+  #    - nsmf.lcm.polling=60
+  #    - security.basic.enabled=false
+  #    - management.security.enabled=false
+  #    - authentication.enable=no
+  #  depends_on:
+  #    - postgres
+  #    - rabbit
+  #  networks:
+  #    - vertical-slicer
+  #nsmf:
+  #  container_name: nsmf
+  #  image: ghcr.io/nextworks-it/network-slice-management-function/nsmf/5g-complete:0.0.1
+  #  restart: always
+  #  ports:
+  #    - '8083:8083'
+  #  command: >
+  #    bash -c "/usr/bin/java -jar /home/ubuntu/nsmf-app-0.0.1.jar"
+  #  volumes:
+  #    - /home/ubuntu/integration-uc3-osm/ra_file:/home/ubuntu/ra_file
+  #  environment:
+  #    - spring.datasource.url=jdbc:postgresql://postgres:5432/nsmf
+  #    - spring.datasource.username=postgres
+  #    - spring.datasource.password=postgres
+  #    - spring.rabbitmq.host=rabbit
+  #    - nssmf.type=OSM
+  #    - algorithm.type=STATIC
+  #    - nsmf.vsmfnotifier.notifyVsmf=false
+  #    - nsmf.vsmfnotifier.notifyUrl=http://localhost:5000/lcm/instances/network_slice/status_update
+  #    - nssmf.plugin.dummy.address=http://127.0.0.1:8083
+  #    - resource_allocation.default_algorithm=FILE
+  #    - security.basic.enabled=false
+  #    - sebastian.admin=admin
+  #    - management.security.enabled=false
+  #    - nssmf.plugin.osm.address=http://osm-nssmf:8084/nssmf/provisioning
+  #    - resource_allocation.default_file.path=/home/ubuntu/ra_file/DefaultResourceAllocation.json
+  #  depends_on:
+  #    - postgres
+  #    - rabbit
+  #  networks:
+  #    - vertical-slicer
+  
+  #ran-nssmf:
+  #  container_name: ran-nssmf
+  #  image: ghcr.io/nextworks-it/network-sub-slice-management-function/nssmf/5g-complete/osm:0.0.1
+  #  restart: always
+  #  ports:
+  #    - '8084:8084'
+  #  command: >
+  #    bash -c "/usr/bin/java -jar /home/ubuntu/nssmf-app-0.0.1.jar"
+  #  environment:
+  #    - server.port=8084
+  #    - spring.datasource.url=jdbc:postgresql://postgres:5432/nssmf
+  #    - spring.datasource.username=postgres
+  #    - spring.datasource.password=postgres
+  #    - nssmf.eventhandler.class=it.nextworks.nfvmano.nssmf.handler.osm.nssmanagement.OsmLcmEventHandler
+  #    - nssmf.provisioning.message.class=it.nextworks.nfvmano.libs.vs.common.nssmf.messages.specialized.ran.OsmPayload
+  #    - nssmf.nsmfnotifier.notifyUrl=http://nsmf:8083/vs/basic/nslcm/nss/%nssi_id%/notify
+  #    - nsmf.vsmfnotifier.notifyVsmf=false
+  #    - security.basic.enabled=false
+  #    - sebastian.admin=admin
+  #    - management.security.enabled=false
+  #    - nssmf.osm.baseurl=http://10.30.5.140/osm
+  #    - nssmf.osm.username=admin
+  #    - nssmf.osm.password=admin
+  #    - nssmf.osm.project=admin
+  #    - nssmf.osm.vim-id=e2097ca5-b130-4828-a0d2-bc9823a0676f
+  #    - nfvo.lcm.polling=7
+  #  depends_on:
+  #    - postgres
+  #  networks:
+  #    - vertical-slicer
+#version: '3.5'​
+services:
+
+  phy-mac-ran-nssmf:
+    container_name: phy-mac-ran-nssmf
+    image: phy-mac-ran-nssmf
+    restart: always
+    ports:
+      - '8090:8090'
+    command: >
+      bash -c "/usr/bin/java -jar /home/ubuntu/nssmf-app-0.0.1.jar"
+    #environment:
+    #  - server.port=8084
+    #  - spring.datasource.url=jdbc:postgresql://postgres:5432/nssmf
+    #  - spring.datasource.username=postgres
+    #  - spring.datasource.password=postgres
+    #  - nssmf.eventhandler.class=it.nextworks.nfvmano.nssmf.handler.osm.nssmanagement.OsmLcmEventHandler
+    #  - nssmf.provisioning.message.class=it.nextworks.nfvmano.libs.vs.common.nssmf.messages.specialized.ran.OsmPayload
+    #  - nssmf.nsmfnotifier.notifyUrl=http://nsmf:8083/vs/basic/nslcm/nss/%nssi_id%/notify
+    #  - nsmf.vsmfnotifier.notifyVsmf=false
+    #  - security.basic.enabled=false
+    #  - sebastian.admin=admin
+    #  - management.security.enabled=false
+    #  - nssmf.osm.baseurl=http://10.30.5.140/osm
+    #  - nssmf.osm.username=admin
+    #  - nssmf.osm.password=admin
+    #  - nssmf.osm.project=admin
+    #  - nssmf.osm.vim-id=e2097ca5-b130-4828-a0d2-bc9823a0676f
+    #  - nfvo.lcm.polling=7
+    depends_on:
+      - postgres
+    networks:
+      - vertical-slicer
+
+  postgres:
+    #image: ghcr.io/nextworks-it/network-slice-management-function/multiple-postgres-db
+    image: postgres:latest
+    restart: always
+    environment:
+      #POSTGRES_MULTIPLE_DATABASES: nsmf, nssmf, vsmf
+      POSTGRES_MULTIPLE_DATABASES: rannssmf
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+        - 0.0.0.0:5432:5432
+    networks:
+      - vertical-slicer
+  rabbit:
+    image: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - vertical-slicer    
+  phppgadmin:
+    container_name: phppgadmin
+    image: docker.io/bitnami/phppgadmin:7
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_HOST=postgres
+    networks:
+      - vertical-slicer
+    ports:
+      - 8080:8080
+networks:
+  vertical-slicer:
+    driver: bridge

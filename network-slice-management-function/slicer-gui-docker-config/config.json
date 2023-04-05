@@ -1,0 +1,9 @@
+{
+    "authMocked":true,
+    "mock":false,
+    "apiEndPointNSMF":"http://10.5.0.9:8080",
+    "apiEndPointVSMF":"http://10.5.0.8:8088",
+    "loadVSMF":false,
+    "loadNSMF":true,
+    "logoPath":"https://www.ngiot.eu/wp-content/uploads/sites/73/2021/02/cropped-cropped-cropped-LOGO-INGENIOUS_def-01-1.png"
+}

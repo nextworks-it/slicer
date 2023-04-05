@@ -1,0 +1,109 @@
+{
+	"info": {
+		"_postman_id": "1f32ad4e-6d87-47c5-9cee-226fbeab7805",
+		"name": "osm-nssmf",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create NSS Identifier",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "127.0.0.1:8082/nssmf/osm/provisioning/nss/createnssid",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8082",
+					"path": [
+						"nssmf",
+						"osm",
+						"provisioning",
+						"nss",
+						"createnssid"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Instantiate NSS (cirros)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"nssiId\":\"f6d1b431-21ff-4d0d-8047-89f3e69cc2cc\",\n\t\"nsdId\":\"41b602fd-1fe5-4dc9-b1db-6074ec9c1b99\"\n}"
+				},
+				"url": {
+					"raw": "127.0.0.1:8082/nssmf/osm/provisioning/nss/f6d1b431-21ff-4d0d-8047-89f3e69cc2cc/action/instantiate",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8082",
+					"path": [
+						"nssmf",
+						"osm",
+						"provisioning",
+						"nss",
+						"f6d1b431-21ff-4d0d-8047-89f3e69cc2cc",
+						"action",
+						"instantiate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Terminate NSS instantiated",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"nssiId\":\"f6d1b431-21ff-4d0d-8047-89f3e69cc2cc\"\n}"
+				},
+				"url": {
+					"raw": "127.0.0.1:8082/nssmf/osm/provisioning/nss/f6d1b431-21ff-4d0d-8047-89f3e69cc2cc/action/terminate",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8082",
+					"path": [
+						"nssmf",
+						"osm",
+						"provisioning",
+						"nss",
+						"f6d1b431-21ff-4d0d-8047-89f3e69cc2cc",
+						"action",
+						"terminate"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

@@ -1,0 +1,331 @@
+{
+  "nodes":[
+    {
+      "nodeId": 1,
+      "zoneId": "",
+      "powerState": "POWER_OFF",
+      "cps": null,
+      "mapOnepSipUuids": null,
+      "supportedProtocolLayers": null,
+      "nodeType": "PNF",
+      "pnfId": "",
+      "pnfInstanceId": "",
+      "pnfType": "gNB",
+      "processingCapabilities": "EDGE"
+    },
+    {
+      "nodeId": 2,
+      "zoneId": "",
+      "powerState": "POWER_OFF",
+      "cps": null,
+      "mapOnepSipUuids": null,
+      "supportedProtocolLayers": null,
+      "nodeType": "PNF",
+      "pnfId": "",
+      "pnfInstanceId": "",
+      "pnfType": "SC",
+      "processingCapabilities": "EDGE"
+    },
+    {
+      "nodeId": 3,
+      "zoneId": "",
+      "powerState": "POWER_OFF",
+      "cps": null,
+      "mapOnepSipUuids": null,
+      "supportedProtocolLayers": null,
+      "nodeType": "PNF",
+      "pnfId": "",
+      "pnfInstanceId": "",
+      "pnfType": "SC",
+      "processingCapabilities": "EDGE"
+    },
+    {
+      "nodeId": 4,
+      "zoneId": "",
+      "powerState": "POWER_OFF",
+      "cps": null,
+      "mapOnepSipUuids": null,
+      "supportedProtocolLayers": null,
+      "nodeType": "COMPUTE",
+      "processingCapabilities": "CLOUD"
+    },
+    {
+      "nodeId": 5,
+      "zoneId": "",
+      "powerState": "POWER_OFF",
+      "cps": null,
+      "mapOnepSipUuids": null,
+      "supportedProtocolLayers": null,
+      "nodeType": "COMPUTE",
+      "processingCapabilities": "CLOUD"
+    },
+    {
+      "nodeId": 6,
+      "zoneId": "",
+      "powerState": "POWER_OFF",
+      "cps": null,
+      "mapOnepSipUuids": null,
+      "supportedProtocolLayers": null,
+      "nodeType": "COMPUTE",
+      "processingCapabilities": "FOG"
+    }
+  ],
+  "links":[
+    {
+      "linkId": "link-1",
+      "source": {
+        "nodeId": 1,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "PNF",
+        "pnfId": "",
+        "pnfInstanceId": "",
+        "pnfType": "gNB",
+        "processingCapabilities": "EDGE"
+      },
+      "destination": {
+        "nodeId": 3,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "PNF",
+        "pnfId": "",
+        "pnfInstanceId": "",
+        "pnfType": "SC",
+        "processingCapabilities": "EDGE"
+      },
+      "sourceCp": null,
+      "destinationCp": null,
+      "power": null,
+      "bandwith": 2038.79,
+      "linkType": "WIRELESS",
+      "delay": 0.006279364999999999
+    },
+    {
+      "linkId": "link-2",
+      "source": {
+        "nodeId": 1,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "PNF",
+        "pnfId": "",
+        "pnfInstanceId": "",
+        "pnfType": "gNB",
+        "processingCapabilities": "EDGE"
+      },
+      "destination": {
+        "nodeId": 4,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "COMPUTE",
+        "processingCapabilities": "CLOUD"
+      },
+      "sourceCp": null,
+      "destinationCp": null,
+      "power": null,
+      "bandwith": 10000.0,
+      "linkType": "WIRED",
+      "delay": 0.009712587
+    },
+    {
+      "linkId": "link-3",
+      "source": {
+        "nodeId": 1,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "PNF",
+        "pnfId": "",
+        "pnfInstanceId": "",
+        "pnfType": "gNB",
+        "processingCapabilities": "EDGE"
+      },
+      "destination": {
+        "nodeId": 6,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "COMPUTE",
+        "processingCapabilities": "FOG"
+      },
+      "sourceCp": null,
+      "destinationCp": null,
+      "power": null,
+      "bandwith": 10000.0,
+      "linkType": "WIRED",
+      "delay": 0.006986244
+    },
+    {
+      "linkId": "link-3",
+      "source": {
+        "nodeId": 2,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "PNF",
+        "pnfId": "",
+        "pnfInstanceId": "",
+        "pnfType": "SC",
+        "processingCapabilities": "EDGE"
+      },
+      "destination": {
+        "nodeId": 3,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "PNF",
+        "pnfId": "",
+        "pnfInstanceId": "",
+        "pnfType": "SC",
+        "processingCapabilities": "EDGE"
+      },
+      "sourceCp": null,
+      "destinationCp": null,
+      "power": null,
+      "bandwith": 2081.53,
+      "linkType": "WIRELESS",
+      "delay": 0.006138424
+    },
+    {
+      "linkId": "link-4",
+      "source": {
+        "nodeId": 2,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "PNF",
+        "pnfId": "",
+        "pnfInstanceId": "",
+        "pnfType": "SC",
+        "processingCapabilities": "EDGE"
+      },
+      "destination": {
+        "nodeId": 5,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "COMPUTE",
+        "processingCapabilities": "CLOUD"
+      },
+      "sourceCp": null,
+      "destinationCp": null,
+      "power": null,
+      "bandwith": 10000.00,
+      "linkType": "WIRED",
+      "delay": 0.006110506
+    },
+    {
+      "linkId": "link-5",
+      "source": {
+        "nodeId": 3,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "PNF",
+        "pnfId": "",
+        "pnfInstanceId": "",
+        "pnfType": "SC",
+        "processingCapabilities": "EDGE"
+      },
+      "destination": {
+        "nodeId": 6,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "COMPUTE",
+        "processingCapabilities": "FOG"
+      },
+      "sourceCp": null,
+      "destinationCp": null,
+      "power": null,
+      "bandwith": 3234.78,
+      "linkType": "WIRELESS",
+      "delay": 0.0037799820000000003
+    },
+    {
+      "linkId": "link-6",
+      "source": {
+        "nodeId": 4,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "COMPUTE",
+        "processingCapabilities": "CLOUD"
+      },
+      "destination": {
+        "nodeId": 5,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "COMPUTE",
+        "processingCapabilities": "CLOUD"
+      },
+      "sourceCp": null,
+      "destinationCp": null,
+      "power": null,
+      "bandwith": 10000.00,
+      "linkType": "WIRED",
+      "delay": 0.00832604
+    },
+    {
+      "linkId": "link-7",
+      "source": {
+        "nodeId": 5,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "COMPUTE",
+        "processingCapabilities": "CLOUD"
+      },
+      "destination": {
+        "nodeId": 6,
+        "zoneId": "",
+        "powerState": "POWER_OFF",
+        "cps": null,
+        "mapOnepSipUuids": null,
+        "supportedProtocolLayers": null,
+        "nodeType": "COMPUTE",
+        "processingCapabilities": "FOG"
+      },
+      "sourceCp": null,
+      "destinationCp": null,
+      "power": null,
+      "bandwith": 10000.00,
+      "linkType": "WIRED",
+      "delay": 0.009458743
+    }
+  ]
+}

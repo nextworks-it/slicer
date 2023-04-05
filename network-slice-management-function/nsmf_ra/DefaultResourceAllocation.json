@@ -1,0 +1,37 @@
+{
+  "responseId": "response",
+  "successful": true,
+  "nsResourceAllocation": {
+      "nsiId": "8ee140b8-cb08-4faa-adf4-7b7079cc4793",
+      "nssResourceAllocations": [
+          {
+              "nsstId": "nsst_core_video_streaming",
+              "allocationType": "COMPUTE",
+              "vnfPlacement": {
+                  "fivegc_cmc_container_version_vnfd": "node-1"
+              }
+          },
+          {
+              "nsstId": "nsst_ran_video_streaming",
+              "allocationType": "COMPUTE",
+              "vnfPlacement": {
+                  "vnfd_ueransim_no_juju": "node-2"
+              }
+          },
+          {
+            "nsstId": "nsst_core_d2d",
+            "allocationType": "COMPUTE",
+            "vnfPlacement": {
+                "fivegc_cmc_container_version_vnfd": "node-3"
+            }
+        },
+        {
+            "nsstId": "nsst_ran_d2d",
+            "allocationType": "COMPUTE",
+            "vnfPlacement": {
+                "vnfd_ueransim_no_juju": "node-4"
+            }
+        }
+      ]
+  }
+}

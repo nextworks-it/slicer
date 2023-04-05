@@ -1,0 +1,23 @@
+{
+  "responseId": "response",
+  "successful": true,
+  "nsResourceAllocation": {
+      "nsiId": "8ee140b8-cb08-4faa-adf4-7b7079cc4793",
+      "nssResourceAllocations": [
+          {
+              "nsstId": "nsst_core",
+              "allocationType": "COMPUTE",
+              "vnfPlacement": {
+                  "fivegc_cmc_container_version_vnfd": "node-1"
+              }
+          },
+          {
+              "nsstId": "nsst_ran",
+              "allocationType": "COMPUTE",
+              "vnfPlacement": {
+                  "vnfd_ueransim_no_juju": "node-2"
+              }
+          }
+      ]
+  }
+}

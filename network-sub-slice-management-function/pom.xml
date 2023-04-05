@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>it.nextworks.nfvmano</groupId>
+    <artifactId>NssmfAggregator</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>NSSMF Aggregator</name>
+
+    <modules>
+        <module>oran-nssmf/OranRecordServiceIM</module>
+        <module>oran-nssmf/OranRecordService</module>
+        <module>sbi-drivers/osm-lcm-driver</module>
+        <module>nssmf-service</module>
+        <module>osm-nssmf/osm-nssmf-handler</module>
+        <module>oran-nssmf/oran-nssmf-handler</module>
+        <module>nssmf-app</module>
+    </modules>
+
+</project>

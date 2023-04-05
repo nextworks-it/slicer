@@ -1,0 +1,489 @@
+{
+	"info": {
+		"_postman_id": "d6cff28f-bf73-4d40-a3d2-d956305e4c4d",
+		"name": "core-nssmf",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "5GC instances management",
+			"item": [
+				{
+					"name": "Create NSS Identifier",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "127.0.0.1:8082/core/nssmf/provisioning/nss/createnssid",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"nssmf",
+								"provisioning",
+								"nss",
+								"createnssid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deploy 5GC instance (5GC container-based CMC)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"nssiId\":\"7efc4f42-0bb2-4987-8b37-f9ce430231be\",\n\"nsdId\":\"fffa73e3-0f94-45e5-be56-973a2b009fff\",\n\"networkServiceName\":\"5GC instance CMC\",\n\"nsst\":{\n\t\"nsstId\": \"embb-slice-uc1-demo\",\n\t\"operationalState\": true,\n\t\"administrativeState\": \"UNLOCKED\",\n\t\"sliceProfileList\": [{\n\t\t\"sliceProfileId\": null,\n\t\t\"pLMNIdList\": null,\n\t\t\"eMBBPerfReq\": [{\n\t\t\t\t\t\"expDataRateDL\": 1000000,\n\t\t\t\t\t\"expDataRateUL\": 1000000,\n\t\t\t\t\t\"areaTrafficCapDL\": 40000000,\n\t\t\t\t\t\"areaTrafficCapUL\": 40000000,\n\t\t\t\t\t\"overallUserDensity\": 200,\n\t\t\t\t\t\"activityFactor\": 20\n\t\t\t\t}],\n\t\t\"uRLLCPerfReq\": [{\n\t\t\t\t\t\"csavailabilityTarget\": 99.9,\n\t\t\t\t\t\"csreliabilityMeanTime\": \"99.9\",\n\t\t\t\t\t\"expDataRate\": 30000,\n\t\t\t\t\t\"msgSizeByte\": \"300\",\n\t\t\t\t\t\"transferIntervalTarget\": \"100\",\n\t\t\t\t\t\"survivalTime\": \"1day\"\n\t\t\t\t}],\n\t\t\"maxNumberofUEs\": 15000,\n\t\t\"coverageAreaTAList\": null,\n\t\t\"latency\": 300,\n\t\t\"uEMobilityLevel\": null,\n\t\t\"resourceSharingLevel\": true\n\t}],\n\t\"nsstList\": [{\n\t\t\"nsstId\": \"nsst-vapp\",\n\t\t\"operationalState\": false,\n\t\t\"sliceProfileList\": [{\n\t\t\t\t\"uRLLCPerfReq\": [{\n\t\t\t\t\t\"csavailabilityTarget\": 99,\n\t\t\t\t\t\"csreliabilityMeanTime\": 99,\n\t\t\t\t\t\"expDataRate\": 30000,\n\t\t\t\t\t\"msgSizeByte\": \"300\",\n\t\t\t\t\t\"transferIntervalTarget\": \"100\",\n\t\t\t\t\t\"survivalTime\": \"1day\"\n\t\t\t\t}],\n\t\t\t\t\"eMBBPerfReq\": [{\n\t\t\t\t\t\"expDataRateDL\": 1000000,\n\t\t\t\t\t\"expDataRateUL\": 1000000,\n\t\t\t\t\t\"areaTrafficCapDL\": 40000000,\n\t\t\t\t\t\"areaTrafficCapUL\": 40000000,\n\t\t\t\t\t\"overallUserDensity\": 200,\n\t\t\t\t\t\"activityFactor\": 20\n\t\t\t\t}]\n\t\t\t}\n\t\t],\n\t\t\"type\": \"CORE\"\n\t}],\n\t\"type\": \"CORE\"\n},\n\"subscriberList\":[{\n\t\t\"imsi\": \"001991000000888\",\n\t\t\"k\": \"000102030405060708090A0B0C0D0E0F\"\n\t},\n    {\n\t\t\"imsi\": \"222991000000899\",\n\t\t\"k\": \"000102030405060708090A0B0C0D0E0F\"\n\t}]\n}"
+						},
+						"url": {
+							"raw": "127.0.0.1:8082/core/nssmf/provisioning/nss/77934a85-6ea3-42c5-a9e3-ced64b1b21ca/action/instantiate",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"nssmf",
+								"provisioning",
+								"nss",
+								"77934a85-6ea3-42c5-a9e3-ced64b1b21ca",
+								"action",
+								"instantiate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get 5GC instance information",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "127.0.0.1:8082/core/nssmf/provisioning/nss/3303f628-b7f5-4170-bde2-de07a554e2e9",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"nssmf",
+								"provisioning",
+								"nss",
+								"3303f628-b7f5-4170-bde2-de07a554e2e9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all 5GC instances information",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "127.0.0.1:8082/core/nssmf/provisioning/nss",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"nssmf",
+								"provisioning",
+								"nss"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Terminate 5GC instance",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"nssiId\":\"511d04f1-60ff-40db-b888-7d2a00f995e4\"\n}"
+						},
+						"url": {
+							"raw": "127.0.0.1:8082/core/nssmf/provisioning/nss/865fa002-4c55-4717-bb2c-d679ac64a06c/action/terminate",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"nssmf",
+								"provisioning",
+								"nss",
+								"865fa002-4c55-4717-bb2c-d679ac64a06c",
+								"action",
+								"terminate"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Core Network slice management",
+			"item": [
+				{
+					"name": "Create Core network Slice",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"nsstId\": \"another-slice-2\",\n\t\"operationalState\": true,\n\t\"administrativeState\": \"UNLOCKED\",\n\t\"sliceProfileList\": [{\n\t\t\"sliceProfileId\": null,\n\t\t\"pLMNIdList\": null,\n\t\t\"eMBBPerfReq\": [{\n\t\t\t\t\t\"expDataRateDL\": 1000000,\n\t\t\t\t\t\"expDataRateUL\": 1000000,\n\t\t\t\t\t\"areaTrafficCapDL\": 40000000,\n\t\t\t\t\t\"areaTrafficCapUL\": 40000000,\n\t\t\t\t\t\"userDensity\": 200,\n\t\t\t\t\t\"activityFactor\": 20\n\t\t\t\t}],\n\t\t\"uRLLCPerfReq\": [{\n\t\t\t\t\t\"cSAvailabilityTarget\": 99.9,\n\t\t\t\t\t\"cSReliabilityMeanTime\": \"99.9\",\n\t\t\t\t\t\"expDataRate\": 30000,\n\t\t\t\t\t\"msgSizeByte\": \"300\",\n\t\t\t\t\t\"transferIntervalTarget\": \"100\",\n\t\t\t\t\t\"survivalTime\": \"1day\"\n\t\t\t\t}],\n\t\t\"maxNumberofUEs\": 15000,\n\t\t\"coverageAreaTAList\": null,\n\t\t\"latency\": 300,\n\t\t\"uEMobilityLevel\": null,\n\t\t\"resourceSharingLevel\": true\n\t}],\n\t\"nsstList\": [{\n\t\t\"nsstId\": \"nsst-vapp\",\n\t\t\"operationalState\": false,\n\t\t\"sliceProfileList\": [{\n\t\t\t\"SliceProfile\": {\n\t\t\t\t\"URLLCPerfReq\": [{\n\t\t\t\t\t\"cSAvailabilityTarget\": 99,\n\t\t\t\t\t\"cSReliabilityMeanTime\": 99,\n\t\t\t\t\t\"expDataRate\": 30000,\n\t\t\t\t\t\"msgSizeByte\": \"300\",\n\t\t\t\t\t\"transferIntervalTarget\": \"100\",\n\t\t\t\t\t\"survivalTime\": \"1day\"\n\t\t\t\t}],\n\t\t\t\t\"eMBBPerfReq\": [{\n\t\t\t\t\t\"expDataRateDL\": 1000000,\n\t\t\t\t\t\"expDataRateUL\": 1000000,\n\t\t\t\t\t\"areaTrafficCapDL\": 40000000,\n\t\t\t\t\t\"areaTrafficCapUL\": 40000000,\n\t\t\t\t\t\"userDensity\": 200,\n\t\t\t\t\t\"activityFactor\": 20\n\t\t\t\t}]\n\t\t\t}\n\t\t}],\n\t\t\"type\": \"CORE\"\n\t}],\n\t\"type\": \"CORE\"\n}"
+						},
+						"url": {
+							"raw": "127.0.0.1:8082/core/slice-management/7efc4f42-0bb2-4987-8b37-f9ce430231be",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"slice-management",
+								"7efc4f42-0bb2-4987-8b37-f9ce430231be"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Core network Slices",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true,
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "127.0.0.1:8082/core/slice-management/7efc4f42-0bb2-4987-8b37-f9ce430231be",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"slice-management",
+								"7efc4f42-0bb2-4987-8b37-f9ce430231be"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get specific Core network Slice",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true,
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "127.0.0.1:8082/core/slice-management/5889e200-7429-4b25-9799-519e27001ea9/another-slice",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"slice-management",
+								"5889e200-7429-4b25-9799-519e27001ea9",
+								"another-slice"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Core network Slice",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "127.0.0.1:8082/core/slice-management/7efc4f42-0bb2-4987-8b37-f9ce430231be/another-slice-2",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"slice-management",
+								"7efc4f42-0bb2-4987-8b37-f9ce430231be",
+								"another-slice-2"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Subscriber management",
+			"item": [
+				{
+					"name": "Add subscribers for default-slice",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"sliceName\": \"embb-slice-uc1-demo\",\n\t\"subscriberList\": [{\n\t\t\"imsi\": \"999911000000123\",\n\t\t\"k\": \"000102030405060708090A0B0C0D0E0F\"\n\t}]\n\n}"
+						},
+						"url": {
+							"raw": "127.0.0.1:8082/core/subscribers-management/5889e200-7429-4b25-9799-519e27001ea9/embb-slice-uc1-demo",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"subscribers-management",
+								"5889e200-7429-4b25-9799-519e27001ea9",
+								"embb-slice-uc1-demo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all subscribers",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true,
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "127.0.0.1:8082/core/subscribers-management/5889e200-7429-4b25-9799-519e27001ea9",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"subscribers-management",
+								"5889e200-7429-4b25-9799-519e27001ea9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get subscribers for default-slice",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true,
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "127.0.0.1:8082/core/subscribers-management/5889e200-7429-4b25-9799-519e27001ea9/another-slice",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"subscribers-management",
+								"5889e200-7429-4b25-9799-519e27001ea9",
+								"another-slice"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove subscriber",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "127.0.0.1:8082/core/subscribers-management/5889e200-7429-4b25-9799-519e27001ea9/999991000000888",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"core",
+								"subscribers-management",
+								"5889e200-7429-4b25-9799-519e27001ea9",
+								"999991000000888"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
