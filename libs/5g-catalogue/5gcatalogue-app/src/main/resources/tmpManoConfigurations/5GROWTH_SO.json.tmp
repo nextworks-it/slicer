@@ -1,0 +1,8 @@
+{
+  "manoId": "5GROWTH_SO",
+  "manoType": "SO_5GROWTH",
+  "manoSite": "5GROWTH",
+  "pluginOperationalState": "ENABLED",
+  "ipAddress": "127.0.0.1",
+  "port": "8888"
+}

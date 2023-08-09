@@ -27,7 +27,7 @@ public class InstantiateNsRequestVld {
   private String name = null;
 
   @SerializedName("vim-network-name")
-  private String vimNetworkName = null;
+  private Map<String,String> vimNetworkName = null;
 
   @SerializedName("vim-network-id")
   private OneOfInstantiateNsRequestVldVimNetworkId vimNetworkId = null;
@@ -65,7 +65,7 @@ public class InstantiateNsRequestVld {
     this.name = name;
   }
 
-  public InstantiateNsRequestVld vimNetworkName(String vimNetworkName) {
+  public InstantiateNsRequestVld vimNetworkName(Map<String,String> vimNetworkName) {
     this.vimNetworkName = vimNetworkName;
     return this;
   }
@@ -75,11 +75,11 @@ public class InstantiateNsRequestVld {
    * @return vimNetworkName
   **/
   @Schema(description = "")
-  public String getVimNetworkName() {
+  public Map<String, String> getVimNetworkName() {
     return vimNetworkName;
   }
 
-  public void setVimNetworkName(String vimNetworkName) {
+  public void setVimNetworkName(Map<String, String> vimNetworkName) {
     this.vimNetworkName = vimNetworkName;
   }
 

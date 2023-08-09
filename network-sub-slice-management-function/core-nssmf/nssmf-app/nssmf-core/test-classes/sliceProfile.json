@@ -1,0 +1,18 @@
+{
+  "sliceProfileId": "slice-profile-test",
+  "pLMNIdList": null,
+  "eMBBPerfReq": [
+    {
+      "expDataRateDL": 25,
+      "expDataRateUL": 16,
+      "areaTrafficCapDL": 30,
+      "areaTrafficCapUL": 20
+    }
+  ],
+  "uRLLCPerfReq": null,
+  "maxNumberofUEs": 15000,
+  "coverageAreaTAList": null,
+  "latency": 300,
+  "uEMobilityLevel": null,
+  "resourceSharingLevel": false
+}

@@ -1,0 +1,179 @@
+<!--/*
+* Copyright 2018 Nextworks s.r.l.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/-->
+<div class="col-md-3 left_col">
+<div class="left_col scroll-view">
+  <div class="navbar nav_title" style="border: 0;">
+    <a href="/5gcatalogue/index.html" class="site_title"><i class="glyphicon glyphicon-level-up"></i> <span>5G APPS & SERVICES</span></a>
+  </div>
+
+  <div class="clearfix"></div>
+
+  <div class="profile clearfix" id="userInfo">
+    <div class="profile_pic">
+      <img src="/5gcatalogue/images/user-account.png" alt="..." class="img-circle profile_img">
+    </div>
+    <div class="profile_info" style="color: #fff;">
+      <div id="userName"></div>
+      <div id="project"></div>
+    </div>
+  </div>
+
+  <br />
+
+  <!-- sidebar menu -->
+  <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+    <div class="menu_section">
+      <!-- h3>General</h3 -->
+      <ul class="nav side-menu">
+        <li><a href="/5gcatalogue/index.html"><i class="fa fa-home"></i> Home </a>
+        </li>
+        <li><a href="/5gcatalogue/pages/nsd/nsds.html"><i class="fa fa-chain"></i> NS Descriptors </a>
+        </li>
+        <li><a href="/5gcatalogue/pages/vnf/vnfds.html"><i class="fa fa-cubes"></i> VNF Packages </a>
+        </li>
+        <li><a href="/5gcatalogue/pages/appd/appds.html"><i class="fa fa-code"></i> MEC APP Packages </a>
+        </li>
+        <li><a href="/5gcatalogue/pages/pnf/pnfds.html"><i class="fa fa-database"></i> PNF Descriptors </a>
+        </li>
+        <li><a href="/5gcatalogue/pages/sdnapp/sdnapps.html"><i class="fa fa-code-fork"></i> SDN APP Packages </a>
+        </li>
+        <li class="admin"><a><i class="fa fa-gears"></i> ADMIN <span class="fa fa-chevron-down"></a>
+          <ul class="nav child_menu">
+            <li><a href="/5gcatalogue/pages/admin/projects.html">Projects</a></li>
+            <li><a href="/5gcatalogue/pages/admin/users.html">Users</a></li>
+            <li><a href="/5gcatalogue/pages/admin/plugins.html">Plugins</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- /sidebar menu -->
+
+  <!-- /menu footer buttons -->
+  <div class="sidebar-footer hidden-small">
+    <a href="http://www.5gmedia.eu/" target="_blank">
+      <img style="align-content: center; "src="/5gcatalogue/images/5gmedia_logo.png" alt="">
+    </a>
+    <!--a data-toggle="tooltip" data-placement="top" title="Settings">
+      <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+    </a>
+    <a data-toggle="tooltip" data-placement="top" title="FullScreen">
+      <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+    </a>
+    <a data-toggle="tooltip" data-placement="top" title="Lock">
+      <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+    </a>
+    <a data-toggle="tooltip" data-placement="top" title="Logout" href="login.html">
+      <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+    </a -->
+  </div>
+  <!-- /menu footer buttons -->
+</div>
+</div>
+
+<!-- top navigation -->
+<div class="top_nav">
+<div class="nav_menu">
+  <nav>
+    <div class="nav toggle">
+      <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+    </div>
+    <ul class="nav navbar-nav navbar-right">
+      <li class="">
+        <a href="http://www.nextworks.it" target="_blank">
+          <img src="/5gcatalogue/images/logo_nextworks_150.png" alt="">
+        </a>
+      </li>
+      <li class="" id="userInfoBar">
+        <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+          <img src="/5gcatalogue/images/user-account.png" alt="">
+          <span id="userNameBar"></span>
+          <span class=" fa fa-angle-down"></span>
+        </a>
+        <ul class="dropdown-menu dropdown-usermenu pull-right">
+          <!--li><a href="#" id="projectBar"></a></li-->
+          <li><a href="#" onclick="logout()"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
+        </ul>
+      </li>
+      <li class="" id="userInfoBar">
+        <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+          <i class="fa fa-folder-open-o"></i>
+          <span id="projectBar"></span>
+          <span class=" fa fa-angle-down"></span>
+        </a>
+        <ul id="userProjects" class="dropdown-menu dropdown-usermenu pull-right">
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</div>
+</div>
+<!-- /top navigation -->
+<script>
+    if (kcEnabled) {
+        var keycloak = Keycloak({
+            url: '_KEYCLOAK_URL_',
+            realm: '_KEYCLOAK_REALM_',
+            clientId: '_KEYCLOAK_GUI_CLIENT_'
+        });
+        var loadData = function () {
+            
+            if (keycloak.idToken) {
+                //var realm = keycloak.tokenParsed.realm;  
+                var service_role = keycloak.tokenParsed.service_role;  
+                username = keycloak.tokenParsed.preferred_username;
+
+                getUser(username, 'response', fillProjectsData);
+                
+                document.getElementById('userName').innerHTML = '<b>' + username + '</b>';
+                document.getElementById('userNameBar').innerHTML = '<b>' + username + '</b>';
+                
+                //console.log("idToken: " + keycloak.idToken);
+                //console.log("Token: " +  keycloak.token);
+                //console.log("Realm: " + realm);
+                console.log("Service Role: " + service_role);
+                console.log("Username: " + username);
+                setCookie("USERNAME", username, 1);
+                setCookie("TOKEN", keycloak.token, 1);
+                setCookie("ROLE", service_role, 1);
+        
+                //document.getElementById('profileType').innerHTML = 'IDToken';
+                //document.getElementById('email').innerHTML = keycloak.idTokenParsed.email;
+                //document.getElementById('name').innerHTML = keycloak.idTokenParsed.name;
+                //document.getElementById('givenName').innerHTML = keycloak.idTokenParsed.given_name;
+                //document.getElementById('familyName').innerHTML = keycloak.idTokenParsed.family_name;
+            } else {
+                //window.location.replace("/5gcatalogue/401.html");
+                refresh(false);
+            }
+        };
+        var loadFailure = function () {
+            showResultMessage(false, "Failed to load user data");
+        };
+        var reloadData = function () {
+            keycloak.updateToken(20)
+                    .success(loadData)
+                    .error(function() {
+                        showResultMessage(false, "Failed to load user data");
+                    });
+        }
+        keycloak.init({onLoad: 'login-required', checkLoginIframe: false}).success(reloadData);
+    }
+</script>
+<script>
+    //var userName = getCookie("USERNAME");
+    //var userName = document.getElementById('userName').innerHTML;
+</script>

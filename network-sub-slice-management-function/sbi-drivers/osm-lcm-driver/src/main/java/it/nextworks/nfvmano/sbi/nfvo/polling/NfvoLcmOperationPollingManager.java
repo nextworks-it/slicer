@@ -49,7 +49,7 @@ public class NfvoLcmOperationPollingManager implements SchedulingConfigurer {
 
 	private static final Logger log = LoggerFactory.getLogger(NfvoLcmOperationPollingManager.class);
 	
-	@Value("${nfvo.lcm.polling}")
+	@Value("${nfvo.lcm.polling:60}")
 	private int timeoPollingPeriod;
 	
 	//map of active polled operations on TIMEO NFVO. The key is the operation ID. The value provides the info to poll the operation.

@@ -1,0 +1,960 @@
+tosca_definitions_version: tosca_simple_profile_v_1_2
+# ETSI NFV SOL 001 vnfd types definitions version 0.9.0
+
+data_types:
+  tosca.datatypes.nfv.L2AddressData:
+    derived_from: tosca.datatypes.Root
+    properties:  
+      mac_address_assignment: 
+        type: Boolean
+        required: true    
+  
+  tosca.datatypes.nfv.L3AddressData:
+    derived_from: tosca.datatypes.Root
+    properties:  
+      ip_address_assignment: 
+        type: Boolean
+        required: true    
+      floating_ip_activated: 
+        type: Boolean
+        required: true
+      ip_address_type:
+        type: string
+        required: false
+        constraints:
+          - valid_values: [ ipv4, ipv6 ]
+      number_of_ip_address:
+        type: integer
+        required: false
+  
+  tosca.datatypes.nfv.AddressData:
+    derived_from: tosca.datatypes.Root
+    properties:  
+      address_type: 
+        type: string
+        required: true
+        constraints:
+          - valid_values: [ mac_address, ip_address ]     
+      l2_address_data: 
+        type: tosca.datatypes.nfv.L2AddressData 
+        required: false
+      l3_address_data:
+        type: tosca.datatypes.nfv.L3AddressData
+        required: false
+  
+  tosca.datatypes.nfv.VirtualNetworkInterfaceRequirements:
+    derived_from: tosca.datatypes.Root
+    properties:  
+      name: 
+        type: string
+        required: false    
+      description: 
+        type: string
+        required: false
+      support_mandatory:
+        type: boolean
+        required: true
+      network_interface_requirements:
+        type: map
+        entry_schema: 
+          type: string
+        required: true
+      nic_io_requirements:
+        type: tosca.datatypes.nfv.LogicalNodeData
+        required: false
+
+  tosca.datatypes.nfv.ConnectivityType:
+    derived_from: tosca.datatypes.Root
+    properties:  
+      layer_protocols: 
+        type: string
+        required: true
+        constraints:
+          - valid_values: [ ethernet, mpls, odu2, ipv4, ipv6, pseudo_wire ]   
+      flow_pattern: 
+        type: string
+        required: false
+        constraints:
+          - valid_values: [ line, tree, mesh ]
+  
+  tosca.datatypes.nfv.RequestedAdditionalCapability:
+    derived_from: tosca.datatypes.Root
+    properties:
+      #name:
+        # key of containing map
+      support_mandatory:
+        type: boolean
+        required: true
+      min_requested_additional_capability_version:
+        type: string
+        required: false
+      preferred_requested_additional_capability_version:
+        type: string
+        required: false
+      requested_additional_capability_name:
+        type: string
+        required: true
+      target_performance_parameters:
+        type: map
+        entry_schema:
+          type: string
+        required: true    
+  
+  tosca.datatypes.nfv.VirtualMemory:
+      derived_from: tosca.datatypes.Root
+      properties:
+        virtual_mem_size:
+          type: scalar-unit.size # Number
+          required: true
+        virtual_mem_oversubscription_policy:
+          type: string
+          required: false
+        vdu_memory_requirements:
+          type: map
+          entry_schema:
+            type: string
+          required: false
+        numa_enabled:
+          type: boolean
+          required: false
+  
+  tosca.datatypes.nfv.VirtualCpu:
+    derived_from: tosca.datatypes.Root
+    properties:
+      cpu_architecture:
+        type: string
+        required: false
+      num_virtual_cpu:
+        type: integer
+        required: true
+      virtual_cpu_clock:
+        type: scalar-unit.frequency
+        required: false
+      virtual_cpu_oversubscription_policy:
+        type: string
+        required: false
+      vdu_cpu_requirements:
+        type: map
+        entry_schema:
+          type: string
+        required: false
+      virtual_cpu_pinning:
+        type: tosca.datatypes.nfv.VirtualCpuPinning
+        required: false
+  
+  tosca.datatypes.nfv.VirtualCpuPinning:
+    derived_from: tosca.datatypes.Root
+    properties:
+      cpu_pinning_policy:
+        type: string # CpuPinningPolicy
+        constraints:
+          - valid_values: [ static, dynamic ]
+        required: false
+      cpu_pinning_rule:
+        type: list
+        entry_schema:
+          type: string
+        required: false
+  
+  tosca.datatypes.nfv.VnfcConfigurableProperties:
+    derived_from: tosca.datatypes.Root
+    properties:
+      additional_vnfc_configurable_properties:
+        type: map
+        entry_schema:
+          type: string
+        required: false
+  
+  tosca.datatypes.nfv.VduProfile:
+    derived_from: tosca.datatypes.Root
+    properties:      
+      min_number_of_instances:
+        type: integer
+        required: true
+      max_number_of_instances:
+        type: integer
+        required: true
+  
+  tosca.datatypes.nfv.VlProfile:
+    derived_from: tosca.datatypes.Root
+    properties:
+      max_bit_rate_requirements:
+         type: tosca.datatypes.nfv.LinkBitRateRequirements
+         required: true
+      min_bit_rate_requirements:
+         type: tosca.datatypes.nfv.LinkBitRateRequirements
+         required: true
+      qos:
+         type: tosca.datatypes.nfv.Qos
+         required: false
+  
+  tosca.datatypes.nfv.InstantiationLevel:
+    derived_from: tosca.datatypes.Root
+    properties:
+      description:
+        type: string
+        required: true
+      scale_info:
+        type: map # key: aspectId
+        required: false
+        entry_schema:
+          type: tosca.datatypes.nfv.ScaleInfo
+  
+  tosca.datatypes.nfv.VduLevel:
+    derived_from: tosca.datatypes.Root
+    properties:     
+      number_of_instances:
+        type: integer
+        required: true
+  
+  tosca.datatypes.nfv.VnfLcmOperationsConfiguration:
+    derived_from: tosca.datatypes.Root
+    properties:
+      instantiate:
+        type: tosca.datatypes.nfv.VnfInstantiateOperationConfiguration
+        required: false
+      scale:
+        type: tosca.datatypes.nfv.VnfScaleOperationConfiguration
+        required: false
+      scale_to_level:
+        type: tosca.datatypes.nfv.VnfScaleToLevelOperationConfiguration
+        required: false
+      change_flavour:
+        type: tosca.datatypes.nfv.VnfChangeFlavourOperationConfiguration
+        required: false
+      heal:
+        type: tosca.datatypes.nfv.VnfHealOperationConfiguration
+        required: false
+      terminate:
+        type: tosca.datatypes.nfv.VnfTerminateOperationConfiguration
+        required: false
+      operate:
+        type: tosca.datatypes.nfv.VnfOperateOperationConfiguration
+        required: false
+      change_ext_connectivity:
+        type: tosca.datatypes.nfv.VnfChangeExtConnectivityOperationConfiguration
+        required: false
+  
+  tosca.datatypes.nfv.VnfInstantiateOperationConfiguration:
+    derived_from: tosca.datatypes.Root
+    properties:
+      #parameters:
+        # modeled as part of operation parameter list
+  
+  
+  tosca.datatypes.nfv.VnfScaleOperationConfiguration:
+    derived_from: tosca.datatypes.Root
+    properties:   
+      scaling_by_more_than_one_step_supported:
+        type: boolean
+        required: false
+  
+  tosca.datatypes.nfv.VnfScaleToLevelOperationConfiguration:
+    derived_from: tosca.datatypes.Root
+    properties:
+      arbitrary_target_levels_supported:
+        type: boolean
+        required: false
+  
+  tosca.datatypes.nfv.VnfHealOperationConfiguration:
+    derived_from: tosca.datatypes.Root
+    properties:
+      causes:
+        type: list
+        entry_schema:
+          type: string
+          required: false
+  
+  tosca.datatypes.nfv.VnfTerminateOperationConfiguration:
+    derived_from: tosca.datatypes.Root
+    properties:
+      min_graceful_termination_timeout:
+        type: scalar-unit.time
+        required: true
+      max_recommended_graceful_termination_timeout:
+        type: scalar-unit.time
+        required: false
+  
+  tosca.datatypes.nfv.VnfOperateOperationConfiguration:
+    derived_from: tosca.datatypes.Root
+    properties:
+      min_graceful_stop_timeout:
+        type: scalar-unit.time
+        required: true
+      max_recommended_graceful_stop_timeout:
+        type: scalar-unit.time
+        required: false
+  
+  tosca.datatypes.nfv.ScaleInfo:
+    derived_from: tosca.datatypes.Root
+    properties:       
+      scale_level:
+        type: integer
+        required: true
+  
+  tosca.datatypes.nfv.ScalingAspect:
+    derived_from: tosca.datatypes.Root
+    properties:
+      name:
+        type: string
+        required: true
+      description:
+        type: string
+        required: true
+      max_scale_level:
+        type: integer # PositiveInteger
+        required: true
+      step_deltas:
+        type: list
+        required: false
+        entry_schema:
+          type: string # Identifier
+  
+    tosca.datatypes.nfv.LinkBitRateRequirements:
+      derived_from: tosca.datatypes.Root
+      properties:
+        root:
+          type: integer # in bits per second
+          required: true
+        leaf:
+          type: integer # in bits per second
+          required: false
+  
+    tosca.datatypes.nfv.Qos:
+      derived_from: tosca.datatypes.Root
+      properties:
+        latency:
+           type: integer #Number [ms]
+           required: true
+        packet_delay_variation:
+           type: integer #Number [ms]
+           required: true
+        packet_loss_ratio:
+           type: float
+           constraints:
+             - in_range: [ 0, 1 ]
+           required: false
+  
+    tosca.datatypes.nfv.VnfConfigurableProperties:
+      derived_from: tosca.datatypes.Root
+      properties:
+        is_autoscale_enabled:
+          type: boolean
+          required: false
+        is_autoheal_enabled:
+          type: boolean
+          required: false
+        additional_configurable_properties:
+          type: map
+          entry_schema:
+            type: tosca.datatypes.nfv.VnfAdditionalConfigurableProperties
+          required: false
+  
+    tosca.datatypes.nfv.VnfAdditionalConfigurableProperties: 
+      derived_from: tosca.datatypes.Root
+
+    tosca.datatypes.nfv.VnfInfoModifiableAttributes:
+      derived_from: tosca.datatypes.Root
+      properties:
+        extensions:
+          type: tosca.datatypes.nfv.VnfInfoModifiableAttributesExtensions
+          required: false
+        metadata:
+          type: tosca.datatypes.nfv.VnfInfoModifiableAttributesMetadata
+          required: false
+  
+    tosca.datatypes.nfv.VnfInfoModifiableAttributesExtensions:
+      derived_from: tosca.datatypes.Root
+  
+    tosca.datatypes.nfv.VnfInfoModifiableAttributesMetadata:
+      derived_from: tosca.datatypes.Root
+  
+    tosca.datatypes.nfv.CpProtocolData:
+      derived_from: tosca.datatypes.Root
+      properties:
+        associated_layer_protocol:
+          type: string
+          constraints:
+            - valid_values: [ ethernet, mpls, odu2, ipv4, ipv6, pseudo-wire ]
+          required: true
+        address_data:
+          type: tosca.datatypes.nfv.AddressData
+          required: false
+  
+    tosca.datatypes.nfv.LogicalNodeData:
+      derived_from: tosca.datatypes.Root
+      properties:
+        logical_node_requirements:
+          type: map
+          entry_schema:
+            type: string
+          required: false
+  
+  tosca.datatypes.nfv.SwImage:
+    derived_from: tosca.datatypes.Root
+    properties or metadata:
+      name:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+      checksum:
+        type: string
+        required: true
+      container_format:
+        type: string
+        constraints:
+          - valid_values: [ AKI, AMI, ARI, BARE, DOCKER, OVA, OVF ]
+        required: true
+      disk_format:
+        type: string
+        constraints:
+          - valid_values: [ AKI, AMI, ARI, ISO, QCOW2, RAW, VDI, VHD, VHDX, VMDK ]
+        required: true
+      min_disk:
+        type: scalar-unit.size # Number
+        required: true
+      min_ram:
+        type: scalar-unit.size # Number
+        required: false
+      size:
+        type: scalar-unit.size # Number
+        required: true
+      operating_system:
+        type: string
+        required: false
+      supported_virtualisation_environments:
+        type: list
+        entry_schema:
+          type: string
+        required: false
+  
+  tosca.datatypes.nfv.VirtuaLStorageData:
+    derived_from: tosca.datatypes.Root
+    properties:
+      type_of_storage:
+        type: string
+        required: true
+        constraints:
+           - valid_value: [ volume, object ]    
+      size_of_storage:
+        type: scalar-unit.size
+        required: true
+      vdu_storage_requirements:
+        type: map
+        entry_schema:
+          type: string
+        required: false
+      rdma_enabled:
+        type: boolean
+        required: false
+  
+  tosca.datatypes.nfv.VirtualLinkBitrateLevel:
+    derived_from: tosca.datatypes.Root
+    properties:
+      bitrate_requirements:
+        type: tosca.datatypes.nfv.LinkBitrateRequirements
+        required: true
+  
+  tosca.datatypes.nfv.VnfOperationAdditionalParameters:
+    derived_from: tosca.datatypes.Root
+    properties:
+        parameters:
+           type: TBD  
+  
+  tosca.datatypes.nfv.VnfChangeFlavourOperationConfiguration:
+    derived_from: tosca.datatypes.Root
+    properties:
+  
+  
+  
+  
+  tosca.datatypes.nfv.VnfChangeExtConnectivityOperationConfiguration:
+    derived_from: tosca.datatypes.Root
+    properties:
+  
+  
+  
+
+artifact_types:
+  tosca.artifacts.nfv.SwImage:
+    derived_from: tosca.artifacts.Deployment.Image
+  
+capability_types:
+  tosca.capabilities.nfv.VirtualBindable:
+    derived_from:  tosca.capabilities.Root
+  
+  tosca.capabilities.nfv.Metric:
+    derived_from: 
+  
+  tosca.capabilities.nfv.VirtualLinkable:
+    derived_from: tosca.capabilities.Root
+  
+  tosca.capabilities.nfv.VirtualCompute:
+    derived_from: tosca.capabilities.Root
+    properties:
+      logical_node:
+        type: map
+        entry_schema:
+           type: tosca.datatypes.nfv.LogicalNodeData
+        required: false
+      requested_additional_capabilities:
+        type: map
+        entry_schema:
+           type: tosca.datatypes.nfv.RequestedAdditionalCapability
+        required: false
+      virtual_memory:
+        type: tosca.datatypes.nfv.VirtualMemory
+        required: true
+      virtual_cpu:
+        type: tosca.datatypes.nfv.VirtualCpu
+        required: true
+      virtual_local_storage:
+        type: list
+        entry_schema:
+          description: virtual system disk definition
+          type: tosca.datatypes.nfv.VirtualStorageData
+          required: FFS
+  
+  tosca.capabilities.nfv.VirtualStorage:
+    derived_from: tosca.capabilities.Root
+  
+relationship_types:
+  tosca.relationships.nfv.VirtualBindsTo:
+    derived_from: tosca.relationships.DependsOn
+    valid_target_types: [ tosca.capabilities.nfv.VirtualBindable ]
+  
+  tosca.relationships.nfv.VnfVirtualLinksTo:
+    derived_from: tosca.relationships.DependsOn
+    valid_target_types: [ tosca.capabilities.nfv.VirtualLinkable ]
+  
+  tosca.relationships.Vdu.AttachesTo:
+    derived_from: tosca.relationships.Root
+    valid_target_types: [ tosca.capabilities.nfv.VirtualStorage ]  
+  
+interface_types:
+  tosca.interfaces.nfv.Vnflcm:
+    derived_from: tosca.interfaces.Root
+    instantiate:
+      description: Invoked upon receipt of an Instantiate VNF request
+      inputs:
+        additional_parameters:
+          type: tosca.datatypes.nfv.VnfOperationAdditionalParameters
+          required: false
+    instantiate_start:
+      description: Invoked before instantiate
+    instantiate_end:
+      description: Invoked after instantiate
+    terminate:
+      description: Invoked upon receipt Terminate VNF request
+      inputs:
+        additional_parameters:
+          type: tosca.datatypes.nfv.VnfOperationAdditionalParameters
+          required: false
+    terminate_start:
+      description: Invoked before terminate
+    terminate_end:
+      description: Invoked after terminate
+    modify_information:
+      description: Invoked upon receipt of a Modify VNF Information request
+    modify_information_start:
+      description: Invoked before modify_information
+    modify_information_end:
+      description: Invoked after modify_information
+    change_flavour:
+      description: Invoked upon receipt of a Change VNF Flavour request
+      inputs:
+        additional_parameters:
+          type: tosca.datatypes.nfv.VnfOperationAdditionalParameters
+          required: false
+    change_flavour_start:
+      description: Invoked before change_flavour
+    change_flavour_end:
+      description: Invoked after change_flavour
+    change_external_connectivity:
+      description: Invoked upon receipt of a Change External VNF Connectivity   request
+      inputs:
+        additional_parameters:
+          type: tosca.datatypes.nfv.VnfOperationAdditionalParameters
+          required: false
+    change_external_connectivity_start:
+      description: Invoked before change_external_connectivity
+    change_external_connectivity_end:
+      description: Invoked after change_external_connectivity
+    operate:
+      description: Invoked upon receipt of an Operate VNF request
+      inputs:
+        additional_parameters:
+          type: tosca.datatypes.nfv.VnfOperationAdditionalParameters
+          required: false
+    operate_start:
+      description: Invoked before operate
+    operate_end:
+      description: Invoked after operate
+    heal:
+      description: Invoked upon receipt of a Heal VNF request
+      inputs:
+        additional_parameters:
+          type: tosca.datatypes.nfv.VnfOperationAdditionalParameters
+          required: false
+    heal_start:
+      description: Invoked before heal
+    heal_end:
+    description: Invoked after heal
+    scale:
+      description: Invoked upon receipt of a Scale VNF request
+      inputs:
+        additional_parameters:
+          type: tosca.datatypes.nfv.VnfOperationAdditionalParameters
+          required: false
+    scale_start:
+      description: Invoked before scale
+    scale_end:
+      description: Invoked after scale 
+    scale_to_level:
+      description: Invoked upon receipt of a Scale VNF to Level request
+      inputs:
+        additional_parameters:
+          type: tosca.datatypes.nfv.VnfOperationAdditionalParameters
+          required: false
+    scale_to_level_start:
+      description: Invoked before scale_to_level
+    scale_to_level_end:
+      description: Invoked after scale_to_level
+  #  indicator_changed:
+  #    description: On receiving a VNF indicator value change notification
+  
+node_types:
+  tosca.nodes.nfv.VNF:
+      derived_from: tosca.nodes.Root
+      properties: 
+        descriptor_id: # instead of vnfd_id
+          type: string # GUID
+          required: true
+        descriptor_version: # instead of vnfd_version
+          type: string
+          required: true
+        provider: # instead of vnf_provider
+          type: string
+          required: true
+        product_name: # instead of vnf_product_name
+          type: string
+          required: true
+        software_version: # instead of vnf_software_version
+          type: string
+          required: true
+        product_info_name: # instead of vnf_product_info_name
+          type: string
+          required: false
+        product_info_description: # instead of vnf_product_info_description
+          type: string
+          required: false
+        vnfm_info:
+          type: list
+          entry_schema:
+            type: string
+          required: true
+        localization_languages:
+          type: list
+          entry_schema:
+            type: string #IETF RFC 5646 string
+          required: false
+        default_localization_language:
+          type: string #IETF RFC 5646 string
+          required: false
+        configurable_properties:
+          type: tosca.datatypes.nfv.VnfConfigurableProperties
+          required: false
+        modifiable_attributes:
+          type: tosca.datatypes.nfv.VnfInfoModifiableAttributes
+          required: true # true in IFA011, but all members are false
+        lcm_operations_configuration:
+          type: tosca.datatypes.nfv.VnfLcmOperationsConfiguration
+          required: false
+        flavour_id:
+          type: string
+          required: true
+        flavour_description:
+          type: string
+          required: true
+      capabilities:
+        #monitoring_parameter:
+          # modelled as ad hoc capabilities in VNF node template
+      requirements:
+        - virtual_link:
+            capability: tosca.capabilities.nfv.VirtualLinkable
+            relationship: tosca.relationships.nfv.VirtualLinksTo        
+            occurrences: [ 0, UNBOUNDED ]
+      interfaces:
+        Nfv:
+          type: tosca.interfaces.nfv.Vnflcm
+  
+  tosca.nodes.nfv.VnfExtCp:
+    derived_from: tosca.nodes.nfv.Cp
+    properties:
+      virtual_network_interface_requirements:
+        type: list
+        entry_schema:
+          type: tosca.datatypes.nfv.VirtualNetworkInterfaceRequirements
+          required: false
+    requirements:
+      - external_virtual_link:
+          capability: tosca.capabilities.nfv.VirtualLinkable
+          relationship: tosca.relationships.nfv.VirtualLinksTo
+      - internal_virtual_link: #name in ETSI NFV IFA011 v0.7.3   intVirtualLinkDesc
+          capability: tosca.capabilities.nfv.VirtualLinkable
+          relationship: tosca.relationships.nfv.VirtualLinksTo
+          
+         
+  tosca.nodes.nfv.Vdu.Compute:
+    derived_from: tosca.nodes.Root
+    properties:
+      description:
+        type: string
+        required: true
+      boot_order:
+        type: list # explicit index (boot index) not necessary, contrary to   IFA011
+        entry_schema:
+          type: string
+        required: false
+      nfvi_constraints:
+        type: list
+        entry_schema:
+          type: string
+        required: false
+      configurable_properties:
+        type: map
+        entry_schema:
+          type: tosca.datatypes.nfv.VnfcConfigurableProperties
+        required: true 
+      vdu_profile:
+        type: tosca.datatypes.nfv.VduProfile
+        required: true  
+      sw_image_data:
+        type: tosca.datatypes.nfv.SwImageData 
+        required: false # property is required when the node template has an   associated artifact of type tosca.artifacts.nfv.SwImage and not required   otherwise
+    capabilities:
+      virtual_compute: 
+        type: tosca.capabilities.nfv.VirtualCompute
+      virtual_binding: 
+        type: tosca.capabilities.nfv.VirtualBindable
+        occurrences: [ 1, UNBOUNDED ]
+      monitoring_parameter:
+        type: tosca.capabilities.nfv.Metric
+        occurrences: [ 0, UNBOUNDED ]
+    requirements:
+      - virtual_storage:
+          capability: tosca.capabilities.nfv.VirtualStorage
+          relationship: tosca.relationships.nfv.VduAttachedTo
+          node: tosca.nodes.nfv.Vdu.VirtualStorage
+          occurences: [ 0, UNBOUNDED ]
+    
+  tosca.nodes.nfv.Vdu.VirtualStorage: 
+    derived_from: tosca.nodes.Root
+    properties:
+      id:
+        type: string
+        required: true
+      virtual_storage_data:
+        type: tosca.datatypes.nfv.VirtualStorage
+        required: true
+      sw_image_data:
+        type: tosca.datatypes.nfv.SwImageData 
+        required: false # property is required when the node template has an   associated artifact of type tosca.artifacts.nfv.SwImage and not required   otherwise
+    capabilities:
+      virtual_storage:
+        type: tosca.capabilities.nfv.VirtualStorage
+   
+  
+  tosca.nodes.nfv.Cp:
+    derived_from: tosca.nodes.Root 
+    properties:
+      layer_protocols:
+        type: list
+        entry_schema: string
+        constraints:
+          - valid_values: [ ethernet, mpls, odu2, ipv4, ipv6, pseudo-wire ]
+        required: true
+      role: #Name in ETSI NFV IFA011 v0.7.3 cpRole
+        type: string
+        constraints:
+          - valid_values: [ root, leaf ]
+        required: flase
+      description:
+        type: string
+        required: false
+      protocol_data:
+        type: list
+        entry_schema:
+           type: tosca.datatype.nfv.CpProtocolData
+        required: true
+      trunk_mode:
+         type: boolean
+         required: true
+       
+  tosca.nodes.nfv.VduCp:
+    derived_from: tosca.nodes.nfv.Cp 
+    properties:
+      bitrate_requirement:
+        type: integer
+        required: false
+      virtual_network_interface_requirements: 
+        type: list
+        entry_schema:
+          type: tosca.datatypes.nfv.VirtualNetworkInterfaceRequirements
+        required: false
+      order:
+        type: integer
+        required: false
+        constraints:
+          - greater_or_equal: 0
+    requirements:
+      - virtual_link:
+          capability: tosca.capabilities.nfv.VirtualLinkable
+          relationship: tosca.relationships.nfv.VirtualLinksTo
+     - virtual_binding:
+          capability: tosca.capabilities.nfv.VirtualBindable
+          relationship: tosca.relationships.nfv.VirtualBindsTo
+          node: tosca.nodes.nfv.VDU.Compute  
+  
+  tosca.nodes.nfv.VnfVirtualLink:
+    derived_from: tosca.nodes.Root
+    properties:
+      connectivity_type:
+        type: tosca.datatypes.nfv.ConnectivityType
+        required: true
+      description:
+        type: string
+        required: false
+      test_access:
+        type: list
+        entry_schema:
+          type: string
+        required: false
+        constraints:
+          - valid_values: [ none, passive_monitoring, active_loopback ]
+      vl_profile:
+        type: tosca.datatypes.nfv.VlProfile
+        required: true
+    capabilities:
+      monitoring_parameter:
+        type: tosca.capabilities.nfv.Metric
+        occurrences: [ 0,UNBOUNDED ]
+      virtual_linkable:
+        type: tosca.capabilities.nfv.VirtualLinkable
+  
+group_types:
+  tosca.groups.nfv.PlacementGroup:
+    derived_from: tosca.groups.Root
+    properties:
+      description:
+        type: string
+    members: [ tosca.nodes.nfv.Vdu.Compute,tosca.nodes.nfv.VnfVirtualLink ]          
+  
+policy_types:
+  tosca.policies.nfv.InstantiationLevels:
+    derived_from: tosca.policies.Root
+    properties:
+      levels:
+        type: map # key: levelId
+        required: true
+        entry_schema:
+          type: tosca.datatypes.nfv.InstantiationLevel
+      defalut_level:
+        type: string # levelId
+        required: false # required if multiple entries in levels
+    targets: [ ]
+  
+  tosca.policies.nfv.VduInstantiationLevels:
+    derived_from: tosca.policies.Root
+    properties:
+      levels:
+        type: map # key: levelId
+        required: true
+        entry_schema:
+          type: tosca.datatypes.nfv.VduLevel
+    targets: [ tosca.nodes.nfv.VDU.Compute ]
+  
+  tosca.policies.nfv.VirtualLinkInstantiationLevels:
+    derived_from: tosca.policies.Root
+    properties:
+      levels:
+        type: map # key: levelId
+        required: true
+        entry_schema:
+          type: tosca.datatypes.nfv.VirtualLinkBitrateLevel
+    targets: [ tosca.nodes.nfv.VirtualLink ]
+  
+  tosca.policies.nfv.ScalingAspectInstantiationLevels:
+    derived_from: tosca.policies.Root
+    properties:
+      levels:
+        type: map # key: levelId
+        required: true
+        entry_schema:
+          type: tosca.datatypes.nfv.ScaleInfo
+    targets: [ tosca.groups.nfv.ScalingAspect ]
+   
+  tosca.policies.nfv.ScalingAspects:
+    derived_from: tosca.policies.Root
+    properties:
+      aspects:
+        type: map # key: aspectId
+        required: true
+        entry_schema:
+         type: tosca.datatypes.nfv.ScalingAspect
+    targets: [ ]
+  
+  tosca.policies.nfv.VduScalingDeltas:
+    derived_from: tosca.policies.Root
+    properties:
+      initial_delta:
+        type: tosca.datatypes.nfv.VduLevel
+        required: false
+      aspect_deltas:
+        type: map # key: aspectId
+        required: false
+        entry_schema:
+          type: map # key: scalingDeltaId
+          entry_schema:
+            type: tosca.datatypes.nfv.VduLevel
+    targets: [ tosca.nodes.nfv.Vdu.Compute ]
+  
+  tosca.policies.nfv.VirtualLinkBitrateScalingDeltas:
+    derived_from: tosca.policies.Root
+    properties:
+      initial_delta:
+        type: tosca.datatypes.nfv.VirtualLinkBitrateLevel
+        required: false
+      aspect_deltas:
+        type: map # key: aspectId
+        required: false
+        entry_schema:
+          type: map # key: scalingDeltaId
+          entry_schema:
+            type: tosca.datatypes.nfv.VirtualLinkBitrateLevel
+    targets: [ tosca.nodes.nfv.VnfVirtualLink ]
+  
+  tosca.policies.nfv.AffinityRule:    
+    derived_from: tosca.policies.Placement       
+    properties:      
+      scope:        
+        type: string 
+      description: #scope of the rule is an NFVI_node, an NFVI_PoP, etc.
+        required: true
+        constraints:
+          - valid_values: [ nfvi_node, zone, zone_group, nfvi_pop ]     
+    targets: [ tosca.nodes.nfv.Vdu.Compute, tosca.nodes.nfv.VnfVirtualLink, tosca.groups.nfv.PlacementGroup ]
+  
+  tosca.policies.nfv.AntiAffinityRule:    
+     derived_from: tosca.policies.Placement    
+     properties:      
+       scope:        
+         type: string
+       description: #scope of the rule is an NFVI_node, an NFVI_PoP, etc.
+         required: true  
+         constraints:
+            - valid_values: [ nfvi_node, zone, zone_group, nfvi_pop ]    
+     targets: [ tosca.nodes.nfv.Vdu.Compute, tosca.nodes.nfv.VnfVirtualLink,   tosca.groups.nfv.PlacementGroup ]
+

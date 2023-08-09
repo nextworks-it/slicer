@@ -9,10 +9,10 @@
     <name>NSSMF Aggregator</name>
 
     <modules>
+        <module>nssmf-service</module>
         <module>oran-nssmf/OranRecordServiceIM</module>
         <module>oran-nssmf/OranRecordService</module>
         <module>sbi-drivers/osm-lcm-driver</module>
-        <module>nssmf-service</module>
         <module>osm-nssmf/osm-nssmf-handler</module>
         <module>oran-nssmf/oran-nssmf-handler</module>
         <module>nssmf-app</module>

@@ -1,0 +1,14 @@
+{
+  "manoId": "NXW_OSMR10",
+  "manoType": "OSMR10",
+  "manoSite": "NXW_OSM",
+  "pluginOperationalState": "ENABLED",
+  "ipAddress": "10.30.8.28",
+  "port": "9999",
+  "username": "admin",
+  "password": "admin",
+  "project": "admin",
+  "vimAccounts": [
+    "NXW_OS"
+  ]
+}

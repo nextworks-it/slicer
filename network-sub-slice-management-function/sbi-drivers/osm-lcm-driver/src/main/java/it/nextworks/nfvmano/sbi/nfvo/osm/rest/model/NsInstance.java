@@ -15,6 +15,7 @@ package it.nextworks.nfvmano.sbi.nfvo.osm.rest.model;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -36,6 +37,8 @@ public class NsInstance {
   @SerializedName("description")
   private String description = null;
 
+  @SerializedName("constituent-vnfr-ref")
+  private ArrayList<String> constituentVnfrRef;
   public NsInstance _id(UUID _id) {
     this._id = _id;
     return this;
@@ -95,7 +98,15 @@ public class NsInstance {
     return this;
   }
 
-   /**
+  public ArrayList<String> getConstituentVnfrRef() {
+    return constituentVnfrRef;
+  }
+
+  public void setConstituentVnfrRef(ArrayList<String> constituentVnfrRef) {
+    this.constituentVnfrRef = constituentVnfrRef;
+  }
+
+  /**
    * Human readable description of the NS instance.
    * @return description
   **/

@@ -1,0 +1,1587 @@
+{
+	"info": {
+		"_postman_id": "da4dc187-3cf3-4725-9983-c7ad132aff39",
+		"name": "Ingenious final demo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13186966"
+	},
+	"item": [
+		{
+			"name": "NST catalogue",
+			"item": [
+				{
+					"name": "On board end-to-end Network Service Template",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nst\": {\n        \"nstId\": \"nst_end_to_end\",\n        \"nstName\": \"nst_end_to_end\",\n        \"nstVersion\": \"0.0.1\",\n        \"nstProvider\": \"Nextworks\",\n        \"nstServiceProfileList\": [\n            {\n                \"maxNumberofUEs\": 1500,\n                \"latency\": 50,\n                \"resourceSharingLevel\": true,\n                \"sST\": \"EMBB\",\n                \"availability\": 7.68,\n                \"dLThptPerSlice\": 150000,\n                \"dLThptPerUE\": 50000,\n                \"guaThpt\": 500000,\n                \"maxThpt\": 1150000,\n                \"uLThptPerSlice\": 1000000,\n                \"uLThptPerUE\": 15000,\n                \"maxPktSize\": 3500,\n                \"maxNumberofConns\": 200000,\n                \"termDensity\": 0,\n                \"uESpeed\": 0,\n                \"activityFactor\": 0,\n                \"jitter\": 26\n            }\n        ],\n        \"nsst\": {\n            \"nsstName\": \"nsst_end_to_end\",\n            \"nsstId\": \"nsst_end_to_end\",\n            \"operationalState\": true,\n            \"nsstVersion\": \"1.0\",\n            \"sliceProfileList\": [\n                {\n                    \"maxNumberofUEs\": 1500,\n                    \"latency\": 300,\n                    \"resourceSharingLevel\": true\n                }\n            ],\n            \"type\": \"E2E\",\n            \"nsstList\": [\n                {\n                    \"nsstName\": \"nsst_core\",\n                    \"nsstId\": \"nsst_core\",\n                    \"nsstVersion\": \"1.0\",\n                    \"operationalState\": true,\n                    \"sliceProfileList\": [\n                        {\n                            \"eMBBPerfReq\": [{\n                                \"expDataRateDL\":4600,\n                                \"expDataRateUL\":1200\n                            }],\n                            \"maxNumberofUEs\": 150,\n                            \"latency\": 300,\n                            \"resourceSharingLevel\": true\n                        }\n                    ],\n                    \"nsdInfo\": {\n                        \"nsdId\": \"fffa73e3-0f94-45e5-be56-973a2b009fff\",\n                        \"nsdName\": \"core CMC instance\",\n                        \"nsdDescription\": \"core CMC instance\",\n                        \"nsdVersion\": \"v0.0.1\"\n                    },\n                    \"type\": \"CORE\"\n                },\n                {\n                    \"nsstName\": \"nsst_ran\",\n                    \"nsstId\": \"nsst_ran\",\n                    \"nsstVersion\": \"1.0\",\n                    \"sliceProfileList\": [\n                    ],\n                    \"nsdInfo\": {\n                        \"nsdId\": \"abca73e3-0f94-45e5-be56-973a2b009abc\",\n                        \"nsdName\": \"UERANSIM instance\",\n                        \"nsdDescription\": \"UERANSIM instance\",\n                        \"nsdVersion\": \"v0.0.1\"\n                    },\n                    \"type\": \"RAN\"\n                }\n            ]\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "10.30.8.96:8085/ns/catalogue/nstemplate",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"96"
+							],
+							"port": "8085",
+							"path": [
+								"ns",
+								"catalogue",
+								"nstemplate"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Not Found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": "sed consequat commodo"
+						},
+						{
+							"name": "Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Unauthorized",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "On board end-to-end Network Service Template Copy",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "10.30.5.71:8083/ns/catalogue/nstemplate/nst_end_to_end_urllc",
+							"host": [
+								"10",
+								"30",
+								"5",
+								"71"
+							],
+							"port": "8083",
+							"path": [
+								"ns",
+								"catalogue",
+								"nstemplate",
+								"nst_end_to_end_urllc"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Not Found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Unauthorized",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": "sed consequat commodo"
+						},
+						{
+							"name": "Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "On board end-to-end Network Service Template URLLC",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nst\": {\n        \"nstId\": \"nst_end_to_end_urllc\",\n        \"nstName\": \"nst_end_to_end_urllc\",\n        \"nstVersion\": \"0.0.1\",\n        \"nstProvider\": \"Nextworks\",\n        \"nstServiceProfileList\": [\n            {\n                \"maxNumberofUEs\": 1500,\n                \"latency\": 50,\n                \"resourceSharingLevel\": true,\n                \"sST\": \"EMBB\",\n                \"availability\": 7.68,\n                \"dLThptPerSlice\": 150000,\n                \"dLThptPerUE\": 50000,\n                \"guaThpt\": 500000,\n                \"maxThpt\": 1150000,\n                \"uLThptPerSlice\": 1000000,\n                \"uLThptPerUE\": 15000,\n                \"maxPktSize\": 3500,\n                \"maxNumberofConns\": 200000,\n                \"termDensity\": 0,\n                \"uESpeed\": 0,\n                \"activityFactor\": 0,\n                \"jitter\": 26\n            }\n        ],\n        \"nsst\": {\n            \"nsstName\": \"nst_end_to_end_urllc\",\n            \"nsstId\": \"nst_end_to_end_urllc\",\n            \"operationalState\": true,\n            \"nsstVersion\": \"1.0\",\n            \"sliceProfileList\": [\n                {\n                    \"maxNumberofUEs\": 1500,\n                    \"latency\": 300,\n                    \"resourceSharingLevel\": true\n                }\n            ],\n            \"type\": \"E2E\",\n            \"nsstList\": [\n                {\n                    \"nsstName\": \"nsst_core_urllc\",\n                    \"nsstId\": \"nsst_core_urllc\",\n                    \"nsstVersion\": \"1.0\",\n                    \"operationalState\": true,\n                    \"sliceProfileList\": [\n                        {\n                            \"eMBBPerfReq\": [{\n                                \"expDataRateDL\":4600,\n                                \"expDataRateUL\":1200\n                            }],\n                            \"maxNumberofUEs\": 150,\n                            \"latency\": 300,\n                            \"resourceSharingLevel\": true\n                        }\n                    ],\n                    \"nsdInfo\": {\n                        \"nsdId\": \"fffa73e3-0f94-45e5-be56-973a2b009fff\",\n                        \"nsdName\": \"core CMC instance\",\n                        \"nsdDescription\": \"core CMC instance\",\n                        \"nsdVersion\": \"v0.0.1\"\n                    },\n                    \"type\": \"CORE\"\n                },\n                {\n                    \"nsstName\": \"nsst_ran_urllc\",\n                    \"nsstId\": \"nsst_ran_urllc\",\n                    \"nsstVersion\": \"1.0\",\n                    \"sliceProfileList\": [\n                    ],\n                    \"nsdInfo\": {\n                        \"nsdId\": \"abca73e3-0f94-45e5-be56-973a2b009abc\",\n                        \"nsdName\": \"UERANSIM instance\",\n                        \"nsdDescription\": \"UERANSIM instance\",\n                        \"nsdVersion\": \"v0.0.1\"\n                    },\n                    \"type\": \"RAN\"\n                }\n            ]\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "10.30.8.96:8085/ns/catalogue/nstemplate",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"96"
+							],
+							"port": "8085",
+							"path": [
+								"ns",
+								"catalogue",
+								"nstemplate"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Unauthorized",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Not Found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": "sed consequat commodo"
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "LCM End-to-end network slice",
+			"item": [
+				{
+					"name": "OLD",
+					"item": [
+						{
+							"name": "create_end-to-end network slice URLLC",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"",
+											"console.log(\"received nsi_id: \" + JSON.stringify(jsonData));",
+											"",
+											"pm.environment.set(\"nsi_id\", jsonData);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"description\": \"ingenious-e2e-slice-provisioning_urllc\",\n  \"name\": \"ingenious-uc1-pt2\",\n  \"nstId\": \"nst_end_to_end_urllc\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "10.30.8.96:8085/vs/basic/nslcm/ns/nst",
+									"host": [
+										"10",
+										"30",
+										"8",
+										"96"
+									],
+									"port": "8085",
+									"path": [
+										"vs",
+										"basic",
+										"nslcm",
+										"ns",
+										"nst"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add resource allocation computation entry",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"responseId\": \"response\",\n    \"successful\": true,\n    \"nsResourceAllocation\": {\n        \"nsiId\": \"8ee140b8-cb08-4faa-adf4-7b7079cc4793\",\n        \"nssResourceAllocations\": [\n            {\n                \"nsstId\": \"nsst_core_urllc\",\n                \"allocationType\": \"COMPUTE\",\n                \"vnfPlacement\": {\n                    \"fivegc_cmc_container_version_vnfd\": \"node-1\"\n                }\n            },\n            {\n                \"nsstId\": \"nsst_ran_urllc\",\n                \"allocationType\": \"COMPUTE\",\n                \"vnfPlacement\": {\n                    \"vnfd_ueransim_no_juju\": \"node-2\"\n                }\n            }\n        ]\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "10.30.8.96:8085/resourceallocation/computedResourceAllocation",
+									"host": [
+										"10",
+										"30",
+										"8",
+										"96"
+									],
+									"port": "8085",
+									"path": [
+										"resourceallocation",
+										"computedResourceAllocation"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Terminate end-to-end network slice",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": " {\n\"nsiId\": \"12c6e65f-a6bb-47e3-aa45-45e8093211ed\"\n }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "10.30.8.96:8085/vs/basic/nslcm/ns/12c6e65f-a6bb-47e3-aa45-45e8093211ed/action/terminate",
+									"host": [
+										"10",
+										"30",
+										"8",
+										"96"
+									],
+									"port": "8085",
+									"path": [
+										"vs",
+										"basic",
+										"nslcm",
+										"ns",
+										"12c6e65f-a6bb-47e3-aa45-45e8093211ed",
+										"action",
+										"terminate"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "create_end-to-end network slice identfier",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"console.log(\"received nsi_id: \" + JSON.stringify(jsonData));",
+									"",
+									"pm.environment.set(\"nsi_id\", jsonData);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"nst_end_to_end_video_streaming\",\n  \"name\": \"ingenious-uc1-pt2\",\n  \"nstId\": \"nst_end_to_end_video_streaming\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "10.30.8.246:8080/vs/basic/nslcm/ns/nst",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"246"
+							],
+							"port": "8080",
+							"path": [
+								"vs",
+								"basic",
+								"nslcm",
+								"ns",
+								"nst"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Instantiate end-to-end network slice",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\n\"nsiId\": \"c0d0b59d-3390-442f-8fb5-8c3e7f58db95\"\n }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "10.30.8.246:8080/vs/basic/nslcm/ns/c0d0b59d-3390-442f-8fb5-8c3e7f58db95/action/instantiate",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"246"
+							],
+							"port": "8080",
+							"path": [
+								"vs",
+								"basic",
+								"nslcm",
+								"ns",
+								"c0d0b59d-3390-442f-8fb5-8c3e7f58db95",
+								"action",
+								"instantiate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET end-to-end network slice information",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"console.log(\"received nsi_id: \" + JSON.stringify(jsonData));",
+									"",
+									"pm.environment.set(\"nsi_id\", jsonData);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "10.30.8.246:8080/vs/basic/nslcm/ns",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"246"
+							],
+							"port": "8080",
+							"path": [
+								"vs",
+								"basic",
+								"nslcm",
+								"ns"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "OLD",
+			"item": [
+				{
+					"name": "Login towards NSMF",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const {Property, Url} = require('postman-collection');",
+									"console.log(\"Start\")",
+									"let resolvedUrl = Property.replaceSubstitutions(pm.request.url.getHost(), pm.variables.toObject()),  newUrl = new Url(resolvedUrl);",
+									"const jar = pm.cookies.jar();",
+									"console.log(resolvedUrl)",
+									"console.log(pm.request.url.toJSON())",
+									"console.log(pm.variables.toObject())",
+									"console.log(\"unsetting cookeies:\"+resolvedUrl)",
+									"jar.unset(resolvedUrl, 'JSESSIONID', function (error) {",
+									"  // error - <Error>",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jar = pm.cookies.jar();",
+									"const {Property, Url} = require('postman-collection');",
+									"let resolvedUrl = Property.replaceSubstitutions(pm.request.url.getHost(), pm.variables.toObject())",
+									"console.log(jar.getAll(resolvedUrl, function (error) {",
+									"  // error - <Error>",
+									"}));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "10.30.8.96:8085/login?username=admin&password=admin",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"96"
+							],
+							"port": "8085",
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "admin",
+									"description": "\n"
+								},
+								{
+									"key": "password",
+									"value": "admin"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Core NSSMF multiple UPFs",
+			"item": [
+				{
+					"name": "On board end-to-end Network Service Template Copy",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nst\": {\n        \"nstId\": \"nst_end_to_end\",\n        \"nstName\": \"nst_end_to_end\",\n        \"nstVersion\": \"0.0.1\",\n        \"nstProvider\": \"Nextworks\",\n        \"nstServiceProfileList\": [\n            {\n                \"maxNumberofUEs\": 1500,\n                \"latency\": 50,\n                \"resourceSharingLevel\": true,\n                \"sST\": \"EMBB\",\n                \"availability\": 7.68,\n                \"dLThptPerSlice\": 150000,\n                \"dLThptPerUE\": 50000,\n                \"guaThpt\": 500000,\n                \"maxThpt\": 1150000,\n                \"uLThptPerSlice\": 1000000,\n                \"uLThptPerUE\": 15000,\n                \"maxPktSize\": 3500,\n                \"maxNumberofConns\": 200000,\n                \"termDensity\": 0,\n                \"uESpeed\": 0,\n                \"activityFactor\": 0,\n                \"jitter\": 26\n            }\n        ],\n        \"nsst\": {\n            \"nsstName\": \"nsst_end_to_end\",\n            \"nsstId\": \"nsst_end_to_end\",\n            \"operationalState\": true,\n            \"nsstVersion\": \"1.0\",\n            \"sliceProfileList\": [\n                {\n                    \"maxNumberofUEs\": 1500,\n                    \"latency\": 300,\n                    \"resourceSharingLevel\": true\n                }\n            ],\n            \"type\": \"E2E\",\n            \"nsstList\": [\n                {\n                    \"nsstName\": \"nsst_core\",\n                    \"nsstId\": \"nsst_core\",\n                    \"nsstVersion\": \"1.0\",\n                    \"operationalState\": true,\n                    \"sliceProfileList\": [\n                        {\n                            \"eMBBPerfReq\": [{\n                                \"expDataRateDL\":4600,\n                                \"expDataRateUL\":1200\n                            }],\n                            \"maxNumberofUEs\": 150,\n                            \"latency\": 300,\n                            \"resourceSharingLevel\": true\n                        }\n                    ],\n                    \"nsdInfo\": {\n                        \"nsdId\": \"fffa73e3-0f94-45e5-be56-973a2b009fff\",\n                        \"nsdName\": \"core CMC instance\",\n                        \"nsdDescription\": \"core CMC instance\",\n                        \"nsdVersion\": \"v0.0.1\"\n                    },\n                    \"type\": \"CORE\"\n                },\n                {\n                    \"nsstName\": \"nsst_ran\",\n                    \"nsstId\": \"nsst_ran\",\n                    \"nsstVersion\": \"1.0\",\n                    \"sliceProfileList\": [\n                    ],\n                    \"nsdInfo\": {\n                        \"nsdId\": \"abca73e3-0f94-45e5-be56-973a2b009abc\",\n                        \"nsdName\": \"UERANSIM instance\",\n                        \"nsdDescription\": \"UERANSIM instance\",\n                        \"nsdVersion\": \"v0.0.1\"\n                    },\n                    \"type\": \"RAN\"\n                }\n            ]\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "10.30.8.246:8899/ns/catalogue/nstemplate",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"246"
+							],
+							"port": "8899",
+							"path": [
+								"ns",
+								"catalogue",
+								"nstemplate"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Not Found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Forbidden",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": "sed consequat commodo"
+						},
+						{
+							"name": "Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Unauthorized",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nst\": {\n        \"geographicalAreaInfoList\": [\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            },\n            {\n                \"description\": \"<string>\",\n                \"lat\": \"<double>\",\n                \"lon\": \"<double>\",\n                \"used\": \"<boolean>\"\n            }\n        ],\n        \"nsdId\": \"<string>\",\n        \"nsdVersion\": \"<string>\",\n        \"nsst\": [\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            },\n            {\n                \"value\": \"<Circular reference to #/components/schemas/NST detected>\"\n            }\n        ],\n        \"nsstIds\": [\n            \"<string>\",\n            \"<string>\"\n        ],\n        \"nsstType\": \"<string>\",\n        \"nstId\": \"<string>\",\n        \"nstName\": \"<string>\",\n        \"nstProvider\": \"<string>\",\n        \"nstServiceProfile\": {\n            \"availability\": \"<float>\",\n            \"coverageAreaTAList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"eMBBPerfReq\": [\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                },\n                {\n                    \"activityFactor\": \"<integer>\",\n                    \"areaTrafficCapDL\": \"<integer>\",\n                    \"areaTrafficCapUL\": \"<integer>\",\n                    \"coverage\": \"<string>\",\n                    \"expDataRateDL\": \"<integer>\",\n                    \"expDataRateUL\": \"<integer>\",\n                    \"uESpeed\": \"<integer>\",\n                    \"userDensity\": \"<integer>\"\n                }\n            ],\n            \"latency\": \"<integer>\",\n            \"maxNumberofUEs\": \"<integer>\",\n            \"pLMNIdList\": [\n                \"<string>\",\n                \"<string>\"\n            ],\n            \"resourceSharingLevel\": \"<boolean>\",\n            \"sST\": \"<string>\",\n            \"serviceProfileId\": \"<string>\",\n            \"uEMobilityLevel\": \"<string>\",\n            \"uRLLCPerfReq\": [\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                },\n                {\n                    \"cSAvailability\": \"<float>\",\n                    \"connDensity\": \"<integer>\",\n                    \"e2eLatency\": \"<integer>\",\n                    \"expDataRate\": \"<integer>\",\n                    \"jitter\": \"<integer>\",\n                    \"payloadSize\": \"<string>\",\n                    \"reliability\": \"<float>\",\n                    \"serviceAreaDimension\": \"<string>\",\n                    \"survivalTime\": \"<integer>\",\n                    \"trafficDensity\": \"<integer>\"\n                }\n            ]\n        },\n        \"nstVersion\": \"<string>\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ns/catalogue/nstemplate?authenticated=<boolean>&authorities[0].authority=<string>&credentials=&details=&principal=",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ns",
+										"catalogue",
+										"nstemplate"
+									],
+									"query": [
+										{
+											"key": "authenticated",
+											"value": "<boolean>"
+										},
+										{
+											"key": "authorities[0].authority",
+											"value": "<string>"
+										},
+										{
+											"key": "credentials",
+											"value": ""
+										},
+										{
+											"key": "details",
+											"value": ""
+										},
+										{
+											"key": "principal",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				}
+			]
+		}
+	]
+}

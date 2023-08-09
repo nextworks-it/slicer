@@ -21,11 +21,10 @@ public class CoreConfigurationController {
     private GnbService gnbService;
 
 
-
     @RequestMapping(value = "/gnb", method = RequestMethod.POST)
     public ResponseEntity<?> addGNb(@RequestBody GNbConfiguration gNbConfiguration) {
         try {
-            LOG.info("Received request to add gNB to a core instance. For simplicity is assumed to configure the first instance ");
+            LOG.info("Received request to add gNB to a UPF instance. For simplicity is assumed to configure the first instance ");
             gnbService.storegNBInfo(gNbConfiguration);
             return new ResponseEntity<>("", HttpStatus.OK);
         } catch (MalformattedElementException e) {

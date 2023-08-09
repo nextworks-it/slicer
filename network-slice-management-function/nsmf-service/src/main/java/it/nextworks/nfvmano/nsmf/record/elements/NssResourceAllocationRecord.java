@@ -5,6 +5,7 @@ import it.nextworks.nfvmano.libs.vs.common.ra.elements.*;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,6 +67,10 @@ public class NssResourceAllocationRecord {
 
     public NssResourceAllocation getNssResourceAllocation(){
         if(allocationType.equals(NssResourceAllocationType.COMPUTE)){
+            if(vLinkResources==null)
+                vLinkResources = new ArrayList<>();
+            if(vnfPlacement==null)
+                vnfPlacement = new HashMap<>();
             return new ComputeNssResourceAllocation(null, vLinkResources.stream().map(vl -> vl.getVirtualResourceAllocation()).collect(Collectors.toList()), vnfPlacement);
         }else if(allocationType.equals(NssResourceAllocationType.TRANSPORT)){
             return new TransportNssResourceAllocation(null, transportAllocations.stream().map(ta-> ta.getTransportSegmentAllocation()).collect(Collectors.toList()));

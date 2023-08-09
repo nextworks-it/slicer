@@ -1,0 +1,188 @@
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+version: '3.5'
+
+
+services:
+      
+  nsmf_ingenious:
+    container_name: nsmf_ingenious
+    image: nsmf-ingenious:0.0.1 ##Use the image in the container registry evetually
+    restart: always
+    ports:
+      - '8080:8080'
+    command: >
+      bash -c "/usr/bin/java -jar /home/ubuntu/nsmf-app-0.0.1.jar"
+    volumes:
+      - ./nsmf_ra:/home/ubuntu/ra_file/
+    environment:
+      - server.port=8080
+      - spring.datasource.url=jdbc:postgresql://postgres:5432/nsmf
+      - spring.datasource.username=postgres
+      - spring.datasource.password=postgres
+      - spring.rabbitmq.host=rabbit
+      - nssmf.type=STANDARD
+      - algorithm.type=STATIC
+      - nsmf.vsmfnotifier.notifyVsmf=false
+      - nsmf.vsmfnotifier.notifyUrl=http://127.0.0.1:8070/notifyVsmf
+      - nssmf.plugin.transport.address=http://tn-nssmf:8084/nssmf/provisioning
+      - resource_allocation.default_algorithm=FILE
+      - security.basic.enabled=false
+      - sebastian.admin=admin
+      - management.security.enabled=false
+      - base.url.auth=http://127.0.0.1:8080
+      - resource_allocation.default_file.path=/home/ubuntu/ra_file/DefaultResourceAllocation.json
+      - nssmf.plugin.core.address=http://nssmf_core_ingenious:8081/core/nssmf/provisioning
+      - nssmf.plugin.ran.address=http://phy_mac_ran_nssmf_ingenious:8083/nssmf/ran/provisioning
+    depends_on:
+      - postgres
+      - rabbit
+    networks:
+        vertical-slicer:
+         ipv4_address: 10.5.0.9
+
+  nssmf_core_ingenious:
+     container_name: nssmf_core_ingenious
+     image: nssmf-core-ingenious:0.0.1
+     restart: always
+     ports:
+       - '8081:8081'
+     command: >
+       bash -c "/usr/bin/java -jar /home/ubuntu/nssmf-app-0.0.1.jar"
+     environment:
+       - server.port=8081
+       - spring.datasource.url=jdbc:postgresql://postgres:5432/nssmf_core
+       - spring.datasource.username=postgres
+       - spring.datasource.password=postgres
+       - security.basic.enabled=false
+       - sebastian.admin=admin
+       - management.security.enabled=false
+       - nssmf.eventhandler.class=it.nextworks.nfvmano.nssmf.core.nssmanagement.CoreLcmEventHandler
+       - nssmf.provisioning.message.class=it.nextworks.nfvmano.libs.vs.common.nssmf.messages.specialized.core.cumucore.CoreSlicePayload
+       - nssmf.provisionig.baseurl=/core/nssmf/provisioning
+       - nssmf.provisioning.baseurl=/core/nssmf/provisioning
+       - nssmf.nsmfnotifier.loginUrl=noLogin
+       - nssmf.nsmfnotifier.notifyUrl=http://nsmf_ingenious:8080/vs/basic/nslcm/nss/%nssi_id%/notify
+       - nssmf.nsmfnotifier.url=http://nsmf_ingenious:8080/vs/basic/nslcm/nss/%nssi_id%/notify
+       - nssmf.osm.baseurl=http://10.30.8.23/osm
+       - nssmf.osm.username=admin
+       - nssmf.osm.password=admin
+       - nssmf.osm.project=admin
+       - nssmf.osm.vim-id=afe991b9-6c9e-470c-90f9-f78584b6108e
+       - nfvo.lcm.polling=10
+       - nssmf.cnc.port=3000
+       - nssmf.vim.ext-cp-core=cp_5Gcore-ext
+       - nssmf.vim.ext-mgmt-core=cp_mgmt-ext
+       - nssmf.cnc.ip=10.30.8.96
+       - nssmf.skipNsdDeployment=true
+       - nssmf.coreInstanceId=abcd91b9-6c9e-470c-90f9-f78584b6abcd
+     depends_on:
+       - postgres
+     networks:
+        vertical-slicer:
+         ipv4_address: 10.5.0.8
+
+  phy_mac_ran_nssmf_ingenious:
+    container_name: phy_mac_ran_nssmf_ingenious
+    image: phy-mac-ran-nssmf:0.0.1
+    ports:
+      - '8083:8083'
+    command: >
+      bash -c "/usr/bin/java -jar /home/ubuntu/nssmf-app-0.0.1.jar"
+    environment:
+      - server.port=8083
+      - spring.datasource.url=jdbc:postgresql://postgres:5432/nssmf_ran
+      - spring.datasource.username=postgres
+      - spring.datasource.password=postgres
+      - nssmf.eventhandler.class=it.nextworks.nfvmano.nssmf.flexPhyMac.nssmanagement.RanLcmEventHandler
+      - nssmf.provisioning.message.class=it.nextworks.nfvmano.libs.vs.common.nssmf.messages.specialized.ran.RanSlicePayload
+      - nssmf.nsmfnotifier.loginUrl=noLogin
+      - nssmf.nsmfnotifier.notifyUrl=http://nsmf_ingenious:8080/vs/basic/nslcm/nss/%nssi_id%/notify
+      - nssmf.nsmfnotifier.url=http://nsmf_ingenious:8080/vs/basic/nslcm/nss/%nssi_id%/notify
+      - security.basic.enabled=false
+      - sebastian.admin=admin
+      - management.security.enabled=false
+      - nssmf.osm.baseurl=http://10.30.8.32/osm
+      - nssmf.osm.username=admin
+      - nssmf.osm.password=admin
+      - nssmf.osm.project=admin
+      - nssmf.osm.vim-id=e2097ca5-b130-4828-a0d2-bc9823a0676f
+      - nfvo.lcm.polling=10
+      - bs-control.ip=127.0.0.1
+      - bs-control.port=5000
+    depends_on:
+      - postgres
+    networks:
+        vertical-slicer:
+         ipv4_address: 10.5.0.7
+
+  postgres:
+    container_name: postgres
+    #image: ghcr.io/nextworks-it/network-slice-management-function/multiple-postgres-db
+    image: postgres:latest
+    restart: always
+    environment:
+      #POSTGRES_MULTIPLE_DATABASES: nsmf, nssmf, vsmf
+      POSTGRES_MULTIPLE_DATABASES: ran_nssmf
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+        - 0.0.0.0:5432:5432
+    networks:
+        vertical-slicer:
+         ipv4_address: 10.5.0.6
+
+  rabbit:
+     container_name: rabbit
+     image: rabbitmq
+     ports:
+       - 5672:5672
+       - 15672:15672
+     networks:
+        vertical-slicer:
+         ipv4_address: 10.5.0.5
+
+  phppgadmin: ##For easing the access to postgres db
+     container_name: phppgadmin
+     image: docker.io/bitnami/phppgadmin:7
+     depends_on:
+       - postgres
+     environment:
+       - DATABASE_HOST=postgres
+     networks:
+        vertical-slicer:
+         ipv4_address: 10.5.0.4
+     ports:
+       - 8089:8080
+      
+  slicer-gui:
+      container_name: slicer-gui
+      image: gitlab.nextworks.it:5050/kd_nextworks/slicer-gui:0.2 
+      ports:
+          - '8088:80'
+      volumes:
+          - './slicer-gui-docker-config/config.json:/usr/share/nginx/html/assets/config.json'
+      networks:
+        vertical-slicer:
+         ipv4_address: 10.5.0.3
+      
+
+    
+networks:
+  vertical-slicer:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.5.0.0/24
+         gateway: 10.5.0.1

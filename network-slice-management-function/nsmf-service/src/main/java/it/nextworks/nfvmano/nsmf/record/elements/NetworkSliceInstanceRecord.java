@@ -42,6 +42,7 @@ public class NetworkSliceInstanceRecord {
     private int dlDataRate;
     private int ulDataRate;
 
+    private String upfName;
     public NetworkSliceInstanceRecord() {
         imsiAssociatedWith = new ArrayList<>();
     }
@@ -71,7 +72,8 @@ public class NetworkSliceInstanceRecord {
                                       String name,
                                       List<String> imsiAssociatedWith,
                                       int dlDataRate,
-                                      int ulDataRate
+                                      int ulDataRate,
+                                      String upfName
     ) {
         if(networkSliceSubnetInstances!=null){
             this.networkSliceSubnetInstances = networkSliceSubnetInstances;
@@ -85,6 +87,7 @@ public class NetworkSliceInstanceRecord {
         this.imsiAssociatedWith = imsiAssociatedWith;
         this.dlDataRate = dlDataRate;
         this.ulDataRate = ulDataRate;
+        this.upfName = upfName;
     }
 
     public List<NetworkSliceSubnetInstanceRecord> getNetworkSliceSubnetInstanceIds() {
@@ -117,7 +120,8 @@ public class NetworkSliceInstanceRecord {
                 .collect(Collectors.toList()), vsInstanceId, status.asNsiStatus(),status.toString(),
                 imsiAssociatedWith,
                 dlDataRate,
-                ulDataRate
+                ulDataRate,
+                upfName
                 );
     }
 
@@ -158,6 +162,14 @@ public class NetworkSliceInstanceRecord {
 
     public void setUlDataRate(int ulDataRate) {
         this.ulDataRate = ulDataRate;
+    }
+
+    public String getUpfName() {
+        return upfName;
+    }
+
+    public void setUpfName(String upfName) {
+        this.upfName = upfName;
     }
 
 }

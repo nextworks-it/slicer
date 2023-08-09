@@ -1,0 +1,110 @@
+version: '3.3'
+
+services:
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    restart: always
+
+  kafka:
+    image: wurstmeister/kafka:2.12-2.5.0
+    restart: always
+    environment:
+        KAFKA_LISTENERS: PLAINTEXT://:9092
+        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+        KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+
+  postgres:
+    image: postgres:10-alpine
+    restart: always
+    volumes:
+      - /opt/5gcatalogue-app/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: cataloguedb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - ${POSTGRES_PORT}:5432
+
+  5gCatalogueApp:
+    container_name: 5gCatalogueApp
+    image: 5g-catalogue-app:${CATALOGUE_VERSION}
+    restart: always
+    build: 
+      context: ./5g-catalogue-app/
+      dockerfile: Dockerfile
+      args:
+        catalogue_repo: https://github.com/nextworks-it/5g-catalogue.git
+        catalogue_version: ${CATALOGUE_VERSION}
+        catalogue_server_port: ${CATALOGUE_SERVER_PORT}
+        nfv_sol_libs_repo: https://github.com/nextworks-it/nfv-sol-libs.git
+        nfv_sol_libs_version: ${CATALOGUE_SOL_LIBS_VERSION}
+        nfv_ifa_libs_repo: https://github.com/nextworks-it/nfv-ifa-libs.git
+        nfv_ifa_libs_version: ${CATALOGUE_IFA_LIBS_VERSION}
+        mano_id: ${MANO_ID}
+        mano_type: ${MANO_TYPE}
+        mano_site: ${MANO_SITE}
+        mano_ip: ${MANO_IP}
+        mano_port: ${MANO_PORT}
+        mano_username: ${MANO_USERNAME}
+        mano_password: ${MANO_PASSWORD}
+        mano_project: ${MANO_PROJECT}
+        public_catalogue_id: ${PUBLIC_CATALOGUE_ID}
+        public_catalogue_url: ${PUBLIC_CATALOGUE_URL}
+        proxy_enabled: ${PROXY_ENABLED}
+    volumes:
+      - /opt/5gcatalogue-app/catalogueStorage:/home/catalogueStorage
+      - /opt/5gcatalogue-app/manoStorage:/home/manoStorage
+      - /opt/5gcatalogue-app/logs:/var/log/5gcatalogue
+    env_file:
+     - 5g-catalogue-app/profiles/${CATALOGUE_PROFILE}.env
+    environment:
+        CATALOGUE_SERVER_PORT: ${CATALOGUE_SERVER_PORT}
+        CATALOGUE_POSTGRES_HOST: postgres:5432
+        CATALOGUE_KAFKA_HOST: kafka:9092
+        CATALOGUE_SCOPE: ${CATALOGUE_SCOPE}
+        KEYCLOAK_AUTHENTICATION: ${KEYCLOAK_AUTHENTICATION}
+        KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+        KEYCLOAK_URL: ${KEYCLOAK_URL}
+        KEYCLOAK_CLIENT: ${KEYCLOAK_BE_CLIENT}
+        KEYCLOAK_PUBLIC_CLIENT: ${KEYCLOAK_BE_PUBLIC_CLIENT}
+        KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_BE_CLIENT_SECRET}
+        KEYCLOAK_ADMIN_ROLE: ${KEYCLOAK_ADMIN_ROLE}
+        KEYCLOAK_USER_ROLE: ${KEYCLOAK_USER_ROLE}
+        KEYCLOAK_USER_GROUP: ${KEYCLOAK_USER_GROUP}
+        SITE_INVENTORY_URL: ${SITE_INVENTORY_URL}
+    ports:
+      - ${CATALOGUE_SERVER_PORT}:${CATALOGUE_SERVER_PORT}
+    depends_on:
+      - kafka
+
+  5gCatalogueGui:
+    container_name: 5gCatalogueGui
+    image: 5g-catalogue-gui:${CATALOGUE_VERSION}
+    restart: always
+    build: 
+      context: ./5g-catalogue-gui/
+      dockerfile: Dockerfile
+      args:
+        catalogue_repo: https://github.com/nextworks-it/5g-catalogue.git
+        catalogue_version: ${CATALOGUE_VERSION}
+        catalogue_server_port: ${CATALOGUE_SERVER_PORT}
+        catalogue_scope: ${CATALOGUE_SCOPE}
+        catalogue_profile: ${CATALOGUE_PROFILE}
+        keycloak_enabled: ${KEYCLOAK_AUTHENTICATION}
+        keycloak_url: ${KEYCLOAK_URL}
+        keycloak_realm: ${KEYCLOAK_REALM}
+        keycloak_gui_client: ${KEYCLOAK_GUI_CLIENT}
+    ports:
+      - ${CATALOGUE_GUI_PORT}:80
+    depends_on:
+      - 5gCatalogueApp
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

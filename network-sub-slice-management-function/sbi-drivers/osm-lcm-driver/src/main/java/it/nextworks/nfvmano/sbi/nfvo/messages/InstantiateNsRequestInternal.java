@@ -16,7 +16,9 @@
 package it.nextworks.nfvmano.sbi.nfvo.messages;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,7 +39,9 @@ public class InstantiateNsRequestInternal {
 	private Map<String, String> additionalParamForNs = new HashMap<>();
 
 
-
+	//out of the standard
+	private List<VnfAllocation> vnfAllocations = new ArrayList<>();
+	private List<VlAllocation> vlAllocations = new ArrayList<>();
 
 
 	public InstantiateNsRequestInternal() {
@@ -69,6 +73,7 @@ public class InstantiateNsRequestInternal {
 
 		this.additionalParamForNs = additionalParamForNs;
 		this.nsdId=nsdId;
+		if(vnfAllocations!=null) this.vnfAllocations = vnfAllocations;
 
 	}
 
@@ -76,9 +81,23 @@ public class InstantiateNsRequestInternal {
 		return nsName;
 	}
 
+	public List<VnfAllocation> getVnfAllocations() {
+		return vnfAllocations;
+	}
 
+	public List<VlAllocation> getVlAllocations() {
+		return vlAllocations;
+	}
 
 	public String getNsdId() {
 		return nsdId;
+	}
+
+	public void setVnfAllocations(List<VnfAllocation> vnfAllocations) {
+		this.vnfAllocations = vnfAllocations;
+	}
+
+	public void setVlAllocations(List<VlAllocation> vlAllocations) {
+		this.vlAllocations = vlAllocations;
 	}
 }

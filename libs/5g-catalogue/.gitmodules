@@ -1,0 +1,3 @@
+[submodule "5gcatalogue-gui/5gcatalogue/plugin/js-yaml"]
+	path = 5gcatalogue-gui/5gcatalogue/plugin/js-yaml
+	url = https://github.com/nodeca/js-yaml.git

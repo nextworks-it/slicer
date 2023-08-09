@@ -10,10 +10,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import it.nextworks.nfvmano.libs.ifa.templates.nst.NST;
 import it.nextworks.nfvmano.libs.vs.common.nsmf.elements.ConfigurationOperation;
 import it.nextworks.nfvmano.libs.vs.common.nsmf.elements.NetworkSliceSubnetInstance;
 import it.nextworks.nfvmano.libs.vs.common.nsmf.messages.NsmfNotificationMessage;
+import it.nextworks.nfvmano.libs.vs.common.nsmf.messages.configuration.ScaleNetworksSliceNewUpf;
 import it.nextworks.nfvmano.libs.vs.common.nsmf.messages.configuration.UpdateConfigurationRequest;
 import it.nextworks.nfvmano.nsmf.NsLcmService;
 import org.slf4j.Logger;
@@ -74,6 +74,7 @@ public class NsmfRestController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
 		} catch (Exception e) {
 			log.error("NS ID creation failed due to internal errors.");
+			log.error(e.getMessage());
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -186,7 +187,8 @@ public class NsmfRestController {
 
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
-
+			e.printStackTrace();
+			log.error(e.getMessage());
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -270,13 +272,32 @@ public class NsmfRestController {
 
 	@RequestMapping(value = "/ns/{nsiId}/action/configure", method = RequestMethod.PUT)
 	public ResponseEntity<?> configureNsi(@PathVariable String nsiId, @RequestBody UpdateConfigurationRequest request, Authentication auth) {
+
 		log.debug("Received request to configure network slice " + nsiId);
 		try {
 			if(!nsiId.equals(request.getNsiId().toString()))
 				throw new MalformattedElementException("NSI ID within path variable differs from request body ones");
 
+			if(request instanceof ScaleNetworksSliceNewUpf){
+				log.info("Received request for scaling end-to-end network slice with UUID "+request.getNsiId().toString()+" on new UPF");
+
+				try {
+					nsLcmService.scaleSliceOnNewUpf(request);
+
+					return new ResponseEntity<>("OK", HttpStatus.ACCEPTED);
+				}
+				catch(Exception e){
+					log.error(e.getMessage());
+					e.printStackTrace();
+					return new ResponseEntity<>("InternalError", HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+
+			}
+
 			//String tenantId = getUserFromAuth(auth);
 			UUID operationId= nsLcmService.configureNetworkSlice(request, adminTenant);
+
+
 			return new ResponseEntity<>(operationId.toString(), HttpStatus.ACCEPTED);
 		} catch (NotExistingEntityException e) {
 			log.error("NS configuration failed due to missing elements in DB.");

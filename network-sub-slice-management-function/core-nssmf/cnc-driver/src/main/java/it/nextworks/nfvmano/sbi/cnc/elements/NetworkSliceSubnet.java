@@ -14,7 +14,7 @@ public class NetworkSliceSubnet {
     @JsonProperty("pLMNIdList")
     public ArrayList<Object> pLMNIdList;
     @JsonProperty("operationalState")
-    public String operationalState;
+    public boolean operationalState;
     @JsonProperty("administrativeState")
     public String administrativeState;
     public String nsInfo;

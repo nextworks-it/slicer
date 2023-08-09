@@ -34,12 +34,12 @@ public class CoreLcmNotificationConsumer implements NfvoLcmNotificationConsumerI
 
 
 
-    private void manageNetworkServiceInstantiationNotification(String nfvNsInstanceId,boolean success){
+    private void manageNetworkServiceInstantiationNotification(String nfvNsInstanceId, boolean success){
         if(success)
             LOG.info("Network Service instantiation is successful");
         else {
-            LOG.info("Network Service instantiation is NOT successful");
-            return;
+            LOG.warn("Network Service instantiation is NOT successful");
+            //return;
         }
         CoreLcmEventHandler coreLcmEventHandler = networkServiceInstanceIdCoreLcmHandlerMapping.get(nfvNsInstanceId);
         coreLcmEventHandler.coreNetworkSliceInstantiationTrigger();

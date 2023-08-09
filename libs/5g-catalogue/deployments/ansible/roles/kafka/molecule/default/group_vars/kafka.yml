@@ -1,0 +1,54 @@
+---
+kafka_zookeeper_hosts:
+  - zookeeper:2181
+
+kafka_version: 2.3.0
+
+kafka_port: 9999
+
+kafka_jvm_performance_opts: "-XX:MetaspaceSize=96m -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80"
+
+kafka_hosts:
+  - host: kafka1
+    id: 1
+  - host: kafka2
+    id: 2
+  - host: kafka3
+    id: 3
+
+kafka_xmx: "768m"
+kafka_xms: "512m"
+
+kafka_topics:
+  - name: 'PRIVATEcatalogue-onboarding-local'
+    partitions: '1'
+    replicas: '1'
+  - name: 'PRIVATEcatalogue-onboarding-remote'
+    partitions: '1'
+    replicas: '1'
+  - name: 'PUBLICcatalogue-onboarding-local'
+    partitions: '1'
+    replicas: '1'
+  - name: 'PUBLICcatalogue-onboarding-remote'
+    partitions: '1'
+    replicas: '1'
+
+
+kafka_topics_config:
+  - name: 'PRIVATEcatalogue-onboarding-local'
+    delete.retention.ms: 100000
+    max.message.bytes: 1024
+  - name: 'PRIVATEcatalogue-onboarding-remote'
+    delete.retention.ms: 100000
+    max.message.bytes: 2048
+  - name: 'PUBLICcatalogue-onboarding-local'
+    delete.retention.ms: 100000
+    max.message.bytes: 1024
+  - name: 'PUBLICcatalogue-onboarding-remote'
+    delete.retention.ms: 100000
+    max.message.bytes: 2048
+
+
+kafka_extra_properties:
+  - key: message.max.bytes
+    value: 409715200

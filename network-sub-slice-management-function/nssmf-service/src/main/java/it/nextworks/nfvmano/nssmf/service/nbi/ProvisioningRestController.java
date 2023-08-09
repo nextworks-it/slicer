@@ -121,6 +121,7 @@ public class ProvisioningRestController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             log.error("NS instantiation failed due to internal errors.");
+            log.error(e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -1,0 +1,139 @@
+- hosts: localhost   #replace with target host 
+  remote_user: ubuntu
+  gather_facts: True
+  tasks:
+  - name: check connection
+    ping:
+  - name: setup
+    setup:
+  - name: "Build hosts file"
+    lineinfile: dest=/etc/hosts 
+                state=present
+                dest=/etc/hosts 
+                regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{ansible_hostname}}" 
+    when: hostvars[item].ansible_default_ipv4.address is defined
+    with_items: "{{ groups['all'] }}"
+
+- hosts: localhost   #replace with target host 
+  remote_user: ubuntu
+  roles:
+  - role: java_role
+  - role: 5g_catalogue
+  - kafka
+  
+- hosts: localhost   #replace with target host 
+  remote_user: ubuntu
+  tasks:
+  - name: remove 5gcatalogue folder
+    file: 
+      path: /opt/5gcatalogue
+      state: absent
+
+  - name: remove nf-sol-libs folder
+    file: 
+      path: /opt/nfv-sol-libs
+      state: absent
+
+  - name: creating 5gcatalogue folder
+    file:
+      path: /opt/5gcatalogue
+      state: directory
+  - git:
+      repo: 'https://github.com/nextworks-it/5g-catalogue.git'
+      dest: /opt/5gcatalogue
+
+  - name: changing 5gcatalogue folder pesmissions
+    shell: chown -R ubuntu:ubuntu /opt/5gcatalogue
+  - git:
+      repo: 'https://github.com/nextworks-it/nfv-sol-libs.git'
+      dest: /opt/nfv-sol-libs
+
+  - name: changing maven folder permissions
+    shell: chown -R ubuntu:ubuntu /opt/apache-maven-3.3.9
+
+  - name: changing nfv-sol-libs folder permissions
+    shell: chown -R ubuntu:ubuntu /opt/nfv-sol-libs
+
+  - name: creating 5gcatalogue log directory
+    remote_user: ubuntu
+    file:
+      path: /var/log/5gcatalogue
+      state: directory
+
+  - name: changing 5gcatalogue log folder pesmissions
+    shell: chmod a+rw /var/log/5gcatalogue/
+
+  - name: creating postgres user
+    postgresql_user:
+      name: postgres
+      password: postgres
+    become_user: postgres
+
+  - postgresql_db:
+      name: cataloguedb
+      owner: postgres
+    become_user: postgres
+
+  - name: REMOVE pom NFV LIBS COMMON
+    become: yes
+    file:
+      path: /opt/nfv-sol-libs/NFV_MANO_SOL001_LIBS_COMMON/pom.xml
+      state: absent
+  - name: Copy file with owner and permissions
+    become: yes
+    copy:
+      src: files/nfv_common_pom.xml
+      dest: /opt/nfv-sol-libs/NFV_MANO_SOL001_LIBS_COMMON/pom.xml
+      owner: ubuntu
+      group: ubuntu
+      mode: '0644'   
+
+  - name: BUILDING NFV-LIB DEPENDENCIES...COMMON
+    remote_user: ubuntu
+    shell: /opt/apache-maven-3.3.9/bin/mvn clean install  
+    args:
+      chdir: /opt/nfv-sol-libs/NFV_MANO_SOL001_LIBS_COMMON
+
+  - name: REMOVE pom NFV LIBS DESCRIPTORS
+    become: yes
+    file:
+      path: /opt/nfv-sol-libs/NFV_MANO_SOL001_LIBS_DESCRIPTORS/pom.xml
+      state: absent
+  - name: Copy file with owner and permissions
+    copy:
+      src: files/nfv_descriptors_pom.xml
+      dest: /opt/nfv-sol-libs/NFV_MANO_SOL001_LIBS_DESCRIPTORS/pom.xml
+      owner: ubuntu
+      group: ubuntu
+      mode: '0644'
+
+  - name: BUILDING NFV-LIB DEPENDENCIES...DESCRIPTORS
+    remote_user: ubuntu
+    shell: /opt/apache-maven-3.3.9/bin/mvn clean install
+    args: 
+      chdir: /opt/nfv-sol-libs/NFV_MANO_SOL001_LIBS_DESCRIPTORS
+
+  - name: REMOVE pom OSMR4DATAMODEL
+    become: yes
+    file:
+      path: /opt/5gcatalogue/OSMr4PlusDataModel/pom.xml
+      state: absent
+  - name: Copy file with owner and permissions
+    copy:
+      src: files/osmr4_datamodel_pom.xml
+      dest: /opt/5gcatalogue/OSMr4PlusDataModel/pom.xml
+      owner: ubuntu
+      group: ubuntu
+      mode: '0644' 
+
+  - name: COMPILING 5G APPs & SERVICEs CATALOGUE
+    remote_user: ubuntu
+    shell:  /opt/apache-maven-3.3.9/bin/mvn clean install
+    args:
+      chdir: /opt/5gcatalogue
+
+  - name: RUNNING 5G APPs & SERVICEs CATALOGUE
+    remote_user: ubuntu
+    shell:  nohup /opt/apache-maven-3.3.9/bin/mvn spring-boot:run &
+    args:
+      chdir: /opt/5gcatalogue/5gcatalogue-app

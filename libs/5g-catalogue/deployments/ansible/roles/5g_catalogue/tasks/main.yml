@@ -1,0 +1,36 @@
+
+---
+# tasks file for 5g_catalogue
+
+#- name: openjdk-9-jre
+#  remote_user: ubuntu
+#  apt:
+#    name: openjdk-8-jre
+#    state: present
+
+- name: openjfx
+  remote_user: ubuntu
+  apt:
+    name: openjfx
+    state: present
+
+- name: Install Maven
+  include_tasks : maven.yml
+
+### Install PostgresSQL ###
+
+# Variable configuration.
+- include_tasks: pg_variables.yml
+
+# Setup/install tasks.
+- include_tasks: pg_setup.yml
+  
+- include_tasks: pg_initialize.yml
+- include_tasks: pg_configure.yml
+
+- name: Ensure PostgreSQL is started and enabled on boot.
+  service:
+    name: "{{ postgresql_daemon }}"
+    state: "{{ postgresql_service_state }}"
+    enabled: "{{ postgresql_service_enabled }}"
+

@@ -1,0 +1,10 @@
+---
+# handlers file for 5g_catalogue
+
+### Handlers for postgres ###
+
+- name: restart postgresql
+  service:
+    name: "{{ postgresql_daemon }}"
+    state: "{{ postgresql_restarted_state }}"
+    sleep: 5

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><licenseSummary>
+  <dependencies>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-js-adapter</artifactId>
+      <version>4.0.0.Beta2</version>
+      <licenses>
+        <license>
+          <name>Apache Software License 2.0</name>
+          <url>https://raw.githubusercontent.com/keycloak/keycloak/4.0.0.Beta2/License.html</url>
+        </license>
+      </licenses>
+    </dependency>
+  </dependencies>
+</licenseSummary>

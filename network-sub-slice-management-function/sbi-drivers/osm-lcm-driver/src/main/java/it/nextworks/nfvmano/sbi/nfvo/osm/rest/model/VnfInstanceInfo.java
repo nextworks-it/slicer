@@ -15,6 +15,7 @@ package it.nextworks.nfvmano.sbi.nfvo.osm.rest.model;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -29,6 +30,77 @@ public class VnfInstanceInfo {
 
   @SerializedName("id")
   private UUID id = null;
+
+
+  @SerializedName("nsr-id-ref")
+  public String nsrIdRef;
+  @SerializedName("member-vnf-index-ref")
+  public String memberVnfIndexRef;
+  public Object additionalParamsForVnf;
+  @SerializedName("created-time")
+  public double createdTime;
+  @SerializedName("vnfd-ref")
+  public String vnfdRef;
+  @SerializedName("vnfd-id")
+  public String vnfdId;
+  @SerializedName("vim-account-id")
+  public String vimAccountId;
+  @SerializedName("vca-id")
+  public Object vcaId;
+  public ArrayList<Vdur> vdur;
+  @SerializedName("connection-point")
+  public ArrayList<ConnectionPoint> connectionPoint;
+  @SerializedName("ip-address")
+  public String ipAddress;
+  public Admin _admin;
+
+  public String getNsrIdRef() {
+    return nsrIdRef;
+  }
+
+  public String getMemberVnfIndexRef() {
+    return memberVnfIndexRef;
+  }
+
+  public Object getAdditionalParamsForVnf() {
+    return additionalParamsForVnf;
+  }
+
+  public double getCreatedTime() {
+    return createdTime;
+  }
+
+  public String getVnfdRef() {
+    return vnfdRef;
+  }
+
+  public String getVnfdId() {
+    return vnfdId;
+  }
+
+  public String getVimAccountId() {
+    return vimAccountId;
+  }
+
+  public Object getVcaId() {
+    return vcaId;
+  }
+
+  public ArrayList<Vdur> getVdur() {
+    return vdur;
+  }
+
+  public ArrayList<ConnectionPoint> getConnectionPoint() {
+    return connectionPoint;
+  }
+
+  public String getIpAddress() {
+    return ipAddress;
+  }
+
+  public Admin get_admin() {
+    return _admin;
+  }
 
   public VnfInstanceInfo _id(UUID _id) {
     this._id = _id;

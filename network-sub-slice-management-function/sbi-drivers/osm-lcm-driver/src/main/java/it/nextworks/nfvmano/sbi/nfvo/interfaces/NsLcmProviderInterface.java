@@ -21,6 +21,8 @@ import it.nextworks.nfvmano.sbi.nfvo.messages.CreateNsIdentifierRequestInternal;
 import it.nextworks.nfvmano.sbi.nfvo.messages.InstantiateNsRequestInternal;
 import it.nextworks.nfvmano.sbi.nfvo.messages.OperationStatus;
 import it.nextworks.nfvmano.libs.vs.common.exceptions.FailedOperationException;
+import it.nextworks.nfvmano.sbi.nfvo.osm.rest.model.NsInstance;
+import it.nextworks.nfvmano.sbi.nfvo.osm.rest.model.VnfInstanceInfo;
 
 public interface NsLcmProviderInterface {
 
@@ -29,6 +31,10 @@ public interface NsLcmProviderInterface {
 
     String instantiateNetworkService(InstantiateNsRequestInternal request) throws FailedOperationException;
 
+
+    NsInstance getNsInstance(String nsInstanceId) throws  FailedOperationException;
+
+    VnfInstanceInfo getVnfInstanceInfo(String vnfInstanceRecordId) throws  FailedOperationException;
     OperationStatus getOperationStatus(String operationId) throws FailedOperationException;
 
     String terminateNetworkService(String networkServiceInstanceId) throws FailedOperationException;

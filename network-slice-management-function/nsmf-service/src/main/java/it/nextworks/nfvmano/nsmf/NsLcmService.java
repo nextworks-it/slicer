@@ -18,6 +18,7 @@ package it.nextworks.nfvmano.nsmf;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import it.nextworks.nfvmano.catalogue.template.elements.GsTemplateInfo;
@@ -25,9 +26,10 @@ import it.nextworks.nfvmano.catalogue.template.elements.NsTemplateInfo;
 import it.nextworks.nfvmano.catalogue.template.interfaces.NestCatalogueInterface;
 import it.nextworks.nfvmano.catalogue.template.interfaces.NsTemplateCatalogueInterface;
 import it.nextworks.nfvmano.catalogue.template.messages.nest.QueryNesTemplateResponse;
+import it.nextworks.nfvmano.catalogue.template.messages.nst.OnBoardNsTemplateRequest;
 import it.nextworks.nfvmano.catalogue.template.messages.nst.QueryNsTemplateResponse;
-import it.nextworks.nfvmano.libs.ifa.templates.nst.NST;
-import it.nextworks.nfvmano.libs.ifa.templates.nst.SliceSubnetType;
+import it.nextworks.nfvmano.catalogues.template.TemplateCatalogueUtilities;
+import it.nextworks.nfvmano.libs.ifa.templates.nst.*;
 
 import it.nextworks.nfvmano.libs.vs.common.exceptions.*;
 import it.nextworks.nfvmano.libs.vs.common.nsmf.elements.*;
@@ -129,7 +131,205 @@ public class NsLcmService implements NsmfLcmProvisioningInterface, NsmfLcmConfig
 
 
 
-    /********************************************************************************/
+    public void scaleSliceOnNewUpf(UpdateConfigurationRequest request) throws NotExistingEntityException, FailedOperationException, MethodNotImplementedException, MalformattedElementException, NotPermittedOperationException {
+        final String NSD_ID_NEW_UPF = "fff391fe-53e8-4124-ad10-92c33f3e4373";
+        String nsiId = request.getNsiId().toString();
+        NetworkSliceInstanceRecord networkSliceInstanceRecord = nsiRecordService.getNetworkSliceInstanceRecord(UUID.fromString(nsiId));
+        String nssiCoreId = null;
+        List<NetworkSliceSubnetInstanceRecord> networkSliceInstanceRecordList = networkSliceInstanceRecord.getNetworkSliceSubnetInstanceIds();
+        for(NetworkSliceSubnetInstanceRecord networkSliceSubnetInstanceRecord: networkSliceInstanceRecordList){
+            if(networkSliceSubnetInstanceRecord.getNetworkSliceSubnetInstance().getNsstType().equals("CORE")){
+                nssiCoreId = networkSliceSubnetInstanceRecord.getNetworkSliceSubnetInstance().getNetworkSliceSubnetInstanceId().toString();
+                break;
+            }
+        }
+        if(nssiCoreId==null)
+            throw new NotExistingEntityException("NSSI Core not found within end-to-end network slice with ID "+nsiId);
+
+        configureNetworkSlice(request, "admin");
+
+    }
+
+    public void scaleUpfOld(String nsiId, String upfName, String nsdIdNewUpf) throws NotExistingEntityException, it.nextworks.nfvmano.libs.ifa.common.exceptions.FailedOperationException, it.nextworks.nfvmano.libs.ifa.common.exceptions.MethodNotImplementedException, it.nextworks.nfvmano.libs.ifa.common.exceptions.NotExistingEntityException, it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException, FailedOperationException, MethodNotImplementedException, MalformattedElementException, NotPermittedOperationException, it.nextworks.nfvmano.libs.ifa.common.exceptions.AlreadyExistingEntityException, JsonProcessingException {
+        log.info("Getting NST identifier for NSI whose id is "+nsiId);
+        log.info("UPF name is "+upfName);
+        NetworkSliceInstanceRecord networkSliceInstanceRecord = nsiRecordService.getNetworkSliceInstanceRecord(UUID.fromString(nsiId));
+        String nstId = networkSliceInstanceRecord.getNstId();
+        log.info("NST id found is "+nstId);
+
+        QueryNsTemplateResponse queryNsTemplateResponse = nsTemplateCatalogueInterface.queryNsTemplate(new it.nextworks.nfvmano.libs.ifa.common.messages.GeneralizedQueryRequest(TemplateCatalogueUtilities.buildNsTemplateFilter(nstId), null));
+
+        NST nst=null;
+
+        for(NsTemplateInfo nsTemplateInfo: queryNsTemplateResponse.getNsTemplateInfos()){
+            log.info(nsTemplateInfo.getNST().getNstId());
+            if(nsTemplateInfo.getNST().getNstId().equals(nstId)){
+                nst = nsTemplateInfo.getNST();
+
+                break;
+            }
+        }
+        if(nst==null){
+            log.error("NST not found");
+            return;
+        }
+
+
+        NST newNST = null;
+        String newNstId = newNST.getNstId()+"_"+upfName;
+        for(NsTemplateInfo nsTemplateInfo: queryNsTemplateResponse.getNsTemplateInfos()){
+            log.info(nsTemplateInfo.getNST().getNstId());
+            if(nsTemplateInfo.getNST().getNstId().equals(newNstId)){
+                newNST = nsTemplateInfo.getNST();
+                break;
+            }
+        }
+
+        if(newNST==null){
+            log.info("New NST not available. Going to on boarding it");
+            newNST = new NST(nst);
+            NSST firstNSSTchild = newNST.getNsst().getNsstList().get(0);
+
+            List<URLLCPerfReq> urllcPerfReqs = new ArrayList<>();
+            if(firstNSSTchild.getSliceProfileList().get(0).getuRLLCPerfReq().size()>0) {
+                URLLCPerfReq urllcPerfReq = new URLLCPerfReq(firstNSSTchild.getSliceProfileList().get(0).getuRLLCPerfReq().get(0));
+                urllcPerfReqs.add(urllcPerfReq);
+            }
+
+            List<EMBBPerfReq> embbPerfReqs = new ArrayList<>();
+
+            if(firstNSSTchild.getSliceProfileList().get(0).geteMBBPerfReq().size()>0) {
+                EMBBPerfReq embbPerfReq = new EMBBPerfReq(firstNSSTchild.getSliceProfileList().get(0).geteMBBPerfReq().get(0));
+                embbPerfReqs.add(embbPerfReq);
+            }
+
+
+            SliceProfile sliceProfile = new SliceProfile();
+            sliceProfile.setMaxNumberofUEs(firstNSSTchild.getSliceProfileList().get(0).getMaxNumberofUEs());
+            sliceProfile.setLatency(firstNSSTchild.getSliceProfileList().get(0).getLatency());
+            sliceProfile.setResourceSharingLevel(firstNSSTchild.getSliceProfileList().get(0).getResourceSharingLevel());
+            sliceProfile.setuRLLCPerfReq(urllcPerfReqs);
+            sliceProfile.seteMBBPerfReq(embbPerfReqs);
+            List<String> coverageAreaTAList = firstNSSTchild.getSliceProfileList().get(0).getCoverageAreaTAList();
+            List<String> newCoverageAreaTAList = new ArrayList<>();
+            if(coverageAreaTAList!=null && coverageAreaTAList.size()>0) {
+                for (String coverageAreaTa : coverageAreaTAList) {
+                    newCoverageAreaTAList.add(coverageAreaTa);
+                }
+            }
+            sliceProfile.setCoverageAreaTAList(newCoverageAreaTAList);
+            List<SliceProfile> sliceProfileList = new ArrayList();
+            sliceProfileList.add(sliceProfile);
+
+            NsdInfo nsdInfo = new NsdInfo(nsdIdNewUpf, "nsd_new_UPF","nsd_new_UPF", "v01");
+
+
+            NSST nsst = new NSST(firstNSSTchild.getNsstId()+"_"+upfName,
+                    firstNSSTchild.isOperationalState(),
+                    firstNSSTchild.getAdministrativeState(),
+                    new NsInfo(firstNSSTchild.getNsInfo()),
+                    sliceProfileList,
+            new ArrayList<>(),
+                    nsdInfo,
+                    firstNSSTchild.getType());
+            firstNSSTchild.setNsstName(firstNSSTchild.getNsstId()+"_"+upfName);
+            firstNSSTchild.setNsstVersion(firstNSSTchild.getNsstId()+"_"+upfName);
+            List<NSST> nsstList = new ArrayList<>();
+            nsstList.add(nsst);
+
+
+            NSST nsstParent = newNST.getNsst();
+            List<URLLCPerfReq> urllcPerfReqsNsstParent = new ArrayList<>();
+            if(nsstParent.getSliceProfileList().get(0).getuRLLCPerfReq().size()>0) {
+                URLLCPerfReq urllcPerfReqNsstParent = new URLLCPerfReq(nsstParent.getSliceProfileList().get(0).getuRLLCPerfReq().get(0));
+                urllcPerfReqsNsstParent.add(urllcPerfReqNsstParent);
+            }
+
+            List<EMBBPerfReq> embbPerfReqsNsstParent = new ArrayList<>();
+            if(nsstParent.getSliceProfileList().get(0).geteMBBPerfReq().size()>0) {
+                EMBBPerfReq embbPerfReqNsstParent = new EMBBPerfReq(nsstParent.getSliceProfileList().get(0).geteMBBPerfReq().get(0));
+                embbPerfReqsNsstParent.add(embbPerfReqNsstParent);
+            }
+
+            SliceProfile sliceProfileNsstParent = new SliceProfile();
+            sliceProfileNsstParent.setMaxNumberofUEs(nsstParent.getSliceProfileList().get(0).getMaxNumberofUEs());
+            sliceProfileNsstParent.setLatency(nsstParent.getSliceProfileList().get(0).getLatency());
+            sliceProfileNsstParent.setResourceSharingLevel(nsstParent.getSliceProfileList().get(0).getResourceSharingLevel());
+            sliceProfileNsstParent.setuRLLCPerfReq(urllcPerfReqsNsstParent);
+            sliceProfileNsstParent.seteMBBPerfReq(embbPerfReqsNsstParent);
+
+            List<SliceProfile> sliceProfileListNsstParent = new ArrayList();
+            sliceProfileListNsstParent.add(sliceProfileNsstParent);
+
+
+
+            NSST nsstParentNew = new NSST(nsstParent.getNsstId()+"_"+upfName,
+                    nsstParent.isOperationalState(),
+                    nsstParent.getAdministrativeState(),
+                    new NsInfo(nsstParent.getNsInfo()),
+                    sliceProfileListNsstParent,
+                    nsstList,
+                    null,
+                    nsstParent.getType());
+
+            nsstParentNew.setNsstName(newNST.getNsst().getNsstName()+"_"+upfName);
+            nsstParentNew.setNsstName(newNST.getNsst().getNsstVersion()+"_"+upfName);
+
+            NstServiceProfile nstServiceProfile = new NstServiceProfile(newNST.getNstServiceProfileList().get(0));
+            List<NstServiceProfile> nstServiceProfileList = new ArrayList<>();
+            nstServiceProfileList.add(nstServiceProfile);
+
+
+
+            NST myNST = new NST(
+                    newNST.getNstId()+"_"+upfName,
+                    newNST.getNstName()+"_"+upfName,
+                    newNST.getNstVersion()+"_"+upfName,
+                    newNST.getNstProvider(),
+                    newNST.getAdministrativeState(),
+                    nstServiceProfileList,
+                    nsstParentNew
+            );
+
+            OnBoardNsTemplateRequest onBoardNsTemplateRequest = new OnBoardNsTemplateRequest();
+            log.info("New NST ID is "+myNST.getNstId());
+            onBoardNsTemplateRequest.setNst(myNST);
+
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String json = ow.writeValueAsString(onBoardNsTemplateRequest);
+            log.info(json);
+
+            log.info("On boarding New NST");
+            nsTemplateCatalogueInterface.onBoardNsTemplate(onBoardNsTemplateRequest);
+            String tenantId = "admin";
+
+            log.info("Creating NSI");
+            CreateNsiIdRequest createNsiIdRequest = new CreateNsiIdRequest(myNST.getNstId(), myNST.getNstId(), myNST.getNstId(), null);
+            UUID nsi = createNetworkSliceIdentifierFromNst(createNsiIdRequest, tenantId);
+
+            log.info("Instantiating NSI");
+            InstantiateNsiRequest instantiateNsiRequest = new InstantiateNsiRequest(nsi);
+            instantiateNsiRequest.setNewUpf(true);
+            instantiateNsiRequest.setUpfName(upfName);
+            instantiateNetworkSlice(instantiateNsiRequest, tenantId);
+        }
+        else{
+            log.info("NST already onboarded, skipping this step");
+            String tenantId = "admin";
+
+            log.info("Creating NSI");
+            CreateNsiIdRequest createNsiIdRequest = new CreateNsiIdRequest(newNST.getNstId(), newNST.getNstId(), newNST.getNstId(), null);
+            UUID nsi = createNetworkSliceIdentifierFromNst(createNsiIdRequest, tenantId);
+
+            log.info("Instantiating NSI");
+            InstantiateNsiRequest instantiateNsiRequest = new InstantiateNsiRequest(nsi);
+            instantiateNsiRequest.setNewUpf(true);
+            instantiateNsiRequest.setUpfName(upfName);
+            instantiateNetworkSlice(instantiateNsiRequest, tenantId);
+        }
+
+
+    }
 
     @Override
     public UUID createNetworkSliceIdentifierFromNst(CreateNsiIdRequest request, String tenantId)
@@ -137,6 +337,7 @@ public class NsLcmService implements NsmfLcmProvisioningInterface, NsmfLcmConfig
     	
     	log.debug("Processing request to create a new network slicer identifier");
     	request.isValid();
+
     	String nstId = request.getNstId();
         //TODO: Resolve NST Catalogue query interfaces
         Map<String, String> filterParams = new HashMap<>();
@@ -159,16 +360,27 @@ public class NsLcmService implements NsmfLcmProvisioningInterface, NsmfLcmConfig
                 throw new MalformattedElementException("Retrieved NST with NSST not of type E2E or null");
             }
 
+            if(nsTemplate.getNsst().getSliceProfileList().get(0).geteMBBPerfReq()==null || nsTemplate.getNsst().getSliceProfileList().get(0).geteMBBPerfReq().size()==0){
+                final String ERROR = "EmBB performance requirements not available into slice profile list";
+                log.error(ERROR);
+                throw new MalformattedElementException(ERROR);
+            }
+
+            log.info("Creating nsi record service");
+            final String DEFAULT_UPF_NAME ="UPF-default";
             UUID networkSliceId = nsiRecordService.createNetworkSliceInstanceEntry (
                     nstId,
                     request.getVsInstanceId(),
                     tenantId,
                     request.getName(),
                     nsTemplate.getNsst().getSliceProfileList().get(0).geteMBBPerfReq().get(0).getExpDataRateDL(),
-                    nsTemplate.getNsst().getSliceProfileList().get(0).geteMBBPerfReq().get(0).getExpDataRateUL()
+                    nsTemplate.getNsst().getSliceProfileList().get(0).geteMBBPerfReq().get(0).getExpDataRateUL(),
+                    DEFAULT_UPF_NAME
             );
+            log.info("Initing New NS LCM Manager");
             initNewNsLcmManager(networkSliceId, nsTemplate);
             return networkSliceId;
+
         } catch (it.nextworks.nfvmano.libs.ifa.common.exceptions.MethodNotImplementedException e) {
             throw new MethodNotImplementedException(e);
         } catch (it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException e) {
@@ -220,10 +432,26 @@ public class NsLcmService implements NsmfLcmProvisioningInterface, NsmfLcmConfig
 
     @Override
     public void instantiateNetworkSlice(InstantiateNsiRequest request,  String tenantId)
-    		throws NotExistingEntityException, MethodNotImplementedException, FailedOperationException, MalformattedElementException, NotPermittedOperationException {
+    		throws NotExistingEntityException, MalformattedElementException, NotPermittedOperationException {
     	log.debug("Processing request to instantiate a network slice instance");
     	request.isValid();
     	UUID nsiId = request.getNsiId();
+        if(request.getUpfName()==null){
+            int countInstantiatedEndToEndSlices = 0;
+            List<NetworkSliceInstance> networkSliceInstances = nsiRecordService.getAllNetworkSliceInstance();
+            for(NetworkSliceInstance networkSliceInstance: networkSliceInstances){
+                if(networkSliceInstance.getStatus()==NetworkSliceInstanceStatus.INSTANTIATED){
+                    countInstantiatedEndToEndSlices++;
+                }
+            }
+            log.info("The count of INSTANTIATED slices is "+countInstantiatedEndToEndSlices);
+            if(countInstantiatedEndToEndSlices==0)
+                request.setUpfName("UPF");
+            else {
+                countInstantiatedEndToEndSlices++;
+                request.setUpfName("UPF-"+countInstantiatedEndToEndSlices);
+            }
+        }
     	log.debug("Processing NSI instantiation request for NSI ID " + nsiId);
         if (nsLcmManagers.containsKey(nsiId)) {
             NetworkSliceInstanceRecord record = nsiRecordService.getNetworkSliceInstanceRecord(nsiId);
@@ -338,6 +566,7 @@ public class NsLcmService implements NsmfLcmProvisioningInterface, NsmfLcmConfig
 
         request.isValid();
         UUID nsiId = request.getNsiId();
+
         ConfigurationRequestRecord configurationRequestRecord = new ConfigurationRequestRecord(ConfigurationRequestStatus.IN_PROGRESS, nsiId,
                 request.getActionType());
         configurationRequestRepo.saveAndFlush(configurationRequestRecord);

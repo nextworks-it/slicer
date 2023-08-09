@@ -17,7 +17,7 @@ package it.nextworks.nfvmano.core.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import it.nextworks.nfvmano.core.recordIM.CoreInstanceInfo;
+import it.nextworks.nfvmano.core.recordIM.UpfInstanceInfo;
 import it.nextworks.nfvmano.core.recordIM.SubscriberListForSlice;
 import it.nextworks.nfvmano.libs.ifa.templates.nst.NSST;
 import it.nextworks.nfvmano.libs.ifa.templates.nst.NST;
@@ -28,9 +28,9 @@ import it.nextworks.nfvmano.libs.vs.common.exceptions.MalformattedElementExcepti
 import it.nextworks.nfvmano.libs.vs.common.exceptions.NotExistingEntityException;
 import it.nextworks.nfvmano.libs.vs.common.nssmf.messages.specialized.core.cumucore.CoreSlicePayload;
 import it.nextworks.nfvmano.libs.vs.common.nssmf.messages.specialized.core.cumucore.Subscriber;
-import it.nextworks.nfvmano.sbi.cnc.messages.NetworkSliceCNC;
-import it.nextworks.nfvmano.sbi.cnc.messages.WrapperListNetworkSliceCNC;
-import it.nextworks.nfvmano.sbi.cnc.messages.WrapperNetworkSliceCNC;
+import it.nextworks.nfvmano.sbi.cnc.UPFsliceAssociationCnc.UpfSliceAssociationCnc;
+import it.nextworks.nfvmano.sbi.cnc.dnnList.*;
+import it.nextworks.nfvmano.sbi.cnc.messages.*;
 import it.nextworks.nfvmano.sbi.cnc.rest.CNCrestClient;
 import it.nextworks.nfvmano.sbi.cnc.subscribersManagement.CoreSubscriberListInfo;
 import it.nextworks.nfvmano.sbi.cnc.subscribersManagement.Data1;
@@ -48,7 +48,7 @@ public class CoreNetworkSliceService {
     private static final Logger LOG = LoggerFactory.getLogger(CoreNetworkSliceService.class);
 
     @Autowired
-    private CoreInstanceService coreInstanceService;
+    private UpfInstanceService upfInstanceService;
 
     @Value("${nssmf.coreInstanceId}")
     private String configuredCoreInstanceId;
@@ -62,13 +62,16 @@ public class CoreNetworkSliceService {
     @Value("${nssmf.cnc.port}")
     private int cncPort;
 
+    private Map<String, UpfMainInfo> upfMainInfoMap;
+
     public CoreNetworkSliceService(){
+        upfMainInfoMap = new HashMap<>();
     }
 
     public boolean isNssiInstantiated(String nssiId){
         LOG.info("Checking if the core instance with ID "+nssiId+" is available");
         try {
-            coreInstanceService.getCoreInstanceInfo(nssiId);
+            upfInstanceService.getUpfInstanceInfoByName(nssiId);
             return true;
         }
         catch (NotExistingEntityException e) {
@@ -78,22 +81,22 @@ public class CoreNetworkSliceService {
 
 
     public void initNetworkCoreSliceSet(String coreInstanceId){
-        coreInstanceService.storeCoreInstanceInfo(coreInstanceId, null);
+        upfInstanceService.storeUpfInstanceInfo(coreInstanceId, null, null);
     }
 
     public void updateCoreNetworkSliceList(String coreInstanceId, String coreNetworkSliceId){
-        LOG.info("Storing mapping between Core instance with ID "+coreInstanceId+ " and core network slice with ID "+coreNetworkSliceId);
-        coreInstanceService.storeCoreInstanceInfo(coreInstanceId, coreNetworkSliceId);
+        LOG.info("Storing mapping between UPF instance with ID "+coreInstanceId+ " and core network slice with ID "+coreNetworkSliceId);
+        upfInstanceService.storeUpfInstanceInfo(coreInstanceId, coreNetworkSliceId, null);
     }
 
 
     public String getNsdIdCore(String coreInstanceId) throws NotExistingEntityException {
-        return coreInstanceService.getCoreInstanceInfo(coreInstanceId).getNsdIdCore();
+        return upfInstanceService.getUpfInstanceInfoByName(coreInstanceId).getNsdIdCore();
 
     }
 
     public void setNsdIdCore(String coreInstanceId, String nsdIdCore) throws NotExistingEntityException {
-        coreInstanceService.setCoreInstanceNsdId(coreInstanceId,nsdIdCore);
+        upfInstanceService.setUpfInstanceNsdId(coreInstanceId,nsdIdCore);
     }
 
 
@@ -110,7 +113,7 @@ public class CoreNetworkSliceService {
     }
 
     public SubscriberListForSlice getSubscribersForSlice(String coreInstanceId, String coreNetworkSliceId) throws IOException, NotExistingEntityException {
-        CoreInstanceInfo coreInstanceInfo = coreInstanceService.getCoreInstanceInfo(coreInstanceId);
+        UpfInstanceInfo upfInstanceInfo = upfInstanceService.getUpfInstanceInfoByName(coreInstanceId);
         LOG.info("Getting subscribers for slice with ID "+coreNetworkSliceId);
 
         if (!isCoreSliceExisting(coreInstanceId, coreNetworkSliceId)) {
@@ -119,7 +122,7 @@ public class CoreNetworkSliceService {
             throw new NotExistingEntityException(msg);
         }
 
-        CNCrestClient cncRestClient = new CNCrestClient(coreInstanceInfo.getIpCnc(), coreInstanceInfo.getPortCnc());
+        CNCrestClient cncRestClient = new CNCrestClient(upfInstanceInfo.getIpCnc(), upfInstanceInfo.getPortCnc());
         List<SubscriberListForSlice> subscriberListForSliceList = new ArrayList<>();
 
         String subscriberListString = cncRestClient.getSubscriberList();
@@ -161,14 +164,14 @@ public class CoreNetworkSliceService {
     }
 
     public NetworkSliceCNC getCoreNetworkSliceInformation(String coreInstanceId, String networkSliceId) throws IOException, NotExistingEntityException {
-        CoreInstanceInfo coreInstanceInfo = coreInstanceService.getCoreInstanceInfo(coreInstanceId);
+        UpfInstanceInfo upfInstanceInfo = upfInstanceService.getUpfInstanceInfoByName(coreInstanceId);
 
-        if(!coreInstanceInfo.getCoreNetworkSliceId().contains(networkSliceId)){
+        if(!upfInstanceInfo.getUpfNetworkSliceId().contains(networkSliceId)){
             throw new NotExistingEntityException("Core slice with ID "+networkSliceId+ "not found");
         }
 
 
-        CNCrestClient cncRestClient = new CNCrestClient(coreInstanceInfo.getIpCnc(), coreInstanceInfo.getPortCnc());
+        CNCrestClient cncRestClient = new CNCrestClient(upfInstanceInfo.getIpCnc(), upfInstanceInfo.getPortCnc());
         String networkSlice = cncRestClient.getNetworkSlice(networkSliceId);
         if(networkSlice==null){
             throw new NotExistingEntityException("Core slice with ID "+networkSliceId+ "not found");
@@ -179,10 +182,10 @@ public class CoreNetworkSliceService {
         return wrapperNetworkSliceCNC.networkSliceCNC;
     }
 
-    public List<NetworkSliceCNC> getAllCoreNetworkSliceInformation(String coreInstanceId) throws IOException, NotExistingEntityException {
-
-        CoreInstanceInfo coreInstanceInfo = coreInstanceService.getCoreInstanceInfo(coreInstanceId);
-        CNCrestClient cncRestClient = new CNCrestClient(coreInstanceInfo.getIpCnc(), coreInstanceInfo.getPortCnc());
+    public List<NetworkSliceCNC> getAllCoreNetworkSliceInformation(String upfInstanceId) throws IOException, NotExistingEntityException {
+        LOG.info("Getting all core network slice information");
+        UpfInstanceInfo upfInstanceInfo = upfInstanceService.getUpfInstanceInfoById(upfInstanceId);
+        CNCrestClient cncRestClient = new CNCrestClient(upfInstanceInfo.getIpCnc(), upfInstanceInfo.getPortCnc());
         String networkSliceList = cncRestClient.getNetworkSlices();
 
         if(networkSliceList==null){
@@ -193,7 +196,7 @@ public class CoreNetworkSliceService {
 
         ArrayList<NetworkSliceCNC> coreNetworkSlices = new ArrayList<>();
         for(NetworkSliceCNC networkSliceCNC: wrapperNetworkSliceCNC.networkSliceCNC){
-            if(coreInstanceInfo.getCoreNetworkSliceId().contains(networkSliceCNC.sliceName)){
+            if(upfInstanceInfo.getUpfNetworkSliceId().contains(networkSliceCNC.sliceName)){
                 coreNetworkSlices.add(networkSliceCNC);
             }
         }
@@ -213,7 +216,7 @@ public class CoreNetworkSliceService {
     }
 
     public synchronized void updateCoreNetworkSlice(String coreInstanceId, String coreNetworkSliceId, CoreSlicePayload coreSlicePayload) throws NotExistingEntityException, MalformattedElementException, IOException {
-        CoreInstanceInfo coreInstanceInfo = coreInstanceService.getCoreInstanceInfo(coreInstanceId);
+        UpfInstanceInfo upfInstanceInfo = upfInstanceService.getUpfInstanceInfoByName(coreInstanceId);
         getCoreNetworkSliceInformation(coreInstanceId, coreNetworkSliceId);
 
 
@@ -227,10 +230,10 @@ public class CoreNetworkSliceService {
         NstServiceProfile nstServiceProfile = nst.getNstServiceProfileList().get(0);
 
         NstToNetworkSliceCmcMapper nstToNetworkSliceCmcMapper = new NstToNetworkSliceCmcMapper();
-        NetworkSliceCNC networkSliceCNC = nstToNetworkSliceCmcMapper.mapCoreNetworkSliceToNetworkSliceCNC(nstServiceProfile, nsst);
+        NetworkSliceCNC networkSliceCNC = nstToNetworkSliceCmcMapper.mapCoreNetworkSliceToNetworkSliceCNC(nstServiceProfile, nsst,upfInstanceService.getUpfCount());
         networkSliceCNC.sliceName = coreNetworkSliceId;
         LOG.info("Requesting Core Network Slice update toward CNC");
-        CNCrestClient cncRestClient = new CNCrestClient(coreInstanceInfo.getIpCnc(), coreInstanceInfo.getPortCnc());
+        CNCrestClient cncRestClient = new CNCrestClient(upfInstanceInfo.getIpCnc(), upfInstanceInfo.getPortCnc());
         boolean isCoreNetworkSliceModified = cncRestClient.updateNetworkSlice(networkSliceCNC);
         if(isCoreNetworkSliceModified) {
             LOG.info("Core network slice successfully updated");
@@ -238,7 +241,7 @@ public class CoreNetworkSliceService {
             printJsonObject(networkSliceCNC);
 
             updateCoreNetworkSliceList(coreInstanceId, networkSliceCNC.sliceName);
-            coreInstanceService.storeCoreInstanceInfo(coreInstanceId, networkSliceCNC.sliceName);
+            upfInstanceService.storeUpfInstanceInfo(coreInstanceId, networkSliceCNC.sliceName, null);
 
         }
         else{
@@ -258,48 +261,164 @@ public class CoreNetworkSliceService {
         }
         LOG.info(json);
     }
-    public synchronized String createCoreNetworkSlice(String coreInstanceId, CoreSlicePayload coreSlicePayload) throws Exception {
 
-        LOG.info("Creating a new core network slice");
-        CoreInstanceInfo coreInstanceInfo;
-        if(coreInstanceId.equals(configuredCoreInstanceId) && skipNsdDeployment==true){
+
+
+    private UpfSliceAssociationCnc buildAssociationPayload(String nfId, String nfName, String nfIp, int sst, String sd){
+        UpfSliceAssociationCnc upfSliceAssociationCnc = new UpfSliceAssociationCnc();
+        upfSliceAssociationCnc.nfInstanceId = nfId;
+        upfSliceAssociationCnc.nfInstanceName = nfName;
+        upfSliceAssociationCnc.nfType = "UPF";
+        upfSliceAssociationCnc.nfStatus = "REGISTERED";
+        ArrayList<String> ipv4Addresses = new ArrayList<>();
+        ipv4Addresses.add(nfIp);
+        upfSliceAssociationCnc.ipv4Addresses = ipv4Addresses;
+
+        LOG.info("Building payload");
+        SNssai sNssai = new SNssai();
+        sNssai.sst=sst;
+        sNssai.sd =sd;
+
+        DnnUpfInfoList dnnUpfInfoList = new DnnUpfInfoList();
+        dnnUpfInfoList.dnn="internet";
+        ArrayList<DnnUpfInfoList> dnnUpfInfoLists = new ArrayList<>();
+        dnnUpfInfoLists.add(dnnUpfInfoList);
+
+        SNssaiUpfInfoList sNssaiUpfInfoList = new SNssaiUpfInfoList();
+        sNssaiUpfInfoList.dnnUpfInfoList = dnnUpfInfoLists;
+        sNssaiUpfInfoList.sNssai = sNssai;
+        ArrayList<SNssaiUpfInfoList> sNssaiUpfInfoLists = new ArrayList<>();
+        sNssaiUpfInfoLists.add(sNssaiUpfInfoList);
+
+        InterfaceUpfInfoList interfaceUpfInfoList = new InterfaceUpfInfoList();
+        interfaceUpfInfoList.interfaceType="N3";
+        ArrayList<String> ipv4EndpointAddresses = new ArrayList<>();
+        ipv4EndpointAddresses.add(nfIp);
+        interfaceUpfInfoList.ipv4EndpointAddresses = ipv4EndpointAddresses;
+
+        ArrayList<InterfaceUpfInfoList> interfaceUpfInfoLists = new ArrayList<>();
+        interfaceUpfInfoLists.add(interfaceUpfInfoList);
+        UpfInfo upfInfo = new UpfInfo();
+        upfInfo.sNssaiUpfInfoList = sNssaiUpfInfoLists;
+        upfInfo.interfaceUpfInfoList = interfaceUpfInfoLists;
+
+        upfSliceAssociationCnc.upfInfo = upfInfo;
+
+        return upfSliceAssociationCnc;
+    }
+
+
+    public void associateSliceToUpf(String upfName, int sst, String sd) throws IOException, MalformattedElementException {
+
+        CNCrestClient cnCrestClient = new  CNCrestClient(cncIp, cncPort);
+        upfMainInfoMap=  getUpfInfo();
+        UpfMainInfo firstUpfMainInfo = null;
+        LOG.info("Looking for UPF with name "+upfName);
+        for(String nfId: upfMainInfoMap.keySet()){
+            String nfInstanceName = upfMainInfoMap.get(nfId).getNfInstanceName();
+            LOG.info("Current UPF name is "+nfInstanceName);
+            if(nfInstanceName.equals(upfName)){
+                firstUpfMainInfo = upfMainInfoMap.get(nfId);
+                break;
+            }
+        }
+        if(firstUpfMainInfo==null){
+            LOG.error("UPF with name "+upfName+ "NOT found");
+            throw new MalformattedElementException("UPF with name "+upfName+ "NOT found");
+        }
+        UpfSliceAssociationCnc upfSliceAssociationCnc = buildAssociationPayload(firstUpfMainInfo.getNfInstanceId(),firstUpfMainInfo.getNfInstanceName(), firstUpfMainInfo.getIp(), sst, sd);
+        LOG.info("Associating UPF with the following payload");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(upfSliceAssociationCnc);
+        LOG.info("Payload");
+        LOG.info(json);
+        String response = cnCrestClient.associateUpfToSlice(firstUpfMainInfo.getNfInstanceId(), upfSliceAssociationCnc);
+        LOG.info("response "+response);
+    }
+    private Map<String, UpfMainInfo> getUpfInfo() throws IOException {
+        CNCrestClient cnCrestClient = new  CNCrestClient(cncIp, cncPort);
+        String dnnListString = cnCrestClient.getUpfsInfo();
+
+        Map map = new HashMap();
+        ObjectMapper om = new ObjectMapper();
+        LOG.info("Raw payload ");
+        LOG.info(dnnListString);
+        DnnListCnc dnnListCnc = om.readValue(dnnListString, DnnListCnc.class);
+
+        for(DnnList dnnList: dnnListCnc.dnnList){
+            String nfIp = dnnList.ipv4Addresses.get(0);
+            String nfUuid = dnnList.nfInstanceId;
+            String nfInstanceName = dnnList.nfInstanceName;
+            List<SNssai> sNssaiList = new ArrayList();
+            LOG.info("nfIp "+nfIp);
+            LOG.info("nfUuid"+ nfUuid);
+            LOG.info("nfInstanceName "+nfInstanceName);
+
+            for(SNssaiUpfInfoList sNssaiUpfInfoList: dnnList.upfInfo.sNssaiUpfInfoList){
+
+                SNssai sNssai = new SNssai();
+                sNssai.sst = sNssaiUpfInfoList.sNssai.sst;
+                sNssai.sd = sNssaiUpfInfoList.sNssai.sd;
+                LOG.info(String.valueOf(sNssai.sst));
+                LOG.info(sNssai.sd);
+                sNssaiList.add(sNssai);
+            }
+            UpfMainInfo upfMainInfo = new UpfMainInfo(nfUuid, nfInstanceName, nfIp, sNssaiList);
+            map.put(nfUuid, upfMainInfo);
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(map);
+        LOG.info("json");
+        LOG.info(json);
+
+        return map;
+    }
+
+    public synchronized String createCoreNetworkSlice(String upfInstanceId, CoreSlicePayload coreSlicePayload) throws Exception {
+
+        LOG.info("Instantiating a new core network slice");
+        UpfInstanceInfo upfInstanceInfo;
+        if(upfInstanceId.equals(configuredCoreInstanceId) && skipNsdDeployment==true){
             LOG.info("Core instance ID is that one configured");
-
-
-            coreInstanceInfo = new CoreInstanceInfo();
-            coreInstanceInfo.setCoreInstanceId(configuredCoreInstanceId);
-            coreInstanceInfo.setCoreNetworkSliceId(new ArrayList<>());
-            coreInstanceInfo.setNsdIdCore(null);
-            coreInstanceInfo.setIpCnc(cncIp);
-            coreInstanceInfo.setPortCnc(cncPort);
-            coreInstanceInfo.setgNBList(new HashSet<>());
-
+            upfInstanceInfo = new UpfInstanceInfo();
+            upfInstanceInfo.setUpfInstanceId(configuredCoreInstanceId);
+            upfInstanceInfo.setUpfNetworkSliceId(new ArrayList<>());
+            upfInstanceInfo.setNsdIdCore(null);
+            upfInstanceInfo.setIpCnc(cncIp);
+            upfInstanceInfo.setPortCnc(cncPort);
+            upfInstanceInfo.setgNBList(new HashSet<>());
         }
 
         else {
-            coreInstanceInfo = coreInstanceService.getCoreInstanceInfo(coreInstanceId);
+            upfInstanceInfo = upfInstanceService.getUpfInstanceInfoById(upfInstanceId);
         }
+
         NST nst = coreSlicePayload.getNst();
         LOG.info("Validating payload");
         if(nst.getNstServiceProfileList()==null || nst.getNstServiceProfileList().size() == 0 || nst.getNstServiceProfileList().get(0)==null){
-            throw new MalformattedElementException("Service profile is mandatory");
+            LOG.error("nstServiceProfileList is mandatory and must contain at least one element");
+            throw new MalformattedElementException("nstServiceProfileList is mandatory and must contain at least one element");
         }
 
         NSST nsst = getNsstCore(nst);
         NstServiceProfile nstServiceProfile = nst.getNstServiceProfileList().get(0);
 
         NstToNetworkSliceCmcMapper nstToNetworkSliceCmcMapper = new NstToNetworkSliceCmcMapper();
-        NetworkSliceCNC networkSliceCNC = nstToNetworkSliceCmcMapper.mapCoreNetworkSliceToNetworkSliceCNC(nstServiceProfile, nsst);
+        String countUPFstr = String.valueOf(upfInstanceService.getUpfCount());
+        NetworkSliceCNC networkSliceCNC = nstToNetworkSliceCmcMapper.mapCoreNetworkSliceToNetworkSliceCNC(nstServiceProfile, nsst, upfInstanceService.getUpfCount());
 
         LOG.info("Requesting Core Network Slice creation toward CNC");
-        CNCrestClient cncRestClient = new CNCrestClient(coreInstanceInfo.getIpCnc(), coreInstanceInfo.getPortCnc());
+        CNCrestClient cncRestClient = new CNCrestClient(upfInstanceInfo.getIpCnc(), upfInstanceInfo.getPortCnc());
         boolean isCoreNetworkSliceCreated = cncRestClient.createNetworkSlice(networkSliceCNC);
         printJsonObject(networkSliceCNC);
         if(isCoreNetworkSliceCreated) {
             LOG.info("Core network slice successfully created");
-            updateCoreNetworkSliceList(coreInstanceId, networkSliceCNC.sliceName);
-            coreInstanceService.storeCoreInstanceInfo(coreInstanceId, networkSliceCNC.sliceName);
-            coreInstanceService.storeCoreCncInfo(coreInstanceId, cncIp, cncPort);
+            updateCoreNetworkSliceList(upfInstanceId, networkSliceCNC.sliceName);
+            upfInstanceService.storeUpfInstanceInfo(upfInstanceId, networkSliceCNC.sliceName, coreSlicePayload.getUpfName());
+            upfInstanceService.storeCoreCncInfo(upfInstanceId, cncIp, cncPort);
+
+
+            associateSliceToUpf("UPF-"+countUPFstr,networkSliceCNC.serviceProfile.sNSSAIList.get(0).sst, networkSliceCNC.serviceProfile.sNSSAIList.get(0).sd);
 
             return networkSliceCNC.sliceName;
         }
@@ -311,8 +430,8 @@ public class CoreNetworkSliceService {
     }
 
     public CNCrestClient getCncRestClient(String coreInstanceId) throws NotExistingEntityException {
-        CoreInstanceInfo coreInstanceInfo = coreInstanceService.getCoreInstanceInfo(coreInstanceId);
-        CNCrestClient cnCrestClient = new CNCrestClient(coreInstanceInfo.getIpCnc(), coreInstanceInfo.getPortCnc());
+        UpfInstanceInfo upfInstanceInfo = upfInstanceService.getUpfInstanceInfoByName(coreInstanceId);
+        CNCrestClient cnCrestClient = new CNCrestClient(upfInstanceInfo.getIpCnc(), upfInstanceInfo.getPortCnc());
         return cnCrestClient;
     }
 
@@ -322,10 +441,10 @@ public class CoreNetworkSliceService {
         if(!isCoreSliceExisting(coreInstanceId, coreNetworkSliceId)){
             throw new NotExistingEntityException("Slice with ID "+coreNetworkSliceId+" does not exist");
         }
-        CoreInstanceInfo coreInstanceInfo = coreInstanceService.getCoreInstanceInfo(coreInstanceId);
+        UpfInstanceInfo upfInstanceInfo = upfInstanceService.getUpfInstanceInfoByName(coreInstanceId);
         SubscriberListForSlice SubscriberListForSlice = getSubscribersForSlice(coreInstanceId, coreNetworkSliceId);
         LOG.info("Removing all subscribers related to core network slice "+coreNetworkSliceId);
-        CNCrestClient cnCrestClient = new CNCrestClient(coreInstanceInfo.getIpCnc(), coreInstanceInfo.getPortCnc());
+        CNCrestClient cnCrestClient = new CNCrestClient(upfInstanceInfo.getIpCnc(), upfInstanceInfo.getPortCnc());
         for(Subscriber subscriber: SubscriberListForSlice.getSubscribers()){
             String imsi = subscriber.getImsi();
             if(cnCrestClient.removeSubscriber(imsi)!=null){
@@ -344,7 +463,7 @@ public class CoreNetworkSliceService {
             throw new FailedOperationException(errorMsg);
         }
         LOG.info("Core network slice with ID "+coreNetworkSliceId+" correctly removed");
-        coreInstanceService.removeCoreNetworkSliceFromCoreInstance(coreInstanceId, coreNetworkSliceId);
+        upfInstanceService.removeCoreNetworkSliceFromUpfInstance(coreInstanceId, coreNetworkSliceId);
 
     }
 }

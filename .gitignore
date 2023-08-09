@@ -8,6 +8,11 @@ mvnw
 mvnw.cmd
 .mvn
 
+#files built
+*.jar
+*.jar.original
+*.class
+
 ### STS ###
 .apt_generated
 .classpath

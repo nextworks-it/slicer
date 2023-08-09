@@ -1,0 +1,80 @@
+<!--/*
+* Copyright 2018 Nextworks s.r.l.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/-->
+<!-- jQuery -->
+<script src="/gentelella/vendors/jquery/dist/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- FastClick -->
+<script src="/gentelella/vendors/fastclick/lib/fastclick.js"></script>
+<!-- NProgress -->
+<script src="/gentelella/vendors/nprogress/nprogress.js"></script>
+<!-- Chart.js -->
+<script src="/gentelella/vendors/Chart.js/dist/Chart.min.js"></script>
+<!-- jQuery Sparklines -->
+<script src="/gentelella/vendors/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
+<!-- Flot -->
+<script src="/gentelella/vendors/Flot/jquery.flot.js"></script>
+<script src="/gentelella/vendors/Flot/jquery.flot.pie.js"></script>
+<script src="/gentelella/vendors/Flot/jquery.flot.time.js"></script>
+<script src="/gentelella/vendors/Flot/jquery.flot.stack.js"></script>
+<script src="/gentelella/vendors/Flot/jquery.flot.resize.js"></script>
+<!-- Flot plugins -->
+<script src="/gentelella/vendors/flot.orderbars/js/jquery.flot.orderBars.js"></script>
+<script src="/gentelella/vendors/flot-spline/js/jquery.flot.spline.min.js"></script>
+<script src="/gentelella/vendors/flot.curvedlines/curvedLines.js"></script>
+<!-- DateJS -->
+<script src="/gentelella/vendors/DateJS/build/date.js"></script>
+<!-- bootstrap-daterangepicker -->
+<script src="/gentelella/vendors/moment/min/moment.min.js"></script>
+<script src="/gentelella/vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
+
+<!-- Custom Theme Scripts -->
+<script src="/gentelella/build/js/custom.min.js"></script>
+
+<script>
+    if(!kcEnabled) {
+      document.getElementById("userInfo").classList += " isHidden";
+      document.getElementById("userInfoBar").style.display = "none";
+    } else {
+      var role = getCookie("ROLE");
+      //console.log("Role: " + role);
+      var adminElems = document.getElementsByClassName("admin");
+      if(role.indexOf('ROLE_SERVICE_ADMIN') >= 0) {
+        //console.log(adminElems);
+        for (var i = 0; i < adminElems.length; i++) {
+          adminElems[i].style = '';
+        }
+      } else {
+        for (var i = 0; i < adminElems.length; i++) {
+          adminElems[i].style.display = 'none';
+        }
+      }
+    }
+</script>
+<script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function() {
+        time = new Date().getTime();
+    });
+
+    function autoRefresh() {
+        if(new Date().getTime() - time >= 60000) 
+            window.location.reload(true);
+        else 
+            setTimeout(autoRefresh, 5000);
+    }
+    setTimeout(autoRefresh, 5000);
+</script>

@@ -1,0 +1,98 @@
+/*
+ * Copyright (c) 2021 Nextworks s.r.l
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+package it.nextworks.nfvmano.libs.ifa.templates.gst;
+
+import java.util.List;
+
+import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import it.nextworks.nfvmano.libs.ifa.common.exceptions.MalformattedElementException;
+
+@Entity
+public class MultimediaPriorityServiceSupp {
+
+    @Id
+    @GeneratedValue
+    @JsonIgnore
+    private Long id;
+
+    private Boolean mpsSupport=false;
+
+    @ElementCollection
+    @Enumerated(EnumType.STRING)
+    private List<MPSCValue> mpscSupport;
+
+    @ElementCollection
+    @Enumerated(EnumType.STRING)
+    private List<MPSValue> multimediaPriorityServSupp;
+
+    public MultimediaPriorityServiceSupp(){}
+
+    public MultimediaPriorityServiceSupp(Boolean mpsSupport, List<MPSCValue> mpscSupport, List<MPSValue> multimediaPriorityServSupp){
+        this.mpsSupport=mpsSupport;
+        this.mpscSupport=mpscSupport;
+        this.multimediaPriorityServSupp=multimediaPriorityServSupp;
+    }
+
+    public void setMpsSupport(Boolean mpsSupport) {
+        this.mpsSupport = mpsSupport;
+    }
+
+    public void setMpscSupport(List<MPSCValue> mpscSupport) {
+        this.mpscSupport = mpscSupport;
+    }
+
+    public void setMultimediaPriorityServSupp(List<MPSValue> multimediaPriorityServSupp) {
+        this.multimediaPriorityServSupp = multimediaPriorityServSupp;
+    }
+
+
+    public void isValid() throws MalformattedElementException {
+        if(this.mpsSupport && (this.mpscSupport==null || this.multimediaPriorityServSupp==null))
+            throw new MalformattedElementException("Required value missing");
+
+        if(!this.mpsSupport && (this.mpscSupport!=null || this.multimediaPriorityServSupp!=null))
+            throw new MalformattedElementException("Multimedia priority service support value is required");
+    }
+
+    public Boolean getMpsSupport() {
+        return mpsSupport;
+    }
+
+    public List<MPSCValue> getMpscSupport() {
+        return mpscSupport;
+    }
+
+    public List<MPSValue> getMultimediaPriorityServSupp() {
+        return multimediaPriorityServSupp;
+    }
+}
+
+
+enum MPSCValue{
+    UserPrioritization,
+    PreEmption
+}
+
+
+enum MPSValue{
+    MMTelVoice,
+    MMTelVideo,
+    Data
+}
+

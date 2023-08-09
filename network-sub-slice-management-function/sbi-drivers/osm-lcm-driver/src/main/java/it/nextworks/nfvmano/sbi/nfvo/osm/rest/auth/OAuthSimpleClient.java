@@ -60,6 +60,7 @@ public class OAuthSimpleClient {
             String token = map.get("id").textValue();
             return token;
         } catch (IOException e) {
+            e.printStackTrace();
             throw new FailedOperationException(e.getMessage());
         }
     }

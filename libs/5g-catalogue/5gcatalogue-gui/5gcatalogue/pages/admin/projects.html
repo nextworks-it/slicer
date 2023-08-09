@@ -1,0 +1,143 @@
+<!--/*
+* Copyright 2018 Nextworks s.r.l.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>5G APP & SERVICE CATALOGUE</title>
+
+    <!--#include virtual="/5gcatalogue/templates/scripts_head.html" -->
+        
+  </head>
+
+  <body class="nav-md">
+    <div class="container body">
+      <div class="main_container">
+        
+        <!--#include virtual="/5gcatalogue/templates/side_top_bar.html" -->
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            
+            <div class="row">
+              <div class="col-md-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>PROJECTS <small></small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                      <table class="table table-hover" id="projectsTable">
+                        <script>getAllProjects("projectsTable","response",createProjectsTable);</script>                        
+                      </table>
+                  </div>
+                </div>
+              </div>
+              <div class="clearfix">
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-12">
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6 col-xs-12">
+              </div>
+              
+              <div class="col-md-6 col-xs-12">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createProjectModal">New Project</button>
+              </div>
+
+              <div class="col-md-4">
+              </div>
+
+              <div class="col-md-4">
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6" id="response">
+              </div>
+            </div>
+
+            <div id="createProjectModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">Create Project</h4>
+                  </div>
+                  <div class="modal-body">
+                    <form class="form-horizontal form-label-left" enctype="multipart/form-data">
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Project ID <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input type="text" id="projectId" required="required" class="form-control col-md-7 col-xs-12">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Description </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input type="text" id="projectDesc" class="form-control col-md-7 col-xs-12">
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="createNewProject(['projectId','projectDesc']);">Submit</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page content -->
+
+        <!-- footer content -->
+        <!--#include virtual="/5gcatalogue/templates/footer.html" -->
+        <!-- /footer content -->
+      </div>
+    </div>
+    
+    <!--#include virtual="/5gcatalogue/templates/scripts_foot.html" -->
+     
+  </body>
+</html>

@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -42,11 +43,26 @@ public class CoreNetworkSliceRestController {
     public CoreNetworkSliceRestController(){}
 
 
-    @RequestMapping(value = "/{coreInstanceId}", method = RequestMethod.POST)
-    public ResponseEntity<?> createNetworkSliceCore(@PathVariable String coreInstanceId, @RequestBody CoreSlicePayload coreSlicePayload) {
+    @RequestMapping(value = "/test/{upfName}/{sst}/{sd}", method = RequestMethod.POST)
+    public ResponseEntity<?> testSlicingOnMultipleUpf(@PathVariable String upfName, @PathVariable int sst, @PathVariable String sd) {
+
+        try {
+            coreNetworkSliceService.associateSliceToUpf(upfName, sst, sd);
+        } catch (IOException e) {
+            e.printStackTrace();
+            LOG.error(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (MalformattedElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{upfInstanceId}", method = RequestMethod.POST)
+    public ResponseEntity<?> createNetworkSliceCore(@PathVariable String upfInstanceId, @RequestBody CoreSlicePayload coreSlicePayload) {
         try {
             LOG.info("Received request to create a core network slice");
-            String networkCoreSliceId = coreNetworkSliceService.createCoreNetworkSlice(coreInstanceId, coreSlicePayload);
+            String networkCoreSliceId = coreNetworkSliceService.createCoreNetworkSlice(upfInstanceId, coreSlicePayload);
             return new ResponseEntity<>(networkCoreSliceId, HttpStatus.OK);
         }
         catch(MalformattedElementException e){
@@ -66,11 +82,11 @@ public class CoreNetworkSliceRestController {
         }
     }
 
-    @RequestMapping(value = "/{coreInstanceId}/{coreNetworkSliceId}", method = RequestMethod.PUT)
-    public ResponseEntity<?> modifyNetworkSliceCore(@PathVariable String coreInstanceId, @PathVariable String coreNetworkSliceId, @RequestBody CoreSlicePayload coreSlicePayload) {
+    @RequestMapping(value = "/{upfInstanceId}/{coreNetworkSliceId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> modifyNetworkSliceCore(@PathVariable String upfInstanceId, @PathVariable String coreNetworkSliceId, @RequestBody CoreSlicePayload coreSlicePayload) {
         try {
             LOG.info("Received request to update core network slice information");
-            coreNetworkSliceService.updateCoreNetworkSlice(coreInstanceId, coreNetworkSliceId, coreSlicePayload);
+            coreNetworkSliceService.updateCoreNetworkSlice(upfInstanceId, coreNetworkSliceId, coreSlicePayload);
             return new ResponseEntity<>("", HttpStatus.OK);
         }
         catch(NotExistingEntityException e){
@@ -85,11 +101,11 @@ public class CoreNetworkSliceRestController {
         }
     }
 
-    @RequestMapping(value = "/{coreInstanceId}/{coreNetworkSliceId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getNetworkSliceCore(@PathVariable String coreInstanceId, @PathVariable String coreNetworkSliceId) {
+    @RequestMapping(value = "/{upfInstanceId}/{coreNetworkSliceId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getNetworkSliceCore(@PathVariable String upfInstanceId, @PathVariable String coreNetworkSliceId) {
         try {
             LOG.info("Received request to get core network slice information");
-            NetworkSliceCNC networkSliceCNC = coreNetworkSliceService.getCoreNetworkSliceInformation(coreInstanceId, coreNetworkSliceId);
+            NetworkSliceCNC networkSliceCNC = coreNetworkSliceService.getCoreNetworkSliceInformation(upfInstanceId, coreNetworkSliceId);
             return new ResponseEntity<>(networkSliceCNC, HttpStatus.OK);
         }
         catch(NotExistingEntityException e){
@@ -104,11 +120,11 @@ public class CoreNetworkSliceRestController {
         }
     }
 
-    @RequestMapping(value = "/{coreInstanceId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllNetworkSliceCore(@PathVariable String coreInstanceId) {
+    @RequestMapping(value = "/{upfInstanceId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllNetworkSliceCore(@PathVariable String upfInstanceId) {
         try {
             LOG.info("Received request to get all core network slice information");
-            List<NetworkSliceCNC> coreNetworkSlices = coreNetworkSliceService.getAllCoreNetworkSliceInformation(coreInstanceId);
+            List<NetworkSliceCNC> coreNetworkSlices = coreNetworkSliceService.getAllCoreNetworkSliceInformation(upfInstanceId);
             return new ResponseEntity<>(coreNetworkSlices, HttpStatus.OK);
         }
         catch(NotExistingEntityException e){
@@ -123,11 +139,11 @@ public class CoreNetworkSliceRestController {
         }
     }
 
-    @RequestMapping(value = "/{coreInstanceId}/{coreNetworkSliceId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteNetworkSliceCore(@PathVariable String coreInstanceId, @PathVariable String coreNetworkSliceId) {
+    @RequestMapping(value = "/{upfInstanceId}/{coreNetworkSliceId}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteNetworkSliceCore(@PathVariable String upfInstanceId, @PathVariable String coreNetworkSliceId) {
         try {
             LOG.info("Received request to remove a core network slice with identifier: "+coreNetworkSliceId);
-            coreNetworkSliceService.deleteCoreNetworkSlice(coreInstanceId, coreNetworkSliceId);
+            coreNetworkSliceService.deleteCoreNetworkSlice(upfInstanceId, coreNetworkSliceId);
             return new ResponseEntity<>("", HttpStatus.NO_CONTENT);
         }
         catch(NotExistingEntityException e){

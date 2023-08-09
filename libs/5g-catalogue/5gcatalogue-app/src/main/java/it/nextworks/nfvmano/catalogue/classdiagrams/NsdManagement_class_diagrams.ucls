@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.2.2" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
+  <interface id="1" language="java" name="it.nextworks.nfvmano.catalogue.nbi.sol005.nsdmanagement.NsdApi" 
+    project="Catalogue" 
+    file="/Catalogue/src/main/java/it/nextworks/nfvmano/catalogue/nbi/sol005/nsdmanagement/NsdApi.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="148" width="323" x="69" y="-4"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </interface>  
+  <class id="2" language="java" name="it.nextworks.nfvmano.catalogue.nbi.sol005.nsdmanagement.NsdApiController" 
+    project="Catalogue" 
+    file="/Catalogue/src/main/java/it/nextworks/nfvmano/catalogue/nbi/sol005/nsdmanagement/NsdApiController.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="202" width="437" x="664" y="23"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="it.nextworks.nfvmano.catalogue.engine.NsdManagementService" project="Catalogue" 
+    file="/Catalogue/src/main/java/it/nextworks/nfvmano/catalogue/engine/NsdManagementService.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="344" y="409"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <realization id="4">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="1"/>  
+  </realization>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    sort-features="false" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

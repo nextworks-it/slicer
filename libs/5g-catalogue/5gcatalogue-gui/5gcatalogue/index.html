@@ -1,0 +1,135 @@
+<!--/*
+* Copyright 2018 Nextworks s.r.l.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <!-- Meta, title, CSS, favicons, etc. -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>5G APP & SERVICE CATALOGUE</title>
+
+  <!--#include virtual="/5gcatalogue/templates/scripts_head.html" -->
+
+</head>
+
+<body class="nav-md">
+  <div class="container body">
+    <div class="main_container">
+
+      <!--#include virtual="/5gcatalogue/templates/side_top_bar.html" -->
+
+      <!-- page content -->
+      <div class="right_col" role="main">
+        <div class>
+          <div class="row">
+            <div class="col-md-12">
+              <div class>
+                <div class="x_content">
+                    <div class="row">
+                      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12" onclick="location.href='./pages/nsd/nsds.html'">
+                        <div class="tile-stats">
+                          <div class="icon"><i class="fa fa-chain"></i>
+                          </div>
+                          <div class="count" id="count-NSD">0</div>
+                          <h3>NS Descriptors</h3>
+                          <!----<p>View details</p>-->
+                        </div>
+                      </div>
+                      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12" onclick="location.href='./pages/vnf/vnfds.html'">
+                        <div class="tile-stats">
+                          <div class="icon"><i class="fa fa-cubes"></i>
+                          </div>
+                          <div class="count" id="count-VNF">0</div>
+                          <h3>VNF Packages</h3>
+                          <!----<p>View details</p>-->
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12" onclick="location.href='./pages/appd/appds.html'">
+                        <div class="tile-stats">
+                          <div class="icon"><i class="fa fa-code"></i>
+                          </div>
+                          <div class="count" id="count-APPD">0</div>
+                          <h3>MEC APP Packages</h3>
+                          <!----<p>View details</p>-->
+                        </div>
+                      </div>
+                      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12" onclick="location.href='./pages/pnf/pnfds.html'">
+                        <div class="tile-stats">
+                          <div class="icon"><i class="fa fa-database"></i>
+                          </div>
+                          <div class="count" id="count-PNFD">0</div>
+                          <h3>PNF Descriptors</h3>
+                          <!----<p>View details</p>-->
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12" onclick="location.href='./pages/sdnapp/sdnapps.html'">
+                        <div class="tile-stats">
+                          <div class="icon"><i class="fa fa-code-fork"></i>
+                          </div>
+                          <div class="count" id="count-SDNAPP">0</div>
+                          <h3>SDN APP Packages</h3>
+                          <!----<p>View details</p>-->
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6" id="response">
+                        </div>
+                    </div>
+                </div>
+              </div>
+            </div>   
+          </div>
+        </div>        
+      </div>
+      <!-- /page content -->
+      <!-- footer content -->
+      <!--#include virtual="/5gcatalogue/templates/footer.html" -->
+      <!-- /footer content -->
+    </div>
+  </div>
+
+  <!--#include virtual="/5gcatalogue/templates/scripts_foot.html" -->
+
+  <!-- CATALOGUE COUNTERS -->
+  <script>
+    var project = getCookie("PROJECT");
+
+    /*if (project == null) {
+      refresh(false);
+    } else {*/
+      console.log("PROJECT: " + project);
+      getAllNsdInfos("count-NSD", fillNSDsCounter, "response");
+      getAllVnfInfos("count-VNF", fillVNFsCounter, "response");
+      getAllPnfdInfos("count-PNFD", fillPNFDsCounter, "response");
+    //}
+  </script>
+  
+  <!--<script>getAllNsdInfos("count-NSD", fillNSDsCounter, "response");</script>
+  <script>getAllVnfInfos("count-VNF", fillVNFsCounter, "response");</script>
+  <script>getAllPnfdInfos("count-PNFD", fillPNFDsCounter, "response");</script>-->
+
+</body>
+
+</html>

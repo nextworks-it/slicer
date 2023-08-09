@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>it.nextworks.nfvmano</groupId>
+    <artifactId>nfv-libs-aggregator</artifactId>
+    <version>0.0.2-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+      <module>NFV_MANO_LIBS_COMMON</module>
+      <module>NFV_MANO_LIBS_DESCRIPTORS</module>
+      <module>NFV_MANO_LIBS_CATALOGUES_IF</module>
+      <module>NFV_MANO_LIBS_IFA07_GRANT_IF</module>
+      <module>NFV_MANO_LIBS_IFA07_VNF_LCM_IF</module>
+      <module>NFV_MANO_LIBS_IFA13_NS_LCM_IF</module>
+      <module>NFV_MANO_LIBS_MONIT_IF</module>
+      <module>NFV_MANO_LIBS_VNF_INDICATOR_IF</module>
+      <module>NFV_MANO_LIBS_VNF_CONFIG_IF</module>
+      <module>NFV_MANO_LIBS_SW_IMAGES_IF</module>
+      <module>NFV_MANO_LIBS_IFA05_VR_MGT_IF</module>
+      <module>NFV_MANO_LIBS_POLICY_MGT_IF</module>
+        <module>NFV_MANO_LIBS_TEMPLATES</module>
+    </modules>
+</project>
+

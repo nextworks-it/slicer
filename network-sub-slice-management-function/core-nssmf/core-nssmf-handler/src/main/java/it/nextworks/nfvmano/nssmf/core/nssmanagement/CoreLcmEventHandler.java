@@ -15,11 +15,13 @@
 package it.nextworks.nfvmano.nssmf.core.nssmanagement;
 
 
-import it.nextworks.nfvmano.core.recordIM.CoreInstanceInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.core.recordIM.SubscriberListForSlice;
-import it.nextworks.nfvmano.core.service.CoreInstanceService;
+import it.nextworks.nfvmano.core.recordIM.UpfInstanceInfo;
 import it.nextworks.nfvmano.core.service.CoreNetworkSliceService;
 import it.nextworks.nfvmano.core.service.SubscriberService;
+import it.nextworks.nfvmano.core.service.UpfInstanceService;
 import it.nextworks.nfvmano.libs.ifa.templates.nst.NSST;
 import it.nextworks.nfvmano.libs.vs.common.exceptions.FailedOperationException;
 import it.nextworks.nfvmano.libs.vs.common.exceptions.MalformattedElementException;
@@ -35,6 +37,7 @@ import it.nextworks.nfvmano.nssmf.service.messages.provisioning.InstantiateNssiR
 import it.nextworks.nfvmano.nssmf.service.messages.provisioning.ModifyNssiRequestMessage;
 import it.nextworks.nfvmano.nssmf.service.messages.provisioning.TerminateNssiRequestMessage;
 import it.nextworks.nfvmano.nssmf.service.nssmanagement.NssLcmEventHandler;
+import it.nextworks.nfvmano.sbi.cnc.messages.NetworkSliceCNC;
 import it.nextworks.nfvmano.sbi.cnc.operator.Operator;
 import it.nextworks.nfvmano.sbi.cnc.rest.CNCrestClient;
 import it.nextworks.nfvmano.sbi.nfvo.elements.NfvoDriverType;
@@ -65,7 +68,7 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
     private int portCNC;
     CNCrestClient cnCrestClient;
 
-    private String coreInstanceId;
+    private String upfInstanceId;
 
     boolean skipNetworkServiceDeployment;
     private String extCpCore;
@@ -79,14 +82,18 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
     private NfvoLcmNotificationsManager nfvoLcmNotificationsManager;
     private CoreNetworkSliceService coreNetworkSliceService;
     private SubscriberService subscribersService;
-    private CoreInstanceService coreInstanceService;
+    private UpfInstanceService upfInstanceService;
 
     private String networkSubSliceInstance; //Is the instance of the core
     private String networkServiceInstanceId;
 
     private final static Logger LOG = LoggerFactory.getLogger(CoreLcmEventHandler.class);
-    private String nsdIdCore;
+    private String nsdId;
 
+    private boolean instantiateSliceAfterUpfDeployment;
+
+    private boolean isModificationRequest;
+    private String nssiIdToModify;
     public CoreLcmEventHandler(){ }
 
 
@@ -101,13 +108,18 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
 
         LOG.info("Getting Core-related configuration variable.");
         skipNetworkServiceDeployment = Boolean.valueOf(getEnvironment().getProperty("nssmf.skipNsdDeployment"));
-        coreInstanceId = getEnvironment().getProperty("nssmf.coreInstanceId");
+        upfInstanceId = getEnvironment().getProperty("nssmf.coreInstanceId");
         ipAddressCNC = getEnvironment().getProperty("nssmf.cnc.ip");
         portCNC = Integer.valueOf(getEnvironment().getProperty("nssmf.cnc.port"));
         extCpCore = getEnvironment().getProperty("nssmf.vim.ext-cp-core");
         extMgmtCore = getEnvironment().getProperty("nssmf.vim.ext-mgmt-core");
 
         LOG.info("Setting driver factory for cmc-5gc-handler");
+        LOG.info("IP OSM: "+ipOsm);
+        LOG.info("Username OSM: "+usernameOsm);
+        LOG.info("PWD OSM: "+passwordOsm);
+        LOG.info("ProjectOsm: "+projectOsm);
+
         NfvoInformation info = new NfvoInformation(ipOsm, UUID.fromString(UUID_VIM_ACCOUNT), usernameOsm, passwordOsm, NfvoDriverType.OSM10, projectOsm, "VM_MGMT");
         nfvoLcmOperationPollingManager = (NfvoLcmOperationPollingManager) driverFactory.getDriver("nfvoLcmOperationPollingManager");
         Osm10Client osm10Client = new Osm10Client(info, nfvoLcmOperationPollingManager);
@@ -118,8 +130,10 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
         nfvoLcmNotificationsManager = (NfvoLcmNotificationsManager) driverFactory.getDriver("nfvoLcmNotificationsManager");
         coreNetworkSliceService = (CoreNetworkSliceService)driverFactory.getDriver("coreNetworkSliceService");
         subscribersService = (SubscriberService)driverFactory.getDriver("subscriberService");
-        coreInstanceService = (CoreInstanceService) driverFactory.getDriver("coreInstanceService");
+        upfInstanceService = (UpfInstanceService) driverFactory.getDriver("upfInstanceService");
+        cnCrestClient = new CNCrestClient(ipAddressCNC,portCNC);
         setEnableAutoNotification(true);
+        instantiateSliceAfterUpfDeployment = true;
 
     }
 
@@ -127,19 +141,18 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
 
 
     private void pollingCNC(){
-        getIpAddressesCore();
-        String ipCNC = cnCrestClient.getIpCNC();
-        int portCNC = cnCrestClient.getPortCNC();
+        //getIpAddressesCore();
         final int timeoutTimeMs = 10000;
-        boolean isCNCreachable = isCNCreachable(ipCNC, portCNC, timeoutTimeMs);
+        boolean isCNCreachable = isCNCreachable(ipAddressCNC, portCNC, timeoutTimeMs);
         while(!isCNCreachable){
             try {
                 Thread.sleep(timeoutTimeMs);
             } catch (InterruptedException e) {
+
                 e.printStackTrace();
             }
             LOG.warn("CNC is not reachable yet. next check in "+timeoutTimeMs/1000+ " seconds");
-            isCNCreachable = isCNCreachable(ipCNC, portCNC, timeoutTimeMs);
+            isCNCreachable = isCNCreachable(ipAddressCNC, portCNC, timeoutTimeMs);
         }
 
         LOG.info("CNC now is reachable!");
@@ -147,7 +160,9 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
 
 
     private void addOperators(List<Subscriber> subscribersToRegister){
-        final String OP = "F964BA9478CDC6C72EAF1E95DBC6674A";
+        //final String OP = "F964BA9478CDC6C72EAF1E95DBC6674A";
+        final String OP = "f964ba9478cdc6c72eaf1e95dbc6674a";
+
         final String AMF ="8000";
         final String nameOp ="Test network";
         Set<String> mccMncPairs = new HashSet<>();
@@ -159,8 +174,8 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
             String mcc = mccMncPair.substring(0,3);
             String mnc = mccMncPair.substring(3,5);
             Operator operator = new Operator();
-            operator.mcc = Integer.valueOf(mcc);
-            operator.mnc = Integer.valueOf(mnc);
+            operator.mcc = mcc;
+            operator.mnc = mnc;
             operator.amf = AMF;
             operator.name = nameOp;
             operator.op = OP;
@@ -169,10 +184,17 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
         }
     }
 
-
-
-
-    public void initCoreInstanceInfo() {
+    private void printObjectJsonFormat(Object object){
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String json = objectMapper.writeValueAsString(object);
+            LOG.info("Payload to send");
+            LOG.info(json);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void initInstanceInfo() {
         boolean success;
         try {
             LOG.info("Creating new core network slice");
@@ -182,20 +204,19 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
             List<Subscriber> subscriberList = new ArrayList<>();
 
             coreNetworkSliceService.initNetworkCoreSliceSet(networkSubSliceInstance);
-            coreInstanceService.storeCoreCncInfo(networkSubSliceInstance, ipAddressCNC, portCNC);
+            upfInstanceService.storeCoreCncInfo(networkSubSliceInstance, ipAddressCNC, portCNC);
             coreNetworkSliceService.createCoreNetworkSlice(networkSubSliceInstance, coreSlicePayload);
-            coreNetworkSliceService.updateCoreNetworkSliceList(networkSubSliceInstance, nsstCore.getNsstId());
-
-            coreInstanceService.storeCoreInstanceInfo(networkSubSliceInstance,nsstCore.getNsstId());
+            //coreNetworkSliceService.updateCoreNetworkSliceList(networkSubSliceInstance, nsstCore.getNsstId());
+            //upfInstanceService.storeUpfInstanceInfo(networkSubSliceInstance,nsstCore.getNsstId(),coreSlicePayload.getUpfName() );
 
             List<Subscriber> subscribersToRegister = new ArrayList<>();
-            coreNetworkSliceService.setNsdIdCore(networkSubSliceInstance, nsdIdCore);
+            coreNetworkSliceService.setNsdIdCore(networkSubSliceInstance, nsdId);
+
+            addOperators(subscribersToRegister);
             if (subscribersToRegister == null || subscribersToRegister.size() == 0) {
                 LOG.warn("No subscribers found into core network slice instantiation. Skipping subscriber registration");
             }
             else {
-                LOG.info("Registering operator for the subscriber(s)");
-                addOperators(subscribersToRegister);
                 LOG.info("Registering subscribers for core network slice "+sliceName);
                 for (Subscriber subscriber : subscribersToRegister) {
                     subscriberList.add(subscriber);
@@ -223,6 +244,55 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
 
 
     public void coreNetworkSliceInstantiationTrigger() {
+
+        if(!instantiateSliceAfterUpfDeployment){
+            try {
+                List<UpfInstanceInfo> upfInstanceInfoList = upfInstanceService.getAllUpfInstanceInfo();
+                LOG.info("nssiIdToModify "+nssiIdToModify);
+                boolean sliceFound = false;
+                String sd = null;
+                int sst=0;
+                int upfCount = upfInstanceInfoList.size();
+                for(UpfInstanceInfo upfInstanceInfo: upfInstanceInfoList){
+                    String upfInstanceId = upfInstanceInfo.getUpfInstanceId();
+                    String upfName = upfInstanceInfo.getUpfName();
+                    String sliceNameCnc = upfInstanceInfo.getUpfNetworkSliceId().iterator().next();
+                    LOG.info(upfInstanceId);
+                    LOG.info(upfName);
+                    LOG.info(sliceNameCnc);
+
+
+                    for(NetworkSliceCNC networkSliceCNC: coreNetworkSliceService.getAllCoreNetworkSliceInformation(nssiIdToModify)){
+                        if(networkSliceCNC.sliceName.equals(sliceNameCnc)){
+                            sd = networkSliceCNC.serviceProfile.sNSSAIList.get(0).sd;
+                            sst = networkSliceCNC.serviceProfile.sNSSAIList.get(0).sst;
+                            sliceFound = true;
+                            LOG.info(sd);
+                            LOG.info(String.valueOf(sst));
+                            break;
+                        }
+                    }
+                    if(upfInstanceId.equals(nssiIdToModify) && sliceFound){
+                        int newUpfCount = upfCount+1;
+                        coreNetworkSliceService.associateSliceToUpf("UPF-"+newUpfCount,sst,sd);
+                    }
+                }
+
+                NssiStatusChangeNotiticationMessage notification= new NssiStatusChangeNotiticationMessage();
+                notification.setSuccess(true);
+
+                processNssStatusChangeNotification(notification);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (MalformattedElementException e) {
+                throw new RuntimeException(e);
+            } catch (NotExistingEntityException e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
+
         pollingCNC();
         boolean success;
         try {
@@ -230,18 +300,22 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
             SubscriberListForSlice subscriberListForSlice = new SubscriberListForSlice();
             String sliceName = nsstCore.getNsstId();
             subscriberListForSlice.setSliceName(sliceName);
-            List<Subscriber> subscriberList = new ArrayList<>();
+            //List<Subscriber> subscriberList = new ArrayList<>();
 
             coreNetworkSliceService.initNetworkCoreSliceSet(networkSubSliceInstance);
-            coreInstanceService.storeCoreCncInfo(networkSubSliceInstance, cnCrestClient.getIpCNC(),cnCrestClient.getPortCNC());
+            upfInstanceService.storeCoreCncInfo(networkSubSliceInstance, cnCrestClient.getIpCNC(),cnCrestClient.getPortCNC());
+            int upfCount = upfInstanceService.getUpfCount() +1;
+            upfInstanceService.setUpfCount(upfCount);
+
             coreNetworkSliceService.createCoreNetworkSlice(networkSubSliceInstance, coreSlicePayload);
-            coreNetworkSliceService.updateCoreNetworkSliceList(networkSubSliceInstance, nsstCore.getNsstId());
+            //coreNetworkSliceService.updateCoreNetworkSliceList(networkSubSliceInstance, nsstCore.getNsstId());
+            //upfInstanceService.storeUpfInstanceInfo(networkSubSliceInstance,nsstCore.getNsstId(),coreSlicePayload.getUpfName());
 
-            coreInstanceService.storeCoreInstanceInfo(networkSubSliceInstance,nsstCore.getNsstId());
-
-            List<Subscriber> subscribersToRegister = new ArrayList<>();
-            coreNetworkSliceService.setNsdIdCore(networkSubSliceInstance, nsdIdCore);
-            if (subscribersToRegister == null || subscribersToRegister.size() == 0) {
+            //List<Subscriber> subscribersToRegister = new ArrayList<>();
+            if(!isModificationRequest) {
+                coreNetworkSliceService.setNsdIdCore(networkSubSliceInstance, nsdId);
+            }
+            /*if (subscribersToRegister == null || subscribersToRegister.size() == 0) {
                 LOG.warn("No subscribers found into core network slice instantiation. Skipping subscriber registration");
             }
             else {
@@ -254,8 +328,10 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
                 }
 
                 subscribersService.registerSubscribersForSlice(networkSubSliceInstance, sliceName, subscriberListForSlice);
-
             }
+            */
+
+
             success = true;
         } catch (MalformattedElementException e) {
             LOG.error(e.getMessage());
@@ -298,8 +374,8 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
         try {
             ipAddressAmf = osmLcmOperation.getIpAddressVNFonExtConnectionPoint(networkServiceInstanceId, extCpCore);
             ipAddressCNC = osmLcmOperation.getIpAddressVNFonExtConnectionPoint(networkServiceInstanceId, extMgmtCore);
-            cnCrestClient = new CNCrestClient(ipAddressCNC,portCNC);
-            coreInstanceService.storeCoreCncInfo(networkSubSliceInstance,ipAddressCNC,portCNC );
+
+            upfInstanceService.storeCoreCncInfo(networkSubSliceInstance,ipAddressCNC,portCNC );
 
         } catch (FailedOperationException | NotExistingEntityException e) {
             LOG.error(e.getMessage());
@@ -312,10 +388,10 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
     }
 
 
-    private void registerNotificationConsumer(){
+    private void registerNotificationConsumer(String currentNetworkServiceInstanceId){
         LOG.info("Registering Notification consumer");
-        coreLcmNotificationConsumer.setOsmLcmEventHandler(networkServiceInstanceId, this);
-        nfvoLcmNotificationsManager.registerNotificationConsumer(networkServiceInstanceId,coreLcmNotificationConsumer);
+        coreLcmNotificationConsumer.setOsmLcmEventHandler(currentNetworkServiceInstanceId, this);
+        nfvoLcmNotificationsManager.registerNotificationConsumer(currentNetworkServiceInstanceId,coreLcmNotificationConsumer);
     }
 
     private void isPayloadValid(CoreSlicePayload coreSlicePayload) throws MalformattedElementException {
@@ -325,7 +401,7 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
             LOG.error("nsdID not provided");
             throw new MalformattedElementException("Error: nsdId not provided into body request.");
         }
-        nsdIdCore = nsstCore.getNsdInfo().getNsdId();
+        nsdId = nsstCore.getNsdInfo().getNsdId();
         if(coreSlicePayload.getNssiId()==null){
             LOG.error("NSSI not provided");
             throw new MalformattedElementException("Error: nsdId not provided into body request.");
@@ -340,10 +416,10 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
     }
 
     private String isNsdAlreadyUsed(String nsdIdToCheck){
-        List<CoreInstanceInfo> coreInstanceInfoList = coreInstanceService.getAllCoreInstanceInfo();
-        for(CoreInstanceInfo coreInstanceInfo: coreInstanceInfoList){
+        List<UpfInstanceInfo>upfInstanceInfoList = upfInstanceService.getAllUpfInstanceInfo();
+        for(UpfInstanceInfo coreInstanceInfo: upfInstanceInfoList){
             if(nsdIdToCheck.equals(coreInstanceInfo.getNsdIdCore())){
-                return coreInstanceInfo.getCoreInstanceId();
+                return coreInstanceInfo.getUpfInstanceId();
             }
         }
         return null;
@@ -351,65 +427,89 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
 
     @Override
     protected void processInstantiateNssRequest(InstantiateNssiRequestMessage message) {
+
         LOG.info("Processing request to instantiate new NSSI with ID {}", this.getNetworkSubSliceInstanceId().toString());
+        instantiateSliceAfterUpfDeployment= true;
         coreSlicePayload = (CoreSlicePayload) message.getInstantiateNssiRequest();
-
-
         try {
             nsstCore = coreNetworkSliceService.getNsstCore(coreSlicePayload.getNst());
             isPayloadValid(coreSlicePayload);
             networkSubSliceInstance = coreSlicePayload.getNssiId().toString();
 
+
             if(skipNetworkServiceDeployment){
                 LOG.info("Skipping NSD instantiation");
-                initCoreInstanceInfo();
+                initInstanceInfo();
                 coreSlicePayload.getNssiId().toString();
-                //coreNetworkSliceService.createCoreNetworkSlice(coreInstanceId, coreSlicePayload);
+                int upfCount = upfInstanceService.getUpfCount() +1;
+                upfInstanceService.setUpfCount(upfCount);
+                //coreNetworkSliceService.createCoreNetworkSlice(this.getNetworkSubSliceInstanceId().toString(), coreSlicePayload);
                 sendNotification(true);
                 return;
             }
 
+
+
             String networkServiceName = nsstCore.getNsdInfo().getNsdName();
             String nsdId = nsstCore.getNsdInfo().getNsdId();
             if(networkServiceName==null){
+                LOG.warn("No network service name found. Providing a custom one");
                 networkServiceName = "NS instance from "+nsdId;
             }
 
-        LOG.info("Checking NSD identifier");
-            String coreInstanceId = isNsdAlreadyUsed(nsdId);
-        if(coreInstanceId==null) {
-            networkServiceInstanceId = osmLcmOperation.createNetworkServiceInstanceIdentifier(networkServiceName,nsdId);
-            LOG.info("Created network service identifier. Its value is "+networkServiceInstanceId);
-
-            registerNotificationConsumer();
-            LOG.info("NSD being used for the first time. Going to create a 5GC instance");
-            String operationId = osmLcmOperation.instantiateNetworkService(networkServiceInstanceId, nsdId, networkServiceName, UUID_VIM_ACCOUNT);
-            LOG.info("Network Service instance identifier is " + operationId);
-        }
-        else{
-            LOG.info("NSD already used. going to create a core network slice");
-            coreSlicePayload.getNssiId().toString();
-            coreNetworkSliceService.createCoreNetworkSlice(coreInstanceId, coreSlicePayload);
-            sendNotification(true);
-        }
-
-        }
-            catch (FailedOperationException | MalformattedElementException e) {
-                LOG.error("The payload in the request is NOT valid.");
-                LOG.error(e.getMessage());
-                this.setNssiStatus(NssiStatus.NOT_INSTANTIATED);
-        }
-            catch (Exception e) {
-                LOG.error(e.getMessage());
-                e.printStackTrace();
+            LOG.info("Checking NSD identifier");
+            String upfInstanceId = isNsdAlreadyUsed(nsdId);
+            if(upfInstanceId==null) {
+                networkServiceInstanceId = osmLcmOperation.createNetworkServiceInstanceIdentifier(networkServiceName,nsdId);
+                LOG.info("Created network service identifier. Its value is "+networkServiceInstanceId);
+                registerNotificationConsumer(networkServiceInstanceId);
+                String operationId = osmLcmOperation.instantiateNetworkService(networkServiceInstanceId, nsdId, networkServiceName, UUID_VIM_ACCOUNT);
+                LOG.info("Network Service instance identifier is " + operationId);
             }
+            else{
+                LOG.info("NSD already used. going to create a Core network slice");
+                coreSlicePayload.getNssiId().toString();
+                coreNetworkSliceService.createCoreNetworkSlice(upfInstanceId, coreSlicePayload);
+                sendNotification(true);
+            }
+            }
+                catch (FailedOperationException | MalformattedElementException e) {
+                    LOG.error("The payload in the request is NOT valid.");
+                    LOG.error(e.getMessage());
+                    this.setNssiStatus(NssiStatus.NOT_INSTANTIATED);
+            }
+                catch (Exception e) {
+                    LOG.error(e.getMessage());
+                    e.printStackTrace();
+                }
 
 
     }
 
+    private void instantiateNewNetworkService(String nsdId){
+        String operationId = null;
+        try {
+            String networkServiceInstanceIdThirdUpf = osmLcmOperation.createNetworkServiceInstanceIdentifier("UPF-3 network service",nsdId);
+            registerNotificationConsumer(networkServiceInstanceIdThirdUpf);
+            operationId = osmLcmOperation.instantiateNetworkService(networkServiceInstanceIdThirdUpf, nsdId, "UPF-3 network service", UUID_VIM_ACCOUNT);
+            LOG.info("Network Service instance identifier is " + operationId);
+
+        } catch (FailedOperationException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
     @Override
-    protected void processModifyNssRequest(ModifyNssiRequestMessage message) {}
+    protected void processModifyNssRequest(ModifyNssiRequestMessage message) {
+        LOG.info("Received request for modify NSS");
+        nssiIdToModify = message.getModifyNssiRequest().getNssiId().toString();
+        CoreSlicePayload coreSlicePayload = (CoreSlicePayload) message.getModifyNssiRequest();
+        String nsdId = coreSlicePayload.getNst().getNsst().getNsdInfo().getNsdId();
+        instantiateSliceAfterUpfDeployment = false;
+        isModificationRequest = true;
+        instantiateNewNetworkService(nsdId);
+    }
 
     @Override
     protected void processTerminateNssRequest(TerminateNssiRequestMessage message) {
@@ -447,12 +547,15 @@ public class CoreLcmEventHandler extends NssLcmEventHandler {
 
     @Override
     protected void processNssSetConfigRequest(BaseMessage message) throws NotExistingEntityException {
+        LOG.info("Received request for setting config request");
         super.processNssSetConfigRequest(message);
     }
 
     @Override
     protected void processNssUpdateConfigRequest(BaseMessage message) throws NotExistingEntityException {
+        LOG.info("Received request for update config request");
         super.processNssUpdateConfigRequest(message);
+
     }
 
     @Override

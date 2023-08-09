@@ -1,0 +1,8 @@
+# from GitHub, overriding the name and specifying a specific tag
+- src: http://github.com/idealista/kafka_role.git
+  scm: git
+  version: 1.13.0
+  name: kafka
+
+- src: https://github.com/StephenSorriaux/ansible-kafka-admin
+  name: kafka_lib

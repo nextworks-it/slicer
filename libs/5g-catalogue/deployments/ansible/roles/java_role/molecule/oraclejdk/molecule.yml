@@ -1,0 +1,31 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: yamllint
+  options:
+    config-file: .yamllint
+
+platforms:
+  - name: oraclejdk
+    groups:
+      - oraclejdk
+    image: ${DOCKER_IMAGE_BASE:-debian:jessie-slim}
+
+provisioner:
+  name: ansible
+  inventory:
+    group_vars:
+      oraclejdk:
+        java_implementation: oraclejdk
+        java_oracle_jdk_version: ${JDK_VERSION:-1.8.0_201}
+  lint:
+    name: ansible-lint
+scenario:
+  name: oraclejdk
+verifier:
+  name: goss
+  lint:
+    name: yamllint

@@ -1,12 +1,14 @@
 package it.nextworks.nfvmano.sbi.cnc.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.libs.vs.common.utils.BaseRestClient;
 import it.nextworks.nfvmano.sbi.cnc.GNbConfiguration;
+import it.nextworks.nfvmano.sbi.cnc.UPFsliceAssociationCnc.UpfSliceAssociationCnc;
 import it.nextworks.nfvmano.sbi.cnc.messages.NetworkSliceCNC;
 import it.nextworks.nfvmano.sbi.cnc.operator.Operator;
+import it.nextworks.nfvmano.sbi.cnc.subProfile.SubProfile;
+import it.nextworks.nfvmano.sbi.cnc.subscriberGroup.SubscriberGroup;
 import it.nextworks.nfvmano.sbi.cnc.subscribersManagement.SubscriberInfo;
+import it.nextworks.nfvmano.sbi.cnc.subscribersManagement.SubscriberInfoNew;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -44,11 +46,32 @@ public class CNCrestClient{
     private final String fullPathSubscribersManagement;
 
 
+    private final String basePathSubscribersManagementNew = "/api/v1.0/cnc-subscriber-management";
+
+    private final String fullPathSubscribersManagementNew;
+
     private final String basePathOperatorManagement = "/api/v1.0/cnc-operator";
     private final String fullPathOperatorManagement;
 
     private final String gnbManagement = "/api/v1.0/gnb-default-config";
+
     private final String fullgnbManagement;
+
+    private final String upfDnnList = "/api/v1.0/network-slice/upf-dnn-list";
+
+    private final String fullUpfDnnList;
+
+    private final String upfProfleUpdate = "/api/v1.0/cnc-config/upf-profile-update";
+
+    private final String fullUpfProfleUpdate;
+
+    private final String subscriptionProfile = "/api/v1.0/cnc-configuration/cnc-subscription-profile";
+
+    private final String fullSubscriptionProfile;
+
+    private final String subscriberGroup ="/api/v1.0/cnc-configuration/cnc-user-group";
+
+    private final String fullSubscriberGroup;
 
     private String cookies;
     private RestTemplate restTemplate;
@@ -62,6 +85,12 @@ public class CNCrestClient{
         this.fullPathSubscribersManagement = "https://"+ipCNC+":"+portCNC+ basePathSubscribersManagement;
         this.fullPathOperatorManagement = "https://"+ipCNC+":"+portCNC+ basePathOperatorManagement;
         this.fullgnbManagement = "https://"+ipCNC+":"+portCNC+ gnbManagement;
+        this.fullUpfDnnList = "https://"+ipCNC+":"+portCNC+ upfDnnList;
+        this.fullUpfProfleUpdate = "https://"+ipCNC+":"+portCNC+ upfProfleUpdate;
+        this.fullSubscriptionProfile = "https://"+ipCNC+":"+portCNC+ subscriptionProfile;
+        this.fullSubscriberGroup = "https://"+ipCNC+":"+portCNC+ subscriberGroup;
+        this.fullPathSubscribersManagementNew = "https://"+ipCNC+":"+portCNC+ basePathSubscribersManagementNew;
+
         baseRestClient = new BaseRestClient();
         try {
             this.restTemplate = getRestTemplateNoCertificateCheck();
@@ -110,6 +139,7 @@ public class CNCrestClient{
         return bodyResponse!=null;
     }
 
+
     public boolean deleteNetworkSlice(String networkSliceId){
         ResponseEntity<String> httpResponse=baseRestClient.performHTTPRequest(null, fullPathSliceManagement +"/"+networkSliceId, HttpMethod.DELETE);
         String bodyResponse =  baseRestClient.manageHTTPResponse(httpResponse, "Error deleting Network Slice "+networkSliceId, "Network Slice "+networkSliceId+" correctly deleting", HttpStatus.OK);
@@ -142,6 +172,19 @@ public class CNCrestClient{
         return bodyResponse;
     }
 
+    public String addSubscriberInfoNew(SubscriberInfoNew subscriberInfoNew){
+        ResponseEntity<String> httpResponse=  baseRestClient.performHTTPRequest(subscriberInfoNew, fullPathSubscribersManagementNew, HttpMethod.POST);
+        String bodyResponse =  baseRestClient.manageHTTPResponse(httpResponse, "Error registering subscriber", "Subscriber correctly registered", HttpStatus.ACCEPTED);
+        return bodyResponse;
+    }
+
+    public String updateSubscriberInfo(SubscriberInfoNew subscriberInfoNew){
+        ;
+        ResponseEntity<String> httpResponse=  baseRestClient.performHTTPRequest(subscriberInfoNew, fullPathSubscribersManagementNew+"/"+subscriberInfoNew.imsi, HttpMethod.PUT);
+        String bodyResponse =  baseRestClient.manageHTTPResponse(httpResponse, "Error updating subscriber info", "Subscriber info correctly updated", HttpStatus.ACCEPTED);
+        return bodyResponse;
+    }
+
     public String getSubscriberList(){
         ResponseEntity<String> httpResponse=  baseRestClient.performHTTPRequest(null, fullPathSubscribersManagement, HttpMethod.GET);
         String bodyResponse =  baseRestClient.manageHTTPResponse(httpResponse, "Error getting subscriber list", "Subscriber list correctly get", HttpStatus.OK);
@@ -171,4 +214,31 @@ public class CNCrestClient{
         String bodyResponse =  baseRestClient.manageHTTPResponse(httpResponse, "Error configuring gNB", "configuring gNB successfully", HttpStatus.OK);
         return bodyResponse;
     }
+
+    public String getUpfsInfo(){
+        ResponseEntity<String> httpResponse= baseRestClient.performHTTPRequest(null, fullUpfDnnList, HttpMethod.GET);
+        String bodyResponse =  baseRestClient.manageHTTPResponse(httpResponse, "Error getting UPF info", "UPF info correctly got", HttpStatus.OK);
+        return bodyResponse;
+    }
+
+    public String associateUpfToSlice(String upfIdentifier, UpfSliceAssociationCnc upfSliceAssociationCnc){
+
+        ResponseEntity<String> httpResponse= baseRestClient.performHTTPRequest(upfSliceAssociationCnc, fullUpfProfleUpdate+"/"+upfIdentifier, HttpMethod.PUT);
+        String bodyResponse =  baseRestClient.manageHTTPResponse(httpResponse, "Error updating UPF-slice association", "Successful update UPF-slice association", HttpStatus.OK);
+        return bodyResponse;
+    }
+
+    public String createSubscriptionProfile(SubProfile subProfile){
+        ResponseEntity<String> httpResponse= baseRestClient.performHTTPRequest(subProfile, fullSubscriptionProfile, HttpMethod.POST);
+        String bodyResponse =  baseRestClient.manageHTTPResponse(httpResponse, "Error creating Subscription profile", "Successful creating Subscription profile", HttpStatus.OK);
+        return bodyResponse;
+    }
+
+
+    public String createSubscriberGroup(SubscriberGroup subscriberGroup){
+        ResponseEntity<String> httpResponse= baseRestClient.performHTTPRequest(subscriberGroup, fullSubscriberGroup, HttpMethod.POST);
+        String bodyResponse =  baseRestClient.manageHTTPResponse(httpResponse, "Error creating Subscriber group", "Successful creating  Subscriber group", HttpStatus.OK);
+        return bodyResponse;
+    }
+
 }

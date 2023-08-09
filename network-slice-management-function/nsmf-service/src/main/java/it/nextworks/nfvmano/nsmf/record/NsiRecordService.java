@@ -24,7 +24,7 @@ public class NsiRecordService {
     @Autowired
     private NetworkSliceSubnetInstanceRepo networkSliceSubnetInstanceRepo;
 
-    public UUID createNetworkSliceInstanceEntry(String nstId, String vsInstanceId, String tenantId, String name, int dlDataRate, int ulDataRate) {
+    public UUID createNetworkSliceInstanceEntry(String nstId, String vsInstanceId, String tenantId, String name, int dlDataRate, int ulDataRate, String upfName) {
         NetworkSliceInstanceRecord instanceRecord = new NetworkSliceInstanceRecord(null, nstId,
                 vsInstanceId,
                 NetworkSliceInstanceRecordStatus.CREATED,
@@ -32,7 +32,8 @@ public class NsiRecordService {
                 name,
                 new ArrayList<>(),
                 dlDataRate,
-                ulDataRate);
+                ulDataRate,
+                upfName);
 
         networkSliceInstanceRepo.saveAndFlush(instanceRecord);
         return instanceRecord.getId();
@@ -84,6 +85,32 @@ public class NsiRecordService {
         networkSliceInstanceRepo.saveAndFlush(record);
     }
 
+    public void updateUpfName(UUID nsiId, String upfName, String errorMsg) throws NotExistingEntityException {
+        NetworkSliceInstanceRecord record  =  getNetworkSliceInstanceRecord(nsiId);
+        record.setUpfName(upfName);
+        record.setErrorMsg(errorMsg);
+        networkSliceInstanceRepo.saveAndFlush(record);
+    }
+
+    public void addNetworkSubSliceCoreIdentifier(UUID nsiId, UUID nssiId, String nsstId) throws NotExistingEntityException {
+        NssResourceAllocationRecord nssResourceAllocationRecord = new NssResourceAllocationRecord(NssResourceAllocationType.COMPUTE,
+                new ArrayList<VirtualLinkResourceAllocationRecord>(),
+                new HashMap<>(),
+                new ArrayList<>());
+
+        NetworkSliceSubnetInstanceRecord instanceRecord = new NetworkSliceSubnetInstanceRecord( nsstId,
+                nssiId,
+                nsiId,
+                NetworkSliceSubnetRecordStatus.INSTANTIATED,
+                SliceSubnetType.CORE,
+                nssResourceAllocationRecord );
+        networkSliceSubnetInstanceRepo.saveAndFlush(instanceRecord);
+
+        NetworkSliceSubnetInstanceRecord networkSliceSubnetInstanceRecord = getNetworkSliceSubnetInstanceRecord(nssiId);
+        NetworkSliceInstanceRecord record  =  getNetworkSliceInstanceRecord(nsiId);
+        record.addNetworkSliceSubnetInstance(networkSliceSubnetInstanceRecord);
+        networkSliceInstanceRepo.saveAndFlush(record);
+    }
     public void updateNsInstanceStatus(UUID nsiId, NetworkSliceInstanceRecordStatus status, String imsi, String errorMsg) throws NotExistingEntityException {
         NetworkSliceInstanceRecord record  =    getNetworkSliceInstanceRecord(nsiId);
         record.setStatus(status);
@@ -115,6 +142,7 @@ public class NsiRecordService {
                 NetworkSliceSubnetRecordStatus.INSTANTIATING,
                 sliceSubnetType,
                 raRecord );
+
         networkSliceSubnetInstanceRepo.saveAndFlush(instanceRecord);
         Optional<NetworkSliceInstanceRecord> nsiRecord = networkSliceInstanceRepo.findById(parentNsiId);
         if(nsiRecord.isPresent()){

@@ -3,6 +3,7 @@ package it.nextworks.nfvmano.nsmf.manager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.nextworks.nfvmano.libs.ifa.templates.nst.NSST;
 import it.nextworks.nfvmano.libs.ifa.templates.nst.NST;
+import it.nextworks.nfvmano.libs.ifa.templates.nst.NsdInfo;
 import it.nextworks.nfvmano.libs.ifa.templates.nst.SliceSubnetType;
 import it.nextworks.nfvmano.libs.vs.common.exceptions.*;
 import it.nextworks.nfvmano.libs.vs.common.nsmf.elements.NetworkSliceInstance;
@@ -10,10 +11,7 @@ import it.nextworks.nfvmano.libs.vs.common.nsmf.elements.NetworkSliceInstanceSta
 import it.nextworks.nfvmano.libs.vs.common.nsmf.interfaces.NsiLcmNotificationConsumerInterface;
 import it.nextworks.nfvmano.libs.vs.common.nsmf.interfaces.NsmfLcmProvisioningInterface;
 import it.nextworks.nfvmano.libs.vs.common.nsmf.elements.ConfigurationRequestStatus;
-import it.nextworks.nfvmano.libs.vs.common.nsmf.messages.configuration.AssociateSubscriber;
-import it.nextworks.nfvmano.libs.vs.common.nsmf.messages.configuration.ConfigurationActionType;
-import it.nextworks.nfvmano.libs.vs.common.nsmf.messages.configuration.ScaleNetworkSlice;
-import it.nextworks.nfvmano.libs.vs.common.nsmf.messages.configuration.UpdateConfigurationRequest;
+import it.nextworks.nfvmano.libs.vs.common.nsmf.messages.configuration.*;
 import it.nextworks.nfvmano.libs.vs.common.nssmf.interfaces.NssmfLcmProvisioningInterface;
 import it.nextworks.nfvmano.libs.vs.common.nssmf.messages.provisioning.NssmfBaseProvisioningMessage;
 import it.nextworks.nfvmano.libs.vs.common.nssmf.messages.specialized.ran.RanSlicePayload;
@@ -35,6 +33,7 @@ import it.nextworks.nfvmano.nsmf.record.repos.ConfigurationRequestRepo;
 import it.nextworks.nfvmano.nsmf.sbi.NssmfDriverRegistry;
 import it.nextworks.nfvmano.nsmf.sbi.messages.InternalInstantiateNssiRequest;
 import it.nextworks.nfvmano.nsmf.sbi.messages.InternalModifyNssiRequest;
+import it.nextworks.nfvmano.nsmf.sbi.specific.CmcCoreNssmfRestClient;
 import it.nextworks.nfvmano.nsmf.topology.InfrastructureTopologyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +68,7 @@ public class NsLcmManager {
 
     private boolean notifyVsmf;
 
+    private String nssiIdScaled;
     public NsLcmManager(UUID networkSliceInstanceId, NST nst, NsiRecordService nsiRecordService,
                         NsmfLcmProvisioningInterface nsmfLcmProvisioningInterface,
                         NsiLcmNotificationConsumerInterface nsiLcmNotificationConsumerInterface,
@@ -152,6 +152,7 @@ public class NsLcmManager {
                     log.debug("Completed NSST instantiation. Setting NSI to INSTANTIATED");
                     nsiRecordService.updateNsInstanceStatus(this.networkSliceInstanceId, NetworkSliceInstanceRecordStatus.INSTANTIATED, "");
 
+                    nsiRecordService.updateUpfName(this.networkSliceInstanceId, record.getUpfName(),"");
                     sentNotificationToVsmf(new VsmfNotificationMessage(networkSliceInstanceId, NsiNotifType.STATUS_CHANGED, NetworkSliceInstanceStatus.INSTANTIATED));
                 }else{
 
@@ -184,7 +185,7 @@ public class NsLcmManager {
 
                     try {
                         UUID nssiId = driver.createNetworkSubSliceIdentifier();
-                        log.debug("created NSSI ID:"+nssiId);
+                        log.debug("created NSSI ID: "+nssiId);
                         nssiDrivers.put(nssiId, driver);
                         nssiNsst.put(nssiId, targetNsst);
                         Optional<NssResourceAllocation> allocation = resourceAllocationComputeResponse.getNsResourceAllocation().getNssResourceAllocations().stream()
@@ -202,11 +203,19 @@ public class NsLcmManager {
                                 targetNsst.getType(),
                                 null
                             );
-                        log.debug("created NSSI RECORD:"+nssiId+" nsstId:"+targetNsst.getNsstId()+" type:"+targetNsst.getType());
+
+                        log.debug("created NSSI RECORD: "+nssiId+" nsstId: "+targetNsst.getNsstId()+" type:"+targetNsst.getType());
+
+                        if(driver instanceof CmcCoreNssmfRestClient){
+                            log.info("Driver is CMC Core");
+                            ((CmcCoreNssmfRestClient) driver).setUpfName(record.getUpfName());
+                        }
+
                         driver.instantiateNetworkSubSlice(new InternalInstantiateNssiRequest(nssiId,
                                 this.networkSliceInstanceId,
                                 targetNsst,
                                 resourceAllocationComputeResponse, this.nst ));
+
                     } catch (MethodNotImplementedException e) {
                         failInstance(e.getMessage());
                     } catch (FailedOperationException e) {
@@ -330,8 +339,62 @@ public class NsLcmManager {
 
 
 
+    private void manageScaleNotification(EngineNotifyNssiStatusChange em){
+        log.info("NSSI has been scaled. Going to migrate some UEs");
+        Random random = new Random();
+        try {
+            List<String> imsiAssociated = nsiRecordService.getNetworkSliceInstance(this.networkSliceInstanceId.toString()).getImsiAssiocatedWith();
+            for (String imsi : imsiAssociated){
+                if (random.nextBoolean()) {
+                    log.info("Going to request the migration of UEs with IMSI "+imsi);
+                    AssociateSubscriber associateSubscriber = new AssociateSubscriber();
+                    associateSubscriber.setImsi(imsi);
+                    associateSubscriber.setNsiId(networkSliceInstanceId);
+                    InternalModifyNssiRequest internalModifyNssiRequest = new InternalModifyNssiRequest(
+                            em.getNssiId(),
+                            networkSliceInstanceId,
+                            nst.getNsst(),
+                            associateSubscriber,
+                            nst,
+                            null
+                    );
+                    nssiDrivers.get(em.getNssiId()).modifyNetworkSlice(internalModifyNssiRequest);
+                    nssiDrivers.get(em.getNssiId()).modifyNetworkSlice(internalModifyNssiRequest);
+                }
+            }
+            //log.info("Adding new NSST CORE to end-to-end slice with UUID "+this.networkSliceInstanceId);
+            //nsiRecordService.addNetworkSubSliceCoreIdentifier(this.networkSliceInstanceId, em.getNssiId(), null);
+        } catch(NotExistingEntityException ex){
+            log.error(ex.getMessage());
+            ex.printStackTrace();
+            throw new RuntimeException(ex);
+        } catch(FailedOperationException e){
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch(MethodNotImplementedException e){
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch(MalformattedElementException e){
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch(NotPermittedOperationException e){
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
     private void processNotifyNssiStatusChange(EngineNotifyNssiStatusChange em)
     {
+
+        if(em.getNssiId().toString().equals(nssiIdScaled)){
+            manageScaleNotification(em);
+            return;
+        }
+
         log.debug("Processing NSSI Status Change notification for NSSI:"+em.getNssiId());
         try {
             NetworkSliceInstanceRecord record = nsiRecordService.getNetworkSliceInstanceRecord(this.networkSliceInstanceId);
@@ -358,6 +421,8 @@ public class NsLcmManager {
                     ConfigurationRequestRecord ncrRecord = configurationRequestRecord.get();
                     ncrRecord.setStatus(ConfigurationRequestStatus.SUCCESS);
                     nsiRecordService.updateNsInstanceStatus(this.networkSliceInstanceId, NetworkSliceInstanceRecordStatus.INSTANTIATED,"");
+
+                    nsiRecordService.updateUpfName(this.networkSliceInstanceId, record.getUpfName(),"");
                     configurationRequestRepo.saveAndFlush(ncrRecord);
                     sentNotificationToVsmf(new VsmfNotificationMessage(networkSliceInstanceId, NsiNotifType.STATUS_CHANGED, NetworkSliceInstanceStatus.INSTANTIATED));
                     log.debug("Updating configuration request action and NSI status");
@@ -376,6 +441,7 @@ public class NsLcmManager {
                 }
             } else {
                 log.warn("Received NOTIFY NSSI STATUS Change in wrong status: " + record.getStatus() + ". IGNORING");
+
             }
         } catch (NotExistingEntityException e) {
             failInstance("Failed to retrieve NS Instance Record from DB:"+this.networkSliceInstanceId);
@@ -391,6 +457,8 @@ public class NsLcmManager {
                nsiRecordService.updateNsInstanceStatus(networkSliceInstanceId,
                        NetworkSliceInstanceRecordStatus.COMPUTING_RESOURCE_ALLOCATION,
                        null);
+                log.info("GETTING UPF from request "+em.getRequest().getUpfName());
+                nsiRecordService.updateUpfName(networkSliceInstanceId, em.getRequest().getUpfName(), null);
                 resourceAllocationProvider.computeResources(composeRAComputeRequest(em.getTenantId()));
             }else{
                 log.warn("Received Instantiate NSI request in wrong status:"+ record.getStatus()+". Ignoring");
@@ -448,6 +516,8 @@ public class NsLcmManager {
             this.lastConfigurationRequestId = em.getConfigurationRequestId();
             log.debug("Updating NSI status to CONFIGURING");
             nsiRecordService.updateNsInstanceStatus(this.networkSliceInstanceId, NetworkSliceInstanceRecordStatus.CONFIGURING, "");
+
+            nsiRecordService.updateUpfName(this.networkSliceInstanceId, record.getUpfName(),"");
             Optional<ConfigurationRequestRecord> configurationRequestRecord=configurationRequestRepo.findById(lastConfigurationRequestId);
             ConfigurationRequestRecord crrRecord;
             if(configurationRequestRecord.isPresent()) {
@@ -455,10 +525,6 @@ public class NsLcmManager {
                 crrRecord.setNetworkSliceSubnetInstanceId(targetNssiIds);
                 configurationRequestRepo.saveAndFlush(crrRecord);
             }
-
-            ConfigurationActionType configurationActionType = em.getUpdateConfigurationRequest().getActionType();
-
-
 
             for(UUID nssiId: targetNssiIds){
 
@@ -470,7 +536,38 @@ public class NsLcmManager {
                         lastConfigurationRequestId
 
                 );
-                nssiDrivers.get(nssiId).modifyNetworkSlice(internalModifyNssiRequest);
+                if(nssiDrivers.get(nssiId)==null)
+                    continue;
+
+
+                    if(internalModifyNssiRequest.getUpdateConfigurationRequest() instanceof ScaleNetworksSliceNewUpf){
+                        log.info("Scaling a UPF");
+                        UUID newNssiUuid= nssiDrivers.get(nssiId).createNetworkSubSliceIdentifier();
+                        nssiIdScaled = newNssiUuid.toString();
+                        NssmfLcmProvisioningInterface currentDriver  = nssiDrivers.get(nssiId);
+                        nssiDrivers.put(newNssiUuid, currentDriver);
+                        NST parentNST = internalModifyNssiRequest.getParentNst();
+                        //TODO how to discrimiate ?
+                        parentNST.getNsst().getNsstList().get(0).setNsdInfo(new NsdInfo("fff1deee-df12-4243-98ad-081e574d93df","NSD 3rd UPF","NSD 3rd UPF", "v01"));
+                        internalModifyNssiRequest.setNssiId(newNssiUuid);
+
+                        InternalInstantiateNssiRequest internalInstantiateNssiRequest = new InternalInstantiateNssiRequest(newNssiUuid,
+                                this.networkSliceInstanceId,
+                                parentNST.getNsst(),
+                                resourceAllocationComputeResponse, parentNST);
+
+                        if(currentDriver instanceof CmcCoreNssmfRestClient){
+                            ((CmcCoreNssmfRestClient) currentDriver).setUpfName("UPF-3");
+                        }
+                        currentDriver.instantiateNetworkSubSlice(internalInstantiateNssiRequest);
+                        log.info("Adding new NSST CORE to end-to-end slice with UUID "+this.networkSliceInstanceId);
+                        nsiRecordService.addNetworkSubSliceCoreIdentifier(this.networkSliceInstanceId, newNssiUuid, null);
+                    }
+
+                else{
+                    nssiDrivers.get(nssiId).modifyNetworkSlice(internalModifyNssiRequest);
+                }
+
 
             }
                 setNsiToInstantiated(targetNssiIds, em.getUpdateConfigurationRequest());
@@ -485,6 +582,14 @@ public class NsLcmManager {
             failInstance(e.getMessage());
         } catch (NotPermittedOperationException e) {
             failInstance(e.getMessage());
+        } catch (AlreadyExistingEntityException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -507,7 +612,7 @@ public class NsLcmManager {
                 nsiRecordService.updateNsInstanceStatus(this.networkSliceInstanceId, NetworkSliceInstanceRecordStatus.INSTANTIATED, scaleNetworkSlice.getScalingOption(), newDataRate, "");
                 nsiRecordUpdated = true;
         }
-        if(!nsiRecordUpdated)
+           if(!nsiRecordUpdated)
             nsiRecordService.updateNsInstanceStatus(this.networkSliceInstanceId, NetworkSliceInstanceRecordStatus.INSTANTIATED,"");
 
 

@@ -1,0 +1,21 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>it.nextworks.nfvmano</groupId>
+    <artifactId>catalogue-aggregator</artifactId>
+    <version>0.0.1</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>CatalogueNotification</module>
+	    <module>CataloguePlugin</module>
+        <module>AppdDataModel</module>
+	    <module>OSMr4PlusDataModel</module>
+	    <module>OSMr4PlusClient</module>
+	    <module>OsmCataloguePlugin</module>
+        <module>OnapCataloguePlugin</module>
+        <module>FivegrowthCataloguePlugin</module>
+        <module>5gcatalogue-app</module>
+        <module>OSMr10DataModels</module>
+    </modules>
+</project>

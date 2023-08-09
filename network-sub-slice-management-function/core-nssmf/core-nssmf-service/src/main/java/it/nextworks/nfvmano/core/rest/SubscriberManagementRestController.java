@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -18,7 +20,7 @@ import java.util.List;
 @RequestMapping("/core/subscribers-management")
 public class SubscriberManagementRestController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CoreNetworkSliceRestController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SubscriberManagementRestController.class);
 
     @Autowired
     private SubscriberService subscriberService;
@@ -27,11 +29,11 @@ public class SubscriberManagementRestController {
 
     public SubscriberManagementRestController(){}
 
-    @RequestMapping(value = "/{coreInstanceId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllSubscribersInfo(@PathVariable String coreInstanceId) {
+    @RequestMapping(value = "/{upfInstanceId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllSubscribersInfo(@PathVariable String upfInstanceId) {
         try {
-            LOG.info("Received request for getting all subscribers information from core instance "+coreInstanceId);
-            List<SubscriberListForSlice> networkSlices = subscriberService.getAllSubscribers(coreInstanceId);
+            LOG.info("Received request for getting all subscribers information from core instance "+upfInstanceId);
+            List<SubscriberListForSlice> networkSlices = subscriberService.getAllSubscribers(upfInstanceId);
             return new ResponseEntity<>(networkSlices, HttpStatus.OK);
         }
         catch(NotExistingEntityException e){
@@ -66,11 +68,41 @@ public class SubscriberManagementRestController {
     }
 
 
+    @RequestMapping(value = "/subscriber/{imsi}/{groupName}", method = RequestMethod.POST)
+    public ResponseEntity<?> registerSubscriberToGroup(@PathVariable String imsi, @PathVariable String groupName) {
+            LOG.info("Received request to register a new subscriber with IMSI "+imsi+ "at the group name "+groupName);
+            if(subscriberService.registerSubscriber(imsi, groupName)==null){
+                return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>("", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/associate-subscriber-to-slice/{imsi}/{sliceId}", method = RequestMethod.POST)
+    public ResponseEntity<?> registerSubscriberToSlice(@PathVariable String imsi, @PathVariable String sliceId) {
+        LOG.info("Received request to register a new subscriber with IMSI "+imsi+ "and associate to slice with ID "+sliceId);
+
+        try {
+            boolean success = subscriberService.associateUeToSlice(imsi, sliceId);
+            if(!success){
+                LOG.error("Error during UE to slice association");
+                return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
+            }
+        } catch (NotExistingEntityException e) {
+            LOG.error(e.getMessage());
+            return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+            return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("", HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/{coreInstanceId}/{coreNetworkSliceId}", method = RequestMethod.POST)
     public ResponseEntity<?> registerSubscribers(@PathVariable String coreInstanceId, @PathVariable String coreNetworkSliceId, @RequestBody SubscriberListForSlice subscriberListForSlice) {
         try {
             LOG.info("Received request to register a new subscriber list for slice "+coreNetworkSliceId);
             subscriberService.registerSubscribersForSlice(coreInstanceId, coreNetworkSliceId, subscriberListForSlice);
+
             return new ResponseEntity<>("", HttpStatus.OK);
         }
         catch(MalformattedElementException e){
@@ -104,6 +136,27 @@ public class SubscriberManagementRestController {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+
+    @RequestMapping(value = "/subscriberProfile/{subProfileId}", method = RequestMethod.POST)
+    public ResponseEntity<?> createSubscriberProfileId(@PathVariable String subProfileId) {
+            LOG.info("Received request for creating subscription profile with id "+subProfileId);
+
+            String response = subscriberService.createSubscriberProfile(subProfileId);
+            if(response==null)
+                return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/subscriberGroup/{subscriberGroupId}/{subscriberProfileId}/{sliceId}", method = RequestMethod.POST)
+    public ResponseEntity<?> createSubProfileId(@PathVariable String subscriberGroupId, @PathVariable String subscriberProfileId, @PathVariable String sliceId) {
+        LOG.info("Received request for creating sub group with ID "+subscriberGroupId+ " The sub profile Id is "+subscriberProfileId+ " and the slice id is "+sliceId);
+        String response = subscriberService.createSubscriberGroup(subscriberProfileId, subscriberGroupId, sliceId);
+
+        if(response==null)
+            return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("", HttpStatus.OK);
     }
 
 }

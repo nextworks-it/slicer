@@ -16,17 +16,18 @@ version: '3.5'
 
 services:
 
-  nssmf_core_ingenious:
-     container_name: nssmf_core_ingenious
-     image: nssmf-core-ingenious:0.0.1
+
+  nssmf_core_ingenious_final_review:
+     container_name: nssmf_core_ingenious_final_review
+     image: nssmf-core-ingenious:0.0.1-final-review
      restart: always
      ports:
-       - '8084:8084'
+       - '8899:8081'
      command: >
        bash -c "/usr/bin/java -jar /home/ubuntu/nssmf-app-0.0.1.jar"
      environment:
-       - server.port=8084
-       - spring.datasource.url=jdbc:postgresql://postgres:5432/nssmf_core
+       - server.port=8081
+       - spring.datasource.url=jdbc:postgresql://postgres:5432/nssmf_core_final_review
        - spring.datasource.username=postgres
        - spring.datasource.password=postgres
        - security.basic.enabled=false
@@ -37,41 +38,54 @@ services:
        - nssmf.provisionig.baseurl=/core/nssmf/provisioning
        - nssmf.provisioning.baseurl=/core/nssmf/provisioning
        - nssmf.nsmfnotifier.loginUrl=noLogin
-       - nssmf.nsmfnotifier.notifyUrl=http://nsmf_ingenious:8083/vs/basic/nslcm/nss/%nssi_id%/notify
-       - nssmf.osm.baseurl=http://10.30.8.23/osm
+       - nssmf.nsmfnotifier.notifyUrl=http://nsmf_ingenious:8080/vs/basic/nslcm/nss/%nssi_id%/notify
+       - nssmf.nsmfnotifier.url=http://nsmf_ingenious:8080/vs/basic/nslcm/nss/%nssi_id%/notify
+       - nssmf.osm.baseurl=http://10.30.8.214/osm
        - nssmf.osm.username=admin
        - nssmf.osm.password=admin
        - nssmf.osm.project=admin
-       - nssmf.osm.vim-id=afe991b9-6c9e-470c-90f9-f78584b6108e
+       - nssmf.osm.vim-id=43be7258-61f5-4820-ae12-f3de16cdb2c0
        - nfvo.lcm.polling=10
        - nssmf.cnc.port=3000
        - nssmf.vim.ext-cp-core=cp_5Gcore-ext
        - nssmf.vim.ext-mgmt-core=cp_mgmt-ext
-
-     depends_on:
-       - postgres
+       - nssmf.cnc.ip=10.30.8.246
+       - nssmf.skipNsdDeployment=false
+       - nssmf.coreInstanceId=abcd91b9-6c9e-470c-90f9-f78584b6abcd
+     #depends_on:
+     #  - postgres
      networks:
-        nssmf-core-net:
-         ipv4_address: 10.5.0.8
+        vertical-slicer:
+         ipv4_address: 10.5.0.10
 
   postgres:
     container_name: postgres
-    #image: ghcr.io/nextworks-it/network-slice-management-function/multiple-postgres-db
-    image: postgres:latest
+    image: ghcr.io/nextworks-it/network-slice-management-function/multiple-postgres-db
+    #image: postgres:latest
     restart: always
     environment:
-      #POSTGRES_MULTIPLE_DATABASES: nsmf, nssmf, vsmf
-      POSTGRES_MULTIPLE_DATABASES: ran_nssmf
+      POSTGRES_MULTIPLE_DATABASES: nsmf, nssmf_core_final_review
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
         - 0.0.0.0:5432:5432
     networks:
-        nssmf-core-net:
+        vertical-slicer:
          ipv4_address: 10.5.0.6
 
+  rabbit:
+     container_name: rabbit
+     image: rabbitmq
+     ports:
+       - 5672:5672
+       - 15672:15672
+     networks:
+        vertical-slicer:
+         ipv4_address: 10.5.0.5
+
+
 networks:
-  nssmf-core-net:
+  vertical-slicer:
     driver: bridge
     ipam:
      config:

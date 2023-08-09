@@ -1,0 +1,1824 @@
+swagger: '2.0'
+
+info:
+  description: >
+    DRAFT - SOL005 - NSD Management Interface IMPORTANT: Please note that this
+    file might be not aligned to the current version of the ETSI Group
+    Specification it refers to and has not been approved by the ETSI NFV ISG. In
+    case of discrepancies the published ETSI Group Specification takes
+    precedence. Please report bugs to
+    https://forge.etsi.org/bugzilla/buglist.cgi?component=Nfv-Openapis
+  version: 2.4.1
+  title: DRAFT - SOL005 - NSD Management Interface
+  contact:
+    name: NFV-SOL WG
+  license:
+    name: ETSI Forge copyright notice
+    url: 'https://forge.etsi.org/etsi-forge-copyright-notice.txt'
+
+produces:
+  - application/json
+  - application/yaml
+
+paths:
+
+  '/nsd/v1/ns_descriptors':
+    get:
+      summary: Query NSDs Info
+      operationId: getNSDsInfo
+      description: >-
+        The GET method queries information about multiple NS descriptor
+        resources. This method shall follow the provisions specified in the
+        Tables 5.4.2.3.2-1 and 5.4.2.3.2-2 of GS NFV-SOL 005 for URI query
+        parameters, request and response data structures, and response codes.
+      parameters: []
+      responses:
+        '200':
+          description: >-
+            Information about zero or more NS descriptors.
+
+            The response body shall contain a representation of zero or more NS
+            descriptors, as defined in clause 5.5.2.2 of GS NFV-SOL 005.
+          schema:
+            type: array
+            items:
+              type: object
+              $ref: '#/definitions/NsdInfo'
+        '400':
+          description: >-
+            There are two possible scenarios listed below.
+
+            Error: Invalid attribute-based filtering parameters.
+
+            The response body shall contain a ProblemDetails structure, in which
+            the "detail" attribute should convey more information about the
+            error.
+
+            Error: Invalid attribute selector. The response body shall contain a
+            ProblemDetails structure, in which the "detail" attribute should
+            convey more information about the error.
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    post:
+      summary: Create NSD Info
+      operationId: createNsdInfo
+      description: >-
+        The POST method is used to create a new NS descriptor resource. This
+        method shall follow the provisions specified in the Tables 5.4.2.3.1-1
+        and 5.4.2.3.1-2 of GS NFV-SOL 005 for URI query parameters, request and
+        response data structures, and response codes.
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            $ref: '#/definitions/CreateNsdInfoRequest'
+            description: >-
+              The CreateNsdInfoRequest contains parameters for creating an NS
+              descriptor resource, as defined in clause 5.5.2.4 of GS NFV-SOL 005.
+      responses:
+        '201':
+          description: Status 201
+          schema:
+            type: object
+            $ref: '#/definitions/NsdInfo'
+            description: >-
+              An NS descriptor resource was created successfully, as a new NS
+              descriptor resource. The response body shall contain a
+              representation of the new NS descriptor resource, as defined in
+              clause 5.5.2.2 of GS NFV-SOL 005.
+          headers:
+            Location:
+              type: string
+              description: >-
+                The HTTP response shall include a "Location" HTTP header that
+                contains the resource URI of the new NS descriptor resource.
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+
+  '/nsd/v1/ns_descriptors/{nsdInfoId}':
+    get:
+      summary: Query NSD Info
+      operationId: getNSDInfo
+      description: >-
+        The GET method reads information about an individual NS descriptor. This
+        method shall follow the provisions specified in GS NFV-SOL 005 Tables
+        5.4.3.3.2-1 and 5.4.3.3.2-2 of GS NFV-SOL 005 for URI query parameters,
+        request and response data structures, and response codes.
+      parameters: []
+      responses:
+        '200':
+          description: >-
+            Information about the individual NS descriptor. The response body
+            shall contain a representation of the individual NS descriptor, as
+            defined in clause 5.5.2.2 of GS NFV-SOL 005.
+          schema:
+            type: object
+            $ref: '#/definitions/NsdInfo'
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '404':
+          description: Status 404
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '409':
+          description: Status 409
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    delete:
+      summary: Delete NSD
+      operationId: deleteNSDInfo
+      description: >-
+        The DELETE method deletes an individual NS descriptor resource. An
+        individual NS descriptor resource can only be deleted when there is no
+        NS instance using it (i.e. usageState = NOT_IN_USE) and has been
+        disabled already (i.e. operationalState = DISABLED). Otherwise, the
+        DELETE method shall fail. This method shall follow the provisions
+        specified in the Tables 5.4.3.3.5-1 and 5.4.3.3.5-2 of GS NFV-SOL 005
+        for URI query parameters, request and response data structures, and
+        response codes.
+      parameters: []
+      responses:
+        '204':
+          description: >-
+            The operation has completed successfully. The response body shall be
+            empty.
+        '404':
+          description: Status 404
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '409':
+          description: Status 409
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+            description: >-
+              Error: The operation cannot be executed currently, due to a
+              conflict with the state of the resource. Typically, this is due to
+              the fact the NS descriptor resource is in the enabled operational
+              state (i.e. operationalState = ENABLED) or there are running NS
+              instances using the concerned individual NS descriptor resource
+              (i.e. usageState = IN_USE). The response body shall contain a
+              ProblemDetails structure, in which the "detail" attribute shall
+              convey more information about the error.
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    patch:
+      summary: Update NSD Info
+      operationId: updateNSDInfo
+      description: >-
+        The PATCH method modifies the operational state and/or user defined data
+        of an individual NS descriptor resource.  This method can be used to:
+
+        1) Enable a previously disabled individual NS descriptor resource,
+        allowing again its use for instantiation of new network service with this descriptor.
+        The usage state (i.e. "IN_USE/NOT_IN_USE") shall not change as a result.
+
+        2) Disable a previously enabled individual NS descriptor resource,
+        preventing any further use for instantiation of new network service(s) with this descriptor.
+        The usage state (i.e. "IN_USE/NOT_IN_USE") shall not change as a result.
+
+        3) Modify the user defined data of an individual NS descriptor resource.
+
+        This method shall follow the provisions specified in the Tables
+        5.4.3.3.4-1 and 5.4.3.3.4-2 for URI query parameters, request and response data structures,
+        and response codes.
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            $ref: '#/definitions/NsdInfoModifications'
+            description: >-
+              The operation was completed successfully. The response body shall
+              contain attribute modifications for an 'Individual NS Descriptor'
+              resource (see clause 5.5.2.6 of GS NFV SOL-005).
+      responses:
+        '200':
+          description: Status 200
+          schema:
+            type: object
+            $ref: '#/definitions/NsdInfoModifications'
+            description: >-
+              This type represents attribute modifications for an individual NS
+              descriptor resource based on the "NsdInfo" data type. The
+              attributes of "NsdInfo" that can be modified are included in the
+              "NsdInfoModifications" data type.
+
+              NOTE: At least one of the attributes - nsdOperationalState and
+              userDefinedData - shall be present.
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '404':
+          description: Status 404
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '409':
+          description: Status 409
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '412':
+          description: Status 412
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    parameters:
+      - name: nsdInfoId
+        in: path
+        required: true
+        type: string
+
+  '/nsd/v1/ns_descriptors/{nsdInfoId}/nsd_content':
+    get:
+      summary: Get NSD Content
+      operationId: getNSD
+      description: >-
+        The GET method fetches the content of the NSD.
+
+        The NSD can be implemented as a single file or as a collection of
+        multiple files. If the NSD is implemented in the form of multiple files,
+        a ZIP file embedding these files shall be returned. If the NSD is
+        implemented as a single file, either that file or a ZIP file embedding
+        that file shall be returned.
+
+        The selection of the format is controlled by the "Accept" HTTP header
+        passed in the GET request:
+
+        • If the "Accept" header contains only "text/plain" and the NSD is
+        implemented as a single file, the file shall be returned; otherwise, an
+        error message shall be returned.
+
+        • If the "Accept" header contains only "application/zip", the single
+        file or the multiple files that make up the NSD shall be returned
+        embedded in a ZIP file.
+
+        • If the "Accept" header contains both "text/plain" and
+        "application/zip", it is up to the NFVO to choose the format to return
+        for a single-file NSD; for a multi-file NSD, a ZIP file shall be
+        returned.
+
+        NOTE: The structure of the NSD zip file is outside the scope of the
+        present document.
+      produces:
+        - application/json
+        - application/yaml
+        - application/zip
+      parameters:
+#        - name: Accept
+#          in: header
+#          required: true
+#          type: string
+#          description: >-
+#            The request shall contain the appropriate entries in the "Accept"
+#            HTTP header as defined above.
+        - name: Range
+          in: header
+          required: false
+          type: string
+      responses:
+        '200':
+          description: >-
+            On success, the content of the NSD is returned. The payload body
+            shall contain a copy of the file representing the NSD or a ZIP file
+            that contains the file or multiple files representing the NSD, as
+            specified above. The "Content-Type" HTTP header shall be set
+            according to the format of the returned file, i.e. to "text/plain"
+            for a YAML file or to "application/zip" for a ZIP file.
+          schema:
+            type: object
+          headers:
+            Content-Type:
+              type: string
+        '206':
+          description: >-
+            On success, if the NFVO supports range requests, a single
+            consecutive byte range from the content of the NSD file is returned.
+
+
+            The response body shall contain the requested part of the NSD file.
+
+
+            The "Content-Range" HTTP header shall be provided according to IETF
+            RFC 7233 [23].
+
+
+            The "Content-Type" HTTP header shall be set as defined above for the
+            "200 OK" response.
+          headers:
+            Content-Range:
+              type: string
+            Content-Type:
+              type: string
+        '404':
+          description: Status 404
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '406':
+          description: Status 406
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+            description: >-
+              If the "Accept" header does not contain at least one name of a
+              content type for which the NFVO can provide a representation of
+              the NSD, the NFVO shall respond with this response code. The
+              "ProblemDetails" structure may be included with the "detail"
+              attribute providing more information about the error.
+        '409':
+          description: Status 409
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+            description: >-
+              Error: The operation cannot be executed currently, due to a
+              conflict with the state of the resource. Typically, this is due to
+              the fact "nsdOnboardingState" has a value different from
+              ONBOARDED. The response body shall contain a ProblemDetails
+              structure, in which the "detail" attribute shall convey more
+              information about the error.
+        '416':
+          description: Status 416
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+            description: >-
+              The byte range passed in the "Range" header did not match any
+              available byte range in the NSD file (e.g.
+
+              "access after end of file"). The response body may contain a
+              ProblemDetails structure.
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    put:
+      summary: Upload NSD
+      operationId: uploadNSD
+      description: >-
+        The PUT method is used to upload the content of a NSD. The NSD to be
+        uploaded can be implemented as a single file or as a collection of
+        multiple files, as defined in clause 5.4.4.3.2 of GS NFV-SOL 005. If the
+        NSD is implemented in the form of multiple files, a ZIP file embedding
+        these files shall be uploaded. If the NSD is implemented as a single
+        file, either that file or a ZIP file embedding that file shall be
+        uploaded. The "Content-Type" HTTP header in the PUT request shall be set
+        accordingly based on the format selection of the NSD. If the NSD to be
+        uploaded is a text file, the "Content-Type" header is set to
+        "text/plain". If the NSD to be uploaded is a zip file, the
+        "Content-Type" header is set to "application/zip". This method shall
+        follow the provisions specified in the Tables 5.4.4.3.3-1 and
+        5.4.4.3.3-2 of GS-NFV-SOL 005 for URI query parameters, request and
+        response data structures, and response codes.
+      consumes:
+        - application/json
+        - application/yaml
+        - application/zip
+      parameters:
+        - name: Content-Type
+          in: header
+          required: false
+          type: string
+          description: >-
+            The payload body contains a copy of the file representing the NSD or
+            a ZIP file that contains the file or multiple files representing the
+            NSD, as specified above. The request shall set the "Content-Type"
+            HTTP header as defined above.
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+      responses:
+        '202':
+          description: Status 202
+          schema:
+            type: object
+            description: >-
+              The NSD content was accepted for uploading, but the processing has
+              not been completed. It is expected to take some time for
+              processing (asynchronous mode). The response body shall be empty.
+              See note.
+        '204':
+          description: >-
+            The NSD content was successfully uploaded and validated (synchronous
+            mode). The response body shall be empty.
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '404':
+          description: Status 404
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '409':
+          description: >-
+            Error: The operation cannot be executed currently, due to a conflict
+            with the state of the resource. Typically, this is due to the fact
+            that the NsdOnboardingState has a value other than CREATED. The
+            response body shall contain a ProblemDetails structure, in which the
+            "detail" attribute shall convey more information about the error.
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    parameters:
+      - name: nsdInfoId
+        in: path
+        required: true
+        type: string
+
+  '/nsd/v1/pnf_descriptors':
+    get:
+      summary: Query PFNDs Info
+      operationId: getPNFDsInfo
+      description: >-
+        The GET method queries information about multiple PNF descriptor
+        resources.
+      parameters:
+        - name: exclude_default
+          in: query
+          required: false
+          type: string
+          description: >-
+            Indicates to exclude the following
+
+            complex attributes from the response.
+
+            See clause 4.3.3 for details.
+
+            The NFVO shall support this parameter.
+
+            The following attributes shall be excluded from the PnfdInfo
+            structure in the response body if this parameter is provided, or
+            none of the parameters "all_fields," "fields", "exclude_fields",
+            "exclude_default" are provided: userDefinedData.
+        - name: all_fields
+          in: query
+          required: false
+          type: string
+          description: >-
+            Include all complex attributes in the response. See clause 4.3.3 for
+            details. The NFVO shall support this parameter.
+      responses:
+        '200':
+          description: Status 200
+          schema:
+            type: array
+            items:
+              type: object
+              $ref: '#/definitions/PnfdInfo'
+            description: >-
+              Information about zero or more PNF descriptors. The response body
+              shall contain a representation of zero or more PNF descriptors, as
+              defined in clause 5.5.2.2.
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    post:
+      summary: Create PNFD Info
+      operationId: createPNFDInfo
+      description: The POST method is used to create a new PNF descriptor resource.
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            $ref: '#/definitions/PnfdInfo'
+            description: |-
+              Parameters of creating a PNF descriptor resource, as defined in
+              clause 5.5.2.6 of GS NFV-SOL 005.
+      responses:
+        '201':
+          description: Status 201
+          schema:
+            type: object
+            $ref: '#/definitions/PnfdInfo'
+            description: >-
+              A PNF descriptor resource was created successfully, as a new PNF
+              descriptor resource. The response body shall contain a
+              representation of the new PNF descriptor resource, as defined in
+              clause 5.5.2.5. The HTTP response shall include a "Location" HTTP
+              header that contains the resource URI of the new PNF descriptor
+              resource.
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+
+  '/nsd/v1/pnf_descriptors/{pnfdInfoId}':
+    get:
+      summary: Query PNFD Info
+      operationId: getPNFDInfo
+      description: >-
+        The GET method reads information about an individual PNF descriptor.
+        This method shall follow the provisions specified in the Tables
+        5.4.6.3.2-1 and 5.4.6.3.2-2 of GS NFV-SOL 005 for URI query parameters,
+        request and response data structures, and response codes.
+      parameters: []
+      responses:
+        '200':
+          description: >-
+            Information about the individual PNFD descriptor. The response body
+            shall contain a representation of the individual PNF descriptor, as
+            defined in clause 5.5.2.5 of GS NFV-SOL 005.
+          schema:
+            type: object
+            $ref: '#/definitions/PnfdInfo'
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '404':
+          description: Status 404
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '409':
+          description: Status 409
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    delete:
+      summary: Delete PNFD
+      operationId: deletePNFDInfo
+      description: >-
+        The DELETE method deletes an individual PNF descriptor resource. An
+        individual PNF descriptor resource can only be deleted when there is no
+        NS instance using it or there is NSD referencing it. To delete all PNFD
+        versions identified by a particular value of the "pnfdInvariantId"
+        attribute, the procedure is to first use the GET method with filter
+        "pnfdInvariantId" towards the PNF descriptors resource to find all
+        versions of the PNFD. Then, the client uses the DELETE method described
+        in this clause to delete each PNFD version individually. This method
+        shall follow the provisions specified in the Tables 5.4.6.3.5-1 and
+        5.4.6.3.5-2 of GS NFV-SOL 005 for URI query parameters, request and
+        response data structures, and response codes.
+      parameters: []
+      responses:
+        '204':
+          description: >-
+            The operation has completed successfully. The response body shall be
+            empty.
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '404':
+          description: Status 404
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    patch:
+      summary: Update PNFD Info
+      operationId: updatePNFDInfo
+      description: >-
+        The PATCH method modifies the user defined data of an individual PNF
+        descriptor resource. This method shall follow the provisions specified
+        in the Tables 5.4.6.3.4-1 and 5.4.6.3.4-2 for URI query parameters,
+        request and response data structures, and response codes.
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            $ref: '#/definitions/PnfdInfoModifications'
+            description: >-
+              This type represents attribute modifications for an individual PNF
+              descriptor resource based on the "PnfdInfo" data type. The
+              attributes of "PnfdInfo" that can be modified are included in the
+              "PnfdInfoModifications" data type.
+      responses:
+        '200':
+          description: Status 200
+          schema:
+            type: object
+            $ref: '#/definitions/PnfdInfoModifications'
+            description: >-
+              This type represents attribute modifications for an individual PNF
+              descriptor resource based on the "PnfdInfo" data type. The
+              attributes of "PnfdInfo" that can be modified are included in the
+              "PnfdInfoModifications" data type.
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '404':
+          description: Status 404
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '409':
+          description: Status 409
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '412':
+          description: Status 412
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    parameters:
+      - name: pnfdInfoId
+        in: path
+        required: true
+        type: string
+
+  '/nsd/v1/pnf_descriptors/{pnfdInfoId}/pnfd_content':
+    get:
+      summary: Get PNFD Content
+      operationId: getPNFD
+      description: The GET method fetches the content of the PNFD.
+      produces:
+        - application/json
+        - application/yaml
+        - application/zip
+      parameters: []
+      responses:
+        '200':
+          schema:
+            type: object
+          description: >-
+            On success, the content of the PNFD is returned. The payload body
+            shall contain a copy of the file representing the PNFD. The
+            "Content-Type" HTTP header shall be set to "text/plain".
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '409':
+          description: Status 409
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '404':
+          description: Status 404
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    put:
+      summary: Upload PNFD
+      operationId: uploadPNFD
+      description: >-
+        The PUT method is used to upload the content of a PNFD. This method
+        shall follow the provisions specified in the Tables 5.4.7.3.3-1 and
+        5.4.7.3.3-2 of GS NFV-SOL 005for URI query parameters, request and
+        response data structures, and response codes.
+      consumes:
+        - application/json
+        - application/yaml
+      parameters:
+        - name: Content-Type
+          in: header
+          required: false
+          type: string
+          description: >-
+            The request shall set the "Content-Type" HTTP header to
+            "text/plain".
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            description: >-
+              The payload body contains a copy of the file representing the
+              PNFD.
+      responses:
+        '204':
+          description: >-
+            The PNFD content was successfully uploaded and validated. The
+            response body shall be empty.
+        '400':
+          descriprion: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '404':
+          description: Status 404
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '409':
+          description: Status 409
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    parameters:
+      - name: pnfdInfoId
+        in: path
+        required: true
+        type: string
+
+  '/nsd/v1/subscriptions':
+    get:
+      summary: Query Subscription Information
+      operationId: getSubscriptions
+      description: >-
+        The GET method queries the list of active subscriptions of the
+        functional block that invokes the method. It can be used e.g. for
+        resynchronization after error situations. This method shall support the
+        URI query parameters, request and response data structures, and response
+        codes, as specified in the Tables 5.4.8.3.2-1 and 5.4.8.3.2-2 of GS
+        NFV-SOL 005.
+      parameters: []
+      responses:
+        '200':
+          description: Status 200
+          schema:
+            type: array
+            description: >-
+              The list of subscriptions was queried successfully. The response
+              body shall contain the representations of all active subscriptions
+              of the functional block that invokes the method.
+            items:
+              type: object
+              $ref: '#/definitions/NsdmSubscription'
+              description: >-
+                This type represents a subscription related to notifications
+                about NSD management.
+#        '303':
+#          description: >-
+#            A subscription with the same callbackURI and the same filter already
+#            exits and the policy of the NFVO is to not create redundant
+#            subscriptions. The response body shall be empty.
+#          headers:
+#            Location:
+#              type: string
+#              description: >-
+#                The HTTP response shall include a "Location" HTTP header that
+#                contains the resource URI of the existing subscription resource.
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    post:
+      summary: Subscribe
+      operationId: createSubscription
+      description: >-
+        The POST method creates a new subscription. This method shall support
+        the URI query parameters, request and response data structures, and
+        response codes, as specified in the Tables 5.4.8.3.1-1 and 5.4.8.3.1-2
+        of GS-NFV SOL 005. Creation of two subscription resources with the same
+        callbackURI and the same filter can result in performance degradation
+        and will provide duplicates of notifications to the OSS, and might make
+        sense only in very rare use cases. Consequently, the NFVO may either
+        allow creating a subscription resource if another subscription resource
+        with the same filter and callbackUri already exists (in which case it
+        shall return the "201 Created" response code), or may decide to not
+        create a duplicate subscription resource (in which case it shall return
+        a "303 See Other" response code referencing the existing subscription
+        resource with the same filter and callbackUri).
+      consumes: []
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            $ref: '#/definitions/NsdmSubscriptionRequest'
+            description: >-
+              This type represents a subscription request related to
+              notifications about NSD management.
+      responses:
+        '201':
+          description: Status 201
+          schema:
+            type: object
+            $ref: '#/definitions/NsdmSubscription'
+            description: >-
+              This type represents a subscription related to notifications about
+              NSD management.
+          headers:
+            Location:
+              type: string
+              description: |-
+                The HTTP response shall include a "Location:"
+                HTTP header that points to the created subscription resource.
+        '303':
+          description: >-
+            A subscription with the same callbackURI and the same filter already
+            exits and the policy of the NFVO is to not create redundant
+            subscriptions. The response body shall be empty.
+          headers:
+            Location:
+              type: string
+              description: >-
+                The HTTP response shall include a "Location" HTTP header that
+                contains the resource URI of the existing subscription resource.
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+
+  '/nsd/v1/subscriptions/{subscriptionId}':
+    get:
+      summary: Query Subscription Information
+      operationId: getSubscription
+      description: >-
+        The GET method retrieves information about a subscription by reading an
+        individual subscription resource. This method shall support the URI
+        query parameters, request and response data structures, and response
+        codes, as specified in the Tables 5.4.9.3.2-1 and 5.4.9.3.2-2.
+      parameters: []
+      responses:
+        '200':
+          description: Status 200
+          schema:
+            type: object
+            $ref: '#/definitions/NsdmSubscription'
+            description: >-
+              This type represents a subscription related to notifications about
+              NSD management.
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '404':
+          description: Status 404
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: Status 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    delete:
+      summary: Terminate Subscription
+      operationId: deleteSubscription
+      description: >-
+        The DELETE method terminates an individual subscription. This method
+        shall support the URI query parameters, request and response data
+        structures, and response codes, as specified in the Tables 5.4.9.3.5-1
+        and 5.4.9.3.3-2 of GS NFV-SOL 005.
+      parameters: []
+      responses:
+        '204':
+          description: >-
+            The subscription resource was deleted successfully. The response
+            body shall be empty.
+        '400':
+          description: Status 400
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '404':
+          description: Status 404
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+        '500':
+          description: 500
+          schema:
+            type: object
+            $ref: '#/definitions/ProblemDetails'
+    parameters:
+      - name: subscriptionId
+        in: path
+        required: true
+        type: string
+
+
+definitions:
+
+#  Identifier:
+#    type: object
+#
+#  Uri:
+#   type: object
+#
+#  Link:
+#    type: object
+
+  SubscriptionAuthentication:
+    type: object
+
+  ProblemDetails:
+    type: object
+    properties:
+      type:
+        type: string
+        format: uri
+      title:
+        type: string
+      status:
+        type: integer
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uri
+    additionalProperties: true
+    required:
+      - status
+      - detail
+
+  KeyValuePairs:
+    type: object
+    additionalProperties:
+      type: string
+
+  NsdOperationalStateType:
+    type: string
+    description: >-
+      The enumeration NsdOperationalStateType shall comply with the provisions
+      defined in Table 5.5.4.3-1 of GS NFV_SOL 005. It indicates the operational
+      state of the resource.
+
+
+      ENABLED = The operational state of the resource is enabled.
+      DISABLED = The operational state of the resource is disabled.
+    enum:
+      - ENABLED
+      - DISABLED
+
+  NsdOnboardingStateType:
+    type: string
+    description: >-
+      The enumeration NsdOnboardingStateType shall comply with the
+      provisions defined in Table 5.5.4.5-1 of GS NFV-SOL 005. It
+      indicates the onboarding state of the NSD.
+
+      CREATED = The NSD information object is created. UPLOADING =
+      The associated NSD content is being uploaded. PROCESSING = The
+      associated NSD content is being processed, e.g. validation.
+      ONBOARDED = The associated NSD content is on-boarded.
+    enum:
+      - CREATED
+      - UPLOADING
+      - PROCESSING
+      - ONBOARDED
+
+  NsdUsageStateType:
+    type: string
+    description: >-
+      The enumeration NsdUsageStateType shall comply with the
+      provisions defined in Table 5.5.4.4-1 of GS NFV-SOL 005. It
+      indicates the usage state of the resource.
+
+      IN_USE = The resource is in use.
+
+      NOT_IN_USE = The resource is not-in-use.
+    enum:
+      - IN_USE
+      - NOT_IN_USE
+
+  NsdLinksType:
+    type: object
+    description: Links to resources related to this resource.
+    properties:
+      self:
+        type: string
+        format: uri
+      nsd_content:
+        type: string
+        format: uri
+
+  PnfdOnboardingStateType:
+    type: string
+    description: >-
+      The enumeration PnfdOnboardingStateType shall comply with the
+      provisions defined in Table 5.5.4.6-1 of GS-NFV SOL005. It indicates
+      the onboarding state of the individual PNF descriptor resource.
+
+
+      CREATED = The PNF descriptor resource is created. UPLOADING = The
+      associated PNFD content is being uploaded. PROCESSING = The associated
+      PNFD content is being processed, e.g. validation. ONBOARDED = The
+      associated PNFD content is on-boarded.
+    enum:
+      - CREATED
+      - UPLOADING
+      - PROCESSING
+      - ONBOARDING
+
+  PnfdUsageStateType:
+    type: string
+    description: >-
+      The enumeration PnfdUsageStateType shall comply with the provisions
+      defined in Table 5.5.4.7-1 of GS NFV-SOL005. It indicates the usage
+      state of the resource.
+
+
+      IN-USE = The resource is in use.
+
+      NOT_IN_USE = The resource is not-in-use.
+    enum:
+      - IN_USE
+      - NOT_IN_USE
+
+  PnfdLinksType:
+    type: object
+    description: Links to resources related to this resource.
+    properties:
+      self:
+        type: string
+        format: uri
+      pnfd_content:
+        type: string
+        format: uri
+
+  NsdInfoModifications:
+    type: object
+    properties:
+      nsdOperationalState:
+        type: string
+        $ref: '#/definitions/NsdOperationalStateType'
+      userDefinedData:
+        type: object
+        $ref: '#/definitions/KeyValuePairs'
+
+  NsdInfo:
+    type: object
+    required:
+      - _links
+      - id
+      - nsdOnboardingState
+      - nsdOperationalState
+      - nsdUsageState
+    properties:
+      id:
+        type: string
+        format: uuid
+      nsdId:
+        type: string
+        format: uuid
+      nsdName:
+        type: string
+        description: >-
+          Name of the onboarded NSD. This information is copied from the
+          NSD content and shall be present after the NSD content is
+          on-boarded.
+      nsdVersion:
+        type: string
+      nsdDesigner:
+        type: string
+        description: >-
+          Designer of the on-boarded NSD. This information is copied from the
+          NSD content and shall be present after the NSD content is on-boarded.
+      nsdInvariantId:
+        type: string
+        format: uuid
+      vnfPkgIds:
+        type: array
+        items:
+          type: string
+          format: uuid
+      pnfdInfoIds:
+        type: array
+        items:
+          type: string
+          format: uuid
+      nestedNsdInfoIds:
+        type: array
+        items:
+          type: string
+          format: uuid
+      nsdOnboardingState:
+        type: string
+        $ref: '#/definitions/NsdOnboardingStateType'
+      onboardingFailureDetails:
+        type: string
+        $ref: '#/definitions/ProblemDetails'
+      nsdOperationalState:
+        type: string
+        $ref: '#/definitions/NsdOperationalStateType'
+      nsdUsageState:
+        type: string
+        $ref: '#/definitions/NsdUsageStateType'
+      userDefinedData:
+        type: object
+        $ref: '#/definitions/KeyValuePairs'
+      _links:
+        type: object
+        description: Links to resources related to this resource.
+        $ref: '#/definitions/NsdLinksType'
+    description: This type represents a response for the query NSD operation.
+
+  CreateNsdInfoRequest:
+    type: object
+    properties:
+      userDefinedData:
+        type: object
+        $ref: '#/definitions/KeyValuePairs'
+    description: This type creates a completely new NS descriptor resource.
+
+  PnfdInfoModifications:
+    type: object
+    required:
+      - userDefinedData
+    properties:
+      userDefinedData:
+        type: object
+        $ref: '#/definitions/KeyValuePairs'
+    description: >-
+      This type represents attribute modifications for an individual PNF
+      descriptor resource based on the "PnfdInfo" data type. The attributes of
+      "PnfdInfo" that can be modified are included in the
+      "PnfdInfoModifications" data type.
+
+  PnfdInfo:
+    type: object
+    required:
+      - _links
+      - id
+      - pnfdOnboardingState
+      - pnfdUsageState
+    properties:
+      id:
+        type: string
+        format: uuid
+      pnfdId:
+        type: string
+        format: uuid
+      pnfdName:
+        type: string
+        description: >-
+          Name of the onboarded PNFD. This information is copied from the PNFD
+          content and shall be present after the PNFD content is on-boarded.
+      pnfdVersion:
+        type: string
+      pnfdProvider:
+        type: string
+        description: >-
+          Provider of the onboarded PNFD. This information is copied from the
+          PNFD content and shall be present after the PNFD content is onboarded.
+      pnfdInvariantId:
+        type: string
+        format: uuid
+      pnfdOnboardingState:
+        type: string
+        $ref: '#/definitions/PnfdOnboardingStateType'
+      onboardingFailureDetails:
+        type: string
+        $ref: '#/definitions/ProblemDetails'
+      pnfdUsageState:
+        type: string
+        $ref: '#/definitions/PnfdUsageStateType'
+      userDefinedData:
+        type: object
+        $ref: '#/definitions/KeyValuePairs'
+      _links:
+        type: object
+        description: Links to resources related to this resource.
+        $ref: '#/definitions/PnfdLinksType'
+    description: This type represents a response for the query PNFD operation.
+
+  NotificationType:
+    type: string
+    description: >-
+      Match particular notification types. Permitted values:
+      NsdOnBoardingNotification, NsdOnboardingFailureNotification,
+      NsdChangeNotification, NsdDeletionNotification
+
+      PnfdOnBoardingNotification, PnfdOnBoardingFailureNotification,
+      PnfdDeletionNotification.
+
+
+      The permitted values of the "notificationTypes" ] attribute are
+      spelled exactly as the names of the notification types to facilitate
+      automated code generation systems.
+    enum:
+      - NsdOnBoardingNotification
+      - NsdOnboardingFailureNotification
+      - NsdChangeNotification
+      - NsdDeletionNotification
+      - PnfdOnBoardingNotification
+      - PnfdOnBoardingFailureNotification
+      - PnfdDeletionNotification
+
+  NsdmLinksType:
+    type: object
+    description: Links to resources related to this resource.
+    properties:
+      self:
+        type: string
+        format: uri
+
+  NsdmNotificationsFilter:
+    type: object
+    properties:
+      notificationTypes:
+        type: array
+        items:
+          type: string
+          $ref: '#/definitions/NotificationType'
+      nsdInfoId:
+        type: string
+        format: uuid
+      nsdId:
+        type: string
+        format: uuid
+      nsdName:
+        type: string
+        description: Match the name of the onboarded NSD.
+      nsdVersion:
+        type: string
+      nsdDesigner:
+        type: string
+        description: Match the NSD designer of the on-boarded NSD.
+      nsdInvariantId:
+        type: string
+        format: uuid
+      vnfPkgIds:
+        type: array
+        items:
+          type: string
+          format: uuid
+      pnfdInfoIds:
+        type: array
+        items:
+          type: string
+          format: uuid
+      nestedNsdInfoIds:
+        type: array
+        items:
+          type: string
+          format: uuid
+      nsdOnboardingState:
+        type: string
+        $ref: '#/definitions/NsdOnboardingStateType'
+      nsdOperationalState:
+        type: string
+        $ref: '#/definitions/NsdOperationalStateType'
+      nsdUsageState:
+        type: string
+        $ref: '#/definitions/NsdUsageStateType'
+      pnfdId:
+        type: string
+        format: uuid
+      pnfdName:
+        type: string
+        description: Match the name of the on-boarded PNFD.
+      pnfdVersion:
+        type: string
+      pnfdProvider:
+        type: string
+        description: Match the provider of the on-boarded PNFD.
+      pnfdInvariantId:
+        type: string
+        format: uuid
+      pnfdOnboardingState:
+        type: string
+        $ref: '#/definitions/PnfdOnboardingStateType'
+      pnfdUsageState:
+        type: string
+        $ref: '#/definitions/PnfdUsageStateType'
+    description: >-
+      This type represents a subscription filter related to notifications about
+      NSD management. It shall comply with the
+
+      provisions defined in Table 5.5.3.2-1 of GS NFV-SOL 005. At a particular
+      nesting level in the filter structure, the following applies: All
+      attributes shall match in order for the filter to match (logical "and"
+      between different filter attributes). If an attribute is an array, the
+      attribute shall match if at least one of the values in the array matches
+      (logical "or" between the values of one filter attribute).
+
+  NsdmSubscription:
+    type: object
+    required:
+      - _links
+      - callbackUri
+      - id
+    properties:
+      id:
+        type: string
+        format: uuid
+      filter:
+        type: object
+        $ref: '#/definitions/NsdmNotificationsFilter'
+        description: >-
+          This type represents a subscription filter related to notifications
+          about NSD management. It shall comply with the
+
+          provisions defined in Table 5.5.3.2-1 of GS NFV-SOL 005. At a
+          particular nesting level in the filter structure, the following
+          applies: All attributes shall match in order for the filter to match
+          (logical "and" between different filter attributes). If an attribute
+          is an array, the attribute shall match if at least one of the values
+          in the array matches (logical "or" between the values of one filter
+          attribute).
+      callbackUri:
+        type: string
+        format: uri
+      _links:
+        type: object
+        description: Links to resources related to this resource.
+        $ref: '#/definitions/NsdmLinksType'
+    description: >-
+      This type represents a subscription related to notifications about NSD
+      management.
+
+  NsdmSubscriptionRequest:
+    type: object
+    required:
+      - callbackUri
+    properties:
+      filter:
+        type: object
+        $ref: '#/definitions/NsdmNotificationsFilter'
+      callbackUri:
+        type: string
+        format: uri
+        description: The URI of the endpoint to send the notification to.
+      authentication:
+        type: object
+        $ref: '#/definitions/SubscriptionAuthentication'
+    description: >-
+      This type represents a subscription request related to notifications about
+      NSD management.
+
+  CreatePnfdInfoRequest:
+    type: object
+    properties:
+      userDefinedData:
+        type: object
+        $ref: '#/definitions/KeyValuePairs'
+    description: This type creates a new PNF descriptor resource.
+
+  NsdmLinks:
+    type: object
+    required:
+      - nsdInfo
+      - subscription
+    properties:
+      nsdInfo:
+        type: string
+        format: uri
+      subscription:
+        type: string
+        format: uri
+    description: >-
+      This type represents the links to resources that an NSD management
+      notification can contain.
+
+  NsdOnboardingNotification:
+    type: object
+    required:
+      - _links
+      - id
+      - notificationType
+      - nsdId
+      - nsdInfoId
+      - timeStamp
+    properties:
+      id:
+        type: string
+        format: uuid
+      notificationType:
+        type: string
+        $ref: '#/definitions/NotificationType'
+        description: >-
+          Discriminator for the different notification types. Shall be set to
+          "NsdOnboardingNotification" for this notification type.
+      subscriptionId:
+        type: string
+        format: uuid
+      timeStamp:
+        type: string
+        format: date-time
+        description: Date-time of the generation of the notification.
+      nsdInfoId:
+        type: string
+        format: uuid
+      nsdId:
+        type: string
+        format: uuid
+      _links:
+        type: object
+        $ref: '#/definitions/NsdmLinks'
+        description: >-
+          This type represents the links to resources that an NSD management
+          notification can contain.
+    description: >-
+      This type represents an NSD management notification, which informs the
+      receiver of the successful on-boarding of an NSD. It shall comply with the
+      provisions defined in Table 5.5.2.9-1. The support of this notification is
+      mandatory. The notification shall be triggered by the NFVO when the
+      "nsdOnboardingState" attribute of a new NSD has changed to "ONBOARDED".
+
+  NsdOnboardingFailureNotification:
+    type: object
+    required:
+      - _links
+      - id
+      - notificationType
+      - nsdInfoId
+      - onboardingFailureDetails
+      - timeStamp
+    properties:
+      id:
+        type: string
+        format: uuid
+      notificationType:
+        type: string
+        $ref: '#/definitions/NotificationType'
+        description: >-
+          Discriminator for the different notification types. Shall be set to
+          "NsdOnboardingFailureNotification" for this notification type.
+      subscriptionId:
+        type: string
+        format: uuid
+      timeStamp:
+        type: string
+        format: date-time
+        description: Date-time of the generation of the notification.
+      nsdInfoId:
+        type: string
+        format: uuid
+      nsdId:
+        type: string
+        format: uuid
+      onboardingFailureDetails:
+        type: object
+        $ref: '#/definitions/ProblemDetails'
+      _links:
+        type: object
+        $ref: '#/definitions/NsdmLinks'
+        description: >-
+          This type represents the links to resources that an NSD management
+          notification can contain.
+    description: >-
+      This type represents an NSD management notification, which informs the
+      receiver of the failure of on-boarding an NSD. It shall comply with the
+      provisions defined in Table 5.5.2.10-1. The support of this notification
+      is mandatory. The notification shall be triggered by the NFVO when the
+      on-boarding of an NSD has failed.
+
+  NsdChangeNotification:
+    type: object
+    required:
+      - _links
+      - id
+      - notificationType
+      - nsdId
+      - nsdInfoId
+      - nsdOperationalState
+      - timeStamp
+    properties:
+      id:
+        type: string
+        format: uuid
+      notificationType:
+        type: string
+        $ref: '#/definitions/NotificationType'
+        description: >-
+          Discriminator for the different notification types. Shall be set to
+          "NsdChangeNotification" for this notification type.
+      subscriptionId:
+        type: string
+        format: uuid
+      timeStamp:
+        type: string
+        format: date-time
+        description: Date-time of the generation of the notification.
+      nsdInfoId:
+        type: string
+        format: uuid
+      nsdId:
+        type: string
+        format: uuid
+      nsdOperationalState:
+        type: string
+        $ref: '#/definitions/NsdOperationalStateType'
+        description: >-
+          The enumeration NsdOperationalStateType shall comply with the
+          provisions defined in Table 5.5.4.3-1 of GS NFV_SOL 005. It indicates
+          the operational state of the resource.
+
+
+          ENABLED = The operational state of the resource is enabled. DISABLED =
+          The operational state of the resource is disabled.
+      _links:
+        type: object
+        $ref: '#/definitions/NsdmLinks'
+        description: >-
+          This type represents the links to resources that an NSD management
+          notification can contain.
+    description: >-
+      This type represents an NSD management notification, which informs the
+      receiver of a change of the "nsdOperationalState" attribute of an
+      on-boarded NSD. Changes in the value of the "nsdUsageState" and
+      "nsdOnboardingState" attributes are not reported. The notification shall
+      comply with the provisions defined in Table 5.5.2.11-1. The support of
+      this notification is mandatory. The notification shall be triggered by the
+      NFVO when the value of the "nsdOperationalState" attribute has changed,
+      and the "nsdOperationalState" attribute has the value "ONBOARDED".
+
+  NsdDeletionNotification:
+    type: object
+    required:
+      - _links
+      - id
+      - notificationType
+      - nsdId
+      - nsdInfoId
+      - timeStamp
+    properties:
+      id:
+        type: string
+        format: uuid
+      notificationType:
+        type: string
+        $ref: '#/definitions/NotificationType'
+        description: >-
+          Discriminator for the different notification types. Shall be set to
+          "NsdDeletionNotification " for this notification type.
+      subscriptionId:
+        type: string
+        format: uuid
+      timeStamp:
+        type: string
+        format: date-time
+        description: Date-time of the generation of the notification.
+      nsdInfoId:
+        type: string
+        format: uuid
+      nsdId:
+        type: string
+        format: uuid
+      _links:
+        type: object
+        $ref: '#/definitions/NsdmLinks'
+        description: >-
+          This type represents the links to resources that an NSD management
+          notification can contain.
+    description: >-
+      This type represents an NSD management notification, which informs the
+      receiver of the deletion of an on-boarded NSD. The notification shall
+      comply with the provisions defined in Table 5.5.2.12-1. The support of
+      this notification is mandatory. The notification shall be triggered by the
+      NFVO when it has deleted an on-boarded NSD.
+
+  PnfdmLinks:
+    type: object
+    required:
+      - pnfdInfo
+      - subscription
+    properties:
+      pnfdInfo:
+        type: string
+        format: uri
+      subscription:
+        type: string
+        format: uri
+    description: >-
+      This type represents the links to resources that a PNFD management
+      notification can contain.
+
+  PnfdOnboardingNotification:
+    type: object
+    required:
+      - _links
+      - id
+      - notificationType
+      - pnfdId
+      - pnfdInfoId
+      - timeStamp
+    properties:
+      id:
+        type: string
+        format: uri
+      notificationType:
+        type: string
+        $ref: '#/definitions/NotificationType'
+        description: >-
+          Discriminator for the different notification types. Shall be set to
+          "PnfdOnboardingNotification" for this notification type.
+      subscriptionId:
+        type: string
+        format: uuid
+      timeStamp:
+        type: string
+        format: date-time
+        description: Date-time of the generation of the notification.
+      pnfdInfoId:
+        type: string
+        format: uuid
+      pnfdId:
+        type: string
+        format: uuid
+      _links:
+        type: object
+        $ref: '#/definitions/PnfdmLinks'
+        description: >-
+          This type represents the links to resources that a PNFD management
+          notification can contain.
+    description: >-
+      This type represents a PNFD management notification, which informs the
+      receiver of the successful on-boarding of a
+
+      PNFD. It shall comply with the provisions defined in Table 5.5.2.13-1. The
+      support of this notification is mandatory. The notification is triggered
+      when a new PNFD is on-boarded.
+
+  PnfdOnboardingFailureNotification:
+    type: object
+    required:
+      - _links
+      - id
+      - notificationType
+      - onboardingFailureDetails
+      - pnfdInfoId
+      - timeStamp
+    properties:
+      id:
+        type: string
+        format: uuid
+      notificationType:
+        type: string
+        $ref: '#/definitions/NotificationType'
+        description: >-
+          Discriminator for the different notification types. Shall be set to
+          "PnfdOnboardingFailureNotification" for this notification type.
+      subscriptionId:
+        type: string
+        format: uuid
+      timeStamp:
+        type: string
+        format: date-time
+        description: Date-time of the generation of the notification.
+      pnfdInfoId:
+        type: string
+        format: uuid
+      pnfdId:
+        type: string
+        format: uuid
+      onboardingFailureDetails:
+        type: object
+        $ref: '#/definitions/ProblemDetails'
+      _links:
+        type: object
+        $ref: '#/definitions/PnfdmLinks'
+        description: >-
+          This type represents the links to resources that a PNFD management
+          notification can contain.
+    description: >-
+      This type represents a PNFD management notification, which informs the
+      receiver of the failure of on-boarding a
+       PNFD. It shall comply with the provisions defined in Table 5.5.2.14-1. The support of this notification is mandatory. The notification is triggered when the on-boarding of a PNFD fails.
+
+  PnfdDeletionNotification:
+    type: object
+    required:
+      - _links
+      - id
+      - notificationType
+      - pnfdId
+      - pnfdInfoId
+      - timeStamp
+    properties:
+      id:
+        type: string
+        description: >-
+          Identifier of this notification. If a notification is sent multiple
+          times due to multiple subscriptions, the "id" attribute of all these
+          notifications shall have the same value.
+      notificationType:
+        type: string
+        $ref: '#/definitions/NotificationType'
+        description: >-
+          Discriminator for the different notification types. Shall be set to
+          "PnfdDeletionNotification " for this notification type.
+      subscriptionId:
+        type: string
+        format: uuid
+      timeStamp:
+        type: string
+        format: date-time
+        description: Date-time of the generation of the notification.
+      pnfdInfoId:
+        type: string
+        format: uuid
+      pnfdId:
+        type: string
+        format: uuid
+      _links:
+        type: object
+        $ref: '#/definitions/PnfdmLinks'
+        description: >-
+          This type represents the links to resources that a PNFD management
+          notification can contain.
+    description: >-
+      This type represents a PNFD management notification, which informs the
+      receiver of the deletion of an on-boarded PNFD. The notification shall
+      comply with the provisions defined in Table 5.5.2.15-1. The support of
+      this notification is mandatory. The notification is triggered when an
+      on-boarded PNFD is deleted.
+

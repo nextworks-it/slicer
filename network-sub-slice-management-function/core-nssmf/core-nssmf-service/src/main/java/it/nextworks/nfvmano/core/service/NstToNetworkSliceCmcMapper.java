@@ -15,7 +15,7 @@ public class NstToNetworkSliceCmcMapper {
     private final static Logger LOG = LoggerFactory.getLogger(NstToNetworkSliceCmcMapper.class);
 
 
-    public NetworkSliceCNC mapCoreNetworkSliceToNetworkSliceCNC(NstServiceProfile serviceProfile, NSST nsst) {
+    public NetworkSliceCNC mapCoreNetworkSliceToNetworkSliceCNC(NstServiceProfile serviceProfile, NSST nsst, int upfCount) {
         NetworkSliceCNC networkSliceCNC = new NetworkSliceCNC();
 
         Random r = new Random();
@@ -23,23 +23,29 @@ public class NstToNetworkSliceCmcMapper {
         int high = 1000;
         int result = r.nextInt(high-low) + low;
         networkSliceCNC.sliceName = nsst.getNsstId()+result;
-        networkSliceCNC.sliceDescription = nsst.getNsstName() + "provided by " + nsst.getNsstProvider() + " version " + nsst.getNsstVersion();
+        networkSliceCNC.sliceDescription = nsst.getNsstId()+result;
 
-        if (nsst.isOperationalState())
+        if (nsst.isOperationalState()) {
             networkSliceCNC.activate_slice = 1;
-        else
+        }
+        else {
             networkSliceCNC.activate_slice = 0;
-
+        }
         LOG.info("Setting service profile of Network Slice for CNC");
         it.nextworks.nfvmano.sbi.cnc.elements.ServiceProfile serviceProfileCore = new it.nextworks.nfvmano.sbi.cnc.elements.ServiceProfile();
 
-       serviceProfileCore.dLThptPerSlice.maxThpt = serviceProfile.getdLThptPerSlice();
-       serviceProfileCore.dLThptPerUE.maxThpt = serviceProfile.getdLThptPerUE();
-       serviceProfileCore.dLThptPerUE.guaThpt = Math.round(serviceProfile.getGuaThpt());
+       serviceProfileCore.dLThptPerSlice.maxThpt = serviceProfile.getdLThptPerSlice()/1000000;
+        serviceProfileCore.dLThptPerSlice.thresholdValue = serviceProfileCore.dLThptPerSlice.maxThpt/2;
 
-       serviceProfileCore.uLThptPerSlice.maxThpt = serviceProfile.getuLThptPerSlice();
-       serviceProfileCore.uLThptPerUE.maxThpt = serviceProfile.getuLThptPerUE();
-       serviceProfileCore.uLThptPerUE.guaThpt = Math.round(serviceProfile.getGuaThpt());
+        serviceProfileCore.dLThptPerUE.maxThpt = serviceProfile.getdLThptPerUE()/1000000;
+       serviceProfileCore.dLThptPerUE.thresholdValue = serviceProfileCore.dLThptPerUE.maxThpt/2;
+
+        serviceProfileCore.uLThptPerSlice.maxThpt = serviceProfile.getuLThptPerSlice()/1000000;
+        serviceProfileCore.uLThptPerSlice.thresholdValue = serviceProfileCore.uLThptPerSlice.maxThpt/2;
+
+       serviceProfileCore.uLThptPerUE
+               .maxThpt = serviceProfile.getuLThptPerUE()/1000000;
+       serviceProfileCore.uLThptPerUE.guaThpt = Math.round(serviceProfile.getGuaThpt()/1000000);
 
        serviceProfileCore.dnn = "internet";
        serviceProfileCore.latency = serviceProfile.getLatency();
@@ -58,11 +64,8 @@ public class NstToNetworkSliceCmcMapper {
             maxULDataVolume = 1;
         }
 
-        serviceProfileCore.maxDLDataVolume = String.valueOf(maxDLDataVolume);
-        serviceProfileCore.maxULDataVolume = String.valueOf(maxULDataVolume);
-
-        LOG.info(String.valueOf(maxDLDataVolume));
-        LOG.info(String.valueOf(maxULDataVolume));
+        serviceProfileCore.maxDLDataVolume = maxDLDataVolume+" Mbps";
+        serviceProfileCore.maxULDataVolume = maxULDataVolume+" Mbps";
 
        serviceProfileCore.maxNumberofUEs = serviceProfile.getMaxNumberofUEs();
 
@@ -74,6 +77,7 @@ public class NstToNetworkSliceCmcMapper {
             mccMncPairs.add(mccMncPair);
         }
         ArrayList<PLMNIdList> plmnIdLists = new ArrayList<>();
+
         for(String mccMncPair: mccMncPairs){
             LOG.info("Setting PLMN ID");
             String mcc = mccMncPair.substring(0,3);
@@ -85,12 +89,16 @@ public class NstToNetworkSliceCmcMapper {
             plmnId.mnc = mnc;
             plmnIdLists.add(plmnId);
         }
+        PLMNIdList plmnIdList = new PLMNIdList();
+        plmnIdList.mcc = "999";
+        plmnIdList.mnc = "99";
+        plmnIdLists.add(plmnIdList);
         ArrayList<SNSSAIList> snssaiLists = new ArrayList<>();
        //if(serviceProfile.getsST()==SliceType.EMBB){
-           LOG.info("Setting SST");
+           LOG.info("Setting SST and SD");
            SNSSAIList snssaiList = new SNSSAIList();
            snssaiList.sst = 1;
-           snssaiList.sd = "edf1a3";
+           snssaiList.sd = "00000"+upfCount;
            snssaiLists.add(snssaiList);
        //}
        serviceProfileCore.pLMNIdList = plmnIdLists;
@@ -102,8 +110,7 @@ public class NstToNetworkSliceCmcMapper {
         LOG.info("Setting network slice subnet");
         NetworkSliceSubnet networkSliceSubnet = new NetworkSliceSubnet();
 
-        String nsInfo = "ns Info";
-        //String nsInfo = nsst.getNsdInfo().getNsdId() + nsst.getNsdInfo().getNsdDescription() + nsst.getNsdInfo().getNsdName() + nsst.getNsdInfo().getNsdVersion();
+        String nsInfo = "";
 
         if(nsst.getAdministrativeState()!=null)
             networkSliceSubnet.administrativeState = nsst.getAdministrativeState().toString();
@@ -111,6 +118,7 @@ public class NstToNetworkSliceCmcMapper {
             networkSliceSubnet.administrativeState = "";
         networkSliceSubnet.nsInfo = nsInfo;
 
+        /*
         networkSliceSubnet.epTransport = new EpTransport();
         networkSliceSubnet.epTransport.ioAddress ="";
         networkSliceSubnet.epTransport.logicInterfaceId ="";
@@ -118,6 +126,7 @@ public class NstToNetworkSliceCmcMapper {
         ArrayList<String> epApplications = new ArrayList<>();
         epApplications.add("internet");
         networkSliceSubnet.epTransport.epApplication = epApplications;
+        */
         networkSliceSubnet.managedFunction = "";
 
 
@@ -149,10 +158,16 @@ public class NstToNetworkSliceCmcMapper {
             }
             if(sliceProfile.getuRLLCPerfReq()!=null && sliceProfile.getuRLLCPerfReq().size()> 0) {
                 URLLCPerfReq urllcPerfReq = sliceProfile.getuRLLCPerfReq().get(0);
-                LOG.info("Setting URLCC Perf req");
+                LOG.info("Setting URLLC Perf req");
                 PerfReqUrllcList perfReqUrllcList = new PerfReqUrllcList();
-                perfReqUrllcList.cSAvailabilityTarget = Math.round(urllcPerfReq.getCSAvailabilityTarget());
-                perfReqUrllcList.cSReliabilityMeanTime = Math.round(Float.parseFloat(urllcPerfReq.getCSReliabilityMeanTime()));
+                perfReqUrllcList.cSAvailabilityTarget = 99;
+                /*
+                String cSReliabilityMeanTime = urllcPerfReq.getCSReliabilityMeanTime();
+                LOG.info(cSReliabilityMeanTime);
+                float cSReliabilityMeanTimeFloat = Float.parseFloat(cSReliabilityMeanTime);
+                LOG.info(String.valueOf(cSReliabilityMeanTimeFloat));
+                */
+                perfReqUrllcList.cSReliabilityMeanTime = perfReqUrllcList.cSAvailabilityTarget;
                 perfReqUrllcList.expDataRateDL = urllcPerfReq.getExpDataRate();
                 perfReqUrllcList.msgSizeByte = urllcPerfReq.getMsgSizeByte();
 
@@ -162,7 +177,27 @@ public class NstToNetworkSliceCmcMapper {
                 LOG.warn("No URLLC Perf req found");
             }
             networkSliceSubnet.sliceProfile.prfReq = prfReq;
+            //networkSliceSubnet.sliceProfile.sNSSAIList
+        CNSliceSubnetProfile cnSliceSubnetProfile = new CNSliceSubnetProfile();
+        RANSliceSubnetProfile ranSliceSubnetProfile = new RANSliceSubnetProfile();
 
+        CoverageAreaTAList coverageAreaTAList = new CoverageAreaTAList();
+        ArrayList<Integer> tacList = new ArrayList<>();
+        tacList.add(14595);
+        coverageAreaTAList.tAC = tacList;
+        cnSliceSubnetProfile.latency = serviceProfileCore.latency;
+        cnSliceSubnetProfile.coverageAreaTAList = coverageAreaTAList;
+        ranSliceSubnetProfile.coverageAreaTAList      = coverageAreaTAList;
+
+        networkSliceSubnet.sliceProfile.cNSliceSubnetProfile = cnSliceSubnetProfile;
+        networkSliceSubnet.sliceProfile.rANSliceSubnetProfile = ranSliceSubnetProfile;
+
+        if (nsst.isOperationalState()) {
+            networkSliceSubnet.operationalState = true;
+        }
+        else {
+            networkSliceSubnet.operationalState = false;
+        }
 
         networkSliceCNC.networkSliceSubnet = networkSliceSubnet;
         return networkSliceCNC;

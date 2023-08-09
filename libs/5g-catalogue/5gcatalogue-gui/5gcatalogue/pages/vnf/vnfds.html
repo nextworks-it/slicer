@@ -1,0 +1,196 @@
+<!--/*
+* Copyright 2018 Nextworks s.r.l.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <!-- Meta, title, CSS, favicons, etc. -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>5G APP & SERVICE CATALOGUE</title>
+
+  <!--#include virtual="/5gcatalogue/templates/scripts_head.html" -->
+
+</head>
+
+<body class="nav-md">
+  <div class="container body">
+    <div class="main_container">
+
+      <!--#include virtual="/5gcatalogue/templates/side_top_bar.html" -->
+
+      <!-- page content -->
+      <div class="right_col" role="main">
+        <div class="">
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="x_panel">
+                <div class="x_title">
+                  <h2>VNF PACKAGES <small></small></h2>
+                  <ul class="nav navbar-right panel_toolbox">
+                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                    </li>
+                  </ul>
+                  <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <table class="table table-hover" id="vnfInfosTable">
+                        <script>getAllVnfInfos("vnfInfosTable", createVnfInfosTable, "response");</script>
+                      </table>
+                  <!--<table class="table table-hover" id="pluginsTable">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Version</th>
+                        <th>Designer</th>
+                        <th>Operational State</th>
+                        <th>Onboarding State</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tbody>
+                      <tr>
+                        <td>test1</td>
+                        <td>v0.1</td>
+                        <td>Nextworks</td>
+                        <td>ENABLED</td>
+                        <td>ONBOARDED</td>
+                        <td>
+                          <a title="View" class="btn btn-link">
+                            <i class="fa fa-eye" onclick="showResultMessage(null,'Method under development');"></i>
+                          </a>
+                          <a title="Status" class="btn btn-link">
+                            <i class="fa fa-gear" onclick="showResultMessage(null,'Method under development');"></i>
+                          </a>
+                          <a title="Delete" class="btn btn-link">
+                            <i class="fa fa-close" onclick="showResultMessage(null,'Method under development');"></i>
+                          </a>
+
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>test2</td>
+                        <td>v0.1</td>
+                        <td>Nextworks</td>
+                        <td>ENABLED</td>
+                        <td>ONBOARDED</td>
+                        <td>
+                          <a title="View" class="btn btn-link">
+                            <i class="fa fa-eye" onclick="showResultMessage(null,'Method under development');"></i>
+                          </a>
+                          <a title="Status" class="btn btn-link">
+                            <i class="fa fa-gear" onclick="showResultMessage(null,'Method under development');"></i>
+                          </a>
+                          <a title="Delete" class="btn btn-link">
+                            <i class="fa fa-close" onclick="showResultMessage(null,'Method under development');"></i>
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>-->
+                </div>
+              </div>
+            </div>
+            <div class="clearfix">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12"id="vnfViewModals">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-xs-12">
+            </div>
+
+            <div class="col-md-6 col-xs-12">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12" id="updateVnfInfosModals">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4">
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vnfUploadModal">Onboard
+                VNF</button>
+            </div>
+
+            <div class="col-md-4">
+            </div>
+
+            <div class="col-md-4">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6" id="response">
+            </div>
+          </div>
+
+          <div id="vnfGraphCanvas"></div>
+
+          <div id="vnfUploadModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true"
+            style="display: none;">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                  </button>
+                  <h4 class="modal-title" id="myModalLabel">Upload VNF</h4>
+                </div>
+                <div class="modal-body">
+                  <form class="form-horizontal form-label-left" enctype="multipart/form-data">
+                    <div class="form-group">
+                      <label class="control-label col-md-3 col-sm-3 col-xs-12" for="vnfFile">VNF FILE/ARCHIVE </label>
+                      <div id="vnfArchive" style="display: none;"></div>
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                        <input type="file" autocomplete=off accept="media_type" id="vnfFile" required="required" class="col-md-12 col-xs-12">
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" data-dismiss="modal" onclick=loadVNFFile("vnfFile","response")>Submit</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- /page content -->
+
+      <!-- footer content -->
+      <!--#include virtual="/5gcatalogue/templates/footer.html" -->
+      <!-- /footer content -->
+    </div>
+  </div>
+
+  <!--#include virtual="/5gcatalogue/templates/scripts_foot.html" -->
+
+</body>
+
+</html>
